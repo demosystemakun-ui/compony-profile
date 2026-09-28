@@ -74,7 +74,7 @@
 @section('content')
 
 {{-- ═══════════════════════════════════════════════════════════════
-     1. HERO SECTION
+     1. HERO SECTION (Tanpa AOS agar langsung tampil tanpa refresh)
 ═══════════════════════════════════════════════════════════════ --}}
 <section class="hero-bg-contact relative flex items-center min-h-[480px] px-6 sm:px-12 md:px-16 pt-32 pb-16 overflow-hidden">
     {{-- Decorative grid --}}
@@ -91,7 +91,7 @@
     {{-- Accent glow --}}
     <div class="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full bg-[#EC2029]/15 blur-3xl"></div>
 
-    <div class="relative max-w-4xl" data-aos="fade-down">
+    <div class="relative max-w-4xl">
         <span class="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-white ring-1 ring-inset ring-white/20 mb-6">
             <span class="h-1.5 w-1.5 rounded-full bg-[#EC2029] animate-pulse"></span>
             Contact Center
@@ -150,7 +150,7 @@
                     ];
 
                     $colorMap = [
-                        'red'     => ['bg' => 'bg-red-600/10',     'text' => 'text-red-600'],
+                        'red'     => ['bg' => 'bg-red-600/10',    'text' => 'text-red-600'],
                         'emerald' => ['bg' => 'bg-emerald-600/10', 'text' => 'text-emerald-600'],
                         'blue'    => ['bg' => 'bg-blue-600/10',    'text' => 'text-blue-600'],
                     ];
@@ -273,14 +273,31 @@
 @push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
 <script>
+function initAOS() {
+    if (typeof AOS !== 'undefined') {
+        AOS.init({
+            duration: 900,
+            easing: 'ease-out-cubic',
+            once: true,
+            offset: 120
+        });
+    }
+}
+
+// Inisialisasi saat DOM siap
 document.addEventListener('DOMContentLoaded', function () {
-    AOS.init({
-        duration: 900,
-        easing: 'ease-out-cubic',
-        once: true,
-        offset: 120
-    });
+    initAOS();
 });
+
+// Hook untuk Swup (jika halaman dimuat secara asinkronus/SPA)
+if (window.swup) {
+    window.swup.hooks.on('page:view', () => {
+        if (typeof AOS !== 'undefined') {
+            AOS.refreshHard();
+        }
+        initAOS();
+    });
+}
 
 /* ═══════════════════════════════════════════════════════════════
    reCAPTCHA CALLBACK — enable submit button
@@ -306,7 +323,6 @@ function enableSubmitButton() {
 document.getElementById('contactForm')?.addEventListener('submit', function (e) {
     e.preventDefault();
 
-    // Pastikan reCAPTCHA sudah dicentang
     if (typeof grecaptcha === 'undefined' || grecaptcha.getResponse().length === 0) {
         alert('Please complete the security verification (reCAPTCHA) first.');
         return;
@@ -318,7 +334,6 @@ document.getElementById('contactForm')?.addEventListener('submit', function (e) 
     const subject  = document.getElementById('subject').value.trim() || 'Inquiry from Website';
     const message  = document.getElementById('message').value.trim();
 
-    // Basic validation
     if (!name || !email || !whatsapp || !message) {
         alert('Mohon lengkapi semua field yang wajib diisi.');
         return;

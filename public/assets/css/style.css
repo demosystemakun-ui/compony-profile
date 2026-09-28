@@ -1,0 +1,39 @@
+/* ═══ CUSTOM STYLES — PT PATIMBAN INTERNATIONAL CAR TERMINAL ═══ */
+
+:root {
+    --color-navy: #0A2540;
+    --color-signal: #EC2029;
+    --color-paper: #F5F3EE;
+    --color-ink: #16232E;
+    --color-muted: #5B6672;
+}
+
+/* Global Font Application */
+body, body *, h1, h2, h3, h4, h5, h6, p, span, a, button {
+    font-family: 'Century Gothic', 'CenturyGothic', 'Poppins', sans-serif !important;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Smooth Scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Utility / Custom Classes */
+.tap-highlight-transparent {
+    -webkit-tap-highlight-color: transparent;
+}
