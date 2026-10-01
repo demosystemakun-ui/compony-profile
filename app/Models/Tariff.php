@@ -8,8 +8,13 @@ use Illuminate\Support\Facades\Storage;
 class Tariff extends Model
 {
     protected $fillable = [
-        'tag', 'title', 'description', 'icon', 'pdf_path', 'sort_order', 'is_active',
+        'tag', 'title', 'description', 'icon', 'pdf_path', 'sort_order', 'is_active', 'updated_by',
     ];
+    
+public function updatedBy()
+{
+    return $this->belongsTo(\App\Models\User::class, 'updated_by');
+}
 
     protected $casts = ['is_active' => 'boolean'];
 

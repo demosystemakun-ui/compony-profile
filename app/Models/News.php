@@ -16,6 +16,13 @@ class News extends Model
         'image',
         'excerpt',
         'content',
-        'published_at'
+        'published_at',
+        'updated_by'
     ];
+
+    public function updatedBy()
+{
+    return $this->belongsTo(\App\Models\User::class, 'updated_by');
+}
+
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\News;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class NewsController extends Controller
 {
@@ -23,7 +24,7 @@ class NewsController extends Controller
     }
 
     // Menampilkan form tambah berita
-    public function create() 
+    public function create()
     {
         return view('news.create');
     }
@@ -32,11 +33,11 @@ class NewsController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title'    => 'required|string|max:255',
             'category' => 'required|string|max:100',
-            'excerpt' => 'required|string',
-            'content' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
+            'excerpt'  => 'required|string',
+            'content'  => 'required|string',
+            'image'    => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
         ]);
 
         $imagePath = null;
@@ -47,13 +48,14 @@ class NewsController extends Controller
         }
 
         News::create([
-            'title' => $request->title,
-            'slug' => Str::slug($request->title),
-            'category' => $request->category,
-            'image' => $imagePath,
-            'excerpt' => $request->excerpt,
-            'content' => $request->content,
+            'title'        => $request->title,
+            'slug'         => Str::slug($request->title),
+            'category'     => $request->category,
+            'image'        => $imagePath,
+            'excerpt'      => $request->excerpt,
+            'content'      => $request->content,
             'published_at' => now(),
+            'updated_by'   => auth()->id(), // ⭐ histori: siapa yang membuat
         ]);
 
         return redirect()->route('dashboard')->with('success', 'Berita berhasil diunggah!');
@@ -70,29 +72,37 @@ class NewsController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title'    => 'required|string|max:255',
             'category' => 'required|string|max:100',
-            'excerpt' => 'required|string',
-            'content' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
+            'excerpt'  => 'required|string',
+            'content'  => 'required|string',
+            'image'    => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
         ]);
 
         $news = News::findOrFail($id);
         $imagePath = $news->image;
 
         if ($request->hasFile('image')) {
+            // Hapus gambar lama kalau ada
+            if ($news->image && Storage::disk('public')->exists($news->image)) {
+                Storage::disk('public')->delete($news->image);
+            }
             $imagePath = $request->file('image')->store('news', 'public');
         } elseif ($request->hasFile('image_gallery')) {
+            if ($news->image && Storage::disk('public')->exists($news->image)) {
+                Storage::disk('public')->delete($news->image);
+            }
             $imagePath = $request->file('image_gallery')->store('news', 'public');
         }
 
         $news->update([
-            'title' => $request->title,
-            'slug' => Str::slug($request->title),
-            'category' => $request->category,
-            'image' => $imagePath,
-            'excerpt' => $request->excerpt,
-            'content' => $request->content,
+            'title'      => $request->title,
+            'slug'       => Str::slug($request->title),
+            'category'   => $request->category,
+            'image'      => $imagePath,
+            'excerpt'    => $request->excerpt,
+            'content'    => $request->content,
+            'updated_by' => auth()->id(), // ⭐ histori: siapa yang memperbarui
         ]);
 
         return redirect()->route('dashboard')->with('success', 'Berita berhasil diperbarui!');
@@ -104,8 +114,8 @@ class NewsController extends Controller
         $news = News::findOrFail($id);
 
         // Hapus file gambar fisik dari storage jika ada
-        if ($news->image && \Illuminate\Support\Facades\Storage::disk('public')->exists($news->image)) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($news->image);
+        if ($news->image && Storage::disk('public')->exists($news->image)) {
+            Storage::disk('public')->delete($news->image);
         }
 
         $news->delete();

@@ -103,16 +103,7 @@
         {{-- ═══ RIGHT ACTIONS ═══ --}}
         <div class="flex items-center gap-2 shrink-0">
 
-            {{-- PICTOS Login (Desktop) --}}
-            <a href="https://patimbancarterminal.com/login"
-               target="_blank"
-               rel="noopener noreferrer"
-               class="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-[#0A2540] text-white text-xs font-bold tracking-wide hover:bg-[#1D4E74] transition-all shadow-sm border border-white/10 shrink-0">
-                <svg class="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
-                </svg>
-                <span>PICTOS Login</span>
-            </a>
+        
 
             {{-- Mobile Menu Toggle --}}
             <button id="mobileMenuBtn"

@@ -304,8 +304,22 @@
             <div class="glass-description-card mx-auto max-w-2xl px-6 sm:px-8 py-5 text-slate-100 text-base sm:text-lg leading-relaxed">
                 Providing professional Cargo Handling services at Patimban Port with world-class smart logistics capabilities, operational excellence, and unmatched safety standards.
             </div>
+       {{-- PICTOS Login Button (dipindah ke DALAM hero-content) --}}
+        <div class="pt-2">
+            <a href="https://patimbancarterminal.com/login"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#0A2540] hover:bg-[#1D4E74] text-white text-sm font-bold tracking-wide transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 border border-white/10">
+                <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                </svg>
+                <span>PICTOS Login</span>
+            </a>
         </div>
+
     </div>
+</div>
+
 </section>
 
 {{-- ═══════════════════════════════════════════════════════════════
@@ -656,6 +670,8 @@
         </a>
     </div>
 </section>
+
+
 
 @endsection
 
