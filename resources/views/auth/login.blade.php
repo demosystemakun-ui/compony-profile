@@ -13,13 +13,17 @@
         </div>
 
         <!-- Password -->
-        <div class="mt-4">
+        <div class="mt-4" x-data="{ showPassword: false }">
             <x-input-label for="password" :value="__('Password')" />
 
             <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
+                            x-bind:type="showPassword ? 'text' : 'password'"
                             name="password"
                             required autocomplete="current-password" />
+
+            <button type="button" class="mt-2 text-sm text-gray-600 underline dark:text-gray-400"
+                    @click="showPassword = !showPassword"
+                    x-text="showPassword ? 'Hide password' : 'Show password'"></button>
 
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>

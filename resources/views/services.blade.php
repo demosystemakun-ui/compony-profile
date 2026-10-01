@@ -73,11 +73,6 @@
 
     <div class="relative max-w-7xl mx-auto px-6 z-10 w-full my-auto">
         <div class="max-w-4xl">
-            <span class="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-white ring-1 ring-inset ring-white/20 mb-6"
-                  data-aos="fade-up" data-aos-delay="200">
-                <span class="h-1.5 w-1.5 rounded-full bg-[#D62828] animate-pulse"></span>
-                Commercial Portfolio
-            </span>
 
             <h1 class="text-5xl sm:text-7xl font-extrabold text-white tracking-tight font-heading leading-none mb-6"
                 data-aos="fade-up" data-aos-delay="300">

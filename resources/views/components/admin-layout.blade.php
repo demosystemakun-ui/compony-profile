@@ -14,12 +14,12 @@
         <!-- Menggunakan Tailwind CSS via CDN (Tanpa NPM sama sekali) -->
         <script src="https://cdn.tailwindcss.com"></script>
     </head>
-    <body class="font-sans antialiased bg-gray-900 text-gray-100">
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <body class="font-sans antialiased bg-gray-50 text-gray-900">
+        <div class="min-h-screen bg-gray-50">
             @include('layouts.navigation')
 
             @isset($header)
-                <header class="bg-white dark:bg-gray-800 shadow">
+                <header class="bg-white border-b border-gray-200 shadow-sm">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>

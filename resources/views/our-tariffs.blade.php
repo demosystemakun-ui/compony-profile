@@ -3,46 +3,17 @@
 @section('title', 'Terminal Service Tariffs — PT Patimban International Car Terminal')
 
 @php
-    /* ═══ PDF FILE RESOLUTION ═══ */
-    $tariffs = [
-        [
-            'key'      => 'domestik',
-            'tag'      => 'Domestic',
-            'title'    => 'Domestic Tariffs',
-            'desc'     => 'Standardized rates for inter-island domestic vehicle handling services.',
-            'icon'     => 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
-            'pdf'      => 'assets/pdf/Domestic_Tariff_2026.pdf',
-            'route'    => 'tarif.download.domestik',
-            'modal'    => 'Domestic Tariff 2026',
-        ],
-        [
-            'key'      => 'internasional',
-            'tag'      => 'International',
-            'title'    => 'International Tariffs',
-            'desc'     => 'Official fee structure for cross-border export and import services.',
-            'icon'     => 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
-            'pdf'      => 'assets/pdf/International_Tariff_2026.pdf',
-            'route'    => 'tarif.download.internasional',
-            'modal'    => 'International Tariff 2026',
-        ],
-        [
-            'key'      => 'others',
-            'tag'      => 'Others',
-            'title'    => 'Others Tariffs',
-            'desc'     => 'Official fee structure for other miscellaneous services.',
-            'icon'     => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
-            'pdf'      => 'assets/pdf/Others_Tariff_2026.pdf',
-            'route'    => 'tarif.download.others',
-            'modal'    => 'Others Tariff 2026',
-        ],
-    ];
-
-    /* Resolve PDF URL + availability */
-    foreach ($tariffs as &$t) {
-        $t['exists'] = file_exists(public_path($t['pdf']));
-        $t['url']    = $t['exists'] ? asset($t['pdf']) : '#';
-    }
-    unset($t);
+    /* ═══ DATA TARIF (dari database via TariffController@index) ═══ */
+    $tariffs = $tariffs->map(fn ($t) => [
+        'tag'      => $t->tag,
+        'title'    => $t->title,
+        'desc'     => $t->description,
+        'icon'     => $t->iconPath(),
+        'exists'   => $t->hasPdf(),
+        'url'      => $t->pdfUrl(),
+        'download' => route('tarif.download', $t),
+        'modal'    => $t->title,
+    ])->all();
 @endphp
 
 @push('styles')
@@ -66,15 +37,6 @@
     @keyframes pageMorphIn {
         from { opacity: 0; transform: translateY(16px) scale(0.99); }
         to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    .eyebrow {
-        display: inline-block;
-        font-size: 0.75rem;
-        font-weight: 800;
-        letter-spacing: 0.22em;
-        text-transform: uppercase;
-        color: var(--color-signal);
     }
 
     /* ═══ PDF MODAL ═══ */
@@ -155,11 +117,6 @@
         <div class="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full bg-[#ec2029]/10 blur-3xl"></div>
 
         <div class="relative z-10 max-w-7xl w-full mx-auto" data-aos="fade-down">
-            <span class="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-white ring-1 ring-inset ring-white/20 mb-6">
-                <span class="h-1.5 w-1.5 rounded-full bg-[#ec2029] animate-pulse"></span>
-                Commercial Tariffs
-            </span>
-
             <h1 class="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] max-w-3xl">
                 Terminal Service Tariffs
             </h1>
@@ -174,15 +131,14 @@
     ═══════════════════════════════════════════════════════════════ --}}
     <div class="max-w-7xl mx-auto px-6 py-16 -mt-8 relative z-20" data-aos="fade-up" data-aos-delay="100">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            @foreach($tariffs as $tariff)
-                <div x-data="{ open: false }"
-                     class="tariff-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden relative group flex flex-col">
+            @forelse($tariffs as $tariff)
+                <div class="tariff-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden relative group flex flex-col">
 
                     {{-- Accent bar --}}
                     <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-slate-200 group-hover:bg-[#ec2029] transition-colors duration-300"></div>
 
                     {{-- Header (clickable) --}}
-                    <div @click="open = !open"
+                    <div data-tariff-toggle
                          class="p-6 sm:p-8 cursor-pointer select-none ml-2 flex-1 flex flex-col">
                         <div class="flex items-start justify-between gap-3 mb-4">
                             <div class="flex items-start gap-4">
@@ -202,8 +158,7 @@
                             </div>
 
                             {{-- Mobile toggle chevron --}}
-                            <svg class="w-5 h-5 text-slate-400 transition-transform duration-300 shrink-0 mt-2 md:hidden"
-                                 :class="open ? 'rotate-180' : ''"
+                            <svg data-tariff-chevron class="w-5 h-5 text-slate-400 transition-transform duration-300 shrink-0 mt-2 md:hidden"
                                  fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                             </svg>
@@ -215,13 +170,10 @@
                     </div>
 
                     {{-- Actions (mobile collapsible, desktop always visible) --}}
-                    <div class="px-6 sm:px-8 pb-6 sm:pb-8 ml-2 border-t border-slate-100"
-                         :class="open ? 'block' : 'hidden md:block'"
-                         x-cloak>
+                    <div data-tariff-actions class="hidden md:block px-6 sm:px-8 pb-6 sm:pb-8 ml-2 border-t border-slate-100">
                         <div class="flex flex-row gap-2.5 w-full pt-4">
                             @if($tariff['exists'])
-                                <button type="button"
-                                        onclick="openPdfViewer('{{ $tariff['url'] }}', '{{ $tariff['modal'] }}')"
+                                <a href="{{ $tariff['url'] }}"
                                         class="flex-1 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-xl px-3 py-2.5 text-xs font-semibold transition-all shadow-sm flex items-center justify-center gap-1.5 group/btn">
                                     <svg class="w-4 h-4 text-slate-400 group-hover/btn:text-[#ec2029] transition-colors shrink-0"
                                          fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -229,9 +181,9 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                     </svg>
                                     <span class="truncate">View</span>
-                                </button>
+                                </a>
 
-                                <a href="{{ route($tariff['route']) }}"
+                                <a href="{{ $tariff['download'] }}" download
                                    class="flex-1 bg-slate-900 hover:bg-slate-800 text-white rounded-xl px-3 py-2.5 text-xs font-semibold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-1.5">
                                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
@@ -240,7 +192,7 @@
                                 </a>
                             @else
                                 <button type="button"
-                                        onclick="showNotification('The {{ $tariff['title'] }} PDF document is not yet available on the server.')"
+                                        onclick="showNotification(@js('The ' . $tariff['title'] . ' PDF document is not yet available on the server.'))"
                                         class="w-full bg-slate-100 text-slate-400 rounded-xl px-4 py-2.5 text-xs font-semibold cursor-not-allowed flex items-center justify-center gap-2">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
@@ -251,7 +203,12 @@
                         </div>
                     </div>
                 </div>
-            @endforeach
+            @empty
+                <div class="md:col-span-3 text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="text-lg font-bold text-slate-700">No tariff documents yet</h3>
+                    <p class="text-sm text-slate-500 mt-1">Tariff documents will appear here once published.</p>
+                </div>
+            @endforelse
         </div>
 
         {{-- Disclaimer --}}
@@ -372,6 +329,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof AOS !== 'undefined') {
         AOS.init({ duration: 800, once: true });
     }
+
+    /* ═══════════════════════════════════════════════════════════════
+       CARD TOGGLE (mobile) — tanpa Alpine
+    ═══════════════════════════════════════════════════════════════ */
+    document.querySelectorAll('[data-tariff-toggle]').forEach(header => {
+        header.addEventListener('click', () => {
+            const card = header.closest('.tariff-card');
+            card.querySelector('[data-tariff-actions]')?.classList.toggle('hidden');
+            card.querySelector('[data-tariff-chevron]')?.classList.toggle('rotate-180');
+        });
+    });
 
     /* ═══════════════════════════════════════════════════════════════
        NOTIFICATION TOAST
@@ -637,7 +605,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     drawCanvas.addEventListener('pointerup', finishStroke);
-    drawCanvas.addEventListener('pointerleave', () => { if (isPointerDown) finishStroke(); });
+    drawCanvas.addEventListener('pointerleave', function () {
+        if (isPointerDown) finishStroke();
+    });
 });
 </script>
 @endpush

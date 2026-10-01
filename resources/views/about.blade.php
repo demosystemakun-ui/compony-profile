@@ -112,10 +112,7 @@
     <div class="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full bg-[#ec2029]/15 blur-3xl"></div>
 
     <div class="relative max-w-5xl" data-aos="fade-down">
-        <span class="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-white ring-1 ring-inset ring-white/20 mb-6">
-            <span class="h-1.5 w-1.5 rounded-full bg-[#ec2029] animate-pulse"></span>
-            PT Patimban International Car Terminal
-        </span>
+      
 
         <h1 class="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] max-w-3xl">
             A Modern Vehicle Terminal at the Heart of
@@ -146,7 +143,7 @@
             </div>
 
             <p class="text-slate-600 leading-relaxed text-sm">
-                PT Patimban International Car Terminal (PICT) is a vehicle terminal operator located at Patimban Port, Pusakanagara, Subang Regency, West Java — approximately 120 kilometers east of central Jakarta. The company was established in November 2021 by the Toyota Tsusho Group and officially commenced operations in December 2021.
+                PT Patimban International Car Terminal (PICT) is a vehicle terminal operator located at Patimban Port, Pusakanagara, Subang Regency, West Java approximately 120 kilometers east of central Jakarta. The company was established in November 2021 by the Toyota Tsusho Group and officially commenced operations in December 2021.
             </p>
             <p class="text-slate-600 leading-relaxed text-sm">
                 The development of Patimban Port is a National Strategic Project that has been implemented in phases since 2018 at the initiative of the Government of Indonesia, with financial support provided through an Official Development Assistance (ODA) scheme. After being temporarily managed by PT Pelabuhan Indonesia (Pelindo), responsibility for the vehicle terminal was officially transferred to PICT, a company fully capitalized by a consortium of Japanese enterprises.

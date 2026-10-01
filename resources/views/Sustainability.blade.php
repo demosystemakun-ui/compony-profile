@@ -80,10 +80,7 @@
     <div class="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full bg-[#EC2029]/15 blur-3xl"></div>
 
     <div class="relative max-w-4xl" data-aos="fade-down">
-        <span class="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-white ring-1 ring-inset ring-white/20 mb-6">
-            <span class="h-1.5 w-1.5 rounded-full bg-[#EC2029] animate-pulse"></span>
-            Sustainability Framework
-        </span>
+       
 
         <h1 class="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] max-w-3xl">
             Committed to Responsible Operations

@@ -362,7 +362,7 @@
                     Indonesia's Strategic Gateway for Automotive Export and Import
                 </h3>
                 <p class="text-slate-600 leading-relaxed">
-                    PT Patimban International Car Terminal (PICT) is a vehicle terminal operator at Patimban Port, Subang Regency, West Java — approximately 120 kilometers east of central Jakarta. Established in November 2021 by the Toyota Tsusho Group, PICT began operations in December 2021.
+                    PT Patimban International Car Terminal (PICT) is a vehicle terminal operator at Patimban Port, Subang Regency, West Java approximately 120 kilometers east of central Jakarta. Established in November 2021 by the Toyota Tsusho Group, PICT began operations in December 2021.
                 </p>
                 <p class="text-slate-600 leading-relaxed">
                     Backed by a consortium of leading Japanese enterprises in automotive logistics and shipping, PICT is committed to delivering world-class vehicle handling services to support Indonesia's growing automotive industry.

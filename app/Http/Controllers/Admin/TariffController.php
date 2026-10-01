@@ -1,45 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Tariff;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class TariffController extends Controller
 {
-    /* ═══════════════════════════════════════════════
-       PUBLIK
-    ═══════════════════════════════════════════════ */
-
-    /** Halaman /our-tariffs */
-    public function publicIndex()
-    {
-        $tariffs = Tariff::where('is_active', true)
-            ->orderBy('sort_order')
-            ->orderBy('id')
-            ->get();
-
-        return view('our-tariffs', compact('tariffs'));
-    }
-
-    /** Download PDF */
-    public function download(Tariff $tariff)
-    {
-        abort_unless($tariff->is_active && $tariff->hasPdf(), 404);
-
-        return Storage::disk('public')->download(
-            $tariff->pdf_path,
-            Str::slug($tariff->title) . '.pdf'
-        );
-    }
-
-    /* ═══════════════════════════════════════════════
-       ADMIN (CRUD)
-    ═══════════════════════════════════════════════ */
-
     public function index()
     {
         $tariffs = Tariff::orderBy('sort_order')->orderBy('id')->get();
@@ -49,9 +18,7 @@ class TariffController extends Controller
 
     public function create()
     {
-        return view('admin.tariffs.form', [
-            'tariff' => new Tariff(['icon' => 'document', 'is_active' => true]),
-        ]);
+        return view('admin.tariffs.form', ['tariff' => new Tariff(['icon' => 'document', 'is_active' => true])]);
     }
 
     public function store(Request $request)
@@ -77,7 +44,7 @@ class TariffController extends Controller
         $data = $this->validated($request);
 
         if ($request->hasFile('pdf')) {
-            $tariff->deletePdfFile(); // hapus file lama
+            $tariff->deletePdfFile();                                  // hapus file lama
             $data['pdf_path'] = $request->file('pdf')->store('tariffs', 'public');
         } elseif ($request->boolean('remove_pdf')) {
             $tariff->deletePdfFile();

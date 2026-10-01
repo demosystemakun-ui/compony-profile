@@ -127,10 +127,7 @@
 
     <div class="relative max-w-7xl mx-auto px-5 sm:px-6 z-10 w-full my-auto py-8">
         <div class="max-w-3xl" data-aos="fade-up" data-aos-duration="900">
-            <span class="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-white ring-1 ring-inset ring-white/20 mb-6">
-                <span class="h-1.5 w-1.5 rounded-full bg-[#EC2029] animate-pulse"></span>
-                Operations Division
-            </span>
+          
             <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight font-heading leading-[1.1] mb-4 sm:mb-6">
                 A Ro-Ro terminal built to move vehicles, not just words.
             </h1>
