@@ -3,6 +3,10 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Models\News;
+use App\Models\Tariff;
+use App\Observers\NewsObserver;
+use App\Observers\TariffObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +23,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // ✅ Daftarkan Observer
+        News::observe(NewsObserver::class);
+        Tariff::observe(TariffObserver::class);
     }
 }

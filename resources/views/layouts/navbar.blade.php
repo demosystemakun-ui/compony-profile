@@ -10,6 +10,13 @@
         'contact'        => ['label' => 'Contact Us',     'url' => '/contact'],
     ];
 
+    $adminLinks = [
+        'dashboard' => ['label' => 'Dashboard', 'url' => '/pict-internal-admin-portal'],
+        'tariffs'   => ['label' => 'Tariffs',   'url' => '/pict-internal-admin-portal/tariffs'],
+        'news'      => ['label' => 'News',      'url' => '/pict-internal-admin-portal/news/create'],
+        'profile'   => ['label' => 'Profile',   'url' => '/pict-internal-admin-portal/profile'],
+    ];
+
     $currentPath = trim(request()->path(), '/');
 
     /* Helper: cek apakah link aktif */
@@ -103,7 +110,30 @@
         {{-- ═══ RIGHT ACTIONS ═══ --}}
         <div class="flex items-center gap-2 shrink-0">
 
-        
+            {{-- ADMIN MENU (HANYA MUNCUL JIKA LOGIN) --}}
+            @auth
+                <div class="hidden lg:flex items-center gap-1 mr-2">
+                    @foreach($adminLinks as $key => $link)
+                        @php $isCurrent = $isLinkActive($link['url']); @endphp
+                        <a href="{{ url($link['url']) }}"
+                           class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors duration-200
+                                  {{ $isCurrent 
+                                     ? 'bg-red-600 text-white font-bold shadow-sm' 
+                                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
+                            {{ $link['label'] }}
+                        </a>
+                    @endforeach
+
+                    {{-- Logout --}}
+                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                        @csrf
+                        <button type="submit" 
+                                class="px-3 py-1.5 rounded-full text-xs font-medium text-red-600 hover:bg-red-50 transition-colors duration-200">
+                            Logout
+                        </button>
+                    </form>
+                </div>
+            @endauth
 
             {{-- Mobile Menu Toggle --}}
             <button id="mobileMenuBtn"
@@ -123,6 +153,31 @@
     <div id="mobileMenu"
          class="lg:hidden mt-3 pointer-events-auto max-w-xs mx-auto is-closed relative z-50">
         <div class="bg-white/95 backdrop-blur-2xl border border-slate-200 rounded-3xl p-4 shadow-2xl shadow-slate-900/10 space-y-2">
+
+            {{-- ADMIN MENU (MOBILE) --}}
+            @auth
+                <div class="border-b border-slate-100 pb-2 mb-2 space-y-1">
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-4 mb-2">Admin Panel</div>
+                    @foreach($adminLinks as $key => $link)
+                        @php $isCurrent = $isLinkActive($link['url']); @endphp
+                        <a href="{{ url($link['url']) }}"
+                           class="flex items-center justify-between px-4 py-2.5 rounded-2xl text-xs font-medium transition active:scale-95
+                                  {{ $isCurrent
+                                     ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white font-bold shadow-md shadow-red-600/20'
+                                     : 'text-slate-700 bg-slate-50 hover:bg-slate-100' }}">
+                            <span>{{ $link['label'] }}</span>
+                        </a>
+                    @endforeach
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" 
+                                class="w-full text-left flex items-center justify-between px-4 py-2.5 rounded-2xl text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 transition active:scale-95">
+                            Logout
+                        </button>
+                    </form>
+                </div>
+            @endauth
 
             {{-- PICTOS Login (Mobile) --}}
             <a href="https://patimbancarterminal.com/login"

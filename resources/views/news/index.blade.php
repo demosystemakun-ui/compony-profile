@@ -68,7 +68,7 @@
                         </p>
 
                         <a href="{{ route('news.show', $item->slug) }}"
-                           class="inline-block bg-teal-600 hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600 text-white text-sm font-semibold px-7 py-3.5 rounded-lg shadow-sm transition-colors">
+                           class="inline-block bg-red-700 hover:bg-red-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700 text-white text-sm font-semibold px-7 py-3.5 rounded-lg shadow-sm transition-colors">
                             Learn More
                         </a>
                     </div>
