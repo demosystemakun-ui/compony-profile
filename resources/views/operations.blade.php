@@ -505,12 +505,12 @@
 
         @php
             $gallery = [
-                ['img' => 'car-1.jpeg',    'title' => 'Ready for Export',  'tag' => 'Staging',        'desc' => 'Vehicles are neatly arranged in the stacking yard before loading onto the vessel.'],
-                ['img' => 'car-3.jpeg',    'title' => 'Vehicle Lineup',    'tag' => 'CBU Units',      'desc' => 'A thorough physical inspection process to ensure factory quality standards are met.'],
-                ['img' => 'car-5.jpeg',    'title' => 'Quality Check',     'tag' => 'Inspection',     'desc' => 'Final audit before vehicles are cleared to proceed to the distribution line.'],
-                ['img' => 'vessel-1.jpeg', 'title' => 'Port Activity',     'tag' => 'Terminal Area',  'desc' => 'Vehicle loading and unloading activities in the berth area under strict supervision.'],
-                ['img' => 'vessel-2.jpeg', 'title' => 'Vessel Berthing',   'tag' => 'Ro-Ro Ship',     'desc' => 'The transport vessel is securely docked at the deep-water berth facility.'],
-                ['img' => 'vessel-3.jpeg', 'title' => 'Ramp Loading',      'tag' => 'Logistics',      'desc' => 'Vehicles are loaded onto the ship through a specialized Ro-Ro hydraulic ramp.'],
+                ['img' => 'car-1.jpeg',    'title' => 'Ready for Export',     'tag' => 'Staging',       'date' => 'Active Operation', 'location' => 'Stacking Yard PICT', 'desc' => 'Vehicles are neatly arranged in the stacking yard before loading onto the vessel.'],
+                ['img' => 'car-3.jpeg',    'title' => 'Vehicle Lineup',       'tag' => 'CBU Units',     'date' => 'Quality Control',  'location' => 'Inspection Area',    'desc' => 'A thorough physical inspection process to ensure factory quality standards are met.'],
+                ['img' => 'car-5.jpeg',    'title' => 'Quality Check',        'tag' => 'Inspection',    'date' => 'Final Audit',      'location' => 'Gate & Port Zone',   'desc' => 'Final audit before vehicles are cleared to proceed to the distribution line.'],
+                ['img' => 'vessel-1.jpeg', 'title' => 'Port Activity',        'tag' => 'Terminal Area', 'date' => '24/7 Operations',  'location' => 'Berth Side',         'desc' => 'Vehicle loading and unloading activities in the berth area under strict supervision.'],
+                ['img' => 'vessel-2.jpeg', 'title' => 'Vessel Berthing',      'tag' => 'Ro-Ro Ship',    'date' => 'Docking Schedule', 'location' => 'Deep-Water Berth',   'desc' => 'The transport vessel is securely docked at the deep-water berth facility.'],
+                ['img' => 'vessel-3.jpeg', 'title' => 'Ramp Loading',         'tag' => 'Logistics',     'date' => 'Loading Process',  'location' => 'Hydraulic Ramps',    'desc' => 'Vehicles are loaded onto the ship through a specialized Ro-Ro hydraulic ramp.'],
             ];
         @endphp
 
@@ -518,29 +518,53 @@
              class="flex items-stretch gap-4 sm:gap-6 overflow-x-auto pb-4 pt-1 snap-x hide-scrollbar"
              data-aos="fade-up" data-aos-delay="100">
             @foreach($gallery as $index => $item)
-                <div class="gallery-card group relative bg-white border border-[var(--color-line)] rounded-xl overflow-hidden min-w-[280px] sm:min-w-[340px] max-w-[340px] flex-shrink-0 snap-start flex flex-col shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                <div class="gallery-card group relative bg-white border border-[var(--color-line)] rounded-2xl overflow-hidden min-w-[300px] sm:min-w-[360px] max-w-[360px] flex-shrink-0 snap-start flex flex-col shadow-sm hover:shadow-lg transition-all cursor-pointer p-3 bg-slate-50/50"
                      onclick="pauseAutoSlideAndFocus({{ $index }})">
-                    <div class="relative h-48 sm:h-52 overflow-hidden bg-slate-900">
-                        <img src="{{ secure_asset('assets/images/' . $item['img']) }}"
-                             alt="{{ $item['title'] }}"
-                             class="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
-                        <div class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md px-2.5 py-1 rounded text-[10px] font-semibold text-white uppercase tracking-wider">
-                            {{ $item['tag'] }}
+                    
+                    {{-- Card Top Header (Mirip Banner Kartu Referensi) --}}
+                    <div class="bg-white border border-[var(--color-line)] rounded-xl overflow-hidden shadow-sm flex flex-col h-full">
+                        <div class="bg-[#0A2540] px-4 py-2.5 flex items-center justify-between">
+                            <span class="text-white font-heading font-bold text-xs tracking-wider uppercase">PICT DOSSIER</span>
+                            <span class="bg-[#EC2029] text-white text-[10px] font-semibold px-2 py-0.5 rounded">{{ $item['tag'] }}</span>
+                        </div>
+
+                        {{-- Image Container --}}
+                        <div class="relative h-48 sm:h-52 overflow-hidden bg-slate-900">
+                            <img src="{{ secure_asset('assets/images/' . $item['img']) }}"
+                                 alt="{{ $item['title'] }}"
+                                 class="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
+                        </div>
+
+                        {{-- Card Body --}}
+                        <div class="p-4 sm:p-5 flex flex-col justify-between flex-grow bg-white">
+                            <div>
+                                <h3 class="text-base sm:text-lg font-bold text-[#0A2540] font-heading mb-2 group-hover:text-[#EC2029] transition-colors line-clamp-1">
+                                    {{ $item['title'] }}
+                                </h3>
+                                <p class="text-[var(--color-muted)] text-xs leading-relaxed line-clamp-2 mb-4">
+                                    {{ $item['desc'] }}
+                                </p>
+                            </div>
+
+                            {{-- Meta Info (Tanggal & Lokasi ala Kartu Referensi) --}}
+                            <div class="space-y-2 pt-3 border-t border-slate-100 text-xs text-[var(--color-muted)]">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5 text-[#EC2029] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    <span class="font-medium text-slate-700">{{ $item['date'] }}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5 text-[#1D4E74] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                    <span class="truncate">{{ $item['location'] }}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="p-4 sm:p-5 flex flex-col justify-between flex-grow">
-                        <div>
-                            <h3 class="text-base sm:text-lg font-bold text-[#0A2540] font-heading mb-1.5 group-hover:text-[#EC2029] transition-colors line-clamp-1">
-                                {{ $item['title'] }}
-                            </h3>
-                            <p class="text-[var(--color-muted)] text-xs leading-relaxed line-clamp-2">
-                                {{ $item['desc'] }}
-                            </p>
-                        </div>
-                        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-semibold text-[#1D4E74]">
-                            <span>PICT Documentation</span>
-                        </div>
-                    </div>
+
                 </div>
             @endforeach
         </div>

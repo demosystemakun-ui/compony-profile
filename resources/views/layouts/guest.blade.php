@@ -258,7 +258,7 @@
             </div>
 
             <div>
-                <h1 class="pa-brand-title">PICT <span>Admin Portal</span></h1>
+                <h1 class="pa-brand-title">PICT <span>Compro Portal</span></h1>
                 <p class="pa-brand-text">
                     Patimban International Car Terminal.
                     Sign in to access your account and manage your work securely.
@@ -286,7 +286,7 @@
                 </ul>
             </div>
 
-            <div class="pa-brand-foot">&copy; {{ date('Y') }} {{ config('app.name', 'PICT') }}</div>
+            <div class="pa-brand-foot">&copy; {{ date('Y') }} - PICT Operational System</div>
         </aside>
 
         {{-- Area form --}}
@@ -299,9 +299,6 @@
                 {{ $slot }}
             </div>
 
-            <p class="pa-copy">
-                &copy; {{ date('Y') }} {{ config('app.name', 'PICT') }}. All rights reserved.
-            </p>
         </main>
     </div>
 </body>

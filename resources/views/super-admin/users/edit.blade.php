@@ -52,7 +52,6 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
                         <select name="role" required
                                 class="w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring-red-500 text-sm">
-                            <option value="editor" @selected(old('role', $user->role) === 'editor')>Editor</option>
                             <option value="admin" @selected(old('role', $user->role) === 'admin')>Admin</option>
                             <option value="super_admin" @selected(old('role', $user->role) === 'super_admin')>Super Admin</option>
                         </select>

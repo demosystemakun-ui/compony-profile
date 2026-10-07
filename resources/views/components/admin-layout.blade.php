@@ -26,7 +26,7 @@
                 {{-- Logo --}}
                 <div class="flex items-center justify-center h-16 bg-[#081c30] border-b border-white/10 shrink-0">
                     <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
-                        <x-application-logo class="h-8 w-auto fill-current text-white" />
+                        <img src="{{ asset('assets/images/pict.png') }}" alt="PICT Logo" class="h-8 w-auto object-contain" />
                         <span class="font-bold text-lg tracking-wider">PICT Admin</span>
                     </a>
                 </div>

@@ -65,7 +65,6 @@
                                                         {{ $user->role === 'editor' ? 'bg-gray-50 text-gray-700' : '' }}">
                                                 <option value="super_admin" @selected($user->role==='super_admin')>Super Admin</option>
                                                 <option value="admin" @selected($user->role==='admin')>Admin</option>
-                                                <option value="editor" @selected($user->role==='editor')>Editor</option>
                                             </select>
                                         </form>
                                     </td>
