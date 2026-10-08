@@ -42,6 +42,10 @@
 
     /* ═══ PDF MODAL ═══ */
     body.pdf-modal-open { overflow: hidden; }
+
+    /* Di atas navbar situs (modal & toast dipindah ke <body> lewat JS) */
+    #pdf-viewer-modal { z-index: 2147483000 !important; height: 100vh; height: 100dvh; }
+    #pdfNotification  { z-index: 2147483001 !important; }
     #pdf-page-wrap { line-height: 0; }
     #pdf-draw-canvas { touch-action: none; }
     #pdf-draw-canvas.tool-pan    { pointer-events: none; }
@@ -300,6 +304,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    /* ═══ Pindahkan modal & toast ke <body> agar lepas dari stacking context layout/navbar ═══ */
+    ['pdf-viewer-modal', 'pdfNotification'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) document.body.appendChild(el);
+    });
+
     /* ═══ AOS ═══ */
     if (typeof AOS !== 'undefined') AOS.init({ duration: 800, once: true });
 
