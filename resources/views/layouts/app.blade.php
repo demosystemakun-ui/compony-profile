@@ -25,9 +25,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    {{-- ═══ TAILWIND ═══
-         CATATAN: CDN ini lambat (kompilasi di browser). Idealnya diganti
-         dengan CSS hasil build (lihat panduan). Sementara dipertahankan. --}}
+    {{-- ═══ TAILWIND ═══ --}}
     <script src="https://cdn.tailwindcss.com"></script>
 
     {{-- ═══ STYLESHEETS ═══ --}}
@@ -115,7 +113,7 @@
         Skip to main content
     </a>
 
-    {{-- ═══ NAVBAR (menu mobile & pill dikelola oleh navbar.blade.php) ═══ --}}
+    {{-- ═══ NAVBAR ═══ --}}
     @include('layouts.navbar')
 
     {{-- ═══ MAIN CONTENT ═══ --}}
@@ -143,7 +141,7 @@
     <script src="{{ asset('assets/js/main.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
 
-    {{-- Swup + plugin (urutan penting: core dulu, baru plugin) --}}
+    {{-- Swup + plugin --}}
     <script src="https://unpkg.com/swup@4"></script>
     <script src="https://unpkg.com/@swup/head-plugin@2"></script>
     <script src="https://unpkg.com/@swup/scripts-plugin@2"></script>
@@ -167,7 +165,37 @@
         }
 
         /* ═══════════════════════════════════════════════════════════════
-           BACK TO TOP (listener dipasang sekali)
+           NAVBAR HIDE/SHOW ON SCROLL (Fixed for Swup)
+        ═══════════════════════════════════════════════════════════════ */
+        function initNavbarScroll() {
+            const navbar = document.querySelector('nav');
+            if (!navbar) return;
+
+            let lastScrollTop = 0;
+            
+            // Hapus event listener sebelumnya jika ada agar tidak menumpuk ganda
+            if (window._navbarScrollHandler) {
+                window.removeEventListener('scroll', window._navbarScrollHandler);
+            }
+
+            window._navbarScrollHandler = function() {
+                let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                
+                if (scrollTop > lastScrollTop && scrollTop > 100) {
+                    // Scroll ke bawah -> Sembunyikan navbar
+                    navbar.classList.add('-translate-y-full', 'transition-transform', 'duration-300');
+                } else {
+                    // Scroll ke atas -> Tampilkan navbar
+                    navbar.classList.remove('-translate-y-full');
+                }
+                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+            };
+
+            window.addEventListener('scroll', window._navbarScrollHandler, { passive: true });
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           BACK TO TOP
         ═══════════════════════════════════════════════════════════════ */
         const backToTop = document.getElementById('backToTop');
 
@@ -193,11 +221,8 @@
             if (typeof SwupScriptsPlugin !== 'undefined') plugins.push(new SwupScriptsPlugin({ head: true, body: true }));
 
             window.swup = new Swup({
-                /* #page-scripts = tempat @stack('scripts'), supaya script halaman jalan ulang */
                 containers: ['#swup', '#page-scripts'],
                 plugins: plugins,
-
-                /* Halaman yang dibuka dengan load penuh (tanpa Swup) */
                 ignoreVisit: (url, { el } = {}) => {
                     if (el?.closest('[data-no-swup]')) return true;
                     if (el?.target === '_blank') return true;
@@ -210,15 +235,17 @@
                 window.scrollTo({ top: 0, behavior: 'instant' });
                 updateBackToTop();
                 initAOS();
+                initNavbarScroll(); // <--- Inisialisasi ulang navbar setelah halaman berganti via Swup
             });
         }
 
         /* Load pertama */
         initAOS();
+        initNavbarScroll();
     })();
     </script>
 
-    {{-- Script per-halaman (ikut diganti oleh Swup lewat #page-scripts) --}}
+    {{-- Script per-halaman --}}
     <div id="page-scripts">
         @stack('scripts')
     </div>
