@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
     {{-- ═══ NATIVE APP-LIKE EXPERIENCE ═══ --}}
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -25,16 +25,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    {{-- ═══ TAILWIND + STYLESHEETS ═══ --}}
+    {{-- ═══ TAILWIND ═══
+         CATATAN: CDN ini lambat (kompilasi di browser). Idealnya diganti
+         dengan CSS hasil build (lihat panduan). Sementara dipertahankan. --}}
     <script src="https://cdn.tailwindcss.com"></script>
+
+    {{-- ═══ STYLESHEETS ═══ --}}
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3.0.1/dist/cookieconsent.css">
-
-    {{-- ═══ PRELOAD CRITICAL ASSETS ═══ --}}
-    <link rel="preload" as="image" href="{{ asset('assets/images/background.jpeg') }}">
-
-    {{-- ═══ GOOGLE reCAPTCHA ═══ --}}
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
     <style>
         /* ═══ GLOBAL FONT: CENTURY GOTHIC ═══ */
@@ -103,16 +102,6 @@
                 opacity: 1;
             }
         }
-
-        /* ═══ MOBILE MENU TRANSITION ═══ */
-        #mobileMenu {
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-        #mobileMenu.is-closed {
-            opacity: 0;
-            transform: translateY(-8px);
-            pointer-events: none;
-        }
     </style>
 
     @stack('styles')
@@ -126,7 +115,7 @@
         Skip to main content
     </a>
 
-    {{-- ═══ NAVBAR ═══ --}}
+    {{-- ═══ NAVBAR (menu mobile & pill dikelola oleh navbar.blade.php) ═══ --}}
     @include('layouts.navbar')
 
     {{-- ═══ MAIN CONTENT ═══ --}}
@@ -152,93 +141,87 @@
          GLOBAL SCRIPTS
     ═══════════════════════════════════════════════════════════════ --}}
     <script src="{{ asset('assets/js/main.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+
+    {{-- Swup + plugin (urutan penting: core dulu, baru plugin) --}}
     <script src="https://unpkg.com/swup@4"></script>
+    <script src="https://unpkg.com/@swup/head-plugin@2"></script>
+    <script src="https://unpkg.com/@swup/scripts-plugin@2"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            /* ═══════════════════════════════════════════════════════════════
-               MOBILE MENU
-            ═══════════════════════════════════════════════════════════════ */
-            const mobileBtn  = document.getElementById('mobileMenuBtn');
-            const mobileMenu = document.getElementById('mobileMenu');
+    (function () {
+        'use strict';
 
-            const MENU_CLOSE_DELAY = 300;
-
-            function openMobileMenu() {
-                if (!mobileMenu) return;
-                mobileMenu.classList.remove('hidden', 'is-closed');
-                mobileBtn?.setAttribute('aria-expanded', 'true');
-            }
-
-            function closeMobileMenu() {
-                if (!mobileMenu) return;
-                mobileMenu.classList.add('is-closed');
-                mobileBtn?.setAttribute('aria-expanded', 'false');
-                setTimeout(() => mobileMenu.classList.add('hidden'), MENU_CLOSE_DELAY);
-            }
-
-            function toggleMobileMenu() {
-                if (!mobileMenu) return;
-                mobileMenu.classList.contains('is-closed') ? openMobileMenu() : closeMobileMenu();
-            }
-
-            function initMobileMenu() {
-                if (!mobileBtn || !mobileMenu) return;
-                mobileBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    toggleMobileMenu();
-                });
-            }
-
-            /* Click outside to close */
-            document.addEventListener('click', (e) => {
-                if (!mobileMenu || mobileMenu.classList.contains('is-closed')) return;
-                if (mobileBtn?.contains(e.target)) return;
-                if (mobileMenu.contains(e.target)) return;
-                closeMobileMenu();
+        /* ═══════════════════════════════════════════════════════════════
+           AOS (global — dipakai semua halaman)
+        ═══════════════════════════════════════════════════════════════ */
+        function initAOS() {
+            if (typeof AOS === 'undefined') return;
+            AOS.init({
+                duration: 900,
+                easing: 'ease-out-cubic',
+                once: true,
+                offset: 120
             });
+            AOS.refreshHard();
+        }
 
-            /* Close when clicking a nav link */
-            document.querySelectorAll('#mobileMenu a').forEach(item => {
-                item.addEventListener('click', closeMobileMenu);
-            });
+        /* ═══════════════════════════════════════════════════════════════
+           BACK TO TOP (listener dipasang sekali)
+        ═══════════════════════════════════════════════════════════════ */
+        const backToTop = document.getElementById('backToTop');
 
-            /* ═══════════════════════════════════════════════════════════════
-               BACK TO TOP
-            ═══════════════════════════════════════════════════════════════ */
-            const backToTop = document.getElementById('backToTop');
+        function updateBackToTop() {
+            if (!backToTop) return;
+            const show = window.scrollY > 300;
+            backToTop.classList.toggle('hidden', !show);
+            backToTop.classList.toggle('flex', show);
+        }
 
-            function updateBackToTop() {
-                if (!backToTop) return;
-                const show = window.scrollY > 300;
-                backToTop.classList.toggle('hidden', !show);
-                backToTop.classList.toggle('flex', show);
-            }
-
-            window.addEventListener('scroll', updateBackToTop, { passive: true });
-            updateBackToTop();
-
-            backToTop?.addEventListener('click', () => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-
-            /* ═══════════════════════════════════════════════════════════════
-               SWUP PAGE TRANSITIONS
-            ═══════════════════════════════════════════════════════════════ */
-            if (typeof Swup !== 'undefined') {
-                const swup = new Swup();
-                swup.hooks.on('page:view', () => {
-                    window.scrollTo({ top: 0, behavior: 'instant' });
-                    initMobileMenu();
-                    updateBackToTop();
-                });
-            }
-
-            initMobileMenu();
+        window.addEventListener('scroll', updateBackToTop, { passive: true });
+        backToTop?.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
+        updateBackToTop();
+
+        /* ═══════════════════════════════════════════════════════════════
+           SWUP PAGE TRANSITIONS
+        ═══════════════════════════════════════════════════════════════ */
+        if (typeof Swup !== 'undefined' && !window.swup) {
+            const plugins = [];
+            if (typeof SwupHeadPlugin    !== 'undefined') plugins.push(new SwupHeadPlugin());
+            if (typeof SwupScriptsPlugin !== 'undefined') plugins.push(new SwupScriptsPlugin({ head: true, body: true }));
+
+            window.swup = new Swup({
+                /* #page-scripts = tempat @stack('scripts'), supaya script halaman jalan ulang */
+                containers: ['#swup', '#page-scripts'],
+                plugins: plugins,
+
+                /* Halaman yang dibuka dengan load penuh (tanpa Swup) */
+                ignoreVisit: (url, { el } = {}) => {
+                    if (el?.closest('[data-no-swup]')) return true;
+                    if (el?.target === '_blank') return true;
+                    return /^\/(contact|pict-internal-admin-portal|tarif\/|media\/|api\/)/.test(url)
+                        || /\.(pdf|zip|docx?|xlsx?)(\?|$)/i.test(url);
+                }
+            });
+
+            window.swup.hooks.on('page:view', () => {
+                window.scrollTo({ top: 0, behavior: 'instant' });
+                updateBackToTop();
+                initAOS();
+            });
+        }
+
+        /* Load pertama */
+        initAOS();
+    })();
     </script>
 
-    @stack('scripts')
+    {{-- Script per-halaman (ikut diganti oleh Swup lewat #page-scripts) --}}
+    <div id="page-scripts">
+        @stack('scripts')
+    </div>
 
     {{-- ═══ AI CHATBOT WIDGET ═══ --}}
     @include('layouts.ai-chat')
