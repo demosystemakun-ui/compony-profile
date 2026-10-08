@@ -36,7 +36,8 @@ Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
 
 // Public Tariffs
-Route::get('/our-tariffs', [TariffController::class, 'publicIndex'])->name('our-tariffs');
+Route::get('/our-tariffs', [TariffController::class, 'publicIndex'])->name('tarif.index');
+Route::get('/tarif/{tariff}/stream',   [TariffController::class, 'stream'])->name('tarif.stream');
 Route::get('/tarif/{tariff}/download', [TariffController::class, 'download'])->name('tarif.download');
 
 // Public News
@@ -79,8 +80,7 @@ Route::middleware(['auth'])->prefix('pict-internal-admin-portal')->group(functio
 
     // Tariff Management
     Route::name('admin.')->group(function () {
-        Route::resource('tariffs', TariffController::class)->except('show');
-    });
+Route::get('tariffs/{tariff}/preview', [TariffController::class, 'preview'])->name('tariffs.preview');    });
 
     // Profile & Password
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
