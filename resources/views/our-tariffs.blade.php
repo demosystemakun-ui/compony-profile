@@ -3,23 +3,24 @@
 @section('title', 'Terminal Service Tariffs — PT Patimban International Car Terminal')
 
 @php
-    /* ═══ DATA TARIF (dari database via TariffController@index) ═══ */
+    /* ═══ DATA TARIF (dari TariffController@publicIndex) ═══
+       - hasPdf() hanya cek kolom DB (tanpa request ke Supabase)
+       - 'view'     => route stream (domain sendiri, bebas CORS, untuk pdf.js)
+       - 'download' => route download (header attachment) */
     $tariffs = $tariffs->map(fn ($t) => [
         'tag'      => $t->tag,
         'title'    => $t->title,
         'desc'     => $t->description,
         'icon'     => $t->iconPath(),
         'exists'   => $t->hasPdf(),
-        'url'      => $t->pdfUrl(),
+        'view'     => route('tarif.stream', $t),
         'download' => route('tarif.download', $t),
-        'modal'    => $t->title,
     ])->all();
 @endphp
 
 @push('styles')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
 <style>
-    /* ═══ DESIGN SYSTEM — PICT TARIFFS ═══ */
     :root {
         --color-navy:   #0f172a;
         --color-signal: #ec2029;
@@ -31,49 +32,38 @@
 
     [x-cloak] { display: none !important; }
 
-    .page-transition {
-        animation: pageMorphIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
+    /* transform: none di akhir animasi agar elemen fixed (toast) tidak terjebak
+       di dalam containing block milik .page-transition */
+    .page-transition { animation: pageMorphIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     @keyframes pageMorphIn {
         from { opacity: 0; transform: translateY(16px) scale(0.99); }
-        to   { opacity: 1; transform: translateY(0) scale(1); }
+        to   { opacity: 1; transform: none; }
     }
 
     /* ═══ PDF MODAL ═══ */
     body.pdf-modal-open { overflow: hidden; }
-
     #pdf-page-wrap { line-height: 0; }
-
     #pdf-draw-canvas { touch-action: none; }
     #pdf-draw-canvas.tool-pan    { pointer-events: none; }
     #pdf-draw-canvas.tool-pen    { cursor: crosshair; }
     #pdf-draw-canvas.tool-eraser { cursor: cell; }
 
     .pdf-tool-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 2.25rem;
-        height: 2.25rem;
-        border-radius: 0.375rem;
-        color: rgba(255, 255, 255, 0.7);
-        transition: all 0.15s ease;
-        flex-shrink: 0;
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 2.25rem; height: 2.25rem; border-radius: 0.375rem;
+        color: rgba(255, 255, 255, 0.7); transition: all 0.15s ease; flex-shrink: 0;
     }
-    .pdf-tool-btn:hover  { background: rgba(255, 255, 255, 0.08); color: #ffffff; }
-    .pdf-tool-btn.active { background: var(--color-signal); color: #ffffff; }
+    .pdf-tool-btn:hover  { background: rgba(255, 255, 255, 0.08); color: #fff; }
+    .pdf-tool-btn.active { background: var(--color-signal); color: #fff; }
     .pdf-tool-btn:disabled { opacity: 0.3; pointer-events: none; }
 
     /* ═══ TARIFF CARD ═══ */
-    .tariff-card {
-        transition: box-shadow .3s ease, transform .3s ease;
-    }
+    .tariff-card { transition: box-shadow .3s ease, transform .3s ease; }
     .tariff-card:hover {
         box-shadow: 0 20px 40px -12px rgba(15, 23, 42, 0.12);
         transform: translateY(-4px);
     }
 
-    /* ═══ SCROLLBAR (Webkit) ═══ */
     .pdf-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
     .pdf-scroll::-webkit-scrollbar-track { background: #1a1c23; }
     .pdf-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 5px; }
@@ -84,18 +74,14 @@
 @section('content')
 <div class="page-transition bg-slate-50 min-h-screen">
 
-    {{-- ═══════════════════════════════════════════════════════════════
-         NOTIFICATION TOAST
-    ═══════════════════════════════════════════════════════════════ --}}
+    {{-- ═══ NOTIFICATION TOAST ═══ --}}
     <div id="pdfNotification"
          class="fixed bottom-6 right-6 z-50 transform translate-y-32 opacity-0 transition-all duration-300 ease-out pointer-events-none">
         <div class="pointer-events-auto bg-slate-900 rounded-xl border border-slate-700 shadow-2xl flex items-start gap-4 max-w-sm overflow-hidden">
             <div class="bg-[#ec2029] w-1.5 self-stretch"></div>
             <div class="flex-1 py-4 pr-2">
                 <p class="text-[11px] font-bold uppercase tracking-wider text-red-500 mb-1">System Notice</p>
-                <p id="notificationText" class="text-sm text-slate-200 leading-relaxed">
-                    Document not available.
-                </p>
+                <p id="notificationText" class="text-sm text-slate-200 leading-relaxed">Document not available.</p>
             </div>
             <button type="button" onclick="hideNotification()"
                     class="p-4 text-slate-400 hover:text-white transition-colors cursor-pointer"
@@ -107,12 +93,10 @@
         </div>
     </div>
 
-    {{-- ═══════════════════════════════════════════════════════════════
-         HERO SECTION
-    ═══════════════════════════════════════════════════════════════ --}}
+    {{-- ═══ HERO ═══ --}}
     <section class="relative w-full min-h-[420px] flex flex-col justify-center text-left px-6 sm:px-12 md:px-16 lg:px-24 py-16 pt-28 sm:pt-32 md:pt-36 border-b border-slate-800 bg-slate-900 overflow-hidden">
         <div class="absolute inset-0 z-0 bg-cover bg-center"
-             style="background-image: url('{{ asset("assets/images/background.jpeg") }}');"></div>
+             style="background-image: url('{{ asset('assets/images/background.jpeg') }}');"></div>
         <div class="absolute inset-0 z-0 bg-gradient-to-r from-slate-950 via-slate-900/90 to-slate-900/40"></div>
         <div class="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full bg-[#ec2029]/10 blur-3xl"></div>
 
@@ -126,20 +110,16 @@
         </div>
     </section>
 
-    {{-- ═══════════════════════════════════════════════════════════════
-         TARIFF CARDS
-    ═══════════════════════════════════════════════════════════════ --}}
+    {{-- ═══ TARIFF CARDS ═══ --}}
     <div class="max-w-7xl mx-auto px-6 py-16 -mt-8 relative z-20" data-aos="fade-up" data-aos-delay="100">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             @forelse($tariffs as $tariff)
                 <div class="tariff-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden relative group flex flex-col">
 
-                    {{-- Accent bar --}}
                     <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-slate-200 group-hover:bg-[#ec2029] transition-colors duration-300"></div>
 
-                    {{-- Header (clickable) --}}
-                    <div data-tariff-toggle
-                         class="p-6 sm:p-8 cursor-pointer select-none ml-2 flex-1 flex flex-col">
+                    {{-- Header (clickable di mobile) --}}
+                    <div data-tariff-toggle class="p-6 sm:p-8 cursor-pointer select-none ml-2 flex-1 flex flex-col">
                         <div class="flex items-start justify-between gap-3 mb-4">
                             <div class="flex items-start gap-4">
                                 <div class="flex items-center justify-center w-12 h-12 rounded-full bg-slate-50 border border-slate-100 text-slate-400 group-hover:text-[#ec2029] group-hover:bg-red-50 transition-colors shrink-0">
@@ -157,33 +137,32 @@
                                 </div>
                             </div>
 
-                            {{-- Mobile toggle chevron --}}
                             <svg data-tariff-chevron class="w-5 h-5 text-slate-400 transition-transform duration-300 shrink-0 mt-2 md:hidden"
                                  fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                             </svg>
                         </div>
 
-                        <p class="text-sm text-slate-500 leading-relaxed">
-                            {{ $tariff['desc'] }}
-                        </p>
+                        <p class="text-sm text-slate-500 leading-relaxed">{{ $tariff['desc'] }}</p>
                     </div>
 
-                    {{-- Actions (mobile collapsible, desktop always visible) --}}
+                    {{-- Actions --}}
                     <div data-tariff-actions class="hidden md:block px-6 sm:px-8 pb-6 sm:pb-8 ml-2 border-t border-slate-100">
                         <div class="flex flex-row gap-2.5 w-full pt-4">
                             @if($tariff['exists'])
-                                <a href="{{ $tariff['url'] }}"
-                                        class="flex-1 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-xl px-3 py-2.5 text-xs font-semibold transition-all shadow-sm flex items-center justify-center gap-1.5 group/btn">
+                                {{-- View: buka modal pdf.js --}}
+                                <button type="button"
+                                        onclick="openPdfViewer(@js($tariff['view']), @js($tariff['title']), @js($tariff['download']))"
+                                        class="flex-1 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-xl px-3 py-2.5 text-xs font-semibold transition-all shadow-sm flex items-center justify-center gap-1.5 group/btn cursor-pointer">
                                     <svg class="w-4 h-4 text-slate-400 group-hover/btn:text-[#ec2029] transition-colors shrink-0"
                                          fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                     </svg>
                                     <span class="truncate">View</span>
-                                </a>
+                                </button>
 
-                                <a href="{{ $tariff['download'] }}" download
+                                <a href="{{ $tariff['download'] }}"
                                    class="flex-1 bg-slate-900 hover:bg-slate-800 text-white rounded-xl px-3 py-2.5 text-xs font-semibold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-1.5">
                                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
@@ -224,10 +203,8 @@
     </div>
 </div>
 
-{{-- ═══════════════════════════════════════════════════════════════
-     IN-PAGE PDF VIEWER MODAL
-══════════════════════════════════════════════════════════════ --}}
-<div id="pdf-viewer-modal" class="fixed inset-0 z-[200] hidden">
+{{-- ═══ IN-PAGE PDF VIEWER MODAL ═══ --}}
+<div id="pdf-viewer-modal" class="fixed inset-0 z-[200] hidden" role="dialog" aria-modal="true" aria-labelledby="pdf-modal-title">
     <div id="pdf-modal-backdrop" class="absolute inset-0 bg-slate-900/90 backdrop-blur-sm transition-opacity"></div>
 
     <div class="relative z-10 w-full h-full flex flex-col">
@@ -238,7 +215,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8l-6-5z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 3v5h5"/>
                 </svg>
-                <div class="flex flex-col">
+                <div class="flex flex-col min-w-0">
                     <span id="pdf-modal-title" class="font-bold text-sm text-white truncate max-w-[40vw]">Document</span>
                     <span id="pdf-page-info" class="text-[10px] text-white/50 whitespace-nowrap uppercase tracking-wider hidden sm:block">Page 1 / 1</span>
                 </div>
@@ -283,7 +260,7 @@
 
                 <span class="w-px h-6 bg-white/15 mx-1.5"></span>
 
-                <a id="pdf-download" href="#" download class="pdf-tool-btn" title="Download PDF" aria-label="Download PDF">
+                <a id="pdf-download" href="#" class="pdf-tool-btn" title="Download PDF" aria-label="Download PDF">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/></svg>
                 </a>
                 <button id="pdf-modal-close" class="pdf-tool-btn hover:bg-white/10" title="Close" aria-label="Close viewer">
@@ -323,16 +300,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    /* ═══════════════════════════════════════════════════════════════
-       AOS
-    ═══════════════════════════════════════════════════════════════ */
-    if (typeof AOS !== 'undefined') {
-        AOS.init({ duration: 800, once: true });
-    }
+    /* ═══ AOS ═══ */
+    if (typeof AOS !== 'undefined') AOS.init({ duration: 800, once: true });
 
-    /* ═══════════════════════════════════════════════════════════════
-       CARD TOGGLE (mobile) — tanpa Alpine
-    ═══════════════════════════════════════════════════════════════ */
+    /* ═══ CARD TOGGLE (mobile) ═══ */
     document.querySelectorAll('[data-tariff-toggle]').forEach(header => {
         header.addEventListener('click', () => {
             const card = header.closest('.tariff-card');
@@ -341,9 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    /* ═══════════════════════════════════════════════════════════════
-       NOTIFICATION TOAST
-    ═══════════════════════════════════════════════════════════════ */
+    /* ═══ NOTIFICATION TOAST ═══ */
     window.showNotification = function (message) {
         const toast = document.getElementById('pdfNotification');
         const text  = document.getElementById('notificationText');
@@ -358,64 +327,48 @@ document.addEventListener('DOMContentLoaded', () => {
         if (toast) toast.classList.add('translate-y-32', 'opacity-0');
     };
 
-    /* ═══════════════════════════════════════════════════════════════
-       PDF VIEWER
-    ═══════════════════════════════════════════════════════════════ */
+    /* ═══ PDF VIEWER ═══ */
     if (window['pdfjsLib']) {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     }
 
-    const modal         = document.getElementById('pdf-viewer-modal');
-    const backdrop      = document.getElementById('pdf-modal-backdrop');
-    const titleEl       = document.getElementById('pdf-modal-title');
-    const pageInfoEl    = document.getElementById('pdf-page-info');
-    const container     = document.getElementById('pdf-canvas-container');
-    const pageWrap      = document.getElementById('pdf-page-wrap');
-    const renderCanvas  = document.getElementById('pdf-render-canvas');
-    const drawCanvas    = document.getElementById('pdf-draw-canvas');
-    const zoomLevelEl   = document.getElementById('pdf-zoom-level');
-    const loadingMsg    = document.getElementById('pdf-loading-msg');
-    const errorMsg      = document.getElementById('pdf-error-msg');
-    const downloadLink  = document.getElementById('pdf-download');
+    const $ = id => document.getElementById(id);
+    const modal = $('pdf-viewer-modal'), backdrop = $('pdf-modal-backdrop');
+    const titleEl = $('pdf-modal-title'), pageInfoEl = $('pdf-page-info');
+    const container = $('pdf-canvas-container'), pageWrap = $('pdf-page-wrap');
+    const renderCanvas = $('pdf-render-canvas'), drawCanvas = $('pdf-draw-canvas');
+    const zoomLevelEl = $('pdf-zoom-level');
+    const loadingMsg = $('pdf-loading-msg'), errorMsg = $('pdf-error-msg');
+    const downloadLink = $('pdf-download');
+    const prevBtn = $('pdf-prev-page'), nextBtn = $('pdf-next-page');
+    const zoomInBtn = $('pdf-zoom-in'), zoomOutBtn = $('pdf-zoom-out'), zoomResetBtn = $('pdf-zoom-reset');
+    const panBtn = $('pdf-tool-pan'), penBtn = $('pdf-tool-pen'), eraserBtn = $('pdf-tool-eraser');
+    const penColorInput = $('pdf-pen-color');
+    const undoBtn = $('pdf-undo'), clearBtn = $('pdf-clear'), closeBtn = $('pdf-modal-close');
 
-    const prevBtn       = document.getElementById('pdf-prev-page');
-    const nextBtn       = document.getElementById('pdf-next-page');
-    const zoomInBtn     = document.getElementById('pdf-zoom-in');
-    const zoomOutBtn    = document.getElementById('pdf-zoom-out');
-    const zoomResetBtn  = document.getElementById('pdf-zoom-reset');
-    const panBtn        = document.getElementById('pdf-tool-pan');
-    const penBtn        = document.getElementById('pdf-tool-pen');
-    const eraserBtn     = document.getElementById('pdf-tool-eraser');
-    const penColorInput = document.getElementById('pdf-pen-color');
-    const undoBtn       = document.getElementById('pdf-undo');
-    const clearBtn      = document.getElementById('pdf-clear');
-    const closeBtn      = document.getElementById('pdf-modal-close');
+    const BASE_SCALE = 1.25, MIN_SCALE = 0.5, MAX_SCALE = 3.5;
 
-    const BASE_SCALE = 1.25;
-    const MIN_SCALE  = 0.5;
-    const MAX_SCALE  = 3.5;
-
-    let pdfDoc          = null;
-    let currentPage     = 1;
-    let currentScale    = BASE_SCALE;
-    let currentTool     = 'pan';
-    let strokesByPage   = {};
-    let activeStroke    = null;
-    let isPointerDown   = false;
-    let renderToken     = 0;
+    let loadingTask   = null;
+    let pdfDoc        = null;
+    let currentPage   = 1;
+    let currentScale  = BASE_SCALE;
+    let currentTool   = 'pan';
+    let strokesByPage = {};
+    let activeStroke  = null;
+    let isPointerDown = false;
+    let renderToken   = 0;
+    let renderTask    = null;
 
     function setTool(tool) {
         currentTool = tool;
         [panBtn, penBtn, eraserBtn].forEach(b => b.classList.remove('active'));
         drawCanvas.classList.remove('tool-pan', 'tool-pen', 'tool-eraser');
-        if (tool === 'pan')    { panBtn.classList.add('active');    drawCanvas.classList.add('tool-pan'); }
-        if (tool === 'pen')    { penBtn.classList.add('active');    drawCanvas.classList.add('tool-pen'); }
-        if (tool === 'eraser') { eraserBtn.classList.add('active'); drawCanvas.classList.add('tool-eraser'); }
+        ({ pan: panBtn, pen: penBtn, eraser: eraserBtn })[tool].classList.add('active');
+        drawCanvas.classList.add('tool-' + tool);
     }
 
-    function clampScale(s) {
-        return Math.min(MAX_SCALE, Math.max(MIN_SCALE, s));
-    }
+    const clampScale = s => Math.min(MAX_SCALE, Math.max(MIN_SCALE, s));
 
     function updateZoomLabel() {
         zoomLevelEl.textContent = Math.round((currentScale / BASE_SCALE) * 100) + '%';
@@ -428,17 +381,12 @@ document.addEventListener('DOMContentLoaded', () => {
         pageInfoEl.textContent = 'PAGE ' + currentPage + ' / ' + pdfDoc.numPages;
     }
 
-    function normalizedPointFromEvent(e) {
-        const rect = drawCanvas.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width;
-        const y = (e.clientY - rect.top)  / rect.height;
-        return { x: Math.min(1, Math.max(0, x)), y: Math.min(1, Math.max(0, y)) };
-    }
-
-    function redrawAnnotations() {
-        const ctx = drawCanvas.getContext('2d');
-        ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-        (strokesByPage[currentPage] || []).forEach(s => drawStroke(ctx, s));
+    function normalizedPoint(e) {
+        const r = drawCanvas.getBoundingClientRect();
+        return {
+            x: Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)),
+            y: Math.min(1, Math.max(0, (e.clientY - r.top)  / r.height)),
+        };
     }
 
     function drawStroke(ctx, stroke) {
@@ -447,35 +395,44 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.globalCompositeOperation = stroke.erase ? 'destination-out' : 'source-over';
         ctx.strokeStyle = stroke.color;
         ctx.lineWidth   = stroke.width;
-        ctx.lineCap     = 'round';
-        ctx.lineJoin    = 'round';
+        ctx.lineCap = ctx.lineJoin = 'round';
         ctx.beginPath();
         stroke.points.forEach((p, i) => {
-            const x = p.x * drawCanvas.width;
-            const y = p.y * drawCanvas.height;
-            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            const x = p.x * drawCanvas.width, y = p.y * drawCanvas.height;
+            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
         });
         ctx.stroke();
         ctx.restore();
     }
 
+    function redrawAnnotations() {
+        const ctx = drawCanvas.getContext('2d');
+        ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+        (strokesByPage[currentPage] || []).forEach(s => drawStroke(ctx, s));
+    }
+
+    function showError() {
+        loadingMsg.classList.add('hidden');
+        errorMsg.classList.remove('hidden');
+        pageWrap.style.opacity = '0';
+    }
+
     function renderPage(num) {
         if (!pdfDoc) return;
         const myToken = ++renderToken;
+        if (renderTask) { try { renderTask.cancel(); } catch (_) {} }
         pageWrap.style.opacity = '0.5';
 
         pdfDoc.getPage(num).then(page => {
             if (myToken !== renderToken) return;
             const viewport = page.getViewport({ scale: currentScale });
-            renderCanvas.width  = viewport.width;
-            renderCanvas.height = viewport.height;
-            drawCanvas.width    = viewport.width;
-            drawCanvas.height   = viewport.height;
-            pageWrap.style.width  = viewport.width + 'px';
+            renderCanvas.width  = drawCanvas.width  = viewport.width;
+            renderCanvas.height = drawCanvas.height = viewport.height;
+            pageWrap.style.width  = viewport.width  + 'px';
             pageWrap.style.height = viewport.height + 'px';
 
-            const ctx = renderCanvas.getContext('2d');
-            page.render({ canvasContext: ctx, viewport }).promise.then(() => {
+            renderTask = page.render({ canvasContext: renderCanvas.getContext('2d'), viewport });
+            return renderTask.promise.then(() => {
                 if (myToken !== renderToken) return;
                 pageWrap.style.opacity = '1';
                 loadingMsg.classList.add('hidden');
@@ -483,26 +440,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateZoomLabel();
                 updateNavButtons();
             });
-        }).catch(() => {
-            loadingMsg.classList.add('hidden');
-            errorMsg.classList.remove('hidden');
+        }).catch(err => {
+            if (err && err.name === 'RenderingCancelledException') return;
+            if (myToken === renderToken) showError();
         });
     }
 
-    window.openPdfViewer = function (url, title) {
+    /** @param {string} url      URL stream (inline, domain sendiri)
+     *  @param {string} title    Judul dokumen
+     *  @param {string} download URL download (opsional) */
+    window.openPdfViewer = function (url, title, download) {
         if (!url || url === '#') {
             showNotification('This document is not yet available on the server.');
             return;
         }
         if (!window['pdfjsLib']) {
-            window.open(url, '_blank');
+            window.open(url, '_blank', 'noopener');
             return;
         }
+
         currentPage   = 1;
         currentScale  = BASE_SCALE;
         strokesByPage = {};
-        titleEl.textContent  = title || 'Document';
-        downloadLink.href    = url;
+        titleEl.textContent = title || 'Document';
+        downloadLink.href   = download || url;
         errorMsg.classList.add('hidden');
         loadingMsg.classList.remove('hidden');
         pageWrap.style.opacity = '0';
@@ -511,20 +472,26 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add('pdf-modal-open');
         setTool('pan');
 
-        pdfjsLib.getDocument(url).promise.then(doc => {
+        if (loadingTask) { try { loadingTask.destroy(); } catch (_) {} }
+        loadingTask = pdfjsLib.getDocument(url);
+        const task = loadingTask;
+
+        task.promise.then(doc => {
+            if (task !== loadingTask) { doc.destroy(); return; }
             pdfDoc = doc;
             renderPage(currentPage);
         }).catch(() => {
-            loadingMsg.classList.add('hidden');
-            errorMsg.classList.remove('hidden');
+            if (task === loadingTask) showError();
         });
     };
 
     function closePdfViewer() {
         modal.classList.add('hidden');
         document.body.classList.remove('pdf-modal-open');
-        pdfDoc = null;
         renderToken++;
+        if (renderTask)   { try { renderTask.cancel(); }   catch (_) {} renderTask = null; }
+        if (loadingTask)  { try { loadingTask.destroy(); } catch (_) {} loadingTask = null; }
+        pdfDoc = null;
     }
 
     closeBtn.addEventListener('click', closePdfViewer);
@@ -533,25 +500,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Escape' && !modal.classList.contains('hidden')) closePdfViewer();
     });
 
-    prevBtn.addEventListener('click', () => {
-        if (currentPage > 1) { currentPage--; renderPage(currentPage); }
-    });
+    prevBtn.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderPage(currentPage); } });
     nextBtn.addEventListener('click', () => {
         if (pdfDoc && currentPage < pdfDoc.numPages) { currentPage++; renderPage(currentPage); }
     });
 
-    zoomInBtn.addEventListener('click', () => {
-        currentScale = clampScale(currentScale + 0.25);
-        renderPage(currentPage);
-    });
-    zoomOutBtn.addEventListener('click', () => {
-        currentScale = clampScale(currentScale - 0.25);
-        renderPage(currentPage);
-    });
-    zoomResetBtn.addEventListener('click', () => {
-        currentScale = BASE_SCALE;
-        renderPage(currentPage);
-    });
+    zoomInBtn.addEventListener('click',   () => { currentScale = clampScale(currentScale + 0.25); renderPage(currentPage); });
+    zoomOutBtn.addEventListener('click',  () => { currentScale = clampScale(currentScale - 0.25); renderPage(currentPage); });
+    zoomResetBtn.addEventListener('click',() => { currentScale = BASE_SCALE; renderPage(currentPage); });
 
     container.addEventListener('wheel', e => {
         if (!e.ctrlKey) return;
@@ -560,13 +516,12 @@ document.addEventListener('DOMContentLoaded', () => {
         renderPage(currentPage);
     }, { passive: false });
 
-    panBtn.addEventListener('click', () => setTool('pan'));
-    penBtn.addEventListener('click', () => setTool('pen'));
+    panBtn.addEventListener('click',    () => setTool('pan'));
+    penBtn.addEventListener('click',    () => setTool('pen'));
     eraserBtn.addEventListener('click', () => setTool('eraser'));
 
     undoBtn.addEventListener('click', () => {
-        const strokes = strokesByPage[currentPage] || [];
-        strokes.pop();
+        (strokesByPage[currentPage] || []).pop();
         redrawAnnotations();
     });
     clearBtn.addEventListener('click', () => {
@@ -574,6 +529,7 @@ document.addEventListener('DOMContentLoaded', () => {
         redrawAnnotations();
     });
 
+    /* ═══ DRAWING ═══ */
     drawCanvas.addEventListener('pointerdown', e => {
         if (currentTool === 'pan') return;
         isPointerDown = true;
@@ -582,22 +538,20 @@ document.addEventListener('DOMContentLoaded', () => {
             color:  currentTool === 'eraser' ? '#000000' : penColorInput.value,
             width:  currentTool === 'eraser' ? 22 : 3,
             erase:  currentTool === 'eraser',
-            points: [normalizedPointFromEvent(e)],
+            points: [normalizedPoint(e)],
         };
     });
 
     drawCanvas.addEventListener('pointermove', e => {
         if (!isPointerDown || !activeStroke) return;
-        activeStroke.points.push(normalizedPointFromEvent(e));
-        const ctx = drawCanvas.getContext('2d');
+        activeStroke.points.push(normalizedPoint(e));
         redrawAnnotations();
-        drawStroke(ctx, activeStroke);
+        drawStroke(drawCanvas.getContext('2d'), activeStroke);
     });
 
     function finishStroke() {
         if (activeStroke && activeStroke.points.length > 1) {
-            strokesByPage[currentPage] = strokesByPage[currentPage] || [];
-            strokesByPage[currentPage].push(activeStroke);
+            (strokesByPage[currentPage] = strokesByPage[currentPage] || []).push(activeStroke);
         }
         activeStroke  = null;
         isPointerDown = false;
@@ -605,9 +559,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     drawCanvas.addEventListener('pointerup', finishStroke);
-    drawCanvas.addEventListener('pointerleave', function () {
-        if (isPointerDown) finishStroke();
-    });
+    drawCanvas.addEventListener('pointercancel', finishStroke);
+    drawCanvas.addEventListener('pointerleave', () => { if (isPointerDown) finishStroke(); });
 });
 </script>
 @endpush

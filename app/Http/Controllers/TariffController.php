@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ActivityLog; 
 use App\Models\Tariff;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class TariffController extends Controller
 {
+    private const DISK = 'supabase';
+
     /* ═══════════════════════════════════════════════
-       PUBLIK
+        PUBLIK
     ═══════════════════════════════════════════════ */
 
     /** Halaman /our-tariffs */
@@ -26,19 +28,45 @@ class TariffController extends Controller
         return view('our-tariffs', compact('tariffs'));
     }
 
+    /**
+     * Tampilkan PDF inline dari domain sendiri (dipakai pdf.js di modal).
+     * Lewat proxy ini, CORS bucket Supabase tidak perlu diatur.
+     */
+    public function stream(Tariff $tariff)
+    {
+        $this->abortUnlessAvailable($tariff);
+
+        return Storage::disk(self::DISK)->response(
+            $tariff->pdf_path,
+            Str::slug($tariff->title) . '.pdf',
+            [
+                'Content-Type'  => 'application/pdf',
+                'Cache-Control' => 'public, max-age=300',
+            ],
+            'inline'
+        );
+    }
+
     /** Download PDF */
     public function download(Tariff $tariff)
     {
-        abort_unless($tariff->is_active && $tariff->hasPdf(), 404);
+        $this->abortUnlessAvailable($tariff);
 
-        return Storage::disk('public')->download(
+        return Storage::disk(self::DISK)->download(
             $tariff->pdf_path,
             Str::slug($tariff->title) . '.pdf'
         );
     }
 
+    /** Hanya tarif aktif dengan file yang benar-benar ada yang boleh diakses. */
+    private function abortUnlessAvailable(Tariff $tariff): void
+    {
+        abort_unless($tariff->is_active && $tariff->hasPdf(), 404);
+        abort_unless(Storage::disk(self::DISK)->exists($tariff->pdf_path), 404);
+    }
+
     /* ═══════════════════════════════════════════════
-       ADMIN (CRUD)
+        ADMIN (CRUD)
     ═══════════════════════════════════════════════ */
 
     public function index()
@@ -60,12 +88,13 @@ class TariffController extends Controller
         $data = $this->validated($request);
 
         if ($request->hasFile('pdf')) {
-            $data['pdf_path'] = $request->file('pdf')->store('tariffs', 'public');
+            $data['pdf_path'] = $request->file('pdf')->store('tariffs', self::DISK);
         }
 
         Tariff::create($data);
 
-        return redirect()->route('admin.tariffs.index')->with('success', 'Tarif berhasil ditambahkan.');
+        return redirect()->route('admin.tariffs.index')
+            ->with('success', 'Tarif berhasil ditambahkan.');
     }
 
     public function edit(Tariff $tariff)
@@ -75,27 +104,53 @@ class TariffController extends Controller
 
     public function update(Request $request, Tariff $tariff)
     {
-        $data = $this->validated($request);
+        $data    = $this->validated($request);
+        $oldPath = $tariff->pdf_path;
 
+        // 1) Upload file baru lebih dulu; jika gagal, file lama tetap aman.
         if ($request->hasFile('pdf')) {
-            $tariff->deletePdfFile(); // hapus file lama
-            $data['pdf_path'] = $request->file('pdf')->store('tariffs', 'public');
+            $data['pdf_path'] = $request->file('pdf')->store('tariffs', self::DISK);
         } elseif ($request->boolean('remove_pdf')) {
-            $tariff->deletePdfFile();
             $data['pdf_path'] = null;
         }
 
+        // 2) Perbarui database.
         $tariff->update($data);
 
-        return redirect()->route('admin.tariffs.index')->with('success', 'Tarif berhasil diperbarui.');
+        // 3) Baru hapus file lama setelah DB berhasil diperbarui.
+        if (array_key_exists('pdf_path', $data) && $oldPath && $oldPath !== $data['pdf_path']) {
+            $this->deleteFileSafely($oldPath);
+        }
+
+        return redirect()->route('admin.tariffs.index')
+            ->with('success', 'Tarif berhasil diperbarui.');
     }
 
     public function destroy(Tariff $tariff)
     {
-        $tariff->deletePdfFile();
+        $path = $tariff->pdf_path;
+
         $tariff->delete();
 
-        return redirect()->route('admin.tariffs.index')->with('success', 'Tarif berhasil dihapus.');
+        if ($path) {
+            $this->deleteFileSafely($path);
+        }
+
+        return redirect()->route('admin.tariffs.index')
+            ->with('success', 'Tarif berhasil dihapus.');
+    }
+
+    /** Hapus file di Supabase tanpa menggagalkan request jika storage tidak terjangkau. */
+    private function deleteFileSafely(string $path): void
+    {
+        try {
+            Storage::disk(self::DISK)->delete($path);
+        } catch (\Throwable $e) {
+            Log::warning('Gagal menghapus PDF tarif dari Supabase.', [
+                'path'  => $path,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     private function validated(Request $request): array

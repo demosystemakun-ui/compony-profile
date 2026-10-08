@@ -43,9 +43,9 @@ class NewsController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('news', 'public');
+            $imagePath = $request->file('image')->store('news', 'supabase');
         } elseif ($request->hasFile('image_gallery')) {
-            $imagePath = $request->file('image_gallery')->store('news', 'public');
+            $imagePath = $request->file('image_gallery')->store('news', 'supabase');
         }
 
         News::create([
@@ -84,16 +84,16 @@ class NewsController extends Controller
         $imagePath = $news->image;
 
         if ($request->hasFile('image')) {
-            // Hapus gambar lama kalau ada
-            if ($news->image && Storage::disk('public')->exists($news->image)) {
-                Storage::disk('public')->delete($news->image);
+            // Hapus gambar lama kalau ada di Supabase
+            if ($news->image && Storage::disk('supabase')->exists($news->image)) {
+                Storage::disk('supabase')->delete($news->image);
             }
-            $imagePath = $request->file('image')->store('news', 'public');
+            $imagePath = $request->file('image')->store('news', 'supabase');
         } elseif ($request->hasFile('image_gallery')) {
-            if ($news->image && Storage::disk('public')->exists($news->image)) {
-                Storage::disk('public')->delete($news->image);
+            if ($news->image && Storage::disk('supabase')->exists($news->image)) {
+                Storage::disk('supabase')->delete($news->image);
             }
-            $imagePath = $request->file('image_gallery')->store('news', 'public');
+            $imagePath = $request->file('image_gallery')->store('news', 'supabase');
         }
 
         $news->update([
@@ -114,9 +114,9 @@ class NewsController extends Controller
     {
         $news = News::findOrFail($id);
 
-        // Hapus file gambar fisik dari storage jika ada
-        if ($news->image && Storage::disk('public')->exists($news->image)) {
-            Storage::disk('public')->delete($news->image);
+        // Hapus file gambar fisik dari Supabase jika ada
+        if ($news->image && Storage::disk('supabase')->exists($news->image)) {
+            Storage::disk('supabase')->delete($news->image);
         }
 
         $news->delete();
