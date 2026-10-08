@@ -1,173 +1,55 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Models;
 
-use App\Models\Tariff;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 
-class TariffController extends Controller
+class Tariff extends Model
 {
-    private const DISK = 'supabase';
+    protected $fillable = [
+        'tag', 'title', 'description', 'icon', 'pdf_path', 'sort_order', 'is_active', 'updated_by',
+    ];
+    
+public function updatedBy()
+{
+    return $this->belongsTo(\App\Models\User::class, 'updated_by');
+}
 
-    /* ═══════════════════════════════════════════════
-        PUBLIK
-    ═══════════════════════════════════════════════ */
+    protected $casts = ['is_active' => 'boolean'];
 
-    /** Halaman /our-tariffs */
-    public function publicIndex()
+    /** Pilihan kategori (dropdown di form admin) */
+    public const TAGS = ['Domestic', 'International', 'Others'];
+
+    /** Pilihan ikon di form admin => path SVG heroicons */
+    public const ICONS = [
+        'building' => 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
+        'globe'    => 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+        'document' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+    ];
+
+    public function iconPath(): string
     {
-        $tariffs = Tariff::where('is_active', true)
-            ->orderBy('sort_order')
-            ->orderBy('id')
-            ->get();
-
-        return view('our-tariffs', compact('tariffs'));
+        return self::ICONS[$this->icon] ?? self::ICONS['document'];
     }
 
-    /**
-     * Tampilkan PDF inline dari domain sendiri (dipakai pdf.js di modal).
-     * Lewat proxy ini, CORS bucket Supabase tidak perlu diatur.
-     */
-    public function stream(Tariff $tariff)
-    {
-        $this->abortUnlessAvailable($tariff);
+public function hasPdf(): bool
+{
+    return filled($this->pdf_path);
+}
 
-        return Storage::disk(self::DISK)->response(
-            $tariff->pdf_path,
-            Str::slug($tariff->title) . '.pdf',
-            [
-                'Content-Type'  => 'application/pdf',
-                'Cache-Control' => 'public, max-age=300',
-            ],
-            'inline'
-        );
+/** URL publik lewat route Laravel (stream dari Supabase). Query ?v= agar cache browser ikut ter-refresh saat file diganti. */
+public function pdfUrl(): string
+{
+    return $this->hasPdf()
+        ? route('tarif.stream', $this) . '?v=' . $this->updated_at?->timestamp
+        : '#';
+}
+
+public function deletePdfFile(): void
+{
+    if ($this->pdf_path) {
+        Storage::disk('supabase')->delete($this->pdf_path);
     }
-
-    /** Download PDF */
-    public function download(Tariff $tariff)
-    {
-        $this->abortUnlessAvailable($tariff);
-
-        return Storage::disk(self::DISK)->download(
-            $tariff->pdf_path,
-            Str::slug($tariff->title) . '.pdf'
-        );
-    }
-
-    /** Hanya tarif aktif dengan file yang benar-benar ada yang boleh diakses. */
-    private function abortUnlessAvailable(Tariff $tariff): void
-    {
-        abort_unless($tariff->is_active && $tariff->hasPdf(), 404);
-        abort_unless(Storage::disk(self::DISK)->exists($tariff->pdf_path), 404);
-    }
-
-    /* ═══════════════════════════════════════════════
-        ADMIN (CRUD)
-    ═══════════════════════════════════════════════ */
-
-    public function index()
-    {
-        $tariffs = Tariff::orderBy('sort_order')->orderBy('id')->get();
-
-        return view('admin.tariffs.index', compact('tariffs'));
-    }
-
-    public function create()
-    {
-        return view('admin.tariffs.form', [
-            'tariff' => new Tariff(['icon' => 'document', 'is_active' => true]),
-        ]);
-    }
-
-    public function store(Request $request)
-    {
-        $data = $this->validated($request);
-
-        if ($request->hasFile('pdf')) {
-            $data['pdf_path'] = $request->file('pdf')->store('tariffs', self::DISK);
-        }
-
-        Tariff::create($data);
-
-        return redirect()->route('admin.tariffs.index')
-            ->with('success', 'Tarif berhasil ditambahkan.');
-    }
-
-    public function edit(Tariff $tariff)
-    {
-        return view('admin.tariffs.form', compact('tariff'));
-    }
-
-    public function update(Request $request, Tariff $tariff)
-    {
-        $data    = $this->validated($request);
-        $oldPath = $tariff->pdf_path;
-
-        // 1) Upload file baru lebih dulu; jika gagal, file lama tetap aman.
-        if ($request->hasFile('pdf')) {
-            $data['pdf_path'] = $request->file('pdf')->store('tariffs', self::DISK);
-        } elseif ($request->boolean('remove_pdf')) {
-            $data['pdf_path'] = null;
-        }
-
-        // 2) Perbarui database.
-        $tariff->update($data);
-
-        // 3) Baru hapus file lama setelah DB berhasil diperbarui.
-        if (array_key_exists('pdf_path', $data) && $oldPath && $oldPath !== $data['pdf_path']) {
-            $this->deleteFileSafely($oldPath);
-        }
-
-        return redirect()->route('admin.tariffs.index')
-            ->with('success', 'Tarif berhasil diperbarui.');
-    }
-
-    public function destroy(Tariff $tariff)
-    {
-        $path = $tariff->pdf_path;
-
-        $tariff->delete();
-
-        if ($path) {
-            $this->deleteFileSafely($path);
-        }
-
-        return redirect()->route('admin.tariffs.index')
-            ->with('success', 'Tarif berhasil dihapus.');
-    }
-
-    /** Hapus file di Supabase tanpa menggagalkan request jika storage tidak terjangkau. */
-    private function deleteFileSafely(string $path): void
-    {
-        try {
-            Storage::disk(self::DISK)->delete($path);
-        } catch (\Throwable $e) {
-            Log::warning('Gagal menghapus PDF tarif dari Supabase.', [
-                'path'  => $path,
-                'error' => $e->getMessage(),
-            ]);
-        }
-    }
-
-    private function validated(Request $request): array
-    {
-        $data = $request->validate([
-            'tag'         => ['required', Rule::in(Tariff::TAGS)],
-            'title'       => ['required', 'string', 'max:120'],
-            'description' => ['nullable', 'string', 'max:300'],
-            'icon'        => ['required', Rule::in(array_keys(Tariff::ICONS))],
-            'sort_order'  => ['nullable', 'integer', 'min:0', 'max:999'],
-            'pdf'         => ['nullable', 'file', 'mimes:pdf', 'max:20480'], // 20 MB
-        ]);
-
-        $data['is_active']  = $request->boolean('is_active');
-        $data['sort_order'] = $data['sort_order'] ?? 0;
-        unset($data['pdf']);
-
-        return $data;
-    }
+}
 }
