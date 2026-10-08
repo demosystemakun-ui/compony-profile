@@ -60,18 +60,33 @@ return [
             'report' => false,
         ],
 
-            'supabase' => [
-        'driver'                  => 's3',
-        'key'                     => env('SUPABASE_S3_KEY'),
-        'secret'                  => env('SUPABASE_S3_SECRET'),
-        'region'                  => env('SUPABASE_S3_REGION', 'ap-northeast-1'),
-        'bucket'                  => env('SUPABASE_S3_BUCKET'),
-        'endpoint'                => env('SUPABASE_S3_ENDPOINT'),
-        'use_path_style_endpoint' => true,
-        'visibility'              => 'private',
-        'throw'                   => true,
-        'report'                  => false,
-    ],
+        // Disk khusus untuk Bucket News di Supabase
+        'supabase-news' => [
+            'driver'                  => 's3',
+            'key'                     => env('SUPABASE_S3_KEY'),
+            'secret'                  => env('SUPABASE_S3_SECRET'),
+            'region'                  => env('SUPABASE_S3_REGION', 'ap-northeast-1'),
+            'bucket'                  => env('SUPABASE_NEWS_BUCKET', 'news'),
+            'endpoint'                => env('SUPABASE_S3_ENDPOINT'),
+            'use_path_style_endpoint' => true,
+            'visibility'              => 'public',
+            'throw'                   => true,
+            'report'                  => false,
+        ],
+
+        // Disk khusus untuk Bucket Tariffs di Supabase
+        'supabase-tariffs' => [
+            'driver'                  => 's3',
+            'key'                     => env('SUPABASE_S3_KEY'),
+            'secret'                  => env('SUPABASE_S3_SECRET'),
+            'region'                  => env('SUPABASE_S3_REGION', 'ap-northeast-1'),
+            'bucket'                  => env('SUPABASE_TARIFFS_BUCKET', 'tariffs'),
+            'endpoint'                => env('SUPABASE_S3_ENDPOINT'),
+            'use_path_style_endpoint' => true,
+            'visibility'              => 'public',
+            'throw'                   => true,
+            'report'                  => false,
+        ],
 
     ],
 

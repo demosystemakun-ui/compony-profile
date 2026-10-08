@@ -2,125 +2,186 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ActivityLog; 
 use App\Models\News;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class NewsController extends Controller
 {
-    // Menampilkan daftar berita untuk publik
+    private const DISK = 'supabase';
+
+    /* ═══════════════════════════════════════════════
+        PUBLIK
+    ═══════════════════════════════════════════════ */
+
     public function index()
     {
         $newsList = News::latest('published_at')->get();
+
         return view('news.index', compact('newsList'));
     }
 
-    // Menampilkan detail berita untuk publik
     public function show($slug)
     {
         $news = News::where('slug', $slug)->firstOrFail();
+
         return view('news.show', compact('news'));
     }
 
-    // Menampilkan form tambah berita
+    /** Gambar berita dari Supabase, dilayani lewat domain sendiri. */
+    public function image(News $news)
+    {
+        abort_unless($news->image, 404);
+        abort_unless(Storage::disk(self::DISK)->exists($news->image), 404);
+
+        return Storage::disk(self::DISK)->response(
+            $news->image,
+            null,
+            ['Cache-Control' => 'public, max-age=604800'],
+            'inline'
+        );
+    }
+
+    /* ═══════════════════════════════════════════════
+        ADMIN
+    ═══════════════════════════════════════════════ */
+
     public function create()
     {
         return view('news.create');
     }
 
-    // Menyimpan berita baru ke database
     public function store(Request $request)
     {
-        $request->validate([
-            'title'    => 'required|string|max:255',
-            'category' => 'required|string|max:100',
-            'excerpt'  => 'required|string',
-            'content'  => 'required|string',
-            'image'    => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
-        ]);
+        $request->validate($this->rules());
 
         $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('news', 'supabase');
-        } elseif ($request->hasFile('image_gallery')) {
-            $imagePath = $request->file('image_gallery')->store('news', 'supabase');
+        if ($file = $this->uploadedImage($request)) {
+            $imagePath = $file->store('news', self::DISK);
         }
 
         News::create([
             'title'        => $request->title,
-            'slug'         => Str::slug($request->title),
+            'slug'         => $this->uniqueSlug($request->title),
             'category'     => $request->category,
             'image'        => $imagePath,
             'excerpt'      => $request->excerpt,
             'content'      => $request->content,
             'published_at' => now(),
-            'updated_by'   => auth()->id(), // ⭐ histori: siapa yang membuat
+            'updated_by'   => auth()->id(),
         ]);
 
         return redirect()->route('dashboard')->with('success', 'Berita berhasil diunggah!');
     }
 
-    // Menampilkan form edit berita
     public function edit($id)
     {
         $news = News::findOrFail($id);
+
         return view('news.edit', compact('news'));
     }
 
-    // Memproses pembaruan berita
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'title'    => 'required|string|max:255',
-            'category' => 'required|string|max:100',
-            'excerpt'  => 'required|string',
-            'content'  => 'required|string',
-            'image'    => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
-        ]);
+        $request->validate($this->rules());
 
-        $news = News::findOrFail($id);
-        $imagePath = $news->image;
+        $news      = News::findOrFail($id);
+        $oldPath   = $news->image;
+        $imagePath = $oldPath;
 
-        if ($request->hasFile('image')) {
-            // Hapus gambar lama kalau ada di Supabase
-            if ($news->image && Storage::disk('supabase')->exists($news->image)) {
-                Storage::disk('supabase')->delete($news->image);
-            }
-            $imagePath = $request->file('image')->store('news', 'supabase');
-        } elseif ($request->hasFile('image_gallery')) {
-            if ($news->image && Storage::disk('supabase')->exists($news->image)) {
-                Storage::disk('supabase')->delete($news->image);
-            }
-            $imagePath = $request->file('image_gallery')->store('news', 'supabase');
+        // 1) Upload gambar baru lebih dulu; jika gagal, gambar lama tetap aman.
+        if ($file = $this->uploadedImage($request)) {
+            $imagePath = $file->store('news', self::DISK);
         }
 
+        // 2) Perbarui database.
         $news->update([
             'title'      => $request->title,
-            'slug'       => Str::slug($request->title),
+            'slug'       => $this->uniqueSlug($request->title, $news->id),
             'category'   => $request->category,
             'image'      => $imagePath,
             'excerpt'    => $request->excerpt,
             'content'    => $request->content,
-            'updated_by' => auth()->id(), // ⭐ histori: siapa yang memperbarui
+            'updated_by' => auth()->id(),
         ]);
+
+        // 3) Baru hapus gambar lama setelah DB berhasil diperbarui.
+        if ($oldPath && $oldPath !== $imagePath) {
+            $this->deleteFileSafely($oldPath);
+        }
 
         return redirect()->route('dashboard')->with('success', 'Berita berhasil diperbarui!');
     }
 
-    // Menghapus berita dari database dan file gambar terkait
     public function destroy($id)
     {
         $news = News::findOrFail($id);
-
-        // Hapus file gambar fisik dari Supabase jika ada
-        if ($news->image && Storage::disk('supabase')->exists($news->image)) {
-            Storage::disk('supabase')->delete($news->image);
-        }
+        $path = $news->image;
 
         $news->delete();
 
+        if ($path) {
+            $this->deleteFileSafely($path);
+        }
+
         return redirect()->route('dashboard')->with('success', 'Berita berhasil dihapus!');
+    }
+
+    /* ═══════════════════════════════════════════════
+        HELPER
+    ═══════════════════════════════════════════════ */
+
+    private function rules(): array
+    {
+        $image = ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:10240'];
+
+        return [
+            'title'         => ['required', 'string', 'max:255'],
+            'category'      => ['required', 'string', 'max:100'],
+            'excerpt'       => ['required', 'string'],
+            'content'       => ['required', 'string'],
+            'image'         => $image, // input kamera / file biasa
+            'image_gallery' => $image, // input galeri (sebelumnya tidak divalidasi)
+        ];
+    }
+
+    /** Ambil file gambar dari input kamera atau galeri. */
+    private function uploadedImage(Request $request): ?UploadedFile
+    {
+        return $request->file('image') ?? $request->file('image_gallery');
+    }
+
+    /** Slug unik: judul sama akan menjadi judul-2, judul-3, dst. */
+    private function uniqueSlug(string $title, ?int $ignoreId = null): string
+    {
+        $base = Str::slug($title) ?: 'berita';
+        $slug = $base;
+        $i    = 2;
+
+        while (
+            News::where('slug', $slug)
+                ->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))
+                ->exists()
+        ) {
+            $slug = $base . '-' . $i++;
+        }
+
+        return $slug;
+    }
+
+    /** Hapus file di Supabase tanpa menggagalkan request jika storage tidak terjangkau. */
+    private function deleteFileSafely(string $path): void
+    {
+        try {
+            Storage::disk(self::DISK)->delete($path);
+        } catch (\Throwable $e) {
+            Log::warning('Gagal menghapus gambar berita dari Supabase.', [
+                'path'  => $path,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }

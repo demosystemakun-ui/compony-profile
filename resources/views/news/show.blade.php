@@ -3,7 +3,7 @@
 @section('content')
 <main class="py-12 px-4 max-w-4xl mx-auto">
     <article class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sm:p-10">
-        
+
         <div class="flex flex-wrap items-center gap-3 mb-4">
             <span class="bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
                 {{ $news->category }}
@@ -17,9 +17,9 @@
             {{ $news->title }}
         </h1>
 
-        @if($news->image)
+        @if($news->image_url)
             <div class="mb-8 h-64 sm:h-96 overflow-hidden rounded-xl bg-gray-50 border border-gray-100 shadow-sm">
-                <img src="{{ asset('storage/' . $news->image) }}" alt="{{ $news->title }}" class="w-full h-full object-cover">
+                <img src="{{ $news->image_url }}" alt="{{ $news->title }}" class="w-full h-full object-cover">
             </div>
         @endif
 

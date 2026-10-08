@@ -32,9 +32,9 @@
                     {{-- Gambar --}}
                     <div class="{{ $isEven ? 'md:order-1' : 'md:order-2' }}">
                         <div class="aspect-[16/10] rounded-2xl overflow-hidden bg-gray-100 shadow-lg ring-1 ring-gray-200/60">
-                            @if($item->image)
+                            @if($item->image_url)
                                 <img
-                                    src="{{ asset('storage/' . $item->image) }}"
+                                    src="{{ $item->image_url }}"
                                     alt="{{ $item->title }}"
                                     class="w-full h-full object-cover hover:scale-105 transition-transform duration-700 ease-out"
                                     loading="lazy"

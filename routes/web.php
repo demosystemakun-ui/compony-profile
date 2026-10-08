@@ -42,6 +42,7 @@ Route::get('/tarif/{tariff}/download', [TariffController::class, 'download'])->n
 
 // Public News
 Route::get('/news', [NewsController::class, 'index'])->name('news');
+Route::get('/media/news/{news}', [NewsController::class, 'image'])->name('news.image');
 Route::get('/news/{slug}', [NewsController::class, 'show'])->name('news.show');
 
 // AI Chat

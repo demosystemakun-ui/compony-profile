@@ -8,7 +8,7 @@
     <div class="py-12 bg-gray-50 min-h-screen">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-100 p-6 sm:p-8 text-gray-900">
-                
+
                 @if ($errors->any())
                     <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
                         <ul class="list-disc pl-5 space-y-1">
@@ -22,7 +22,7 @@
                 <form action="{{ route('news.update', $news->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                     @csrf
                     @method('PUT')
-                    
+
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Article Title</label>
                         <input type="text" name="title" value="{{ old('title', $news->title) }}" class="w-full border border-gray-300 bg-white rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
@@ -35,12 +35,14 @@
 
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Update Image (Optional)</label>
-                        @if($news->image)
+                        @if($news->image_url)
                             <div class="mb-3">
-                                <img src="{{ asset('storage/' . $news->image) }}" alt="Current Image" class="w-32 h-20 object-cover rounded border">
+                                <img src="{{ $news->image_url }}" alt="Current Image" class="w-32 h-20 object-cover rounded border">
+                                <p class="text-xs text-gray-400 mt-1">Gambar saat ini. Pilih file baru hanya jika ingin menggantinya.</p>
                             </div>
                         @endif
-                        <input type="file" name="image" accept="image/*" class="w-full border border-gray-300 bg-white rounded-lg p-2.5 text-sm">
+                        <input type="file" name="image" accept="image/jpeg,image/png,image/webp" class="w-full border border-gray-300 bg-white rounded-lg p-2.5 text-sm">
+                        <p class="text-xs text-gray-500 mt-1">Format JPG, PNG, atau WebP. Maksimal 10 MB.</p>
                     </div>
 
                     <div>
