@@ -117,8 +117,8 @@
                         @php $isCurrent = $isLinkActive($link['url']); @endphp
                         <a href="{{ url($link['url']) }}"
                            class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors duration-200
-                                  {{ $isCurrent 
-                                     ? 'bg-red-600 text-white font-bold shadow-sm' 
+                                  {{ $isCurrent
+                                     ? 'bg-red-600 text-white font-bold shadow-sm'
                                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
                             {{ $link['label'] }}
                         </a>
@@ -127,7 +127,7 @@
                     {{-- Logout --}}
                     <form method="POST" action="{{ route('logout') }}" class="inline">
                         @csrf
-                        <button type="submit" 
+                        <button type="submit"
                                 class="px-3 py-1.5 rounded-full text-xs font-medium text-red-600 hover:bg-red-50 transition-colors duration-200">
                             Logout
                         </button>
@@ -171,7 +171,7 @@
 
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" 
+                        <button type="submit"
                                 class="w-full text-left flex items-center justify-between px-4 py-2.5 rounded-2xl text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 transition active:scale-95">
                             Logout
                         </button>
@@ -225,6 +225,26 @@
     'use strict';
 
     /* ═══════════════════════════════════════════════════════════════
+       GUARD: kalau script ini dieksekusi ulang (mis. oleh Swup),
+       jangan pasang listener lagi. Cukup init ulang pill-nya.
+    ═══════════════════════════════════════════════════════════════ */
+    if (window.__pictNavLoaded) {
+        if (typeof window.__pictNavInit === 'function') window.__pictNavInit();
+        return;
+    }
+    window.__pictNavLoaded = true;
+
+    let activeTab = null;
+
+    /* ═══════════════════════════════════════════════════════════════
+       HELPER
+    ═══════════════════════════════════════════════════════════════ */
+    function closeMobileMenu() {
+        document.getElementById('mobileMenu')?.classList.add('is-closed');
+        document.getElementById('mobileMenuBtn')?.setAttribute('aria-expanded', 'false');
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
        SLIDING PILL (DESKTOP NAV)
     ═══════════════════════════════════════════════════════════════ */
     function setupSlidingPill() {
@@ -236,13 +256,7 @@
         if (tabs.length === 0) return;
 
         const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
-        let activeTab = null;
-
-        /* Reset semua tab */
-        tabs.forEach(tab => {
-            tab.classList.remove('active-tab', 'text-white', 'font-bold');
-            tab.classList.add('text-slate-600');
-        });
+        activeTab = null;
 
         /* Cari tab yang cocok dengan current path */
         tabs.forEach(tab => {
@@ -256,18 +270,12 @@
 
         if (!activeTab) activeTab = tabs[0];
 
-        /* Terapkan style aktif ke tab yang ditemukan */
-        if (activeTab) {
-            activeTab.classList.add('active-tab', 'text-white', 'font-bold');
-            activeTab.classList.remove('text-slate-600');
-        }
-
         /* Update style semua tab */
         function applyTabStyles(target) {
             tabs.forEach(tab => {
                 const isActive = tab === target;
-                tab.classList.toggle('text-white',  isActive);
-                tab.classList.toggle('font-bold',   isActive);
+                tab.classList.toggle('text-white',     isActive);
+                tab.classList.toggle('font-bold',      isActive);
                 tab.classList.toggle('text-slate-600', !isActive);
             });
         }
@@ -284,24 +292,28 @@
             const tRect = target.getBoundingClientRect();
 
             slider.style.transition = instant ? 'none' : '';
-            slider.style.left   = (tRect.left - cRect.left) + 'px';
-            slider.style.top    = (tRect.top  - cRect.top)  + 'px';
-            slider.style.width  = tRect.width  + 'px';
-            slider.style.height = tRect.height + 'px';
+            slider.style.left    = (tRect.left - cRect.left) + 'px';
+            slider.style.top     = (tRect.top  - cRect.top)  + 'px';
+            slider.style.width   = tRect.width  + 'px';
+            slider.style.height  = tRect.height + 'px';
             slider.style.opacity = '1';
 
             applyTabStyles(target);
         }
 
+        /* Simpan supaya bisa dipanggil dari resize handler */
+        window.__pictNavMoveTo = moveTo;
+
         /* Inisialisasi posisi */
         moveTo(activeTab, true);
 
-        /* Attach event listeners */
+        /* Pasang listener hanya sekali per elemen */
         tabs.forEach(tab => {
+            if (tab.dataset.bound === '1') return;
+            tab.dataset.bound = '1';
+
             tab.addEventListener('click', function () {
                 activeTab = this;
-                tabs.forEach(t => t.classList.remove('active-tab'));
-                this.classList.add('active-tab');
                 moveTo(this);
             });
 
@@ -310,54 +322,61 @@
             });
         });
 
-        container.addEventListener('mouseleave', () => moveTo(activeTab));
-
-        /* Recalculate on resize (debounced) */
-        let resizeTimer = null;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => moveTo(activeTab, true), 100);
-        });
+        if (container.dataset.bound !== '1') {
+            container.dataset.bound = '1';
+            container.addEventListener('mouseleave', () => moveTo(activeTab));
+        }
     }
 
     /* ═══════════════════════════════════════════════════════════════
-       MOBILE MENU — Event Delegation (safe across re-renders)
+       RESIZE (dipasang sekali)
+    ═══════════════════════════════════════════════════════════════ */
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            if (typeof window.__pictNavMoveTo === 'function' && activeTab) {
+                window.__pictNavMoveTo(activeTab, true);
+            }
+        }, 100);
+    });
+
+    /* ═══════════════════════════════════════════════════════════════
+       MOBILE MENU — Event Delegation (dipasang sekali)
     ═══════════════════════════════════════════════════════════════ */
     document.addEventListener('click', (e) => {
         const menu = document.getElementById('mobileMenu');
-        const btn  = e.target.closest('#mobileMenuBtn');
         if (!menu) return;
 
-        /* Toggle button */
+        const btn = e.target.closest('#mobileMenuBtn');
+
+        /* Tombol hamburger */
         if (btn) {
             e.preventDefault();
-            e.stopPropagation();
-            const willClose = !menu.classList.contains('is-closed');
-            menu.classList.toggle('is-closed');
-            btn.setAttribute('aria-expanded', String(!willClose));
+            const isClosed = menu.classList.contains('is-closed');
+            if (isClosed) {
+                menu.classList.remove('is-closed');
+                btn.setAttribute('aria-expanded', 'true');
+            } else {
+                menu.classList.add('is-closed');
+                btn.setAttribute('aria-expanded', 'false');
+            }
             return;
         }
 
-        /* Link click — close menu */
-        if (e.target.closest('#mobileMenu a')) {
-            menu.classList.add('is-closed');
-            document.getElementById('mobileMenuBtn')?.setAttribute('aria-expanded', 'false');
-            return;
-        }
-
-        /* Click outside — close menu */
-        if (!menu.contains(e.target)) {
-            menu.classList.add('is-closed');
-            document.getElementById('mobileMenuBtn')?.setAttribute('aria-expanded', 'false');
+        /* Klik link di dalam menu, atau klik di luar menu → tutup */
+        if (e.target.closest('#mobileMenu a') || !menu.contains(e.target)) {
+            closeMobileMenu();
         }
     });
 
     /* ═══════════════════════════════════════════════════════════════
-       INITIALIZE + SWUP INTEGRATION
+       INITIALIZE
     ═══════════════════════════════════════════════════════════════ */
     function initNavbar() {
         setupSlidingPill();
     }
+    window.__pictNavInit = initNavbar;
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initNavbar);
@@ -365,24 +384,30 @@
         initNavbar();
     }
 
-    /* Swup re-init */
+    /* ═══════════════════════════════════════════════════════════════
+       SWUP INTEGRATION (hook didaftarkan sekali)
+    ═══════════════════════════════════════════════════════════════ */
     function bindSwup() {
+        if (window.__pictSwupBound) return true;
         if (window.swup && typeof window.swup.hooks?.on === 'function') {
-            window.swup.hooks.on('page:view', () => setTimeout(initNavbar, 50));
+            window.__pictSwupBound = true;
+            window.swup.hooks.on('page:view', () => {
+                closeMobileMenu();
+                setTimeout(initNavbar, 50);
+            });
+            return true;
         }
+        return false;
     }
-    bindSwup();
 
-    /* Kalau Swup di-inisialisasi setelah file ini, cek berkala sebentar */
-    let swupCheckAttempts = 0;
-    const swupCheck = setInterval(() => {
-        swupCheckAttempts++;
-        if (window.swup) {
-            bindSwup();
-            clearInterval(swupCheck);
-        }
-        if (swupCheckAttempts > 20) clearInterval(swupCheck);
-    }, 250);
+    if (!bindSwup()) {
+        /* Kalau Swup di-inisialisasi setelah file ini, cek berkala sebentar */
+        let attempts = 0;
+        const swupCheck = setInterval(() => {
+            attempts++;
+            if (bindSwup() || attempts > 20) clearInterval(swupCheck);
+        }, 250);
+    }
 })();
 </script>
 @endpush
