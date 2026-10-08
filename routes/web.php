@@ -78,10 +78,11 @@ Route::middleware(['auth'])->prefix('pict-internal-admin-portal')->group(functio
     Route::put('/news/{id}', [NewsController::class, 'update'])->name('news.update');
     Route::delete('/news/{id}', [NewsController::class, 'destroy'])->name('news.destroy');
 
-    // Tariff Management
-    Route::name('admin.')->group(function () {
-Route::get('tariffs/{tariff}/preview', [TariffController::class, 'preview'])->name('tariffs.preview');    });
-
+// Tariff Management
+Route::name('admin.')->group(function () {
+    Route::get('tariffs/{tariff}/preview', [TariffController::class, 'preview'])->name('tariffs.preview');
+    Route::resource('tariffs', TariffController::class)->except(['show']);
+});
     // Profile & Password
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

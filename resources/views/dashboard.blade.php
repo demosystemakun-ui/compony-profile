@@ -424,8 +424,7 @@
                                         </td>
                                         <td class="py-4 px-4">
                                             @if($tariff->hasPdf())
-                                                <a href="{{ $tariff->pdfUrl() }}" target="_blank"
-                                                   class="inline-flex items-center gap-1 text-blue-700 hover:text-blue-900 text-xs font-semibold hover:underline">
+<a href="{{ route('admin.tariffs.preview', $tariff) }}?v={{ $tariff->updated_at?->timestamp }}" target="_blank" rel="noopener"                                                   class="inline-flex items-center gap-1 text-blue-700 hover:text-blue-900 text-xs font-semibold hover:underline">
                                                     Lihat PDF
                                                 </a>
                                             @else
