@@ -33,23 +33,23 @@ public function updatedBy()
         return self::ICONS[$this->icon] ?? self::ICONS['document'];
     }
 
-    public function hasPdf(): bool
-    {
-        return $this->pdf_path && Storage::disk('public')->exists($this->pdf_path);
-    }
+public function hasPdf(): bool
+{
+    return filled($this->pdf_path);
+}
 
-    /** URL untuk pdf.js viewer. Query ?v= supaya cache browser ikut ter-refresh saat file diganti. */
-    public function pdfUrl(): string
-    {
-        return $this->hasPdf()
-            ? asset('storage/' . $this->pdf_path) . '?v=' . $this->updated_at?->timestamp
-            : '#';
-    }
+/** URL publik lewat route Laravel (stream dari Supabase). Query ?v= agar cache browser ikut ter-refresh saat file diganti. */
+public function pdfUrl(): string
+{
+    return $this->hasPdf()
+        ? route('tarif.stream', $this) . '?v=' . $this->updated_at?->timestamp
+        : '#';
+}
 
-    public function deletePdfFile(): void
-    {
-        if ($this->pdf_path) {
-            Storage::disk('public')->delete($this->pdf_path);
-        }
+public function deletePdfFile(): void
+{
+    if ($this->pdf_path) {
+        Storage::disk('supabase')->delete($this->pdf_path);
     }
+}
 }
