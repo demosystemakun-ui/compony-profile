@@ -48,7 +48,9 @@
                                         </td>
                                         <td class="py-3.5 px-4">
                                             @if($item->hasPdf())
-                                                <a href="{{ $item->pdfUrl() }}" target="_blank" class="text-blue-600 hover:underline text-xs font-medium">Lihat PDF</a>
+                                                <a href="{{ route('admin.tariffs.preview', $item) }}?v={{ $item->updated_at?->timestamp }}"
+                                                   target="_blank" rel="noopener"
+                                                   class="text-blue-600 hover:underline text-xs font-medium">Lihat PDF</a>
                                             @else
                                                 <span class="text-xs text-red-500 font-medium">Belum diunggah</span>
                                             @endif
