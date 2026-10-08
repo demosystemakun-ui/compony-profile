@@ -52,3 +52,4 @@ public function deletePdfFile(): void
         Storage::disk('supabase')->delete($this->pdf_path);
     }
 }
+}
