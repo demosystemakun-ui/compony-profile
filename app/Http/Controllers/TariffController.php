@@ -11,7 +11,7 @@ use Illuminate\Validation\Rule;
 
 class TariffController extends Controller
 {
-    private const DISK = 'supabase';
+    private const DISK = 'supabase-tariffs';
 
     /* ═══════════════════════════════════════════════
         PUBLIK
@@ -28,26 +28,15 @@ class TariffController extends Controller
         return view('our-tariffs', compact('tariffs'));
     }
 
-    /**
-     * Tampilkan PDF inline dari domain sendiri (dipakai pdf.js di modal).
-     * Lewat proxy ini, CORS bucket Supabase tidak perlu diatur.
-     */
+    /** PDF inline untuk modal pdf.js (hanya tarif aktif). */
     public function stream(Tariff $tariff)
     {
         $this->abortUnlessAvailable($tariff);
 
-        return Storage::disk(self::DISK)->response(
-            $tariff->pdf_path,
-            Str::slug($tariff->title) . '.pdf',
-            [
-                'Content-Type'  => 'application/pdf',
-                'Cache-Control' => 'public, max-age=300',
-            ],
-            'inline'
-        );
+        return $this->pdfResponse($tariff);
     }
 
-    /** Download PDF */
+    /** Download PDF (hanya tarif aktif). */
     public function download(Tariff $tariff)
     {
         $this->abortUnlessAvailable($tariff);
@@ -58,16 +47,35 @@ class TariffController extends Controller
         );
     }
 
-    /** Hanya tarif aktif dengan file yang benar-benar ada yang boleh diakses. */
+    /** Hanya tarif aktif dengan file yang benar-benar ada yang boleh diakses publik. */
     private function abortUnlessAvailable(Tariff $tariff): void
     {
         abort_unless($tariff->is_active && $tariff->hasPdf(), 404);
         abort_unless(Storage::disk(self::DISK)->exists($tariff->pdf_path), 404);
     }
 
+    private function pdfResponse(Tariff $tariff, string $cache = 'public, max-age=300')
+    {
+        return Storage::disk(self::DISK)->response(
+            $tariff->pdf_path,
+            Str::slug($tariff->title) . '.pdf',
+            ['Content-Type' => 'application/pdf', 'Cache-Control' => $cache],
+            'inline'
+        );
+    }
+
     /* ═══════════════════════════════════════════════
         ADMIN (CRUD)
     ═══════════════════════════════════════════════ */
+
+    /** Preview PDF untuk admin: boleh melihat tarif yang disembunyikan. */
+    public function preview(Tariff $tariff)
+    {
+        abort_unless($tariff->hasPdf(), 404);
+        abort_unless(Storage::disk(self::DISK)->exists($tariff->pdf_path), 404);
+
+        return $this->pdfResponse($tariff, 'private, no-store');
+    }
 
     public function index()
     {
@@ -166,22 +174,9 @@ class TariffController extends Controller
 
         $data['is_active']  = $request->boolean('is_active');
         $data['sort_order'] = $data['sort_order'] ?? 0;
+        $data['updated_by'] = auth()->id();
         unset($data['pdf']);
 
         return $data;
     }
-
-    /** Preview PDF untuk admin: boleh melihat tarif yang disembunyikan. */
-public function preview(Tariff $tariff)
-{
-    abort_unless($tariff->hasPdf(), 404);
-    abort_unless(Storage::disk(self::DISK)->exists($tariff->pdf_path), 404);
-
-    return Storage::disk(self::DISK)->response(
-        $tariff->pdf_path,
-        Str::slug($tariff->title) . '.pdf',
-        ['Content-Type' => 'application/pdf', 'Cache-Control' => 'private, no-store'],
-        'inline'
-    );
-}
 }

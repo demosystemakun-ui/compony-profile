@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 
 class NewsController extends Controller
 {
-    private const DISK = 'supabase';
+    private const DISK = 'supabase-news';
 
     /* ═══════════════════════════════════════════════
         PUBLIK

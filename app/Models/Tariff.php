@@ -10,11 +10,6 @@ class Tariff extends Model
     protected $fillable = [
         'tag', 'title', 'description', 'icon', 'pdf_path', 'sort_order', 'is_active', 'updated_by',
     ];
-    
-public function updatedBy()
-{
-    return $this->belongsTo(\App\Models\User::class, 'updated_by');
-}
 
     protected $casts = ['is_active' => 'boolean'];
 
@@ -28,28 +23,37 @@ public function updatedBy()
         'document' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
     ];
 
+    public function updatedBy()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'updated_by');
+    }
+
     public function iconPath(): string
     {
         return self::ICONS[$this->icon] ?? self::ICONS['document'];
     }
 
-public function hasPdf(): bool
-{
-    return filled($this->pdf_path);
-}
-
-/** URL publik lewat route Laravel (stream dari Supabase). Query ?v= agar cache browser ikut ter-refresh saat file diganti. */
-public function pdfUrl(): string
-{
-    return $this->hasPdf()
-        ? route('tarif.stream', $this) . '?v=' . $this->updated_at?->timestamp
-        : '#';
-}
-
-public function deletePdfFile(): void
-{
-    if ($this->pdf_path) {
-        Storage::disk('supabase')->delete($this->pdf_path);
+    /**
+     * Hanya cek kolom DB (tanpa request jaringan ke Supabase).
+     * Pengecekan exists() dilakukan di TariffController saat file benar-benar diakses.
+     */
+    public function hasPdf(): bool
+    {
+        return filled($this->pdf_path);
     }
-}
+
+    /** URL lewat route Laravel (stream dari Supabase). ?v= agar cache browser ter-refresh saat file diganti. */
+    public function pdfUrl(): string
+    {
+        return $this->hasPdf()
+            ? route('tarif.stream', $this) . '?v=' . $this->updated_at?->timestamp
+            : '#';
+    }
+
+    public function deletePdfFile(): void
+    {
+        if ($this->pdf_path) {
+            Storage::disk('supabase-tariffs')->delete($this->pdf_path);
+        }
+    }
 }
