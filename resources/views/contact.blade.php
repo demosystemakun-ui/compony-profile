@@ -3,9 +3,6 @@
 @section('title', 'Contact Us — PT Patimban International Car Terminal')
 
 @push('styles')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
-{{-- Google reCAPTCHA --}}
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <style>
     /* ═══ DESIGN SYSTEM — PICT CONTACT ═══ */
     :root {
@@ -17,10 +14,6 @@
         --color-line:   #D8D4C8;
     }
 
-    body, * {
-        font-family: 'Century Gothic', 'CenturyGothic', 'Poppins', sans-serif !important;
-    }
-
     /* ═══ HERO BACKGROUND ═══ */
     .hero-bg-contact {
         background-image:
@@ -28,7 +21,6 @@
             url('{{ asset("assets/images/patimban-yard-2.jpeg") }}');
         background-size: cover;
         background-position: center;
-        background-attachment: fixed;
     }
 
     /* ═══ EYEBROW LABEL ═══ */
@@ -74,7 +66,7 @@
 @section('content')
 
 {{-- ═══════════════════════════════════════════════════════════════
-     1. HERO SECTION (Tanpa AOS agar langsung tampil tanpa refresh)
+     1. HERO SECTION
 ═══════════════════════════════════════════════════════════════ --}}
 <section class="hero-bg-contact relative flex items-center min-h-[480px] px-6 sm:px-12 md:px-16 pt-32 pb-16 overflow-hidden">
     {{-- Decorative grid --}}
@@ -245,8 +237,9 @@
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
                         Security Verification <span class="text-red-500">*</span>
                     </label>
+                    {{-- Pakai config(), bukan env(): env() bernilai null saat config di-cache --}}
                     <div class="g-recaptcha"
-                         data-sitekey="{{ env('RECAPTCHA_SITE_KEY', '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI') }}"
+                         data-sitekey="{{ config('services.recaptcha.site_key') ?: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI' }}"
                          data-callback="enableSubmitButton"></div>
                 </div>
 
@@ -271,34 +264,9 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+{{-- reCAPTCHA hanya dimuat di halaman ini --}}
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script>
-function initAOS() {
-    if (typeof AOS !== 'undefined') {
-        AOS.init({
-            duration: 900,
-            easing: 'ease-out-cubic',
-            once: true,
-            offset: 120
-        });
-    }
-}
-
-// Inisialisasi saat DOM siap
-document.addEventListener('DOMContentLoaded', function () {
-    initAOS();
-});
-
-// Hook untuk Swup (jika halaman dimuat secara asinkronus/SPA)
-if (window.swup) {
-    window.swup.hooks.on('page:view', () => {
-        if (typeof AOS !== 'undefined') {
-            AOS.refreshHard();
-        }
-        initAOS();
-    });
-}
-
 /* ═══════════════════════════════════════════════════════════════
    reCAPTCHA CALLBACK — enable submit button
 ═══════════════════════════════════════════════════════════════ */

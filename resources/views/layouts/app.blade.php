@@ -25,7 +25,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    {{-- ═══ TAILWIND ═══ --}}
+    {{-- ═══ TAILWIND ═══
+         CATATAN: CDN ini lambat (kompilasi di browser). Idealnya diganti
+         dengan CSS hasil build (lihat panduan). Sementara dipertahankan. --}}
     <script src="https://cdn.tailwindcss.com"></script>
 
     {{-- ═══ STYLESHEETS ═══ --}}
@@ -77,6 +79,30 @@
             footer .grid { row-gap: 1.25rem !important; }
         }
 
+        /* ═══ NAVBAR (dipindah dari navbar.blade.php) ═══ */
+        #mobileMenu, #mobileMenu *,
+        header, header * {
+            font-family: 'Century Gothic', 'CenturyGothic', 'Poppins', sans-serif !important;
+        }
+        #mobileMenu {
+            transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: top center;
+        }
+        #mobileMenu.is-closed {
+            opacity: 0;
+            transform: scaleY(0.95) translateY(-10px);
+            pointer-events: none;
+        }
+        #navSlider {
+            transition: all 280ms cubic-bezier(0.25, 1, 0.5, 1);
+            will-change: left, top, width, height;
+        }
+        .nav-tab { transition: color 0.2s ease; }
+        header { transition: transform 0.3s ease; }
+        @media (prefers-reduced-motion: reduce) {
+            #mobileMenu, #navSlider, .nav-tab, header { transition: none !important; }
+        }
+
         /* ═══ PAGE TRANSITIONS (Swup) ═══ */
         .transition-slide {
             transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1),
@@ -113,7 +139,7 @@
         Skip to main content
     </a>
 
-    {{-- ═══ NAVBAR ═══ --}}
+    {{-- ═══ NAVBAR (menu mobile & pill dikelola oleh navbar.blade.php) ═══ --}}
     @include('layouts.navbar')
 
     {{-- ═══ MAIN CONTENT ═══ --}}
@@ -141,7 +167,7 @@
     <script src="{{ asset('assets/js/main.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
 
-    {{-- Swup + plugin --}}
+    {{-- Swup + plugin (urutan penting: core dulu, baru plugin) --}}
     <script src="https://unpkg.com/swup@4"></script>
     <script src="https://unpkg.com/@swup/head-plugin@2"></script>
     <script src="https://unpkg.com/@swup/scripts-plugin@2"></script>
@@ -165,28 +191,28 @@
         }
 
         /* ═══════════════════════════════════════════════════════════════
-           NAVBAR HIDE/SHOW ON SCROLL (Fixed for Swup)
+           NAVBAR HIDE/SHOW ON SCROLL (target: <header>)
         ═══════════════════════════════════════════════════════════════ */
         function initNavbarScroll() {
-            const navbar = document.querySelector('nav');
-            if (!navbar) return;
+            const header = document.querySelector('header');
+            if (!header) return;
 
-            let lastScrollTop = 0;
-            
-            // Hapus event listener sebelumnya jika ada agar tidak menumpuk ganda
+            let lastScrollTop = window.pageYOffset || 0;
+
+            /* Hapus listener lama supaya tidak menumpuk */
             if (window._navbarScrollHandler) {
                 window.removeEventListener('scroll', window._navbarScrollHandler);
             }
 
-            window._navbarScrollHandler = function() {
-                let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                
-                if (scrollTop > lastScrollTop && scrollTop > 100) {
-                    // Scroll ke bawah -> Sembunyikan navbar
-                    navbar.classList.add('-translate-y-full', 'transition-transform', 'duration-300');
-                } else {
-                    // Scroll ke atas -> Tampilkan navbar
-                    navbar.classList.remove('-translate-y-full');
+            window._navbarScrollHandler = function () {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                const menu = document.getElementById('mobileMenu');
+                const menuOpen = menu && !menu.classList.contains('is-closed');
+
+                if (scrollTop > lastScrollTop && scrollTop > 100 && !menuOpen) {
+                    header.style.transform = 'translateY(-130%)';   /* scroll turun → sembunyi */
+                } else if (scrollTop < lastScrollTop || scrollTop <= 100) {
+                    header.style.transform = 'translateY(0)';       /* scroll naik → tampil */
                 }
                 lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
             };
@@ -195,7 +221,7 @@
         }
 
         /* ═══════════════════════════════════════════════════════════════
-           BACK TO TOP
+           BACK TO TOP (listener dipasang sekali)
         ═══════════════════════════════════════════════════════════════ */
         const backToTop = document.getElementById('backToTop');
 
@@ -221,8 +247,11 @@
             if (typeof SwupScriptsPlugin !== 'undefined') plugins.push(new SwupScriptsPlugin({ head: true, body: true }));
 
             window.swup = new Swup({
+                /* #page-scripts = tempat @stack('scripts'), supaya script halaman jalan ulang */
                 containers: ['#swup', '#page-scripts'],
                 plugins: plugins,
+
+                /* Halaman yang dibuka dengan load penuh (tanpa Swup) */
                 ignoreVisit: (url, { el } = {}) => {
                     if (el?.closest('[data-no-swup]')) return true;
                     if (el?.target === '_blank') return true;
@@ -235,7 +264,7 @@
                 window.scrollTo({ top: 0, behavior: 'instant' });
                 updateBackToTop();
                 initAOS();
-                initNavbarScroll(); // <--- Inisialisasi ulang navbar setelah halaman berganti via Swup
+                initNavbarScroll();
             });
         }
 
@@ -245,7 +274,7 @@
     })();
     </script>
 
-    {{-- Script per-halaman --}}
+    {{-- Script per-halaman (ikut diganti oleh Swup lewat #page-scripts) --}}
     <div id="page-scripts">
         @stack('scripts')
     </div>
