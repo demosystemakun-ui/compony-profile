@@ -20,6 +20,10 @@ class News extends Model
         'updated_by',
     ];
 
+    protected $casts = [
+        'published_at' => 'datetime',
+    ];
+
     public function updatedBy()
     {
         return $this->belongsTo(\App\Models\User::class, 'updated_by');

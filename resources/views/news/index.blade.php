@@ -59,7 +59,6 @@
                                 </div>
                             @endif
 
-                            {{-- Badge kategori (opsional) --}}
                             @if(!empty($item->category))
                                 <span class="absolute top-3 left-3 bg-red-700 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md shadow-sm">
                                     {{ $item->category }}
@@ -69,10 +68,10 @@
 
                         {{-- Konten --}}
                         <div class="p-5 sm:p-6 flex flex-col flex-grow">
-                            @if($item->created_at)
-                                <time datetime="{{ $item->created_at->toDateString() }}"
+                            @if($item->published_at)
+                                <time datetime="{{ $item->published_at->toDateString() }}"
                                       class="block text-xs text-gray-500 mb-2 uppercase tracking-wider">
-                                    {{ $item->created_at->translatedFormat('d F Y') }}
+                                    {{ $item->published_at->translatedFormat('d F Y') }}
                                 </time>
                             @endif
 
@@ -104,8 +103,8 @@
             </div>
         @else
             <div class="text-center py-20 bg-white rounded-2xl border border-gray-200 shadow-sm">
-                <h3 class="text-lg font-bold text-gray-700">No news found</h3>
-                <p class="text-sm text-gray-500 mt-1">Latest updates and announcements will appear here soon.</p>
+                <h3 class="text-lg font-bold text-gray-700">Belum ada berita</h3>
+                <p class="text-sm text-gray-500 mt-1">Berita terbaru akan muncul di sini.</p>
             </div>
         @endif
 

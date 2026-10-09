@@ -18,20 +18,24 @@ class NewsController extends Controller
         PUBLIK
     ═══════════════════════════════════════════════ */
 
-  public function index()
-{
-    $newsList = \App\Models\News::query()
-        ->where('is_published', true)   // sesuaikan dengan field Anda
-        ->latest('created_at')
-        ->paginate(9)                    // 9 berita per halaman (3x3 grid)
-        ->withQueryString();
+    public function index()
+    {
+        $newsList = News::query()
+            ->whereNotNull('published_at')        // hanya yang sudah dipublikasikan
+            ->where('published_at', '<=', now())  // dan tanggalnya sudah tiba
+            ->latest('published_at')              // urut dari yang terbaru
+            ->paginate(9)                         // 9 berita per halaman (3x3 grid)
+            ->withQueryString();
 
-    return view('news.index', compact('newsList'));
-}
+        return view('news.index', compact('newsList'));
+    }
 
     public function show($slug)
     {
-        $news = News::where('slug', $slug)->firstOrFail();
+        $news = News::where('slug', $slug)
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->firstOrFail();
 
         return view('news.show', compact('news'));
     }
@@ -155,7 +159,7 @@ class NewsController extends Controller
             'excerpt'       => ['required', 'string'],
             'content'       => ['required', 'string'],
             'image'         => $image, // input kamera / file biasa
-            'image_gallery' => $image, // input galeri (sebelumnya tidak divalidasi)
+            'image_gallery' => $image, // input galeri
         ];
     }
 
