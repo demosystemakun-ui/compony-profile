@@ -18,12 +18,16 @@ class NewsController extends Controller
         PUBLIK
     ═══════════════════════════════════════════════ */
 
-    public function index()
-    {
-        $newsList = News::latest('published_at')->get();
+  public function index()
+{
+    $newsList = \App\Models\News::query()
+        ->where('is_published', true)   // sesuaikan dengan field Anda
+        ->latest('created_at')
+        ->paginate(9)                    // 9 berita per halaman (3x3 grid)
+        ->withQueryString();
 
-        return view('news.index', compact('newsList'));
-    }
+    return view('news.index', compact('newsList'));
+}
 
     public function show($slug)
     {
