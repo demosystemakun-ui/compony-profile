@@ -17,12 +17,12 @@ class DashboardController extends Controller
 
     public function index()
     {
-        $isSuperAdmin = auth()->user()->isSuperAdmin();
+        $user = auth()->user();
+        $isSuperAdmin = $user ? method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin() : false;
         $stale        = now()->subDays(30);
 
         /*
-         * Statistik di-cache 60 detik supaya tidak menembak database
-         * (yang jaraknya jauh) di setiap kali dashboard dibuka.
+         * Statistik di-cache 60 detik dengan pengamanan null-safe
          */
         $stats = Cache::remember(self::STATS_CACHE_KEY, 60, function () use ($stale) {
             $aggregate = 'count(*) as total, max(updated_at) as last_update, '
@@ -32,22 +32,22 @@ class DashboardController extends Controller
             $tariff = Tariff::selectRaw($aggregate, [$stale])->first();
 
             return [
-                'totalNews'      => (int) $news->total,
-                'lastNewsAt'     => $news->last_update,
-                'staleNews'      => (int) $news->stale,
+                'totalNews'     => $news ? (int) $news->total : 0,
+                'lastNewsAt'    => $news ? $news->last_update : null,
+                'staleNews'     => $news ? (int) $news->stale : 0,
 
-                'totalTariffs'   => (int) $tariff->total,
-                'lastTariffAt'   => $tariff->last_update,
-                'staleTariffs'   => (int) $tariff->stale,
+                'totalTariffs'  => $tariff ? (int) $tariff->total : 0,
+                'lastTariffAt'  => $tariff ? $tariff->last_update : null,
+                'staleTariffs'  => $tariff ? (int) $tariff->stale : 0,
 
-                'totalUsers'     => User::count(),
+                'totalUsers'    => User::count(),
 
-                'attentionNews'  => News::where('updated_at', '<', $stale)
+                'attentionNews' => News::where('updated_at', '<', $stale)
                                         ->orderBy('updated_at')
                                         ->limit(5)
                                         ->get(['id', 'title', 'category', 'updated_at']),
 
-                'topCategories'  => News::select('category', DB::raw('count(*) as total'))
+                'topCategories' => News::select('category', DB::raw('count(*) as total'))
                                         ->groupBy('category')
                                         ->orderByDesc('total')
                                         ->limit(5)
@@ -55,17 +55,23 @@ class DashboardController extends Controller
             ];
         });
 
-        // Daftar tabel selalu segar (tanpa cache), hanya kolom yang dipakai.
-        $newsList = News::with('updatedBy:id,name')->latest()->limit(10)->get();
+        // Daftar tabel selalu segar (tanpa cache) dengan aman terhadap relasi kosong
+        $newsList = News::with(['updatedBy' => function($q) {
+            $q->select('id', 'name');
+        }])->latest()->limit(10)->get();
 
-        $tariffList = Tariff::with('updatedBy:id,name')
+        $tariffList = Tariff::with(['updatedBy' => function($q) {
+            $q->select('id', 'name');
+        }])
             ->orderBy('sort_order')
             ->orderBy('id')
             ->limit(10)
             ->get();
 
         $recentLogs = $isSuperAdmin
-            ? ActivityLog::with('user:id,name')->latest()->limit(5)->get()
+            ? ActivityLog::with(['user' => function($q) {
+                $q->select('id', 'name');
+            }])->latest()->limit(5)->get()
             : collect();
 
         return view('dashboard', [
