@@ -127,3 +127,5 @@ Route::middleware('auth')->group(function () {
 Route::fallback(function () {
     abort(404);
 });
+
+//perbaikan route untuk menampilkan halaman 404
