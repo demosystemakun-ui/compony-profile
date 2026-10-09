@@ -106,7 +106,7 @@
     <div class="grid lg:grid-cols-12 gap-14 items-start">
 
         {{-- Contact Info --}}
-        <div class="lg:col-span-5 space-y-8" data-aos="fade-right">
+        <div class="lg:col-span-5 space-y-8">
             <div>
                 <span class="eyebrow block mb-2">Get in Touch</span>
                 <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
@@ -168,7 +168,7 @@
         </div>
 
         {{-- Contact Form --}}
-        <div class="lg:col-span-7 bg-slate-50 border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm" data-aos="fade-left">
+        <div class="lg:col-span-7 bg-slate-50 border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
             <div class="flex items-center gap-3 mb-6">
                 <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-red-600/10 text-red-600">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
