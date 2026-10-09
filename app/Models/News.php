@@ -32,7 +32,6 @@ class News extends Model
     /**
      * URL gambar lewat route Laravel (stream dari Supabase).
      * ?v= membuat cache browser ikut ter-refresh saat gambar diganti.
-     * Pemakaian di view: {{ $news->image_url }}
      */
     public function getImageUrlAttribute(): ?string
     {

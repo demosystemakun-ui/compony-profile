@@ -18,18 +18,24 @@ class NewsController extends Controller
         PUBLIK
     ═══════════════════════════════════════════════ */
 
+    /**
+     * Halaman publik — daftar berita yang sudah dipublikasikan (grid + pagination).
+     */
     public function index()
     {
         $newsList = News::query()
-            ->whereNotNull('published_at')        // hanya yang sudah dipublikasikan
-            ->where('published_at', '<=', now())  // dan tanggalnya sudah tiba
-            ->latest('published_at')              // urut dari yang terbaru
-            ->paginate(9)                         // 9 berita per halaman (3x3 grid)
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->latest('published_at')
+            ->paginate(9)
             ->withQueryString();
 
         return view('news.index', compact('newsList'));
     }
 
+    /**
+     * Halaman detail berita (publik).
+     */
     public function show($slug)
     {
         $news = News::where('slug', $slug)
@@ -40,7 +46,9 @@ class NewsController extends Controller
         return view('news.show', compact('news'));
     }
 
-    /** Gambar berita dari Supabase, dilayani lewat domain sendiri. */
+    /**
+     * Stream gambar dari Supabase Storage lewat route Laravel.
+     */
     public function image(News $news)
     {
         abort_unless($news->image, 404);
@@ -55,8 +63,24 @@ class NewsController extends Controller
     }
 
     /* ═══════════════════════════════════════════════
-        ADMIN
+        ADMIN — KELOLA BERITA
     ═══════════════════════════════════════════════ */
+
+    /**
+     * Halaman admin — daftar SEMUA berita (termasuk draft) untuk dikelola.
+     */
+    public function adminIndex()
+    {
+        $newsList = News::query()
+            ->with(['updatedBy' => function ($q) {
+                $q->select('id', 'name');
+            }])
+            ->latest('updated_at')
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('news.admin-index', compact('newsList'));
+    }
 
     public function create()
     {
@@ -85,7 +109,8 @@ class NewsController extends Controller
 
         Cache::forget(DashboardController::STATS_CACHE_KEY);
 
-        return redirect()->route('dashboard')->with('success', 'Berita berhasil diunggah!');
+        return redirect()->route('admin.news.index')
+            ->with('success', 'Berita berhasil diunggah!');
     }
 
     public function edit($id)
@@ -126,7 +151,8 @@ class NewsController extends Controller
 
         Cache::forget(DashboardController::STATS_CACHE_KEY);
 
-        return redirect()->route('dashboard')->with('success', 'Berita berhasil diperbarui!');
+        return redirect()->route('admin.news.index')
+            ->with('success', 'Berita berhasil diperbarui!');
     }
 
     public function destroy($id)
@@ -142,7 +168,8 @@ class NewsController extends Controller
 
         Cache::forget(DashboardController::STATS_CACHE_KEY);
 
-        return redirect()->route('dashboard')->with('success', 'Berita berhasil dihapus!');
+        return redirect()->route('admin.news.index')
+            ->with('success', 'Berita berhasil dihapus!');
     }
 
     /* ═══════════════════════════════════════════════
@@ -158,18 +185,16 @@ class NewsController extends Controller
             'category'      => ['required', 'string', 'max:100'],
             'excerpt'       => ['required', 'string'],
             'content'       => ['required', 'string'],
-            'image'         => $image, // input kamera / file biasa
-            'image_gallery' => $image, // input galeri
+            'image'         => $image,
+            'image_gallery' => $image,
         ];
     }
 
-    /** Ambil file gambar dari input kamera atau galeri. */
     private function uploadedImage(Request $request): ?UploadedFile
     {
         return $request->file('image') ?? $request->file('image_gallery');
     }
 
-    /** Slug unik: judul sama akan menjadi judul-2, judul-3, dst. */
     private function uniqueSlug(string $title, ?int $ignoreId = null): string
     {
         $base = Str::slug($title) ?: 'berita';
@@ -187,7 +212,6 @@ class NewsController extends Controller
         return $slug;
     }
 
-    /** Hapus file di Supabase tanpa menggagalkan request jika storage tidak terjangkau. */
     private function deleteFileSafely(string $path): void
     {
         try {
