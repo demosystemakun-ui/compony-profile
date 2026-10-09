@@ -44,7 +44,9 @@ Route::get('/tarif/{tariff}/download', [TariffController::class, 'download'])->n
 // Public News
 Route::get('/news', [NewsController::class, 'index'])->name('news');
 Route::get('/media/news/{news}', [NewsController::class, 'image'])->name('news.image');
-Route::get('/news/{slug}', [NewsController::class, 'show'])->name('news.show');
+Route::get('/news/{slug}', [NewsController::class, 'show'])
+    ->name('news.show')
+    ->where('slug', '[a-z0-9-]+');   // slug hanya huruf kecil, angka, dan strip
 
 // AI Chat
 Route::post('/api/chat', [AiChatController::class, 'send'])->name('ai.chat');
@@ -71,20 +73,21 @@ Route::middleware(['auth'])->prefix('pict-internal-admin-portal')->group(functio
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-    // News Management
+    // ───── News Management ─────
+    Route::get('/news', [NewsController::class, 'adminIndex'])->name('admin.news.index');   // ← route baru
     Route::get('/news/create', [NewsController::class, 'create'])->name('news.create');
     Route::post('/news/store', [NewsController::class, 'store'])->name('news.store');
-    Route::get('/news/{id}/edit', [NewsController::class, 'edit'])->name('news.edit');
-    Route::put('/news/{id}', [NewsController::class, 'update'])->name('news.update');
-    Route::delete('/news/{id}', [NewsController::class, 'destroy'])->name('news.destroy');
+    Route::get('/news/{id}/edit', [NewsController::class, 'edit'])->name('news.edit')->where('id', '[0-9]+');
+    Route::put('/news/{id}', [NewsController::class, 'update'])->name('news.update')->where('id', '[0-9]+');
+    Route::delete('/news/{id}', [NewsController::class, 'destroy'])->name('news.destroy')->where('id', '[0-9]+');
 
-    // Tariff Management
+    // ───── Tariff Management ─────
     Route::name('admin.')->group(function () {
         Route::get('tariffs/{tariff}/preview', [TariffController::class, 'preview'])->name('tariffs.preview');
         Route::resource('tariffs', TariffController::class)->except(['show']);
     });
 
-    // Profile & Password
+    // ───── Profile & Password ─────
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
@@ -127,5 +130,3 @@ Route::middleware('auth')->group(function () {
 Route::fallback(function () {
     abort(404);
 });
-
-//perbaikan route untuk menampilkan halaman 404
