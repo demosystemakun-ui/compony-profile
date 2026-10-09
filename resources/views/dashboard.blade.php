@@ -1,11 +1,9 @@
-@php
-    use App\Models\News;
-    use App\Models\Tariff;
-    use App\Models\User;
-    use App\Models\ActivityLog;
-    use Illuminate\Support\Facades\DB;
-@endphp
-
+{{--
+    Semua data dikirim dari App\Http\Controllers\DashboardController:
+    $isSuperAdmin, $totalNews, $totalTariffs, $totalUsers, $staleNews, $staleTariffs,
+    $lastNewsAgo, $lastTariffAgo, $attentionNews, $topCategories, $recentLogs,
+    $newsList, $tariffList, $actionColors
+--}}
 <x-admin-layout>
     <x-slot name="header">
         <div class="flex flex-wrap gap-3 justify-between items-center">
@@ -17,54 +15,6 @@
             </div>
         </div>
     </x-slot>
-
-    @php
-        // ───── STATISTIK UTAMA ─────
-        $totalNews    = News::count();
-        $totalTariffs = Tariff::count();
-        $totalUsers   = User::count();
-        $totalLogs    = ActivityLog::count();
-
-        // ───── UPDATE TERAKHIR ─────
-        $lastNewsUpdate   = News::latest('updated_at')->first();
-        $lastTariffUpdate = Tariff::latest('updated_at')->first();
-
-        $lastNewsAgo   = $lastNewsUpdate   ? $lastNewsUpdate->updated_at->diffForHumans()   : 'Belum ada';
-        $lastTariffAgo = $lastTariffUpdate ? $lastTariffUpdate->updated_at->diffForHumans() : 'Belum ada';
-
-        // ───── KONTEN STALE (> 30 HARI) ─────
-        $staleNews    = News::where('updated_at', '<', now()->subDays(30))->count();
-        $staleTariffs = Tariff::where('updated_at', '<', now()->subDays(30))->count();
-
-        // ───── KONTEN PERLU PERHATIAN ─────
-        $attentionNews = News::where('updated_at', '<', now()->subDays(30))
-                             ->orderBy('updated_at', 'asc')
-                             ->limit(5)
-                             ->get();
-
-        // ───── AKTIVITAS TERBARU (hanya super admin) ─────
-        $recentLogs = auth()->user()->isSuperAdmin()
-            ? ActivityLog::with('user')->latest()->limit(5)->get()
-            : collect();
-
-        // ───── KATEGORI BERITA (TOP 5) ─────
-        $topCategories = News::select('category', DB::raw('count(*) as total'))
-                             ->groupBy('category')
-                             ->orderByDesc('total')
-                             ->limit(5)
-                             ->get();
-
-        // ───── WARNA BADGE ACTION ─────
-        $actionColors = [
-            'created' => 'bg-green-50 text-green-700 border-green-200',
-            'updated' => 'bg-blue-50 text-blue-700 border-blue-200',
-            'deleted' => 'bg-red-50 text-red-700 border-red-200',
-            'login'   => 'bg-purple-50 text-purple-700 border-purple-200',
-            'logout'  => 'bg-gray-50 text-gray-700 border-gray-200',
-        ];
-
-        $isSuperAdmin = auth()->user()->isSuperAdmin();
-    @endphp
 
     <div class="py-8 bg-gradient-to-br from-gray-50 via-white to-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
@@ -306,7 +256,7 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 text-sm">
-                                @forelse(News::with('updatedBy')->latest()->limit(10)->get() as $item)
+                                @forelse($newsList as $item)
                                     @php $daysAgo = $item->updated_at->diffInDays(now()); @endphp
                                     <tr class="hover:bg-red-50/30 transition-colors">
                                         <td class="py-4 px-4 font-semibold text-[#0A2540] max-w-xs truncate">{{ $item->title }}</td>
@@ -406,7 +356,7 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 text-sm">
-                                @forelse(Tariff::with('updatedBy')->orderBy('sort_order')->orderBy('id')->limit(10)->get() as $tariff)
+                                @forelse($tariffList as $tariff)
                                     @php $daysAgo = $tariff->updated_at->diffInDays(now()); @endphp
                                     <tr class="hover:bg-blue-50/30 transition-colors">
                                         <td class="py-4 px-4 font-semibold text-[#0A2540] max-w-xs truncate">
@@ -424,7 +374,9 @@
                                         </td>
                                         <td class="py-4 px-4">
                                             @if($tariff->hasPdf())
-<a href="{{ route('admin.tariffs.preview', $tariff) }}?v={{ $tariff->updated_at?->timestamp }}" target="_blank" rel="noopener"                                                   class="inline-flex items-center gap-1 text-blue-700 hover:text-blue-900 text-xs font-semibold hover:underline">
+                                                <a href="{{ route('admin.tariffs.preview', $tariff) }}?v={{ $tariff->updated_at?->timestamp }}"
+                                                   target="_blank" rel="noopener"
+                                                   class="inline-flex items-center gap-1 text-blue-700 hover:text-blue-900 text-xs font-semibold hover:underline">
                                                     Lihat PDF
                                                 </a>
                                             @else
@@ -477,5 +429,5 @@
             </div>
 
         </div>
-    </div> 
+    </div>
 </x-admin-layout>

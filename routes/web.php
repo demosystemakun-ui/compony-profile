@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AiChatController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TariffController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\ProfileController;
@@ -66,11 +67,9 @@ Route::prefix('pict-internal-admin-portal')->middleware('guest')->group(function
 */
 
 Route::middleware(['auth'])->prefix('pict-internal-admin-portal')->group(function () {
-    
+
     // Dashboard
-    Route::get('/', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     // News Management
     Route::get('/news/create', [NewsController::class, 'create'])->name('news.create');
@@ -79,11 +78,12 @@ Route::middleware(['auth'])->prefix('pict-internal-admin-portal')->group(functio
     Route::put('/news/{id}', [NewsController::class, 'update'])->name('news.update');
     Route::delete('/news/{id}', [NewsController::class, 'destroy'])->name('news.destroy');
 
-// Tariff Management
-Route::name('admin.')->group(function () {
-    Route::get('tariffs/{tariff}/preview', [TariffController::class, 'preview'])->name('tariffs.preview');
-    Route::resource('tariffs', TariffController::class)->except(['show']);
-});
+    // Tariff Management
+    Route::name('admin.')->group(function () {
+        Route::get('tariffs/{tariff}/preview', [TariffController::class, 'preview'])->name('tariffs.preview');
+        Route::resource('tariffs', TariffController::class)->except(['show']);
+    });
+
     // Profile & Password
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -98,7 +98,7 @@ Route::name('admin.')->group(function () {
 */
 
 Route::middleware(['auth', 'super_admin'])->prefix('pict-internal-admin-portal')->group(function () {
-    
+
     // Manajemen User
     Route::resource('users', UserController::class);
     Route::patch('users/{user}/role', [UserController::class, 'updateRole'])->name('users.update-role');

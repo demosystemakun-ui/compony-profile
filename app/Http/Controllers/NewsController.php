@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\News;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -74,6 +75,8 @@ class NewsController extends Controller
             'updated_by'   => auth()->id(),
         ]);
 
+        Cache::forget(DashboardController::STATS_CACHE_KEY);
+
         return redirect()->route('dashboard')->with('success', 'Berita berhasil diunggah!');
     }
 
@@ -113,6 +116,8 @@ class NewsController extends Controller
             $this->deleteFileSafely($oldPath);
         }
 
+        Cache::forget(DashboardController::STATS_CACHE_KEY);
+
         return redirect()->route('dashboard')->with('success', 'Berita berhasil diperbarui!');
     }
 
@@ -126,6 +131,8 @@ class NewsController extends Controller
         if ($path) {
             $this->deleteFileSafely($path);
         }
+
+        Cache::forget(DashboardController::STATS_CACHE_KEY);
 
         return redirect()->route('dashboard')->with('success', 'Berita berhasil dihapus!');
     }

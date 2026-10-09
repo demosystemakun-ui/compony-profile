@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Tariff;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -101,6 +102,8 @@ class TariffController extends Controller
 
         Tariff::create($data);
 
+        Cache::forget(DashboardController::STATS_CACHE_KEY);
+
         return redirect()->route('admin.tariffs.index')
             ->with('success', 'Tarif berhasil ditambahkan.');
     }
@@ -130,6 +133,8 @@ class TariffController extends Controller
             $this->deleteFileSafely($oldPath);
         }
 
+        Cache::forget(DashboardController::STATS_CACHE_KEY);
+
         return redirect()->route('admin.tariffs.index')
             ->with('success', 'Tarif berhasil diperbarui.');
     }
@@ -143,6 +148,8 @@ class TariffController extends Controller
         if ($path) {
             $this->deleteFileSafely($path);
         }
+
+        Cache::forget(DashboardController::STATS_CACHE_KEY);
 
         return redirect()->route('admin.tariffs.index')
             ->with('success', 'Tarif berhasil dihapus.');
