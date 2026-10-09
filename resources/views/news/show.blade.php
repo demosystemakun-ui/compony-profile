@@ -199,26 +199,4 @@
                                 <tr>
                                     <td colspan="7" class="py-12 text-center text-gray-400 text-sm">
                                         Belum ada berita.
-                                        <a href="{{ route('news.create') }}" class="text-red-600 font-semibold hover:underline">
-                                            Tambah sekarang
-                                        </a>.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- Pagination --}}
-                @if($newsList->hasPages())
-                    <div class="mt-6 flex justify-center">
-                        {{ $newsList->links() }}
-                    </div>
-                @endif
-            </div>
-        </div>
-
-    </div>
-</section>
-
-@endsection
+                                        <a href="{{ route('news.create') }}" class="text-red-600 font
