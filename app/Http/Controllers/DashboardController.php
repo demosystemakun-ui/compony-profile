@@ -19,10 +19,13 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
         $isSuperAdmin = $user ? method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin() : false;
-        $stale        = now()->subDays(30);
+        $stale = now()->subDays(30);
 
         /*
-         * Statistik di-cache 60 detik dengan pengamanan null-safe
+         * Statistik agregat di-cache 60 detik.
+         * HANYA data primitif (angka & string tanggal) yang disimpan di cache,
+         * BUKAN objek Eloquent model — agar tidak ada risiko
+         * "Attempt to read property on string" akibat serialisasi cache.
          */
         $stats = Cache::remember(self::STATS_CACHE_KEY, 60, function () use ($stale) {
             $aggregate = 'count(*) as total, max(updated_at) as last_update, '
@@ -32,35 +35,42 @@ class DashboardController extends Controller
             $tariff = Tariff::selectRaw($aggregate, [$stale])->first();
 
             return [
-                'totalNews'     => $news ? (int) $news->total : 0,
-                'lastNewsAt'    => $news ? $news->last_update : null,
-                'staleNews'     => $news ? (int) $news->stale : 0,
+                'totalNews'    => $news ? (int) $news->total : 0,
+                'lastNewsAt'   => $news && $news->last_update
+                                    ? (string) $news->last_update
+                                    : null,
+                'staleNews'    => $news ? (int) $news->stale : 0,
 
-                'totalTariffs'  => $tariff ? (int) $tariff->total : 0,
-                'lastTariffAt'  => $tariff ? $tariff->last_update : null,
-                'staleTariffs'  => $tariff ? (int) $tariff->stale : 0,
+                'totalTariffs' => $tariff ? (int) $tariff->total : 0,
+                'lastTariffAt' => $tariff && $tariff->last_update
+                                    ? (string) $tariff->last_update
+                                    : null,
+                'staleTariffs' => $tariff ? (int) $tariff->stale : 0,
 
-                'totalUsers'    => User::count(),
-
-                'attentionNews' => News::where('updated_at', '<', $stale)
-                                        ->orderBy('updated_at')
-                                        ->limit(5)
-                                        ->get(['id', 'title', 'category', 'updated_at']),
-
-                'topCategories' => News::select('category', DB::raw('count(*) as total'))
-                                        ->groupBy('category')
-                                        ->orderByDesc('total')
-                                        ->limit(5)
-                                        ->get(),
+                'totalUsers'   => User::count(),
             ];
         });
 
-        // Daftar tabel selalu segar (tanpa cache) dengan aman terhadap relasi kosong
-        $newsList = News::with(['updatedBy' => function($q) {
+        /*
+         * Query model SELALU di luar cache, sehingga hasilnya dijamin
+         * berupa collection of Eloquent model (bukan string / array).
+         */
+        $attentionNews = News::where('updated_at', '<', $stale)
+            ->orderBy('updated_at')
+            ->limit(5)
+            ->get(['id', 'title', 'category', 'updated_at']);
+
+        $topCategories = News::select('category', DB::raw('count(*) as total'))
+            ->groupBy('category')
+            ->orderByDesc('total')
+            ->limit(5)
+            ->get();
+
+        $newsList = News::with(['updatedBy' => function ($q) {
             $q->select('id', 'name');
         }])->latest()->limit(10)->get();
 
-        $tariffList = Tariff::with(['updatedBy' => function($q) {
+        $tariffList = Tariff::with(['updatedBy' => function ($q) {
             $q->select('id', 'name');
         }])
             ->orderBy('sort_order')
@@ -69,7 +79,7 @@ class DashboardController extends Controller
             ->get();
 
         $recentLogs = $isSuperAdmin
-            ? ActivityLog::with(['user' => function($q) {
+            ? ActivityLog::with(['user' => function ($q) {
                 $q->select('id', 'name');
             }])->latest()->limit(5)->get()
             : collect();
@@ -82,8 +92,9 @@ class DashboardController extends Controller
             'totalUsers'    => $stats['totalUsers'],
             'staleNews'     => $stats['staleNews'],
             'staleTariffs'  => $stats['staleTariffs'],
-            'attentionNews' => $stats['attentionNews'],
-            'topCategories' => $stats['topCategories'],
+
+            'attentionNews' => $attentionNews,
+            'topCategories' => $topCategories,
 
             'lastNewsAgo'   => $stats['lastNewsAt']
                 ? Carbon::parse($stats['lastNewsAt'])->diffForHumans()

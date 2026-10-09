@@ -124,7 +124,9 @@
                     <div class="p-4">
                         @forelse($attentionNews as $item)
                             @php
-                                $daysAgo = $item->updated_at->diffInDays(now());
+                                $daysAgo = $item->updated_at
+                                    ? $item->updated_at->diffInDays(now())
+                                    : 0;
                                 $progress = min(100, ($daysAgo / 60) * 100);
                             @endphp
                             <div class="py-3 border-b border-gray-100 last:border-0">
@@ -196,7 +198,9 @@
                                             </span>
                                         </div>
                                         <p class="text-[11px] text-gray-600 truncate">{{ $log->description }}</p>
-                                        <p class="text-[10px] text-gray-400 mt-0.5">{{ $log->created_at->diffForHumans() }}</p>
+                                        <p class="text-[10px] text-gray-400 mt-0.5">
+                                            {{ optional($log->created_at)->diffForHumans() ?? '-' }}
+                                        </p>
                                     </div>
                                 </div>
                             @empty
@@ -257,7 +261,11 @@
                             </thead>
                             <tbody class="divide-y divide-gray-100 text-sm">
                                 @forelse($newsList as $item)
-                                    @php $daysAgo = $item->updated_at->diffInDays(now()); @endphp
+                                    @php
+                                        $daysAgo = $item->updated_at
+                                            ? $item->updated_at->diffInDays(now())
+                                            : 0;
+                                    @endphp
                                     <tr class="hover:bg-red-50/30 transition-colors">
                                         <td class="py-4 px-4 font-semibold text-[#0A2540] max-w-xs truncate">{{ $item->title }}</td>
                                         <td class="py-4 px-4">
@@ -276,7 +284,9 @@
                                                     <span class="text-amber-600 font-medium">{{ $daysAgo }} hari lalu</span>
                                                 @else
                                                     <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                                                    <span class="text-gray-500">{{ $item->updated_at->diffForHumans() }}</span>
+                                                    <span class="text-gray-500">
+                                                        {{ optional($item->updated_at)->diffForHumans() ?? '-' }}
+                                                    </span>
                                                 @endif
                                             </div>
                                         </td>
@@ -357,7 +367,11 @@
                             </thead>
                             <tbody class="divide-y divide-gray-100 text-sm">
                                 @forelse($tariffList as $tariff)
-                                    @php $daysAgo = $tariff->updated_at->diffInDays(now()); @endphp
+                                    @php
+                                        $daysAgo = $tariff->updated_at
+                                            ? $tariff->updated_at->diffInDays(now())
+                                            : 0;
+                                    @endphp
                                     <tr class="hover:bg-blue-50/30 transition-colors">
                                         <td class="py-4 px-4 font-semibold text-[#0A2540] max-w-xs truncate">
                                             {{ $tariff->title }}
@@ -395,7 +409,9 @@
                                                     <span class="text-amber-600 font-medium">{{ $daysAgo }} hari lalu</span>
                                                 @else
                                                     <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                                                    <span class="text-gray-500">{{ $tariff->updated_at->diffForHumans() }}</span>
+                                                    <span class="text-gray-500">
+                                                        {{ optional($tariff->updated_at)->diffForHumans() ?? '-' }}
+                                                    </span>
                                                 @endif
                                             </div>
                                         </td>
