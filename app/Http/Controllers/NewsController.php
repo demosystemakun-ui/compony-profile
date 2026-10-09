@@ -82,9 +82,20 @@ class NewsController extends Controller
         return view('news.admin-index', compact('newsList'));
     }
 
+    /**
+     * Form tambah berita — sekaligus menampilkan tabel daftar berita.
+     */
     public function create()
     {
-        return view('news.create');
+        $newsList = News::query()
+            ->with(['updatedBy' => function ($q) {
+                $q->select('id', 'name');
+            }])
+            ->latest('updated_at')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('news.create', compact('newsList'));
     }
 
     public function store(Request $request)
