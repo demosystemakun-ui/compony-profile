@@ -247,7 +247,7 @@
             if (typeof SwupScriptsPlugin !== 'undefined') plugins.push(new SwupScriptsPlugin({ head: true, body: true }));
 
             window.swup = new Swup({
-                /* #page-scripts = tempat @stack('scripts'), supaya script halaman jalan ulang */
+                /* #page-scripts = wadah script per-halaman, supaya script halaman dijalankan ulang */
                 containers: ['#swup', '#page-scripts'],
                 plugins: plugins,
 
