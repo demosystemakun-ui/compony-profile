@@ -18,9 +18,6 @@ class NewsController extends Controller
         PUBLIK
     ═══════════════════════════════════════════════ */
 
-    /**
-     * Halaman publik — daftar berita yang sudah dipublikasikan (grid + pagination).
-     */
     public function index()
     {
         $newsList = News::query()
@@ -33,9 +30,6 @@ class NewsController extends Controller
         return view('news.index', compact('newsList'));
     }
 
-    /**
-     * Halaman detail berita (publik).
-     */
     public function show($slug)
     {
         $news = News::where('slug', $slug)
@@ -46,9 +40,6 @@ class NewsController extends Controller
         return view('news.show', compact('news'));
     }
 
-    /**
-     * Stream gambar dari Supabase Storage lewat route Laravel.
-     */
     public function image(News $news)
     {
         abort_unless($news->image, 404);
@@ -67,7 +58,7 @@ class NewsController extends Controller
     ═══════════════════════════════════════════════ */
 
     /**
-     * Halaman admin — daftar SEMUA berita (termasuk draft) untuk dikelola.
+     * Halaman admin — daftar SEMUA berita (termasuk draft).
      */
     public function adminIndex()
     {
@@ -80,6 +71,18 @@ class NewsController extends Controller
             ->withQueryString();
 
         return view('news.admin-index', compact('newsList'));
+    }
+
+    /**
+     * Halaman detail berita versi admin (preview di dalam panel admin).
+     */
+    public function adminShow($id)
+    {
+        $news = News::with(['updatedBy' => function ($q) {
+            $q->select('id', 'name');
+        }])->findOrFail($id);
+
+        return view('news.admin-show', compact('news'));
     }
 
     /**
@@ -139,12 +142,10 @@ class NewsController extends Controller
         $oldPath   = $news->image;
         $imagePath = $oldPath;
 
-        // 1) Upload gambar baru lebih dulu; jika gagal, gambar lama tetap aman.
         if ($file = $this->uploadedImage($request)) {
             $imagePath = $file->store('news', self::DISK);
         }
 
-        // 2) Perbarui database.
         $news->update([
             'title'      => $request->title,
             'slug'       => $this->uniqueSlug($request->title, $news->id),
@@ -155,7 +156,6 @@ class NewsController extends Controller
             'updated_by' => auth()->id(),
         ]);
 
-        // 3) Baru hapus gambar lama setelah DB berhasil diperbarui.
         if ($oldPath && $oldPath !== $imagePath) {
             $this->deleteFileSafely($oldPath);
         }

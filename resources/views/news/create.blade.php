@@ -49,7 +49,6 @@
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Upload Image / Capture Photo</label>
 
-                            {{-- Image Preview Area --}}
                             <div id="preview-container" class="mb-4 hidden">
                                 <img id="image-preview" src="#" alt="Preview" class="w-full max-h-64 object-contain rounded-lg border border-gray-200 bg-gray-50 p-2">
                             </div>
@@ -216,9 +215,8 @@
                                         <td class="py-3 px-4">
                                             <div class="flex items-center justify-center gap-2">
 
-                                                {{-- Detail --}}
-                                                <a href="{{ route('news.show', $item->slug) }}"
-                                                   target="_blank" rel="noopener"
+                                                {{-- Detail (versi admin) --}}
+                                                <a href="{{ route('admin.news.show', $item->id) }}"
                                                    title="Lihat detail berita"
                                                    class="inline-flex items-center gap-1 text-blue-700 hover:bg-blue-100 font-semibold text-xs bg-blue-50 px-3 py-1.5 rounded-md border border-blue-200 transition-colors">
                                                     Detail
@@ -261,7 +259,6 @@
         </div>
     </div>
 
-    {{-- Vanilla JavaScript for Preview & Reset --}}
     <script>
         function previewImage(event) {
             const file = event.target.files[0];

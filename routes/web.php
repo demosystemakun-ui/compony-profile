@@ -41,12 +41,12 @@ Route::get('/our-tariffs', [TariffController::class, 'publicIndex'])->name('tari
 Route::get('/tarif/{tariff}/stream',   [TariffController::class, 'stream'])->name('tarif.stream');
 Route::get('/tarif/{tariff}/download', [TariffController::class, 'download'])->name('tarif.download');
 
-// Public News
+// ───── PUBLIC NEWS ─────
 Route::get('/news', [NewsController::class, 'index'])->name('news');
 Route::get('/media/news/{news}', [NewsController::class, 'image'])->name('news.image');
 Route::get('/news/{slug}', [NewsController::class, 'show'])
     ->name('news.show')
-    ->where('slug', '[a-z0-9-]+');   // slug hanya huruf kecil, angka, dan strip
+    ->where('slug', '[a-z0-9-]+');
 
 // AI Chat
 Route::post('/api/chat', [AiChatController::class, 'send'])->name('ai.chat');
@@ -74,9 +74,15 @@ Route::middleware(['auth'])->prefix('pict-internal-admin-portal')->group(functio
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     // ───── News Management ─────
-    Route::get('/news', [NewsController::class, 'adminIndex'])->name('admin.news.index');   // ← route baru
+    Route::get('/news', [NewsController::class, 'adminIndex'])->name('admin.news.index');
     Route::get('/news/create', [NewsController::class, 'create'])->name('news.create');
     Route::post('/news/store', [NewsController::class, 'store'])->name('news.store');
+
+    // Halaman detail versi admin (preview di dalam panel admin)
+    Route::get('/news/{id}/detail', [NewsController::class, 'adminShow'])
+        ->name('admin.news.show')
+        ->where('id', '[0-9]+');
+
     Route::get('/news/{id}/edit', [NewsController::class, 'edit'])->name('news.edit')->where('id', '[0-9]+');
     Route::put('/news/{id}', [NewsController::class, 'update'])->name('news.update')->where('id', '[0-9]+');
     Route::delete('/news/{id}', [NewsController::class, 'destroy'])->name('news.destroy')->where('id', '[0-9]+');
