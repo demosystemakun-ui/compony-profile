@@ -31,18 +31,25 @@
             <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-2" />
         </div>
 
-        <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+        <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <x-primary-button>{{ __('Save') }}</x-primary-button>
 
-            @if (session('status') === 'password-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
-                >{{ __('Saved.') }}</p>
-            @endif
+                @if (session('status') === 'password-updated')
+                    <p
+                        x-data="{ show: true }"
+                        x-show="show"
+                        x-transition
+                        x-init="setTimeout(() => show = false, 2000)"
+                        class="text-sm text-gray-600"
+                    >{{ __('Saved.') }}</p>
+                @endif
+            </div>
+
+            <!-- Tautan Lupa Sandi -->
+            <a href="{{ route('password.request') }}" class="text-sm text-indigo-600 hover:text-indigo-900 underline">
+                {{ __('Lupa sandi saat ini?') }}
+            </a>
         </div>
     </form>
 </section>
