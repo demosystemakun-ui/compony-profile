@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\SuperAdmin\UserController;
 use App\Http\Controllers\SuperAdmin\ActivityLogController;
+use App\Http\Controllers\Admin\GalleryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -92,6 +93,10 @@ Route::middleware(['auth'])->prefix('pict-internal-admin-portal')->group(functio
         Route::get('tariffs/{tariff}/preview', [TariffController::class, 'preview'])->name('tariffs.preview');
         Route::resource('tariffs', TariffController::class)->except(['show']);
     });
+
+    // ───── Gallery Management (BARU) ─────
+    // Menggunakan resource route, jadi otomatis mencakup index, store, update, destroy
+    Route::resource('gallery', GalleryController::class)->except(['show', 'create', 'edit']);
 
     // ───── Profile & Password ─────
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

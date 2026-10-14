@@ -22,6 +22,11 @@
                     <x-nav-link :href="url('/pict-internal-admin-portal/news/create')" :active="request()->is('pict-internal-admin-portal/news*')">
                         {{ __('News') }}
                     </x-nav-link>
+
+                    {{-- MENU BARU: GALLERY --}}
+                    <x-nav-link :href="url('/pict-internal-admin-portal/gallery')" :active="request()->is('pict-internal-admin-portal/gallery*')">
+                        {{ __('Gallery') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -78,6 +83,12 @@
             <x-responsive-nav-link :href="url('/pict-internal-admin-portal/news/create')" :active="request()->is('pict-internal-admin-portal/news*')">
                 {{ __('News') }}
             </x-responsive-nav-link>
+
+            {{-- MENU BARU: GALLERY (MOBILE) --}}
+            <x-responsive-nav-link :href="url('/pict-internal-admin-portal/gallery')" :active="request()->is('pict-internal-admin-portal/gallery*')">
+                {{ __('Gallery') }}
+            </x-responsive-nav-link>
+
             <x-responsive-nav-link :href="url('/pict-internal-admin-portal/profile')" :active="request()->is('pict-internal-admin-portal/profile*')">
                 {{ __('Profile') }}
             </x-responsive-nav-link>
