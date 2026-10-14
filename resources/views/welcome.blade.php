@@ -186,6 +186,12 @@
         box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
     }
     .leaflet-popup-content { margin: 12px 16px; }
+
+    /* ═══ LEAFLET PULSE ANIMATION ═══ */
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 0.4; }
+        50%      { transform: scale(1.5); opacity: 0; }
+    }
 </style>
 @endpush
 
@@ -592,10 +598,10 @@ document.addEventListener('DOMContentLoaded', function () {
         worldCopyJump: true,
     }).setView([10, 100], 3);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '© OpenStreetMap, © CartoDB',
-        maxZoom: 18,
-        subdomains: 'abcd',
+    // ✅ OpenStreetMap — GRATIS, tanpa API key
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19,
     }).addTo(map);
 
     // Ambil hub (Patimban)
@@ -752,11 +758,4 @@ document.addEventListener('DOMContentLoaded', function () {
     setActiveRoute('all');
 });
 </script>
-
-<style>
-    @keyframes pulse {
-        0%, 100% { transform: scale(1); opacity: 0.4; }
-        50%      { transform: scale(1.5); opacity: 0; }
-    }
-</style>
 @endpush
