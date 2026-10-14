@@ -520,8 +520,7 @@
 
                         {{-- Image Container --}}
                         <div class="relative h-48 sm:h-52 overflow-hidden bg-slate-900">
-                            <img src="{{ asset('storage/' . $item->image) }}"
-                                 alt="{{ $item->title }}"
+<img src="{{ $item->image_url }}">                                 alt="{{ $item->title }}"
                                  class="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
                         </div>
 

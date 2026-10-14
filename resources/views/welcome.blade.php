@@ -423,8 +423,7 @@
                 <article class="group relative rounded-2xl overflow-hidden shadow-md bg-white border border-slate-200 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
                     <div class="relative h-64 overflow-hidden">
                         {{-- Gambar dari storage --}}
-                        <img src="{{ asset('storage/' . $item->image) }}"
-                             alt="{{ $item->title }}"
+<img src="{{ $item->image_url }}">                             alt="{{ $item->title }}"
                              loading="lazy"
                              class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                         {{-- Overlay gradient jika ada --}}

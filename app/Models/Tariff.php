@@ -55,5 +55,5 @@ class Tariff extends Model
         if ($this->pdf_path) {
             Storage::disk('supabase-tariffs')->delete($this->pdf_path);
         }
-    }
+    }   
 }
