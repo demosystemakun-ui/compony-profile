@@ -53,6 +53,9 @@ Route::get('/news/{slug}', [NewsController::class, 'show'])
     ->name('news.show')
     ->where('slug', '[a-z0-9-]+');
 
+// ───── PUBLIC GALLERY IMAGE STREAM (BARU) ─────
+Route::get('/media/gallery/{gallery}', [GalleryController::class, 'image'])->name('gallery.image');
+
 // AI Chat
 Route::post('/api/chat', [AiChatController::class, 'send'])->name('ai.chat');
 

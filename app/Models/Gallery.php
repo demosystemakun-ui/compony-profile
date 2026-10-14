@@ -9,16 +9,26 @@ class Gallery extends Model
 {
     use HasFactory;
 
-  protected $fillable = [
-    'title',
-    'tag',
-    'date_info',
-    'location',
-    'description',
-    'image',
-    'page',        // NEW
-    'section',     // NEW
-    'sort_order',  // NEW
-];
+    protected $fillable = [
+        'title',
+        'tag',
+        'date_info',
+        'location',
+        'description',
+        'image',
+        'page',
+        'section',
+        'sort_order',
+    ];
 
+    /**
+     * URL gambar lewat route Laravel (stream dari Supabase).
+     * ?v= membuat cache browser ikut ter-refresh saat gambar diganti.
+     */
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image
+            ? route('gallery.image', $this) . '?v=' . $this->updated_at?->timestamp
+            : null;
+    }
 }
