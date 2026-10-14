@@ -598,11 +598,10 @@ document.addEventListener('DOMContentLoaded', function () {
         worldCopyJump: true,
     }).setView([10, 100], 3);
 
-    // ✅ OpenStreetMap — GRATIS, tanpa API key
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19,
-    }).addTo(map);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles © Esri',
+    maxZoom: 19,
+}).addTo(map);
 
     // Ambil hub (Patimban)
     const hub = routesData.find(r => r.category === 'hub');
