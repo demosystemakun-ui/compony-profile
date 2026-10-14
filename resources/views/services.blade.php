@@ -164,7 +164,9 @@
             <div class="bg-slate-50 rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group"
                  data-aos="fade-up" data-aos-delay="{{ ($index + 1) * 100 }}">
                 <div class="relative h-56 overflow-hidden">
-<img src="{{ $item->image_url }}">                         alt="{{ $item->title }}"
+                    {{-- ✅ FIX: tag img yang benar --}}
+                    <img src="{{ $item->image_url }}"
+                         alt="{{ $item->title }}"
                          class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 to-transparent"></div>
                     <div class="absolute bottom-4 left-6 right-6 text-white font-bold text-lg font-heading">
@@ -218,7 +220,9 @@
                 <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm flex flex-col sm:flex-row items-stretch"
                      data-aos="fade-up" data-aos-delay="{{ ($index + 1) * 100 }}">
                     <div class="w-full sm:w-1/2 h-48 sm:h-auto relative shrink-0">
-<img src="{{ $item->image_url }}">                             alt="{{ $addon->title }}"
+                        {{-- ✅ FIX: pakai $addon, bukan $item --}}
+                        <img src="{{ $addon->image_url }}"
+                             alt="{{ $addon->title }}"
                              class="absolute inset-0 w-full h-full object-cover">
                     </div>
                     <div class="w-full sm:w-1/2 p-8 flex flex-col justify-center">
