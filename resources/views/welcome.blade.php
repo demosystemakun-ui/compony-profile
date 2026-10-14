@@ -85,40 +85,6 @@
         border-radius: 1.25rem;
     }
 
-    /* ═══ BUTTONS ═══ */
-    .btn-primary-pict {
-        position: relative; overflow: hidden;
-        background-color: var(--color-signal); color: #ffffff;
-        border: 2px solid var(--color-signal);
-        transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-        box-shadow: 0 4px 15px rgba(236, 32, 41, 0.4);
-    }
-    .btn-primary-pict::after {
-        content: ''; position: absolute; top: -50%; left: -60%;
-        width: 50%; height: 200%; background: rgba(255, 255, 255, 0.25);
-        transform: rotate(30deg); transition: transform 0.7s ease-in-out;
-    }
-    .btn-primary-pict:hover::after { transform: translate(350%, 0) rotate(30deg); }
-    .btn-primary-pict:hover {
-        background-color: #d11922; border-color: #d11922;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(236, 32, 41, 0.6);
-    }
-
-    .btn-secondary-pict {
-        background: rgba(255, 255, 255, 0.08);
-        backdrop-filter: blur(10px);
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        color: #ffffff;
-        transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .btn-secondary-pict:hover {
-        background: rgba(255, 255, 255, 0.18);
-        border-color: #ffffff;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(255, 255, 255, 0.15);
-    }
-
     /* ═══ STATS CARD ═══ */
     .stats-strip-container { margin-top: -80px; position: relative; z-index: 30; }
     .stats-card-main {
@@ -187,10 +153,32 @@
     }
     .leaflet-popup-content { margin: 12px 16px; }
 
-    /* ═══ LEAFLET PULSE ANIMATION ═══ */
+    /* ═══ LEAFLET PULSE ANIMATION (untuk hub marker) ═══ */
     @keyframes pulse {
         0%, 100% { transform: scale(1); opacity: 0.4; }
         50%      { transform: scale(1.5); opacity: 0; }
+    }
+
+    /* ═══ SHIP ANIMATION ═══ */
+    .ship-marker { z-index: 800 !important; }
+
+    .ship-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+        pointer-events: none;
+        transition: transform 0.1s linear;
+    }
+
+    @keyframes shipBob {
+        0%, 100% { transform: translateY(0); }
+        50%      { transform: translateY(-2px); }
+    }
+
+    .ship-icon {
+        animation: shipBob 1.5s ease-in-out infinite;
     }
 </style>
 @endpush
@@ -367,7 +355,7 @@
 </section>
 
 {{-- ═══════════════════════════════════════════════════════════════
-     5. SHIPPING ROUTE NETWORK — LEAFLET.JS (DINAMIS DARI DATABASE)
+     5. SHIPPING ROUTE NETWORK — LEAFLET.JS + SHIP ANIMATION
 ═══════════════════════════════════════════════════════════════ --}}
 <section class="py-20 bg-slate-50 relative overflow-hidden border-b border-slate-200" data-aos="fade-up">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
@@ -583,7 +571,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     /* ═══════════════════════════════════════════════════════════════
-       SHIPPING ROUTE — LEAFLET.JS
+       SHIPPING ROUTE — LEAFLET.JS + SHIP ANIMATION
     ═══════════════════════════════════════════════════════════════ */
     const routesData = @json($shippingRoutes ?? []);
 
@@ -598,10 +586,11 @@ document.addEventListener('DOMContentLoaded', function () {
         worldCopyJump: true,
     }).setView([10, 100], 3);
 
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-    attribution: 'Tiles © Esri',
-    maxZoom: 19,
-}).addTo(map);
+    // Tile server: ESRI World Street Map (Inggris, gratis)
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles © Esri',
+        maxZoom: 19,
+    }).addTo(map);
 
     // Ambil hub (Patimban)
     const hub = routesData.find(r => r.category === 'hub');
@@ -609,6 +598,7 @@ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_M
     // Layer groups untuk filter
     const linesLayer = L.layerGroup().addTo(map);
     const markersLayer = L.layerGroup().addTo(map);
+    const shipsLayer = L.layerGroup().addTo(map);
 
     // Warna marker per kategori
     function markerColor(category) {
@@ -617,15 +607,115 @@ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_M
         return '#F59E0B';
     }
 
-    // Simpan marker & line untuk filter
+    // Simpan marker, line, dan ship untuk filter
     const markerRefs = [];
     const lineRefs = [];
+    const shipRefs = [];
 
-    // Gambar garis dari hub ke setiap destinasi
+    // ═══════════════════════════════════════════════════════════════
+    // SHIP ANIMATION — Kapal bergerak dari Patimban ke destinasi
+    // ═══════════════════════════════════════════════════════════════
+
+    const SHIP_EMOJI = '🚢';
+    const SHIP_DURATION = 8000;  // Durasi sekali jalan (ms) - lebih besar = lebih lambat
+
+    function createAnimatedShip(fromLatLng, toLatLng, category) {
+        // Buat icon kapal
+        const shipIcon = L.divIcon({
+            className: 'ship-marker',
+            html: `<div class="ship-icon">${SHIP_EMOJI}</div>`,
+            iconSize: [24, 24],
+            iconAnchor: [12, 12],
+        });
+
+        // Inisialisasi kapal di posisi awal (Patimban)
+        const shipMarker = L.marker(fromLatLng, {
+            icon: shipIcon,
+            interactive: false,
+            zIndexOffset: 900,
+        }).addTo(shipsLayer);
+
+        // Simpan referensi
+        shipRefs.push({ marker: shipMarker, category });
+
+        // Kalkulasi delta
+        const latDiff = toLatLng[0] - fromLatLng[0];
+        const lngDiff = toLatLng[1] - fromLatLng[1];
+
+        // Easing function (ease-in-out)
+        function easeInOut(t) {
+            return t < 0.5
+                ? 2 * t * t
+                : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        }
+
+        // Animation loop
+        let startTime = null;
+        let pauseUntil = 0;
+
+        function animateShip(now) {
+            if (startTime === null) startTime = now;
+
+            // Kalau sedang pause, tunggu
+            if (pauseUntil > 0) {
+                if (now < pauseUntil) {
+                    requestAnimationFrame(animateShip);
+                    return;
+                }
+                // Reset animasi setelah pause
+                pauseUntil = 0;
+                startTime = now;
+            }
+
+            const elapsed = now - startTime;
+            let t = elapsed / SHIP_DURATION;
+
+            // Kalau sudah selesai → pause 1 detik, lalu reset
+            if (t >= 1) {
+                t = 1;
+                pauseUntil = now + 1000; // pause 1 detik
+                // Reset ke awal
+                shipMarker.setLatLng(fromLatLng);
+                requestAnimationFrame(animateShip);
+                return;
+            }
+
+            // Easing
+            const easedT = easeInOut(t);
+
+            // Interpolasi posisi
+            const currentLat = fromLatLng[0] + latDiff * easedT;
+            const currentLng = fromLatLng[1] + lngDiff * easedT;
+
+            shipMarker.setLatLng([currentLat, currentLng]);
+
+            // Rotasi kapal sesuai arah gerak
+            const angle = Math.atan2(latDiff, lngDiff) * (180 / Math.PI);
+            const iconEl = shipMarker.getElement()?.querySelector('.ship-icon');
+            if (iconEl) {
+                // -90 karena emoji 🚢 default menghadap ke atas
+                iconEl.style.transform = `rotate(${angle - 90}deg)`;
+            }
+
+            requestAnimationFrame(animateShip);
+        }
+
+        // Delay random biar kapal-kapal tidak gerak serempak
+        const randomDelay = Math.random() * 4000;
+        setTimeout(() => {
+            startTime = null;
+            requestAnimationFrame(animateShip);
+        }, randomDelay);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // GAMBAR GARIS + KAPAL UNTUK SETIAP RUTE
+    // ═══════════════════════════════════════════════════════════════
     if (hub) {
         routesData.forEach(route => {
             if (route.category === 'hub') return;
 
+            // Gambar garis
             const line = L.polyline(
                 [[hub.latitude, hub.longitude], [route.latitude, route.longitude]],
                 {
@@ -637,10 +727,19 @@ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_M
             );
             line.addTo(linesLayer);
             lineRefs.push({ line, category: route.category });
+
+            // Buat kapal bergerak di rute ini
+            createAnimatedShip(
+                [hub.latitude, hub.longitude],
+                [route.latitude, route.longitude],
+                route.category
+            );
         });
     }
 
-    // Gambar marker untuk semua rute
+    // ═══════════════════════════════════════════════════════════════
+    // MARKER UNTUK SEMUA RUTE
+    // ═══════════════════════════════════════════════════════════════
     routesData.forEach(route => {
         const color = route.color || markerColor(route.category);
         const isHub = route.category === 'hub';
@@ -698,7 +797,9 @@ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_M
         map.fitBounds(bounds, { padding: [50, 50], maxZoom: 5 });
     }
 
-    // ═══ FILTER LOGIC ═══
+    // ═══════════════════════════════════════════════════════════════
+    // FILTER LOGIC
+    // ═══════════════════════════════════════════════════════════════
     const filterButtons = document.querySelectorAll('.route-filter-btn');
     const infoTitle = document.getElementById('routeInfoTitle');
     const infoDesc = document.getElementById('routeInfoDesc');
@@ -740,6 +841,15 @@ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_M
                 if (!linesLayer.hasLayer(line)) linesLayer.addLayer(line);
             } else {
                 linesLayer.removeLayer(line);
+            }
+        });
+
+        // Update kapal visibility
+        shipRefs.forEach(({ marker, category: cat }) => {
+            if (category === 'all' || cat === category) {
+                if (!shipsLayer.hasLayer(marker)) shipsLayer.addLayer(marker);
+            } else {
+                shipsLayer.removeLayer(marker);
             }
         });
 
