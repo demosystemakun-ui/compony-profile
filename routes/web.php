@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\SuperAdmin\UserController;
 use App\Http\Controllers\SuperAdmin\ActivityLogController;
 use App\Http\Controllers\Admin\GalleryController;
+use App\Http\Controllers\PageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,7 +32,7 @@ Route::get('/set-cookie', function () {
 */
 
 Route::view('/', 'welcome')->name('home');
-Route::view('/operations', 'operations')->name('operations');
+Route::get('/operations', [PageController::class, 'operations'])->name('operations');
 Route::view('/services', 'services')->name('services');
 Route::view('/sustainability', 'sustainability')->name('sustainability');
 Route::view('/about', 'about')->name('about');
