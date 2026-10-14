@@ -7,10 +7,25 @@
 
         <title>{{ config('app.name', 'Laravel') }} - Admin Panel</title>
 
+        {{-- Google Fonts --}}
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        {{-- Tailwind CSS via CDN (pengganti @vite) --}}
+        <script src="https://cdn.tailwindcss.com"></script>
+
+        {{-- Konfigurasi Tailwind opsional (kalau butuh warna/font custom) --}}
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            sans: ['Figtree', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                        },
+                    }
+                }
+            }
+        </script>
     </head>
     <body class="font-sans antialiased bg-gray-100">
         
