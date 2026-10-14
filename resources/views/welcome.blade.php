@@ -22,45 +22,25 @@
     }
 
     /* ═══ HERO BASE ═══ */
-    .pict-hero {
-        position: relative;
-        overflow: hidden;
-    }
-
+    .pict-hero { position: relative; overflow: hidden; }
     .hero-bg-img {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        z-index: 0;
-        transform: scale(1);
+        position: absolute; inset: 0; width: 100%; height: 100%;
+        object-fit: cover; z-index: 0; transform: scale(1);
         transition: transform 12s cubic-bezier(0.25, 1, 0.5, 1);
     }
-    .pict-hero:hover .hero-bg-img {
-        transform: scale(1.06);
-    }
+    .pict-hero:hover .hero-bg-img { transform: scale(1.06); }
 
-    /* Sophisticated navy gradient overlay with atmospheric horizon */
- .hero-overlay-gradient {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    background:
-        radial-gradient(circle at 80% 65%, rgba(255, 180, 100, 0.10) 0%, transparent 45%),
-        linear-gradient(90deg, rgba(15, 23, 60, 0.55) 0%, rgba(26, 38, 96, 0.35) 50%, rgba(15, 23, 60, 0.15) 100%),
-        linear-gradient(180deg, rgba(10, 15, 35, 0.25) 0%, transparent 60%, rgba(10, 15, 35, 0.45) 100%);
-}
-    /* Light particle / dust effect */
+    .hero-overlay-gradient {
+        position: absolute; inset: 0; z-index: 1; pointer-events: none;
+        background:
+            radial-gradient(circle at 80% 65%, rgba(255, 180, 100, 0.10) 0%, transparent 45%),
+            linear-gradient(90deg, rgba(15, 23, 60, 0.55) 0%, rgba(26, 38, 96, 0.35) 50%, rgba(15, 23, 60, 0.15) 100%),
+            linear-gradient(180deg, rgba(10, 15, 35, 0.25) 0%, transparent 60%, rgba(10, 15, 35, 0.45) 100%);
+    }
     .hero-particles {
-        position: absolute;
-        inset: 0;
-        z-index: 2;
-        pointer-events: none;
+        position: absolute; inset: 0; z-index: 2; pointer-events: none;
         background-image: radial-gradient(rgba(255, 255, 255, 0.2) 1px, transparent 1px);
-        background-size: 50px 50px;
-        opacity: 0.35;
+        background-size: 50px 50px; opacity: 0.35;
         animation: floatParticles 25s linear infinite;
     }
     @keyframes floatParticles {
@@ -71,20 +51,13 @@
     /* ═══ SHINY TEXT ═══ */
     .shiny-text {
         background-size: 200% auto;
-        -webkit-background-clip: text;
-        background-clip: text;
+        -webkit-background-clip: text; background-clip: text;
         -webkit-text-fill-color: transparent;
-        animation: shiny-animation 3s linear infinite;
-        display: inline-block;
+        animation: shiny-animation 3s linear infinite; display: inline-block;
     }
     .shiny-text:hover { animation-play-state: paused; }
-
-    .shiny-text-light {
-        background-image: linear-gradient(120deg, #cbd5e1 0%, #cbd5e1 35%, #ffffff 50%, #cbd5e1 65%, #cbd5e1 100%);
-    }
-    .shiny-text-brand {
-        background-image: linear-gradient(120deg, #ec2029 0%, #ec2029 35%, #ff858a 50%, #ec2029 65%, #ec2029 100%);
-    }
+    .shiny-text-light { background-image: linear-gradient(120deg, #cbd5e1 0%, #cbd5e1 35%, #ffffff 50%, #cbd5e1 65%, #cbd5e1 100%); }
+    .shiny-text-brand { background-image: linear-gradient(120deg, #ec2029 0%, #ec2029 35%, #ff858a 50%, #ec2029 65%, #ec2029 100%); }
     @keyframes shiny-animation {
         0%   { background-position: 150% center; }
         100% { background-position: -50% center; }
@@ -97,9 +70,7 @@
     }
 
     /* ═══ HERO CONTENT ═══ */
-    .hero-content {
-        animation: fadeUp 1s cubic-bezier(.22, 1, .36, 1) both;
-    }
+    .hero-content { animation: fadeUp 1s cubic-bezier(.22, 1, .36, 1) both; }
     @keyframes fadeUp {
         from { opacity: 0; transform: translateY(28px); }
         to   { opacity: 1; transform: translateY(0); }
@@ -107,8 +78,7 @@
 
     .glass-description-card {
         background: rgba(20, 35, 90, 0.35);
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
+        backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
         border: 1px solid rgba(255, 255, 255, 0.18);
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         border-radius: 1.25rem;
@@ -116,31 +86,20 @@
 
     /* ═══ BUTTONS ═══ */
     .btn-primary-pict {
-        position: relative;
-        overflow: hidden;
-        background-color: var(--color-signal);
-        color: #ffffff;
+        position: relative; overflow: hidden;
+        background-color: var(--color-signal); color: #ffffff;
         border: 2px solid var(--color-signal);
         transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         box-shadow: 0 4px 15px rgba(236, 32, 41, 0.4);
     }
     .btn-primary-pict::after {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -60%;
-        width: 50%;
-        height: 200%;
-        background: rgba(255, 255, 255, 0.25);
-        transform: rotate(30deg);
-        transition: transform 0.7s ease-in-out;
+        content: ''; position: absolute; top: -50%; left: -60%;
+        width: 50%; height: 200%; background: rgba(255, 255, 255, 0.25);
+        transform: rotate(30deg); transition: transform 0.7s ease-in-out;
     }
-    .btn-primary-pict:hover::after {
-        transform: translate(350%, 0) rotate(30deg);
-    }
+    .btn-primary-pict:hover::after { transform: translate(350%, 0) rotate(30deg); }
     .btn-primary-pict:hover {
-        background-color: #d11922;
-        border-color: #d11922;
+        background-color: #d11922; border-color: #d11922;
         transform: translateY(-2px);
         box-shadow: 0 8px 25px rgba(236, 32, 41, 0.6);
     }
@@ -160,31 +119,20 @@
     }
 
     /* ═══ STATS CARD ═══ */
-    .stats-strip-container {
-        margin-top: -80px;
-        position: relative;
-        z-index: 30;
-    }
+    .stats-strip-container { margin-top: -80px; position: relative; z-index: 30; }
     .stats-card-main {
         background: linear-gradient(135deg, #ffffff 0%, #fcfdfd 100%);
         border-radius: 1.5rem;
         box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.12), 0 0 1px 1px rgba(255, 255, 255, 0.8) inset;
-        position: relative;
-        overflow: hidden;
+        position: relative; overflow: hidden;
     }
     .stats-card-main::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
+        content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
         background: linear-gradient(90deg, var(--color-signal) 0%, var(--color-navy) 100%);
     }
     .stat-item {
         transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease;
-        border-radius: 1rem;
-        padding: 1rem 0.5rem;
+        border-radius: 1rem; padding: 1rem 0.5rem;
     }
     .stats-strip.is-visible .stat-item:hover {
         background-color: rgba(38, 52, 122, 0.03);
@@ -199,34 +147,20 @@
     .about-copy { border-left: 3px solid var(--color-signal); padding-left: 1.25rem; }
     .about-values { position: relative; padding-left: 1.75rem; }
     .about-values::before {
-        content: "";
-        position: absolute;
-        left: .35rem;
-        top: .8rem;
-        bottom: .8rem;
-        width: 1px;
-        background: linear-gradient(to bottom, var(--color-signal), var(--color-navy));
+        content: ""; position: absolute; left: .35rem; top: .8rem; bottom: .8rem;
+        width: 1px; background: linear-gradient(to bottom, var(--color-signal), var(--color-navy));
     }
     .about-value-item { position: relative; padding-bottom: 1.5rem; }
     .about-value-item:last-child { padding-bottom: 0; }
     .about-value-item::before {
-        content: "";
-        position: absolute;
-        left: -1.75rem;
-        top: .35rem;
-        width: .75rem;
-        height: .75rem;
-        border: 3px solid #ffffff;
-        border-radius: 9999px;
-        background: var(--color-signal);
+        content: ""; position: absolute; left: -1.75rem; top: .35rem;
+        width: .75rem; height: .75rem; border: 3px solid #ffffff;
+        border-radius: 9999px; background: var(--color-signal);
         box-shadow: 0 0 0 1px var(--color-signal);
     }
 
     /* ═══ LOCATION REVEAL ═══ */
-    .location-reveal {
-        opacity: 0;
-        animation: locationFadeUp .8s ease-out forwards;
-    }
+    .location-reveal { opacity: 0; animation: locationFadeUp .8s ease-out forwards; }
     @keyframes locationFadeUp {
         from { opacity: 0; transform: translateY(24px); }
         to   { opacity: 1; transform: translateY(0); }
@@ -234,27 +168,19 @@
 
     /* ═══ EYEBROW ═══ */
     .eyebrow {
-        display: inline-block;
-        font-size: 0.75rem;
-        font-weight: 800;
-        letter-spacing: 0.22em;
-        text-transform: uppercase;
-        color: var(--color-signal);
+        display: inline-block; font-size: 0.75rem; font-weight: 800;
+        letter-spacing: 0.22em; text-transform: uppercase; color: var(--color-signal);
     }
 
     /* ═══ ROUTE MAP BUTTONS ═══ */
-    .route-legend-btn {
-        color: var(--color-muted);
-    }
+    .route-legend-btn { color: var(--color-muted); }
     .route-legend-btn.is-active {
-        background: #ffffff;
-        color: var(--color-ink);
+        background: #ffffff; color: var(--color-ink);
         box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
     }
     .route-legend-btn.is-active span:first-child {
         box-shadow: 0 0 0 3px rgba(236, 32, 41, 0.15);
     }
-
     .route-line { transition: opacity .35s ease, stroke-width .35s ease; }
     .route-line.is-active { opacity: 1 !important; stroke-width: 2.6; }
     .route-line.is-dim { opacity: 0.12 !important; }
@@ -263,10 +189,7 @@
     .dest-marker { cursor: pointer; }
     .dest-marker .visible-dot { transition: r .3s ease, filter .3s ease; }
     .dest-marker:hover .visible-dot,
-    .dest-marker.is-active .visible-dot {
-        r: 5.5;
-        filter: drop-shadow(0 0 4px currentColor);
-    }
+    .dest-marker.is-active .visible-dot { r: 5.5; filter: drop-shadow(0 0 4px currentColor); }
     .origin-marker .visible-dot { transition: r .3s ease; }
 
     .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -291,20 +214,19 @@
     <div class="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-24 lg:py-32 w-full">
         <div class="hero-content space-y-6 flex flex-col items-center text-center" data-aos="fade-up">
         <h1 class="text-3xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.15] drop-shadow-lg">
-    <span class="shiny-text shiny-text-light">
-        PATIMBAN<br>
-        INTERNATIONAL
-    </span>
-    <br>
-    <span class="shiny-text shiny-text-brand" style="text-shadow: 0 4px 20px rgba(236, 32, 41, 0.4);">
-        CAR TERMINAL
-    </span>
-</h1>
+            <span class="shiny-text shiny-text-light">
+                PATIMBAN<br>
+                INTERNATIONAL
+            </span>
+            <br>
+            <span class="shiny-text shiny-text-brand" style="text-shadow: 0 4px 20px rgba(236, 32, 41, 0.4);">
+                CAR TERMINAL
+            </span>
+        </h1>
 
             <div class="glass-description-card mx-auto max-w-2xl px-6 sm:px-8 py-5 text-slate-100 text-base sm:text-lg leading-relaxed">
                 Providing professional Cargo Handling services at Patimban Port with world-class smart logistics capabilities, operational excellence, and unmatched safety standards.
             </div>
-       {{-- PICTOS Login Button (dipindah ke DALAM hero-content) --}}
         <div class="pt-2">
             <a href="https://patimbancarterminal.com/login"
                target="_blank"
@@ -422,11 +344,11 @@
             @forelse($terminalGallery as $item)
                 <article class="group relative rounded-2xl overflow-hidden shadow-md bg-white border border-slate-200 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
                     <div class="relative h-64 overflow-hidden">
-                        {{-- Gambar dari storage --}}
-<img src="{{ $item->image_url }}">                             alt="{{ $item->title }}"
+                        {{-- ✅ PERBAIKAN: tag img yang benar --}}
+                        <img src="{{ $item->image_url }}"
+                             alt="{{ $item->title }}"
                              loading="lazy"
                              class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                        {{-- Overlay gradient jika ada --}}
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent opacity-90"></div>
                     </div>
                     <div class="p-6">
@@ -503,7 +425,6 @@
                 </div>
             </div>
 
-            {{-- Route Info Panel --}}
             <div class="mt-5 pt-5 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                 <div class="flex items-center gap-2 shrink-0">
                     <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>
@@ -535,7 +456,6 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            {{-- Facility Specs --}}
             <div class="lg:col-span-3 bg-slate-50 rounded-2xl border border-slate-200 shadow-sm overflow-hidden" data-aos="fade-right">
                 <div class="px-6 py-5 border-b border-slate-200">
                     <h3 class="text-lg font-extrabold text-slate-900">Key Facility Specifications</h3>
@@ -557,7 +477,6 @@
                 </div>
             </div>
 
-            {{-- Side Info Cards --}}
             <div class="lg:col-span-2 grid sm:grid-cols-2 lg:grid-cols-1 gap-6" data-aos="fade-left">
                 <div class="rounded-2xl bg-blue-950 p-6 text-white shadow-sm">
                     <h3 class="font-extrabold text-lg">Safety &amp; Security</h3>
@@ -648,8 +567,6 @@
     </div>
 </section>
 
-
-
 @endsection
 
 @push('scripts')
@@ -658,9 +575,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     AOS.init({ duration: 900, easing: 'ease-out-cubic', once: true, offset: 120 });
 
-    /* ═══════════════════════════════════════════════════════════════
-       STATS COUNTER
-    ═══════════════════════════════════════════════════════════════ */
+    /* STATS COUNTER */
     document.querySelectorAll('.stat-number').forEach(el => {
         const target = parseInt(el.dataset.target, 10);
         const duration = 1500;
@@ -676,9 +591,7 @@ document.addEventListener('DOMContentLoaded', function () {
         requestAnimationFrame(tick);
     });
 
-    /* ═══════════════════════════════════════════════════════════════
-       SHIPPING ROUTE INTERACTIVITY
-    ═══════════════════════════════════════════════════════════════ */
+    /* SHIPPING ROUTE INTERACTIVITY */
     const svg = document.getElementById('routeMapSvg');
     if (!svg) return;
 

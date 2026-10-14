@@ -51,7 +51,10 @@
                         @forelse($galleries as $item)
                         <tr class="hover:bg-red-50/30 transition-colors">
                             <td class="py-4 px-4">
-                                <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->title }}" class="w-32 h-20 object-cover rounded-lg border border-gray-200">
+                                {{-- ✅ PERBAIKAN: pakai image_url --}}
+                                <img src="{{ $item->image_url }}"
+                                     alt="{{ $item->title }}"
+                                     class="w-32 h-20 object-cover rounded-lg border border-gray-200">
                             </td>
                             <td class="py-4 px-4 max-w-xs">
                                 <p class="font-bold text-[#0A2540] truncate">{{ $item->title }}</p>
@@ -105,13 +108,11 @@
                 </div>
 
                 <div class="p-6 space-y-4">
-                    {{-- Judul --}}
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Judul Gambar</label>
                         <input type="text" name="title" id="inputTitle" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#EC2029] focus:border-[#EC2029] outline-none">
                     </div>
 
-                    {{-- PAGE & SECTION --}}
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Halaman Target</label>
@@ -133,14 +134,12 @@
                         </div>
                     </div>
 
-                    {{-- SORT ORDER --}}
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Urutan Tampil (Sort Order)</label>
                         <input type="number" name="sort_order" id="inputSort" value="0" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#EC2029] outline-none">
                         <p class="text-[10px] text-slate-400 mt-1">Angka lebih kecil tampil lebih dulu.</p>
                     </div>
 
-                    {{-- TAG & DATE --}}
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tag (Badge)</label>
@@ -152,20 +151,17 @@
                         </div>
                     </div>
 
-                    {{-- LOKASI (bisa diisi beberapa item, pisah dengan |) --}}
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Lokasi / Fitur</label>
                         <input type="text" name="location" id="inputLocation" required placeholder="Contoh: Inspection Area" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#EC2029] outline-none">
                         <p class="text-[10px] text-slate-400 mt-1">Untuk bullet points di Services, pisahkan dengan tanda <code>|</code>. Contoh: <code>300m Pier|Mooring Teams|Fresh Water</code></p>
                     </div>
 
-                    {{-- DESKRIPSI --}}
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Deskripsi</label>
                         <textarea name="description" id="inputDescription" rows="3" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#EC2029] outline-none"></textarea>
                     </div>
 
-                    {{-- UPLOAD --}}
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Upload Gambar</label>
                         <input type="file" name="image" id="inputImage" accept="image/*" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#0A2540] file:text-white hover:file:bg-slate-800">
