@@ -151,3 +151,6 @@ Route::middleware('auth')->group(function () {
 Route::fallback(function () {
     abort(404);
 });
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
