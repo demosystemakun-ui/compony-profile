@@ -403,7 +403,7 @@
 </section>
 
 {{-- ═══════════════════════════════════════════════════════════════
-     4. TERMINAL GALLERY
+     4. TERMINAL GALLERY (DATA DARI DATABASE)
 ═══════════════════════════════════════════════════════════════ --}}
 <section class="py-20 bg-slate-50 border-y border-slate-200 overflow-hidden" data-aos="fade-up">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
@@ -418,54 +418,32 @@
             Direct documentation of vehicle loading and unloading activities, staging yard capacity, and high safety standards at PT Patimban International Car Terminal.
         </p>
 
-        @php
-            $gallery = [
-                [
-                    'img'   => 'vessel-1.jpeg',
-                    'alt'   => 'Ro-Ro Vessel at Patimban Port',
-                    'title' => 'Deep-Sea Ro-Ro Handling',
-                    'desc'  => 'International vehicle carrier berthing services with high technology and efficiency at Patimban terminal.',
-                    'gradient' => true,
-                ],
-                [
-                    'img'   => 'patimban-yard-1.jpeg',
-                    'alt'   => 'Patimban Staging Yard',
-                    'title' => 'Wide Capacity Staging Yard',
-                    'desc'  => 'A spacious, neatly organized, and secure CBU vehicle stacking area designed to support both domestic distribution and exports.',
-                    'gradient' => false,
-                ],
-                [
-                    'img'   => 'car-5.jpeg',
-                    'alt'   => 'Vehicle Inspection Process',
-                    'title' => 'Strict Quality Inspection',
-                    'desc'  => 'A thorough physical and engine inspection process to ensure zero-defect quality standards before vehicles are distributed.',
-                    'gradient' => true,
-                ],
-            ];
-        @endphp
-
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            @foreach($gallery as $item)
+            @forelse($terminalGallery as $item)
                 <article class="group relative rounded-2xl overflow-hidden shadow-md bg-white border border-slate-200 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
                     <div class="relative h-64 overflow-hidden">
-                        <img src="{{ asset('assets/images/' . $item['img']) }}"
-                             alt="{{ $item['alt'] }}"
+                        {{-- Gambar dari storage --}}
+                        <img src="{{ asset('storage/' . $item->image) }}"
+                             alt="{{ $item->title }}"
                              loading="lazy"
                              class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                        @if($item['gradient'])
-                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent opacity-90"></div>
-                        @endif
+                        {{-- Overlay gradient jika ada --}}
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent opacity-90"></div>
                     </div>
                     <div class="p-6">
                         <h3 class="text-lg font-bold text-slate-900 mb-2 group-hover:text-red-600 transition-colors">
-                            {{ $item['title'] }}
+                            {{ $item->title }}
                         </h3>
                         <p class="text-slate-600 text-xs sm:text-sm leading-relaxed">
-                            {{ $item['desc'] }}
+                            {{ $item->description }}
                         </p>
                     </div>
                 </article>
-            @endforeach
+            @empty
+                <div class="col-span-full text-center py-12 text-slate-400 text-sm">
+                    Belum ada gambar galeri untuk halaman Home. Silakan tambahkan melalui Admin Panel.
+                </div>
+            @endforelse
         </div>
     </div>
 </section>

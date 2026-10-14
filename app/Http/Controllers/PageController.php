@@ -7,12 +7,78 @@ use Illuminate\Http\Request;
 
 class PageController extends Controller
 {
+    /**
+     * Halaman Home
+     * Section: "terminal_gallery" — Operational Excellence in Action
+     */
+    public function home()
+    {
+        $terminalGallery = Gallery::where('page', 'home')
+            ->where('section', 'terminal_gallery')
+            ->orderBy('sort_order')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('welcome', compact('terminalGallery'));
+    }
+
+    /**
+     * Halaman Operations
+     * Section: "gallery" — Inside the Terminal
+     */
     public function operations()
     {
-        // Ambil semua data galeri, diurutkan dari yang terbaru
-        $galleries = Gallery::latest()->get();
+        $galleries = Gallery::where('page', 'operations')
+            ->where('section', 'gallery')
+            ->orderBy('sort_order')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        // Kirim variabel $galleries ke view operations.blade.php
         return view('operations', compact('galleries'));
+    }
+
+    /**
+     * Halaman Services
+     * Section: "portfolio" — Commercial Portfolio
+     */
+   public function services()
+{
+    $portfolio = Gallery::where('page', 'services')
+        ->where('section', 'portfolio')
+        ->orderBy('sort_order')
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    $addOns = Gallery::where('page', 'services')
+        ->where('section', 'value_added')
+        ->orderBy('sort_order')
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return view('services', compact('portfolio', 'addOns'));
+}
+
+    /**
+     * Halaman About
+     */
+    public function about()
+    {
+        return view('about');
+    }
+
+    /**
+     * Halaman Sustainability
+     */
+    public function sustainability()
+    {
+        return view('sustainability');
+    }
+
+    /**
+     * Halaman Contact
+     */
+    public function contact()
+    {
+        return view('contact');
     }
 }

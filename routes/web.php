@@ -31,9 +31,12 @@ Route::get('/set-cookie', function () {
 |--------------------------------------------------------------------------
 */
 
-Route::view('/', 'welcome')->name('home');
+// ───── PAGES (dengan data gallery dari database) ─────
+Route::get('/', [PageController::class, 'home'])->name('home');
 Route::get('/operations', [PageController::class, 'operations'])->name('operations');
-Route::view('/services', 'services')->name('services');
+Route::get('/services', [PageController::class, 'services'])->name('services');
+
+// Halaman statis (tanpa data gallery)
 Route::view('/sustainability', 'sustainability')->name('sustainability');
 Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
@@ -95,8 +98,8 @@ Route::middleware(['auth'])->prefix('pict-internal-admin-portal')->group(functio
         Route::resource('tariffs', TariffController::class)->except(['show']);
     });
 
-    // ───── Gallery Management (BARU) ─────
-    // Menggunakan resource route, jadi otomatis mencakup index, store, update, destroy
+    // ───── Gallery Management ─────
+    // Route resource: gallery.index, gallery.store, gallery.update, gallery.destroy
     Route::resource('gallery', GalleryController::class)->except(['show', 'create', 'edit']);
 
     // ───── Profile & Password ─────

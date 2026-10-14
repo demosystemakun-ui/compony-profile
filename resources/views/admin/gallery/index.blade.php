@@ -5,7 +5,7 @@
                 <h2 class="font-bold text-2xl text-[#0A2540] leading-tight tracking-tight">
                     {{ __('Kelola Galeri Terminal') }}
                 </h2>
-                <p class="text-xs text-gray-500 mt-1">Tambah, edit, atau hapus gambar yang tampil di halaman Operations.</p>
+                <p class="text-xs text-gray-500 mt-1">Kelola gambar yang tampil di halaman Home, Operations, dan Services.</p>
             </div>
             <button onclick="openModal('add')" class="bg-[#EC2029] hover:bg-[#961c22] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
                 + Tambah Gambar
@@ -31,7 +31,7 @@
             </div>
             <div>
                 <h3 class="text-lg font-bold text-[#0A2540]">Daftar Gambar Galeri</h3>
-                <p class="text-xs text-gray-500">Gambar yang tampil di halaman Operations publik</p>
+                <p class="text-xs text-gray-500">Semua gambar yang dikelola di sini akan tampil otomatis di halaman publik</p>
             </div>
         </div>
 
@@ -42,8 +42,8 @@
                         <tr class="border-b-2 border-gray-100 text-gray-500 text-xs uppercase tracking-wider bg-gray-50/50">
                             <th class="py-3.5 px-4 font-bold">Gambar</th>
                             <th class="py-3.5 px-4 font-bold">Judul & Deskripsi</th>
+                            <th class="py-3.5 px-4 font-bold">Halaman / Section</th>
                             <th class="py-3.5 px-4 font-bold">Tag</th>
-                            <th class="py-3.5 px-4 font-bold">Lokasi / Tanggal</th>
                             <th class="py-3.5 px-4 text-center font-bold">Aksi</th>
                         </tr>
                     </thead>
@@ -53,16 +53,18 @@
                             <td class="py-4 px-4">
                                 <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->title }}" class="w-32 h-20 object-cover rounded-lg border border-gray-200">
                             </td>
-                            <td class="py-4 px-4">
-                                <p class="font-bold text-[#0A2540]">{{ $item->title }}</p>
+                            <td class="py-4 px-4 max-w-xs">
+                                <p class="font-bold text-[#0A2540] truncate">{{ $item->title }}</p>
                                 <p class="text-gray-500 text-xs line-clamp-2 mt-1">{{ $item->description }}</p>
                             </td>
                             <td class="py-4 px-4">
-                                <span class="bg-red-50 text-red-700 border border-red-100 text-[10px] font-bold px-2 py-1 rounded uppercase">{{ $item->tag }}</span>
+                                <span class="inline-block bg-blue-50 text-blue-700 border border-blue-100 text-[10px] font-bold px-2 py-1 rounded uppercase mb-1">
+                                    {{ $item->page }}
+                                </span>
+                                <p class="text-slate-500 text-[11px] font-medium">{{ $item->section }}</p>
                             </td>
                             <td class="py-4 px-4">
-                                <p class="text-slate-700 font-medium">{{ $item->date_info }}</p>
-                                <p class="text-gray-500 text-xs">{{ $item->location }}</p>
+                                <span class="bg-red-50 text-red-700 border border-red-100 text-[10px] font-bold px-2 py-1 rounded uppercase">{{ $item->tag }}</span>
                             </td>
                             <td class="py-4 px-4">
                                 <div class="flex items-center justify-center gap-2">
@@ -103,11 +105,42 @@
                 </div>
 
                 <div class="p-6 space-y-4">
+                    {{-- Judul --}}
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Judul Gambar</label>
                         <input type="text" name="title" id="inputTitle" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#EC2029] focus:border-[#EC2029] outline-none">
                     </div>
 
+                    {{-- PAGE & SECTION --}}
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Halaman Target</label>
+                            <select name="page" id="inputPage" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#EC2029] outline-none">
+                                <option value="home">Home</option>
+                                <option value="operations">Operations</option>
+                                <option value="services">Services</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Section</label>
+                            <select name="section" id="inputSection" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#EC2029] outline-none">
+                                <option value="terminal_gallery">terminal_gallery (Home)</option>
+                                <option value="gallery">gallery (Operations)</option>
+                                <option value="portfolio">portfolio (Services)</option>
+                                <option value="value_added">value_added (Services)</option>
+                            </select>
+                            <p class="text-[10px] text-slate-400 mt-1">Pilih sesuai halaman target.</p>
+                        </div>
+                    </div>
+
+                    {{-- SORT ORDER --}}
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Urutan Tampil (Sort Order)</label>
+                        <input type="number" name="sort_order" id="inputSort" value="0" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#EC2029] outline-none">
+                        <p class="text-[10px] text-slate-400 mt-1">Angka lebih kecil tampil lebih dulu.</p>
+                    </div>
+
+                    {{-- TAG & DATE --}}
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tag (Badge)</label>
@@ -119,16 +152,20 @@
                         </div>
                     </div>
 
+                    {{-- LOKASI (bisa diisi beberapa item, pisah dengan |) --}}
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Lokasi</label>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Lokasi / Fitur</label>
                         <input type="text" name="location" id="inputLocation" required placeholder="Contoh: Inspection Area" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#EC2029] outline-none">
+                        <p class="text-[10px] text-slate-400 mt-1">Untuk bullet points di Services, pisahkan dengan tanda <code>|</code>. Contoh: <code>300m Pier|Mooring Teams|Fresh Water</code></p>
                     </div>
 
+                    {{-- DESKRIPSI --}}
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Deskripsi</label>
                         <textarea name="description" id="inputDescription" rows="3" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#EC2029] outline-none"></textarea>
                     </div>
 
+                    {{-- UPLOAD --}}
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Upload Gambar</label>
                         <input type="file" name="image" id="inputImage" accept="image/*" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#0A2540] file:text-white hover:file:bg-slate-800">
@@ -161,11 +198,13 @@
                 document.getElementById('inputImage').required = true;
             } else {
                 title.innerText = 'Edit Gambar';
-                // PERHATIKAN: Gunakan url() karena route resource bernama 'gallery.update'
                 form.action = "{{ url('/pict-internal-admin-portal/gallery') }}/" + data.id;
                 method.value = 'PUT';
                 
                 document.getElementById('inputTitle').value = data.title;
+                document.getElementById('inputPage').value = data.page || 'operations';
+                document.getElementById('inputSection').value = data.section || 'gallery';
+                document.getElementById('inputSort').value = data.sort_order || 0;
                 document.getElementById('inputTag').value = data.tag;
                 document.getElementById('inputDate').value = data.date_info;
                 document.getElementById('inputLocation').value = data.location;

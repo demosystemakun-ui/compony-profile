@@ -146,7 +146,7 @@
 </section>
 
 {{-- ═══════════════════════════════════════════════════════════════
-     3. COMPREHENSIVE SERVICE MATRIX
+     3. CORE SERVICE MATRIX (DATA DARI DATABASE)
 ═══════════════════════════════════════════════════════════════ --}}
 <section id="commercial-matrix" class="max-w-7xl mx-auto px-6 py-12 bg-white text-slate-800" data-aos="fade-up">
     <div class="text-center mb-16">
@@ -159,65 +159,48 @@
         </p>
     </div>
 
-    @php
-        $matrix = [
-            [
-                'img'   => 'vessel-2.jpeg',
-                'title' => 'Wharfage & Marine',
-                'desc'  => 'Berth allocation, tugboat coordination, and harbor clearance management for scheduled car carriers.',
-                'items' => ['300m Dedicated Ro-Ro Pier', 'Mooring & Unmooring Teams', 'Fresh Water Bunkering Support'],
-                'delay' => 100,
-            ],
-            [
-                'img'   => 'vessel-1.jpeg',
-                'title' => 'Stevedoring & Discharge',
-                'desc'  => 'High-speed vehicle offloading via vessel ramps with rigorous damage prevention protocols.',
-                'items' => ['Certified Driver Pool', 'Ramp Safety Supervision', 'Lashing & Unlashing Audit'],
-                'delay' => 200,
-            ],
-            [
-                'img'   => 'patimban-yard-1.jpeg',
-                'title' => 'Cargodoring & Staging',
-                'desc'  => 'Secure vehicle marshalling, digital slot allocation, and inventory reporting via TMS.',
-                'items' => ['200K+ Annual Capacity Slots', 'Automated RFID Bay Mapping', '24/7 CCTV & Security Patrol'],
-                'delay' => 300,
-            ],
-        ];
-    @endphp
-
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        @foreach($matrix as $item)
+        @forelse($portfolio as $index => $item)
             <div class="bg-slate-50 rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group"
-                 data-aos="fade-up" data-aos-delay="{{ $item['delay'] }}">
+                 data-aos="fade-up" data-aos-delay="{{ ($index + 1) * 100 }}">
                 <div class="relative h-56 overflow-hidden">
-                    <img src="{{ secure_asset('assets/images/' . $item['img']) }}"
-                         alt="{{ $item['title'] }}"
+                    <img src="{{ asset('storage/' . $item->image) }}"
+                         alt="{{ $item->title }}"
                          class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 to-transparent"></div>
                     <div class="absolute bottom-4 left-6 right-6 text-white font-bold text-lg font-heading">
-                        {{ $item['title'] }}
+                        {{ $item->title }}
                     </div>
                 </div>
                 <div class="p-8 flex-grow flex flex-col">
                     <p class="text-slate-600 text-xs sm:text-sm leading-relaxed mb-6">
-                        {{ $item['desc'] }}
+                        {{ $item->description }}
                     </p>
-                    <ul class="space-y-2 text-xs text-slate-700 font-medium mt-auto">
-                        @foreach($item['items'] as $feat)
-                            <li class="flex items-start gap-2">
-                                <span class="text-[#D62828] font-bold leading-none mt-0.5">•</span>
-                                <span>{{ $feat }}</span>
-                            </li>
-                        @endforeach
-                    </ul>
+                    {{-- Items (dari kolom location di DB) --}}
+                    @if($item->location)
+                        <ul class="space-y-2 text-xs text-slate-700 font-medium mt-auto">
+                            @foreach(explode('|', $item->location) as $feat)
+                                @if(trim($feat))
+                                    <li class="flex items-start gap-2">
+                                        <span class="text-[#D62828] font-bold leading-none mt-0.5">•</span>
+                                        <span>{{ trim($feat) }}</span>
+                                    </li>
+                                @endif
+                            @endforeach
+                        </ul>
+                    @endif
                 </div>
             </div>
-        @endforeach
+        @empty
+            <div class="col-span-full text-center py-12 text-slate-400 text-sm">
+                Belum ada data portfolio. Silakan tambahkan melalui Admin Panel.
+            </div>
+        @endforelse
     </div>
 </section>
 
 {{-- ═══════════════════════════════════════════════════════════════
-     4. VALUE-ADDED SERVICE ADD-ONS
+     4. VALUE-ADDED SERVICE ADD-ONS (DATA DARI DATABASE)
 ═══════════════════════════════════════════════════════════════ --}}
 <section class="py-24 bg-[#F8FAFC] relative overflow-hidden border-t border-slate-200">
     <div class="max-w-7xl mx-auto px-6">
@@ -231,42 +214,29 @@
             </p>
         </div>
 
-        @php
-            $addOns = [
-                [
-                    'img'   => 'car-5.jpeg',
-                    'title' => 'Pre-Delivery Inspection (PDI)',
-                    'desc'  => 'Comprehensive physical audits, battery health checks, and fluid level verifications performed prior to domestic or export release.',
-                    'delay' => 100,
-                ],
-                [
-                    'img'   => 'car-3.jpeg',
-                    'title' => 'Washing',
-                    'desc'  => 'High-pressure automated exterior washing and salt-residue removal facilities to maintain showroom perfection upon vessel arrival.',
-                    'delay' => 200,
-                ],
-            ];
-        @endphp
-
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            @foreach($addOns as $addon)
+            @forelse($addOns as $index => $addon)
                 <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm flex flex-col sm:flex-row items-stretch"
-                     data-aos="fade-up" data-aos-delay="{{ $addon['delay'] }}">
+                     data-aos="fade-up" data-aos-delay="{{ ($index + 1) * 100 }}">
                     <div class="w-full sm:w-1/2 h-48 sm:h-auto relative shrink-0">
-                        <img src="{{ secure_asset('assets/images/' . $addon['img']) }}"
-                             alt="{{ $addon['title'] }}"
+                        <img src="{{ asset('storage/' . $addon->image) }}"
+                             alt="{{ $addon->title }}"
                              class="absolute inset-0 w-full h-full object-cover">
                     </div>
                     <div class="w-full sm:w-1/2 p-8 flex flex-col justify-center">
                         <h3 class="text-xl font-bold text-[#071E3D] mb-2 font-heading">
-                            {{ $addon['title'] }}
+                            {{ $addon->title }}
                         </h3>
                         <p class="text-slate-600 text-sm leading-relaxed">
-                            {{ $addon['desc'] }}
+                            {{ $addon->description }}
                         </p>
                     </div>
                 </div>
-            @endforeach
+            @empty
+                <div class="col-span-full text-center py-12 text-slate-400 text-sm">
+                    Belum ada data value-added solutions. Silakan tambahkan melalui Admin Panel.
+                </div>
+            @endforelse
         </div>
     </div>
 </section>
