@@ -7,6 +7,7 @@ use App\Models\Gallery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class GalleryController extends Controller
 {
@@ -102,11 +103,22 @@ class GalleryController extends Controller
         $data['sort_order'] = $request->input('sort_order', 0);
 
         if ($request->hasFile('image')) {
-            // Hapus gambar lama dari Supabase
+            // ───── Hapus gambar lama dari Supabase (dengan pengaman) ─────
             if ($gallery->image) {
-                Storage::disk('supabase-gallery')->delete($gallery->image);
+                $disk = Storage::disk('supabase-gallery');
+                try {
+                    // Cek dulu apakah file benar-benar ada sebelum dihapus
+                    if ($disk->exists($gallery->image)) {
+                        $disk->delete($gallery->image);
+                    }
+                } catch (\Throwable $e) {
+                    // Abaikan error hapus — mungkin file sudah tidak ada
+                    // Log saja untuk keperluan debugging
+                    Log::warning('Gagal hapus gambar lama: ' . $e->getMessage());
+                }
             }
 
+            // Upload gambar baru
             $file = $request->file('image');
             $filename = 'gallery/' . Str::uuid() . '.' . $file->getClientOriginalExtension();
             
@@ -125,8 +137,18 @@ class GalleryController extends Controller
      */
     public function destroy(Gallery $gallery)
     {
-        // Hapus gambar dari Supabase
-        $gallery->deleteImageFile();
+        // Hapus gambar dari Supabase (dengan pengaman)
+        if ($gallery->image) {
+            $disk = Storage::disk('supabase-gallery');
+            try {
+                if ($disk->exists($gallery->image)) {
+                    $disk->delete($gallery->image);
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Gagal hapus gambar saat destroy: ' . $e->getMessage());
+            }
+        }
+
         $gallery->delete();
 
         return redirect()->route('gallery.index')->with('success', 'Gambar berhasil dihapus!');
