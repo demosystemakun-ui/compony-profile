@@ -88,17 +88,19 @@ return [
             'report'                  => false,
         ],
 
-           'supabase-gallery' => [
-        'driver' => 's3',
-        'key' => env('SUPABASE_GALLERY_KEY', env('SUPABASE_KEY')),
-        'secret' => env('SUPABASE_GALLERY_SECRET', env('SUPABASE_SECRET')),
-        'region' => env('SUPABASE_GALLERY_REGION', 'ap-southeast-1'),
-        'bucket' => env('SUPABASE_GALLERY_BUCKET', 'gallery'),
-        'endpoint' => env('SUPABASE_GALLERY_ENDPOINT', env('SUPABASE_ENDPOINT')),
-        'use_path_style_endpoint' => true,
-        'visibility' => 'public',
-        'throw' => true,
-    ],
+      // Disk khusus untuk Bucket Gallery di Supabase
+'supabase-gallery' => [
+    'driver'                  => 's3',
+    'key'                     => env('SUPABASE_S3_KEY'),
+    'secret'                  => env('SUPABASE_S3_SECRET'),
+    'region'                  => env('SUPABASE_S3_REGION', 'ap-northeast-1'),
+    'bucket'                  => env('SUPABASE_GALLERY_BUCKET', 'gallery'),
+    'endpoint'                => env('SUPABASE_S3_ENDPOINT'),
+    'use_path_style_endpoint' => true,
+    'visibility'              => 'public',
+    'throw'                   => true,
+    'report'                  => false,
+],
 
     ],
 
