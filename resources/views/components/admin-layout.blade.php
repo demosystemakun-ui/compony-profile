@@ -47,7 +47,10 @@
                         {{ __('News') }}
                     </x-sidebar-link>
 
-        
+                    {{-- ⬇️ MENU BARU: GALLERY ⬇️ --}}
+                    <x-sidebar-link :href="url('/pict-internal-admin-portal/gallery')" :active="request()->is('pict-internal-admin-portal/gallery*')" icon="gallery">
+                        {{ __('Gallery') }}
+                    </x-sidebar-link>
 
                     {{-- ═══════════════════════════════════════════════════ --}}
                     {{-- MENU KHUSUS SUPER ADMIN --}}
