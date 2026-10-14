@@ -219,9 +219,10 @@
             if (map) return;
             map = L.map('mapPicker').setView([10, 100], 3);
 
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                attribution: '© OpenStreetMap, © CartoDB',
-                maxZoom: 18,
+            // ✅ OpenStreetMap — GRATIS tanpa API key
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19,
             }).addTo(map);
 
             marker = L.marker([0, 0], { draggable: true }).addTo(map);
