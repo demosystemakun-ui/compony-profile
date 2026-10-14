@@ -1,7 +1,9 @@
 {{--
     Semua data dikirim dari App\Http\Controllers\DashboardController:
     $isSuperAdmin, $totalNews, $totalTariffs, $totalUsers, $staleNews, $staleTariffs,
-    $lastNewsAgo, $lastTariffAgo, $attentionNews, $topCategories, $recentLogs,
+    $totalGallery, $totalRoutes, $activeRoutes,
+    $lastNewsAgo, $lastTariffAgo, $lastGalleryAgo, $lastRouteAgo,
+    $attentionNews, $topCategories, $recentLogs,
     $newsList, $tariffList, $actionColors
 --}}
 <x-admin-layout>
@@ -11,7 +13,11 @@
                 <h2 class="font-bold text-2xl text-[#0A2540] leading-tight tracking-tight">
                     {{ __('Dashboard - Kelola Konten') }}
                 </h2>
-                <p class="text-xs text-gray-500 mt-1">Kelola berita, tarif, dan konten publikasi PICT</p>
+                <p class="text-xs text-gray-500 mt-1">Ringkasan aktivitas dan konten publikasi PICT</p>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-gray-500 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span id="live-clock" class="font-mono font-medium text-slate-700">Loading...</span>
             </div>
         </div>
     </x-slot>
@@ -29,78 +35,116 @@
             @endif
 
             {{-- ═══════════════════════════════════════════════════════ --}}
-            {{-- STATISTIK CARDS --}}
+            {{-- QUICK STATS — 5 CARDS --}}
             {{-- ═══════════════════════════════════════════════════════ --}}
-            <div class="grid grid-cols-2 {{ $isSuperAdmin ? 'lg:grid-cols-4' : 'lg:grid-cols-3' }} gap-4">
+            <div class="grid grid-cols-2 {{ $isSuperAdmin ? 'lg:grid-cols-5' : 'lg:grid-cols-4' }} gap-4">
 
                 {{-- Total Berita --}}
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition">
+                <a href="{{ route('admin.news.index') }}"
+                   class="group bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md hover:border-red-200 transition-all">
                     <div class="flex items-start justify-between">
-                        <div>
+                        <div class="flex-1">
                             <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Berita</p>
                             <p class="text-3xl font-bold text-[#0A2540] mt-2">{{ $totalNews }}</p>
                             <p class="text-[11px] text-gray-400 mt-1">Update: {{ $lastNewsAgo }}</p>
                         </div>
-                        <div class="w-11 h-11 rounded-xl bg-red-50 flex items-center justify-center">
+                        <div class="w-11 h-11 rounded-xl bg-red-50 flex items-center justify-center group-hover:bg-red-100 transition">
                             <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2"/>
                             </svg>
                         </div>
                     </div>
-                </div>
+                </a>
 
                 {{-- Total Tarif --}}
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition">
+                <a href="{{ route('admin.tariffs.index') }}"
+                   class="group bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md hover:border-blue-200 transition-all">
                     <div class="flex items-start justify-between">
-                        <div>
+                        <div class="flex-1">
                             <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Tarif</p>
                             <p class="text-3xl font-bold text-[#0A2540] mt-2">{{ $totalTariffs }}</p>
                             <p class="text-[11px] text-gray-400 mt-1">Update: {{ $lastTariffAgo }}</p>
                         </div>
-                        <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center">
+                        <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition">
                             <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
                         </div>
                     </div>
-                </div>
+                </a>
+
+                {{-- Total Gallery --}}
+                <a href="{{ url('/pict-internal-admin-portal/gallery') }}"
+                   class="group bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md hover:border-emerald-200 transition-all">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Galeri</p>
+                            <p class="text-3xl font-bold text-[#0A2540] mt-2">{{ $totalGallery ?? 0 }}</p>
+                            <p class="text-[11px] text-gray-400 mt-1">Update: {{ $lastGalleryAgo ?? '-' }}</p>
+                        </div>
+                        <div class="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center group-hover:bg-emerald-100 transition">
+                            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+
+                {{-- Total Shipping Routes --}}
+                <a href="{{ url('/pict-internal-admin-portal/shipping-routes') }}"
+                   class="group bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md hover:border-amber-200 transition-all">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Rute Pelayaran</p>
+                            <p class="text-3xl font-bold text-[#0A2540] mt-2">{{ $totalRoutes ?? 0 }}</p>
+                            <p class="text-[11px] text-gray-400 mt-1">{{ $activeRoutes ?? 0 }} rute aktif</p>
+                        </div>
+                        <div class="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </a>
 
                 {{-- Total User (HANYA SUPER ADMIN) --}}
                 @if($isSuperAdmin)
-                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition">
+                    <a href="{{ route('users.index') }}"
+                       class="group bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md hover:border-purple-200 transition-all">
                         <div class="flex items-start justify-between">
-                            <div>
+                            <div class="flex-1">
                                 <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total User</p>
                                 <p class="text-3xl font-bold text-[#0A2540] mt-2">{{ $totalUsers }}</p>
                                 <p class="text-[11px] text-gray-400 mt-1">Terdaftar di sistem</p>
                             </div>
-                            <div class="w-11 h-11 rounded-xl bg-purple-50 flex items-center justify-center">
+                            <div class="w-11 h-11 rounded-xl bg-purple-50 flex items-center justify-center group-hover:bg-purple-100 transition">
                                 <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 </svg>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 @endif
+            </div>
 
-                {{-- Konten Stale --}}
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition {{ $staleNews + $staleTariffs > 0 ? 'ring-2 ring-amber-200' : '' }}">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Perlu Update</p>
-                            <p class="text-3xl font-bold {{ $staleNews + $staleTariffs > 0 ? 'text-amber-600' : 'text-[#0A2540]' }} mt-2">
-                                {{ $staleNews + $staleTariffs }}
-                            </p>
-                            <p class="text-[11px] text-gray-400 mt-1">Tidak diupdate &gt; 30 hari</p>
-                        </div>
-                        <div class="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center">
-                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                            </svg>
-                        </div>
+            {{-- ═══════════════════════════════════════════════════════ --}}
+            {{-- ALERT: KONTEN PERLU UPDATE --}}
+            {{-- ═══════════════════════════════════════════════════════ --}}
+            @if($staleNews + $staleTariffs > 0)
+                <div class="bg-amber-50 border-l-4 border-amber-500 rounded-lg p-4 flex items-start gap-3 shadow-sm">
+                    <div class="w-10 h-10 rounded-lg bg-amber-500 flex items-center justify-center shadow-sm shrink-0">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-sm font-bold text-amber-900">Ada {{ $staleNews + $staleTariffs }} konten yang perlu diperbarui</h3>
+                        <p class="text-xs text-amber-800 mt-0.5">
+                            {{ $staleNews }} berita dan {{ $staleTariffs }} tarif sudah lebih dari 30 hari tidak diupdate.
+                        </p>
                     </div>
                 </div>
-            </div>
+            @endif
 
             {{-- ═══════════════════════════════════════════════════════ --}}
             {{-- ROW: KONTEN PERLU PERHATIAN + AKTIVITAS TERBARU --}}
@@ -212,6 +256,57 @@
             </div>
 
             {{-- ═══════════════════════════════════════════════════════ --}}
+            {{-- QUICK ACTIONS --}}
+            {{-- ═══════════════════════════════════════════════════════ --}}
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-slate-50/50 to-transparent">
+                    <h3 class="text-base font-bold text-[#0A2540]">Quick Actions</h3>
+                    <p class="text-[11px] text-gray-500">Akses cepat ke fitur utama</p>
+                </div>
+                <div class="p-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                    <a href="{{ route('news.create') }}"
+                       class="flex flex-col items-center justify-center gap-2 py-5 rounded-xl bg-red-50 hover:bg-red-100 border border-red-100 transition group">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        <span class="text-[11px] font-bold text-red-700 uppercase tracking-wider">Tambah Berita</span>
+                    </a>
+
+                    <a href="{{ route('admin.tariffs.create') }}"
+                       class="flex flex-col items-center justify-center gap-2 py-5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-100 transition group">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        <span class="text-[11px] font-bold text-blue-700 uppercase tracking-wider">Tambah Tarif</span>
+                    </a>
+
+                    <a href="{{ url('/pict-internal-admin-portal/gallery') }}"
+                       class="flex flex-col items-center justify-center gap-2 py-5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 transition group">
+                        <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Tambah Galeri</span>
+                    </a>
+
+                    <a href="{{ url('/pict-internal-admin-portal/shipping-routes') }}"
+                       class="flex flex-col items-center justify-center gap-2 py-5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-100 transition group">
+                        <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        <span class="text-[11px] font-bold text-amber-700 uppercase tracking-wider">Tambah Rute</span>
+                    </a>
+
+                    <a href="{{ url('/') }}" target="_blank"
+                       class="flex flex-col items-center justify-center gap-2 py-5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 transition group">
+                        <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                        <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Lihat Website</span>
+                    </a>
+                </div>
+            </div>
+
+            {{-- ═══════════════════════════════════════════════════════ --}}
             {{-- TOP KATEGORI BERITA --}}
             {{-- ═══════════════════════════════════════════════════════ --}}
             @if($topCategories->count() > 0)
@@ -235,16 +330,22 @@
             {{-- DAFTAR BERITA --}}
             {{-- ═══════════════════════════════════════════════════════ --}}
             <div class="bg-white overflow-hidden shadow-md rounded-2xl border border-gray-100">
-                <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-red-50/50 to-transparent flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-lg bg-red-600 flex items-center justify-center shadow-sm">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-                        </svg>
+                <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-red-50/50 to-transparent flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-red-600 flex items-center justify-center shadow-sm">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-[#0A2540]">Daftar Berita Terpublikasi</h3>
+                            <p class="text-xs text-gray-500">Kelola semua artikel dan berita yang tampil di website</p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 class="text-lg font-bold text-[#0A2540]">Daftar Berita Terpublikasi</h3>
-                        <p class="text-xs text-gray-500">Kelola semua artikel dan berita yang tampil di website</p>
-                    </div>
+                    <a href="{{ route('admin.news.index') }}"
+                       class="inline-flex items-center gap-1 text-sm font-semibold text-[#0A2540] hover:text-red-600 transition-colors">
+                        Lihat semua →
+                    </a>
                 </div>
 
                 <div class="p-6">
@@ -446,4 +547,20 @@
 
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        function updateRealTimeClock() {
+            const el = document.getElementById('live-clock');
+            if (!el) return;
+            const now = new Date();
+            el.innerText = now.toLocaleDateString('id-ID', {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+            });
+        }
+        setInterval(updateRealTimeClock, 1000);
+        updateRealTimeClock();
+    </script>
+    @endpush
 </x-admin-layout>
