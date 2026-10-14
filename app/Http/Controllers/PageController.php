@@ -11,17 +11,17 @@ class PageController extends Controller
      * Halaman Home
      * Section: "terminal_gallery" — Operational Excellence in Action
      */
-    public function home()
+      public function home()
     {
         $terminalGallery = Gallery::where('page', 'home')
             ->where('section', 'terminal_gallery')
             ->orderBy('sort_order')
-            ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('welcome', compact('terminalGallery'));
-    }
+        $shippingRoutes = ShippingRoute::active()->get();
 
+        return view('welcome', compact('terminalGallery', 'shippingRoutes'));
+    }
     /**
      * Halaman Operations
      * Section: "gallery" — Inside the Terminal

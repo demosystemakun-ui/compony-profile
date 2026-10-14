@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
     /* ═══ DESIGN SYSTEM — PICT HOME ═══ */
     :root {
@@ -172,28 +173,19 @@
         letter-spacing: 0.22em; text-transform: uppercase; color: var(--color-signal);
     }
 
-    /* ═══ ROUTE MAP BUTTONS ═══ */
-    .route-legend-btn { color: var(--color-muted); }
-    .route-legend-btn.is-active {
+    /* ═══ ROUTE FILTER BUTTONS ═══ */
+    .route-filter-btn { color: var(--color-muted); }
+    .route-filter-btn.is-active {
         background: #ffffff; color: var(--color-ink);
         box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
     }
-    .route-legend-btn.is-active span:first-child {
-        box-shadow: 0 0 0 3px rgba(236, 32, 41, 0.15);
-    }
-    .route-line { transition: opacity .35s ease, stroke-width .35s ease; }
-    .route-line.is-active { opacity: 1 !important; stroke-width: 2.6; }
-    .route-line.is-dim { opacity: 0.12 !important; }
-    .route-marker { transition: opacity .35s ease; }
-    .route-marker.is-dim { opacity: 0.1 !important; }
-    .dest-marker { cursor: pointer; }
-    .dest-marker .visible-dot { transition: r .3s ease, filter .3s ease; }
-    .dest-marker:hover .visible-dot,
-    .dest-marker.is-active .visible-dot { r: 5.5; filter: drop-shadow(0 0 4px currentColor); }
-    .origin-marker .visible-dot { transition: r .3s ease; }
 
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    /* ═══ LEAFLET CUSTOM POPUP ═══ */
+    .leaflet-popup-content-wrapper {
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+    }
+    .leaflet-popup-content { margin: 12px 16px; }
 </style>
 @endpush
 
@@ -344,7 +336,6 @@
             @forelse($terminalGallery as $item)
                 <article class="group relative rounded-2xl overflow-hidden shadow-md bg-white border border-slate-200 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
                     <div class="relative h-64 overflow-hidden">
-                        {{-- ✅ PERBAIKAN: tag img yang benar --}}
                         <img src="{{ $item->image_url }}"
                              alt="{{ $item->title }}"
                              loading="lazy"
@@ -370,7 +361,7 @@
 </section>
 
 {{-- ═══════════════════════════════════════════════════════════════
-     5. SHIPPING ROUTE NETWORK
+     5. SHIPPING ROUTE NETWORK — LEAFLET.JS (DINAMIS DARI DATABASE)
 ═══════════════════════════════════════════════════════════════ --}}
 <section class="py-20 bg-slate-50 relative overflow-hidden border-b border-slate-200" data-aos="fade-up">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
@@ -387,25 +378,24 @@
         </p>
 
         <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm">
+            {{-- Filter Buttons --}}
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pb-5 mb-5 border-b border-slate-100">
-                <div id="routeLegend" class="inline-flex p-1 bg-slate-100 rounded-xl gap-1 self-start sm:self-auto" role="tablist" aria-label="Filter rute pelayaran">
-                    @php
-                        $legend = [
-                            ['route' => 'all',           'color' => 'bg-red-600',   'label' => 'All Routes'],
-                            ['route' => 'international', 'color' => 'bg-amber-500', 'label' => 'International'],
-                            ['route' => 'domestic',      'color' => 'bg-sky-500',   'label' => 'Domestic'],
-                        ];
-                    @endphp
-                    @foreach($legend as $l)
-                        <button type="button"
-                                data-route="{{ $l['route'] }}"
-                                role="tab"
-                                aria-selected="{{ $l['route'] === 'all' ? 'true' : 'false' }}"
-                                class="route-legend-btn {{ $l['route'] === 'all' ? 'is-active' : '' }} flex items-center gap-2 text-xs font-bold rounded-lg px-4 py-2 transition-all duration-200">
-                            <span class="w-2 h-2 rounded-full {{ $l['color'] }}"></span>
-                            <span>{{ $l['label'] }}</span>
-                        </button>
-                    @endforeach
+                <div id="routeLegend" class="inline-flex p-1 bg-slate-100 rounded-xl gap-1 self-start sm:self-auto" role="tablist">
+                    <button type="button" data-route="all"
+                            class="route-filter-btn is-active flex items-center gap-2 text-xs font-bold rounded-lg px-4 py-2 transition-all duration-200">
+                        <span class="w-2 h-2 rounded-full bg-red-600"></span>
+                        <span>All Routes</span>
+                    </button>
+                    <button type="button" data-route="international"
+                            class="route-filter-btn flex items-center gap-2 text-xs font-bold rounded-lg px-4 py-2 transition-all duration-200">
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                        <span>International</span>
+                    </button>
+                    <button type="button" data-route="domestic"
+                            class="route-filter-btn flex items-center gap-2 text-xs font-bold rounded-lg px-4 py-2 transition-all duration-200">
+                        <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+                        <span>Domestic</span>
+                    </button>
                 </div>
 
                 <p class="md:hidden text-[11px] text-slate-400 font-medium flex items-center gap-1 self-center">
@@ -413,18 +403,10 @@
                 </p>
             </div>
 
-            <div class="overflow-x-auto no-scrollbar snap-x snap-mandatory rounded-xl bg-slate-50 border border-slate-100">
-                <div class="min-w-[750px] lg:min-w-0">
-                    <svg id="routeMapSvg" class="w-full h-auto touch-manipulation snap-center" viewBox="0 0 900 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Peta jaringan rute pelayaran Patimban Port">
-                        @include('partials.routes._map-defs')
-                        @include('partials.routes._map-landmasses')
-                        @include('partials.routes._map-domestic-routes')
-                        @include('partials.routes._map-international-routes')
-                        @include('partials.routes._map-markers')
-                    </svg>
-                </div>
-            </div>
+            {{-- Peta Leaflet --}}
+            <div id="routeMap" class="w-full h-[500px] rounded-xl border border-slate-100 overflow-hidden"></div>
 
+            {{-- Panel Info --}}
             <div class="mt-5 pt-5 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                 <div class="flex items-center gap-2 shrink-0">
                     <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>
@@ -571,11 +553,14 @@
 
 @push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     AOS.init({ duration: 900, easing: 'ease-out-cubic', once: true, offset: 120 });
 
-    /* STATS COUNTER */
+    /* ═══════════════════════════════════════════════════════════════
+       STATS COUNTER
+    ═══════════════════════════════════════════════════════════════ */
     document.querySelectorAll('.stat-number').forEach(el => {
         const target = parseInt(el.dataset.target, 10);
         const duration = 1500;
@@ -591,75 +576,187 @@ document.addEventListener('DOMContentLoaded', function () {
         requestAnimationFrame(tick);
     });
 
-    /* SHIPPING ROUTE INTERACTIVITY */
-    const svg = document.getElementById('routeMapSvg');
-    if (!svg) return;
+    /* ═══════════════════════════════════════════════════════════════
+       SHIPPING ROUTE — LEAFLET.JS
+    ═══════════════════════════════════════════════════════════════ */
+    const routesData = @json($shippingRoutes ?? []);
+
+    if (routesData.length === 0) {
+        console.warn('No shipping routes available.');
+        return;
+    }
+
+    // Inisialisasi peta
+    const map = L.map('routeMap', {
+        scrollWheelZoom: false,
+        worldCopyJump: true,
+    }).setView([10, 100], 3);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap, © CartoDB',
+        maxZoom: 18,
+        subdomains: 'abcd',
+    }).addTo(map);
+
+    // Ambil hub (Patimban)
+    const hub = routesData.find(r => r.category === 'hub');
+
+    // Layer groups untuk filter
+    const linesLayer = L.layerGroup().addTo(map);
+    const markersLayer = L.layerGroup().addTo(map);
+
+    // Warna marker per kategori
+    function markerColor(category) {
+        if (category === 'hub') return '#EC2029';
+        if (category === 'domestic') return '#0EA5E9';
+        return '#F59E0B';
+    }
+
+    // Simpan marker & line untuk filter
+    const markerRefs = [];
+    const lineRefs = [];
+
+    // Gambar garis dari hub ke setiap destinasi
+    if (hub) {
+        routesData.forEach(route => {
+            if (route.category === 'hub') return;
+
+            const line = L.polyline(
+                [[hub.latitude, hub.longitude], [route.latitude, route.longitude]],
+                {
+                    color: route.color || markerColor(route.category),
+                    weight: 2,
+                    dashArray: '6 4',
+                    opacity: 0.7,
+                }
+            );
+            line.addTo(linesLayer);
+            lineRefs.push({ line, category: route.category });
+        });
+    }
+
+    // Gambar marker untuk semua rute
+    routesData.forEach(route => {
+        const color = route.color || markerColor(route.category);
+        const isHub = route.category === 'hub';
+
+        // Marker custom dengan divIcon
+        const icon = L.divIcon({
+            className: 'custom-marker',
+            html: `
+                <div style="position:relative;">
+                    <div style="
+                        width: ${isHub ? 24 : 16}px;
+                        height: ${isHub ? 24 : 16}px;
+                        background: ${color};
+                        border: 3px solid white;
+                        border-radius: 50%;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                    "></div>
+                    ${isHub ? `<div style="
+                        position: absolute;
+                        top: -8px; left: -8px;
+                        width: 40px; height: 40px;
+                        border-radius: 50%;
+                        background: ${color};
+                        opacity: 0.2;
+                        animation: pulse 2s infinite;
+                    "></div>` : ''}
+                </div>
+            `,
+            iconSize: [16, 16],
+            iconAnchor: [8, 8],
+        });
+
+        const popupContent = `
+            <div style="font-family: 'Poppins', sans-serif; min-width: 180px;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                    <span style="font-size:20px;">${route.flag || '📍'}</span>
+                    <strong style="color:#0A2540; font-size:14px;">${route.name}</strong>
+                </div>
+                <p style="color:#64748B; font-size:11px; margin:0 0 4px 0;">${route.country}</p>
+                ${route.description ? `<p style="color:#475569; font-size:11px; margin:6px 0;">${route.description}</p>` : ''}
+                ${route.transit_days ? `<p style="color:#EC2029; font-size:11px; font-weight:600; margin-top:6px;">⚓ Transit: ${route.transit_days} days</p>` : ''}
+            </div>
+        `;
+
+        const marker = L.marker([route.latitude, route.longitude], { icon })
+            .bindPopup(popupContent, { closeButton: true, maxWidth: 260 })
+            .addTo(markersLayer);
+
+        markerRefs.push({ marker, category: route.category });
+    });
+
+    // Auto-fit bounds
+    if (routesData.length > 1) {
+        const bounds = L.latLngBounds(routesData.map(r => [r.latitude, r.longitude]));
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 5 });
+    }
+
+    // ═══ FILTER LOGIC ═══
+    const filterButtons = document.querySelectorAll('.route-filter-btn');
+    const infoTitle = document.getElementById('routeInfoTitle');
+    const infoDesc = document.getElementById('routeInfoDesc');
 
     const ROUTE_INFO = {
         all: {
             title: 'Patimban Port Comprehensive Network',
-            desc: 'Displaying all combined active international deep-sea lanes and domestic feeder channels connecting Patimban Port to global and regional markets.'
+            desc: `Displaying all ${routesData.length} active routes connecting Patimban Port to global and regional markets.`,
         },
         international: {
             title: 'International Shipping Routes',
-            desc: 'Destinations: Port Klang (Malaysia), Laem Chabang (Thailand), Hong Kong, Guangzhou, Nagoya, Yokohama, Osaka (Japan).'
+            desc: 'Active international deep-sea lanes connecting Patimban to major global automotive hubs.',
         },
         domestic: {
             title: 'Domestic Feeder Network',
-            desc: 'Connecting major domestic maritime trade pathways across Indonesia: Pontianak, Batam, Belawan, and Banjarmasin.'
-        }
+            desc: 'Connecting major domestic maritime trade pathways across Indonesia.',
+        },
     };
 
-    const infoTitle     = document.getElementById('routeInfoTitle');
-    const infoDesc      = document.getElementById('routeInfoDesc');
-    const legendButtons = svg.parentElement.parentElement.parentElement.querySelectorAll('.route-legend-btn');
-    const routeLines    = svg.querySelectorAll('.route-line');
-    const routeMarkers  = svg.querySelectorAll('.route-marker');
-    const routeHits     = svg.querySelectorAll('.route-hit');
-    const destMarkers   = svg.querySelectorAll('.dest-marker');
-    const originMarker  = svg.querySelector('.origin-marker');
-
-    function setActiveRoute(route) {
-        const target = route || 'all';
-
-        routeLines.forEach(el => {
-            const match = el.dataset.route === target;
-            el.classList.toggle('is-active', target !== 'all' && match);
-            el.classList.toggle('is-dim', target !== 'all' && !match);
-        });
-        routeMarkers.forEach(el => {
-            const match = el.dataset.route === target;
-            el.classList.toggle('is-dim', target !== 'all' && !match);
-        });
-        destMarkers.forEach(el => {
-            el.classList.toggle('is-active', target !== 'all' && el.dataset.route === target);
-        });
-        if (originMarker) {
-            originMarker.classList.toggle('is-active', target === 'all');
-        }
-        legendButtons.forEach(btn => {
-            const isActive = btn.dataset.route === target;
+    function setActiveRoute(category) {
+        // Update tombol
+        filterButtons.forEach(btn => {
+            const isActive = btn.dataset.route === category;
             btn.classList.toggle('is-active', isActive);
-            btn.setAttribute('aria-selected', String(isActive));
         });
 
-        const info = ROUTE_INFO[target] || ROUTE_INFO.all;
+        // Update marker visibility
+        markerRefs.forEach(({ marker, category: cat }) => {
+            if (category === 'all' || cat === category || cat === 'hub') {
+                if (!markersLayer.hasLayer(marker)) markersLayer.addLayer(marker);
+            } else {
+                markersLayer.removeLayer(marker);
+            }
+        });
+
+        // Update line visibility
+        lineRefs.forEach(({ line, category: cat }) => {
+            if (category === 'all' || cat === category) {
+                if (!linesLayer.hasLayer(line)) linesLayer.addLayer(line);
+            } else {
+                linesLayer.removeLayer(line);
+            }
+        });
+
+        // Update info panel
+        const info = ROUTE_INFO[category] || ROUTE_INFO.all;
         if (infoTitle) infoTitle.textContent = info.title;
-        if (infoDesc)  infoDesc.textContent  = info.desc;
+        if (infoDesc) infoDesc.textContent = info.desc;
     }
 
-    routeHits.forEach(el => {
-        el.style.cursor = 'pointer';
-        el.addEventListener('click', () => setActiveRoute(el.dataset.route));
-    });
-    destMarkers.forEach(el => {
-        el.addEventListener('click', () => setActiveRoute(el.dataset.route));
-    });
-    legendButtons.forEach(btn => {
+    filterButtons.forEach(btn => {
         btn.addEventListener('click', () => setActiveRoute(btn.dataset.route));
     });
 
+    // Aktifkan default 'all'
     setActiveRoute('all');
 });
 </script>
+
+<style>
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 0.4; }
+        50%      { transform: scale(1.5); opacity: 0; }
+    }
+</style>
 @endpush

@@ -86,6 +86,9 @@ Route::middleware(['auth'])->prefix('pict-internal-admin-portal')->group(functio
     Route::get('/news/create', [NewsController::class, 'create'])->name('news.create');
     Route::post('/news/store', [NewsController::class, 'store'])->name('news.store');
 
+    Route::resource('shipping-routes', \App\Http\Controllers\Admin\ShippingRouteController::class)
+    ->except(['show', 'create', 'edit']);
+    
     // Halaman detail versi admin (preview di dalam panel admin)
     Route::get('/news/{id}/detail', [NewsController::class, 'adminShow'])
         ->name('admin.news.show')
