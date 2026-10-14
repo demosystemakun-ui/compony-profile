@@ -12,22 +12,33 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-            {{-- ═══ NAVBAR ADMIN (dari file nav class=bg-white...) ═══ --}}
-            @include('layouts.nav-admin')
+    <body class="font-sans antialiased bg-gray-100">
+        
+        {{-- ═══ SIDEBAR ADMIN (Fixed di Kiri) ═══ --}}
+        @include('layouts.nav-admin')
 
-            @isset($header)
-                <header class="bg-white dark:bg-gray-800 shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
+        {{-- ═══ KONTEN UTAMA (Beri jarak kiri lg:pl-64 agar tidak tertutup sidebar) ═══ --}}
+        <div class="lg:pl-64 min-h-screen flex flex-col transition-all duration-300">
+            
+            {{-- Header Halaman (jika ada) --}}
+            @hasSection('header')
+                <header class="bg-white shadow-sm sticky top-0 z-20">
+                    <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+                        @yield('header')
                     </div>
                 </header>
-            @endisset
+            @endif
 
-            <main>
-                {{ $slot }}
+            {{-- Konten Utama --}}
+            <main class="flex-1">
+                {{-- 
+                    Gunakan @yield untuk kompatibilitas dengan @extends('layouts.admin') 
+                    dan $slot untuk kompatibilitas dengan <x-admin-layout>
+                --}}
+                @yield('content')
+                {{ $slot ?? '' }}
             </main>
         </div>
+
     </body>
 </html>
