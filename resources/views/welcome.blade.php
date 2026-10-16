@@ -511,9 +511,9 @@
             </div>
         </div>
 
-        <div class="lg:col-span-7 location-reveal rounded-2xl overflow-hidden shadow-lg border border-slate-200 h-80 md:h-[420px] bg-slate-100" style="animation-delay:.3s" data-aos="fade-left">
+      <div class="lg:col-span-7 location-reveal rounded-2xl overflow-hidden shadow-lg border border-slate-200 h-80 md:h-[420px] bg-slate-100" style="animation-delay:.3s" data-aos="fade-left">
             <iframe
-                src="https://www.google.com/maps?q=Pelabuhan+Patimban,+Subang,+Jawa+Barat&t=k&output=embed"
+                src="https://www.google.com/maps?q=Pelabuhan+Patimban,+Subang,+Jawa+Barat&z=15&t=k&output=embed"
                 class="w-full h-full"
                 style="border:0;"
                 allowfullscreen
@@ -521,6 +521,7 @@
                 referrerpolicy="no-referrer-when-downgrade"
                 title="Peta lokasi Patimban Port">
             </iframe>
+</div>
         </div>
     </div>
 </section>
