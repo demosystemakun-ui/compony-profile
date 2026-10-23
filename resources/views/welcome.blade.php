@@ -170,7 +170,7 @@
 <section class="pict-hero pt-32 pb-16 lg:pt-0 lg:pb-0">
     {{-- Gambar dengan potongan diagonal --}}
     <div class="hero-split-wrapper">
-        <img src="{{ asset('assets/images/background.jpeg') }}"
+        <img src="{{ asset('assets/images/vessel-5.jpeg') }}"
              alt="Patimban Port terminal"
              class="hero-bg-img"
              fetchpriority="high">
@@ -183,11 +183,7 @@
             {{-- Kiri: Teks --}}
             <div class="lg:col-span-6 xl:col-span-5 flex flex-col justify-center space-y-6">
                 
-                {{-- Label Kecil --}}
-                <div class="flex items-center gap-3">
-                    <div class="h-[2px] w-6 bg-[#ec2029]"></div>
-                    <span class="text-[#ec2029] font-bold text-xs tracking-widest uppercase">PATIMBAN PORT</span>
-                </div>
+
 
                 {{-- Judul Utama --}}
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-[1.1] tracking-tight">
