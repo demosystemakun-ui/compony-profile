@@ -10,7 +10,6 @@
         'contact'        => ['label' => 'Contact Us',     'url' => '/contact'],
     ];
 
-
     $currentPath = trim(request()->path(), '/');
 
     /* Helper: cek apakah link aktif */
@@ -170,10 +169,6 @@
 (function () {
     'use strict';
 
-    /* ═══════════════════════════════════════════════════════════════
-       GUARD: kalau script ini dieksekusi ulang (mis. oleh Swup),
-       jangan pasang listener lagi. Cukup init ulang pill-nya.
-    ═══════════════════════════════════════════════════════════════ */
     if (window.__pictNavLoaded) {
         if (typeof window.__pictNavInit === 'function') window.__pictNavInit();
         return;
@@ -182,17 +177,11 @@
 
     let activeTab = null;
 
-    /* ═══════════════════════════════════════════════════════════════
-       HELPER
-    ═══════════════════════════════════════════════════════════════ */
     function closeMobileMenu() {
         document.getElementById('mobileMenu')?.classList.add('is-closed');
         document.getElementById('mobileMenuBtn')?.setAttribute('aria-expanded', 'false');
     }
 
-    /* ═══════════════════════════════════════════════════════════════
-       SLIDING PILL (DESKTOP NAV)
-    ═══════════════════════════════════════════════════════════════ */
     function setupSlidingPill() {
         const container = document.getElementById('navContainer');
         const slider    = document.getElementById('navSlider');
@@ -204,7 +193,6 @@
         const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
         activeTab = null;
 
-        /* Cari tab yang cocok dengan current path */
         tabs.forEach(tab => {
             const tabPath = new URL(tab.href, window.location.origin).pathname.replace(/\/$/, '') || '/';
             if (tabPath === currentPath) {
@@ -216,7 +204,6 @@
 
         if (!activeTab) activeTab = tabs[0];
 
-        /* Update style semua tab */
         function applyTabStyles(target) {
             tabs.forEach(tab => {
                 const isActive = tab === target;
@@ -226,7 +213,6 @@
             });
         }
 
-        /* Pindahkan slider ke tab target */
         function moveTo(target, instant = false) {
             if (!target) {
                 slider.style.opacity = '0';
@@ -247,13 +233,10 @@
             applyTabStyles(target);
         }
 
-        /* Simpan supaya bisa dipanggil dari resize handler */
         window.__pictNavMoveTo = moveTo;
 
-        /* Inisialisasi posisi */
         moveTo(activeTab, true);
 
-        /* Pasang listener hanya sekali per elemen */
         tabs.forEach(tab => {
             if (tab.dataset.bound === '1') return;
             tab.dataset.bound = '1';
@@ -274,9 +257,6 @@
         }
     }
 
-    /* ═══════════════════════════════════════════════════════════════
-       RESIZE (dipasang sekali)
-    ═══════════════════════════════════════════════════════════════ */
     let resizeTimer = null;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimer);
@@ -287,16 +267,12 @@
         }, 100);
     });
 
-    /* ═══════════════════════════════════════════════════════════════
-       MOBILE MENU — Event Delegation (dipasang sekali)
-    ═══════════════════════════════════════════════════════════════ */
     document.addEventListener('click', (e) => {
         const menu = document.getElementById('mobileMenu');
         if (!menu) return;
 
         const btn = e.target.closest('#mobileMenuBtn');
 
-        /* Tombol hamburger */
         if (btn) {
             e.preventDefault();
             const isClosed = menu.classList.contains('is-closed');
@@ -310,15 +286,11 @@
             return;
         }
 
-        /* Klik link di dalam menu, atau klik di luar menu → tutup */
         if (e.target.closest('#mobileMenu a') || !menu.contains(e.target)) {
             closeMobileMenu();
         }
     });
 
-    /* ═══════════════════════════════════════════════════════════════
-       INITIALIZE
-    ═══════════════════════════════════════════════════════════════ */
     function initNavbar() {
         setupSlidingPill();
     }
@@ -330,9 +302,6 @@
         initNavbar();
     }
 
-    /* ═══════════════════════════════════════════════════════════════
-       SWUP INTEGRATION (hook didaftarkan sekali)
-    ═══════════════════════════════════════════════════════════════ */
     function bindSwup() {
         if (window.__pictSwupBound) return true;
         if (window.swup && typeof window.swup.hooks?.on === 'function') {
@@ -347,7 +316,6 @@
     }
 
     if (!bindSwup()) {
-        /* Kalau Swup di-inisialisasi setelah file ini, cek berkala sebentar */
         let attempts = 0;
         const swupCheck = setInterval(() => {
             attempts++;

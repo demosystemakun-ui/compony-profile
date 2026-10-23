@@ -22,14 +22,15 @@
         font-family: 'Century Gothic', 'CenturyGothic', 'Poppins', sans-serif !important;
     }
 
-    /* ═══ HERO BASE ═══ */
+    /* ═══ HERO BASE (Split Layout Putih / Foto) ═══ */
     .pict-hero { 
         position: relative; 
         overflow: hidden; 
-        background-color: #0a0f23; 
-        min-height: 100vh;
+        background-color: #ffffff; /* Background dasar putih */
+        min-height: 85vh;
         display: flex;
         align-items: center;
+        border-bottom: 1px solid #e2e8f0;
     }
     
     .hero-split-wrapper {
@@ -39,13 +40,13 @@
         z-index: 0;
     }
 
-    /* Desktop: Setengah layar untuk gambar dengan potongan diagonal */
+    /* Desktop: Gambar di kanan dengan potongan diagonal */
     @media (min-width: 1024px) {
         .hero-split-wrapper {
-            width: 60%;
+            width: 65%;
             left: auto;
-            /* Potongan diagonal dimulai dari tengah atas ke kiri bawah */
-            clip-path: polygon(20% 0, 100% 0, 100% 100%, 0% 100%);
+            /* Potongan miring dari atas-tengah ke kiri-bawah */
+            clip-path: polygon(25% 0, 100% 0, 100% 100%, 0% 100%);
         }
     }
 
@@ -55,47 +56,19 @@
         object-position: center;
     }
 
-    /* Overlay solid di kiri agar teks sangat jelas, memudar ke kanan */
-    .hero-overlay-gradient {
-        position: absolute; inset: 0; z-index: 1; pointer-events: none;
-        background: linear-gradient(90deg, #0a0f23 0%, #0a0f23 45%, rgba(10, 15, 35, 0.6) 60%, transparent 100%);
-    }
-
+    /* Mobile overlay agar teks terbaca */
     @media (max-width: 1023px) {
-        .hero-overlay-gradient {
-            background: linear-gradient(180deg, rgba(10, 15, 35, 0.9) 0%, rgba(10, 15, 35, 0.85) 60%, rgba(10, 15, 35, 0.95) 100%);
-        }
+        .hero-split-wrapper { opacity: 0.3; }
     }
 
-    /* ═══ SHINY TEXT / GLOW ═══ */
-    .shiny-text {
-        background-size: 200% auto;
-        -webkit-background-clip: text; background-clip: text;
-        -webkit-text-fill-color: transparent;
-        animation: shiny-animation 3s linear infinite; display: inline-block;
-    }
-    .shiny-text:hover { animation-play-state: paused; }
-    .shiny-text-light { background-image: linear-gradient(120deg, #cbd5e1 0%, #cbd5e1 35%, #ffffff 50%, #cbd5e1 65%, #cbd5e1 100%); }
-    .shiny-text-brand { background-image: linear-gradient(120deg, #ec2029 0%, #ec2029 35%, #ff858a 50%, #ec2029 65%, #ec2029 100%); }
-    @keyframes shiny-animation {
-        0%   { background-position: 150% center; }
-        100% { background-position: -50% center; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .shiny-text { animation: none !important; }
-        .hero-bg-img { transform: none !important; }
-    }
-
-    /* ═══ HERO CONTENT ANIMATION ═══ */
-    .hero-content { animation: fadeUp 1s cubic-bezier(.22, 1, .36, 1) both; }
-    @keyframes fadeUp {
-        from { opacity: 0; transform: translateY(28px); }
-        to   { opacity: 1; transform: translateY(0); }
+    .hero-content-wrap {
+        position: relative;
+        z-index: 10;
+        width: 100%;
     }
 
     /* ═══ STATS CARD ═══ */
-    .stats-strip-container { margin-top: -80px; position: relative; z-index: 30; }
+    .stats-strip-container { margin-top: -60px; position: relative; z-index: 30; }
     .stats-card-main {
         background: linear-gradient(135deg, #ffffff 0%, #fcfdfd 100%);
         border-radius: 1.5rem;
@@ -188,47 +161,55 @@
 @section('content')
 
 {{-- ═══════════════════════════════════════════════════════════════
-     1. HERO SECTION — ASYMMETRIC SPLIT / DIAGONAL CROP
+     1. HERO SECTION — SPLIT WHITE / DIAGONAL IMAGE
 ═══════════════════════════════════════════════════════════════ --}}
-<section class="pict-hero border-b border-white/10 pt-[env(safe-area-inset-top)]">
-    
-    {{-- Wrapper untuk gambar dengan clip-path diagonal --}}
+<section class="pict-hero pt-24 lg:pt-0">
+    {{-- Gambar dengan potongan diagonal --}}
     <div class="hero-split-wrapper">
         <img src="{{ asset('assets/images/background.jpeg') }}"
              alt="Patimban Port terminal"
              class="hero-bg-img"
              fetchpriority="high">
     </div>
-    
-    {{-- Overlay solid --}}
-    <div class="hero-overlay-gradient"></div>
 
-    <div class="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-24 lg:py-32 w-full">
+    {{-- Konten Teks --}}
+    <div class="hero-content-wrap max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-16 lg:py-0">
         <div class="grid lg:grid-cols-12 gap-8 items-center">
             
-            {{-- Left Content (Teks) --}}
-            <div class="lg:col-span-7 xl:col-span-6 flex flex-col justify-center space-y-8 hero-content">
-                <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.15]">
-                    <span class="shiny-text shiny-text-light">
-                        PATIMBAN<br>
-                        INTERNATIONAL
-                    </span>
-                    <br>
-                    <span class="shiny-text shiny-text-brand">
-                        CAR TERMINAL
-                    </span>
+            {{-- Kiri: Teks --}}
+            <div class="lg:col-span-6 xl:col-span-5 flex flex-col justify-center space-y-6">
+                
+                {{-- Label Kecil --}}
+                <div class="flex items-center gap-3">
+                    <div class="h-[2px] w-6 bg-[#ec2029]"></div>
+                    <span class="text-[#ec2029] font-bold text-xs tracking-widest uppercase">PATIMBAN PORT</span>
+                </div>
+
+                {{-- Judul Utama --}}
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-[1.1] tracking-tight">
+                    PATIMBAN<br>
+                    INTERNATIONAL<br>
+                    <span class="text-[#ec2029]">CAR TERMINAL</span>
                 </h1>
 
-                {{-- Deskripsi Polos dengan Aksen Garis Merah --}}
-                <div class="max-w-md border-l-2 border-[#ec2029] pl-5">
-                    <p class="text-slate-200 text-base sm:text-lg leading-relaxed font-light m-0">
-                        Providing professional Cargo Handling services at Patimban Port with world-class smart logistics capabilities, operational excellence, and unmatched safety standards.
-                    </p>
+                {{-- Deskripsi --}}
+                <p class="text-slate-600 text-base sm:text-lg leading-relaxed max-w-md">
+                    Providing professional Cargo Handling services at Patimban Port with world-class smart logistics capabilities, operational excellence, and unmatched safety standards.
+                </p>
+
+                {{-- Tombol CTA --}}
+                <div class="pt-2">
+                    <a href="{{ url('/about') }}" class="inline-flex items-center gap-3 bg-[#ec2029] hover:bg-[#d11922] text-white px-6 py-3.5 text-sm font-bold transition-all duration-300 shadow-md hover:shadow-lg">
+                        Learn More About PICT
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </a>
                 </div>
             </div>
 
-            {{-- Right Empty (Area Gambar) --}}
-            <div class="hidden lg:block lg:col-span-5 xl:col-span-6"></div>
+            {{-- Kanan: Kosong (Area Gambar) --}}
+            <div class="hidden lg:block lg:col-span-6 xl:col-span-7"></div>
         </div>
     </div>
 </section>
@@ -353,7 +334,7 @@
 </section>
 
 {{-- ═══════════════════════════════════════════════════════════════
-     5. SHIPPING ROUTE NETWORK — LEAFLET.JS (ARC GIS)
+     5. SHIPPING ROUTE NETWORK — LEAFLET.JS
 ═══════════════════════════════════════════════════════════════ --}}
 <section class="py-20 bg-slate-50 relative overflow-hidden border-b border-slate-200" data-aos="fade-up">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
@@ -542,7 +523,6 @@
 @push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-{{-- Tambahan library untuk mendeteksi nama negara ke kode negara secara otomatis --}}
 <script src="https://cdn.jsdelivr.net/npm/i18n-iso-countries@7.7.0/dist/i18n-iso-countries.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/i18n-iso-countries@7.7.0/langs/en.min.js"></script>
 
@@ -578,46 +558,36 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    // Daftarkan bahasa Inggris untuk library deteksi negara
     if (typeof countries !== 'undefined') {
         countries.registerLocale(require("i18n-iso-countries/langs/en.json"));
     }
 
-    // Inisialisasi peta
     const map = L.map('routeMap', {
         scrollWheelZoom: false,
         worldCopyJump: true,
     }).setView([10, 100], 3);
 
-    // Menggunakan ArcGIS seperti kode asli Anda
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
         attribution: 'Tiles © Esri',
         maxZoom: 19,
     }).addTo(map);
 
-    // Ambil hub (Patimban)
     const hub = routesData.find(r => r.category === 'hub');
-
-    // Layer groups untuk filter
     const linesLayer = L.layerGroup().addTo(map);
     const markersLayer = L.layerGroup().addTo(map);
 
-    // Warna marker per kategori
     function markerColor(category) {
         if (category === 'hub') return '#EC2029';
         if (category === 'domestic') return '#0EA5E9';
         return '#F59E0B';
     }
 
-    // Simpan marker & line untuk filter
     const markerRefs = [];
     const lineRefs = [];
 
-    // Gambar garis dari hub ke setiap destinasi
     if (hub) {
         routesData.forEach(route => {
             if (route.category === 'hub') return;
-
             const line = L.polyline(
                 [[hub.latitude, hub.longitude], [route.latitude, route.longitude]],
                 {
@@ -632,12 +602,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Gambar marker untuk semua rute
     routesData.forEach(route => {
         const color = route.color || markerColor(route.category);
         const isHub = route.category === 'hub';
 
-        // Marker custom dengan divIcon
         const icon = L.divIcon({
             className: 'custom-marker',
             html: `
@@ -665,16 +633,12 @@ document.addEventListener('DOMContentLoaded', function () {
             iconAnchor: [8, 8],
         });
 
-        // ---> DETEKSI NEGARA OTOMATIS UNTUK BENDERA <---
-        let flagCode = 'id'; // Default
-        
-        // Coba deteksi dari nama negara
+        let flagCode = 'id';
         if (route.country && typeof countries !== 'undefined') {
             let isoCode = countries.getAlpha2Code(route.country, 'en');
             if (isoCode) {
                 flagCode = isoCode.toLowerCase();
             } else {
-                // Jika library gagal mendeteksi, gunakan nama manual untuk jaga-jaga
                 let countryName = route.country.toLowerCase();
                 if (countryName.includes('hong kong')) flagCode = 'hk';
                 else if (countryName.includes('malaysia')) flagCode = 'my';
@@ -706,13 +670,11 @@ document.addEventListener('DOMContentLoaded', function () {
         markerRefs.push({ marker, category: route.category });
     });
 
-    // Auto-fit bounds
     if (routesData.length > 1) {
         const bounds = L.latLngBounds(routesData.map(r => [r.latitude, r.longitude]));
         map.fitBounds(bounds, { padding: [50, 50], maxZoom: 5 });
     }
 
-    // ═══ FILTER LOGIC ═══
     const filterButtons = document.querySelectorAll('.route-filter-btn');
     const infoTitle = document.getElementById('routeInfoTitle');
     const infoDesc = document.getElementById('routeInfoDesc');
@@ -733,13 +695,11 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     function setActiveRoute(category) {
-        // Update tombol
         filterButtons.forEach(btn => {
             const isActive = btn.dataset.route === category;
             btn.classList.toggle('is-active', isActive);
         });
 
-        // Update marker visibility
         markerRefs.forEach(({ marker, category: cat }) => {
             if (category === 'all' || cat === category || cat === 'hub') {
                 if (!markersLayer.hasLayer(marker)) markersLayer.addLayer(marker);
@@ -748,7 +708,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        // Update line visibility
         lineRefs.forEach(({ line, category: cat }) => {
             if (category === 'all' || cat === category) {
                 if (!linesLayer.hasLayer(line)) linesLayer.addLayer(line);
@@ -757,7 +716,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        // Update info panel
         const info = ROUTE_INFO[category] || ROUTE_INFO.all;
         if (infoTitle) infoTitle.textContent = info.title;
         if (infoDesc) infoDesc.textContent = info.desc;
@@ -767,7 +725,6 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.addEventListener('click', () => setActiveRoute(btn.dataset.route));
     });
 
-    // Aktifkan default 'all'
     setActiveRoute('all');
 });
 </script>
