@@ -674,10 +674,11 @@ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_M
             iconAnchor: [8, 8],
         });
 
+        // PERBAIKAN: Memaksa font emoji pada span bendera
         const popupContent = `
             <div style="font-family: 'Poppins', sans-serif; min-width: 180px;">
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-                    <span style="font-size:20px;">${route.flag || '📍'}</span>
+                    <span style="font-size:24px; font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; line-height: 1;">${route.flag || '📍'}</span>
                     <strong style="color:#0A2540; font-size:14px;">${route.name}</strong>
                 </div>
                 <p style="color:#64748B; font-size:11px; margin:0 0 4px 0;">${route.country}</p>
