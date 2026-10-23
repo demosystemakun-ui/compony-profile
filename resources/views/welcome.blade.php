@@ -23,7 +23,14 @@
     }
 
     /* ═══ HERO BASE ═══ */
-    .pict-hero { position: relative; overflow: hidden; background-color: #0a0f23; }
+    .pict-hero { 
+        position: relative; 
+        overflow: hidden; 
+        background-color: #0a0f23; 
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+    }
     
     .hero-split-wrapper {
         position: absolute;
@@ -32,35 +39,31 @@
         z-index: 0;
     }
 
-    /* Diagonal Clip Path yang digeser ke kanan agar teks aman */
+    /* Desktop: Setengah layar untuk gambar dengan potongan diagonal */
     @media (min-width: 1024px) {
         .hero-split-wrapper {
-            width: 70%;
+            width: 60%;
             left: auto;
-            clip-path: polygon(25% 0, 100% 0, 100% 100%, 5% 100%);
-        }
-        .hero-bg-img {
-            object-position: center 60%; /* Fokus foto agak ke atas */
+            /* Potongan diagonal dimulai dari tengah atas ke kiri bawah */
+            clip-path: polygon(20% 0, 100% 0, 100% 100%, 0% 100%);
         }
     }
 
     .hero-bg-img {
         position: absolute; inset: 0; width: 100%; height: 100%;
-        object-fit: cover; z-index: 0; transform: scale(1);
-        transition: transform 12s cubic-bezier(0.25, 1, 0.5, 1);
-        object-position: center 30%;
+        object-fit: cover; z-index: 0;
+        object-position: center;
     }
-    .pict-hero:hover .hero-bg-img { transform: scale(1.06); }
 
-    /* Overlay pekat di kiri agar teks kontras dengan background */
+    /* Overlay solid di kiri agar teks sangat jelas, memudar ke kanan */
     .hero-overlay-gradient {
         position: absolute; inset: 0; z-index: 1; pointer-events: none;
-        background: linear-gradient(90deg, #0a0f23 0%, #0a0f23 40%, rgba(10, 15, 35, 0.85) 60%, transparent 100%);
+        background: linear-gradient(90deg, #0a0f23 0%, #0a0f23 45%, rgba(10, 15, 35, 0.6) 60%, transparent 100%);
     }
 
     @media (max-width: 1023px) {
         .hero-overlay-gradient {
-            background: linear-gradient(180deg, rgba(10, 15, 35, 0.8) 0%, rgba(26, 38, 96, 0.85) 50%, rgba(10, 15, 35, 0.95) 100%);
+            background: linear-gradient(180deg, rgba(10, 15, 35, 0.9) 0%, rgba(10, 15, 35, 0.85) 60%, rgba(10, 15, 35, 0.95) 100%);
         }
     }
 
@@ -187,7 +190,7 @@
 {{-- ═══════════════════════════════════════════════════════════════
      1. HERO SECTION — ASYMMETRIC SPLIT / DIAGONAL CROP
 ═══════════════════════════════════════════════════════════════ --}}
-<section class="pict-hero relative w-full min-h-[92vh] flex items-center overflow-hidden border-b border-white/10 pt-[env(safe-area-inset-top)]">
+<section class="pict-hero border-b border-white/10 pt-[env(safe-area-inset-top)]">
     
     {{-- Wrapper untuk gambar dengan clip-path diagonal --}}
     <div class="hero-split-wrapper">
@@ -197,33 +200,34 @@
              fetchpriority="high">
     </div>
     
+    {{-- Overlay solid --}}
     <div class="hero-overlay-gradient"></div>
 
     <div class="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-24 lg:py-32 w-full">
         <div class="grid lg:grid-cols-12 gap-8 items-center">
             
-            {{-- Left Content --}}
-            <div class="lg:col-span-7 xl:col-span-6 flex flex-col justify-center h-full space-y-8 hero-content">
+            {{-- Left Content (Teks) --}}
+            <div class="lg:col-span-7 xl:col-span-6 flex flex-col justify-center space-y-8 hero-content">
                 <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.15]">
                     <span class="shiny-text shiny-text-light">
                         PATIMBAN<br>
                         INTERNATIONAL
                     </span>
                     <br>
-                    <span class="shiny-text shiny-text-brand" style="text-shadow: 0 4px 20px rgba(236, 32, 41, 0.4);">
+                    <span class="shiny-text shiny-text-brand">
                         CAR TERMINAL
                     </span>
                 </h1>
 
                 {{-- Deskripsi Polos dengan Aksen Garis Merah --}}
-                <div class="max-w-xl border-l-2 border-[#ec2029] pl-5">
-                    <p class="text-slate-200 text-base sm:text-lg lg:text-xl leading-relaxed font-light m-0">
+                <div class="max-w-md border-l-2 border-[#ec2029] pl-5">
+                    <p class="text-slate-200 text-base sm:text-lg leading-relaxed font-light m-0">
                         Providing professional Cargo Handling services at Patimban Port with world-class smart logistics capabilities, operational excellence, and unmatched safety standards.
                     </p>
                 </div>
             </div>
 
-            {{-- Right Empty --}}
+            {{-- Right Empty (Area Gambar) --}}
             <div class="hidden lg:block lg:col-span-5 xl:col-span-6"></div>
         </div>
     </div>
