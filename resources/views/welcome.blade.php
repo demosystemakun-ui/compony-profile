@@ -225,18 +225,6 @@
             <div class="glass-description-card mx-auto max-w-2xl px-6 sm:px-8 py-5 text-slate-100 text-base sm:text-lg leading-relaxed">
                 Providing professional Cargo Handling services at Patimban Port with world-class smart logistics capabilities, operational excellence, and unmatched safety standards.
             </div>
-        <!-- <div class="pt-2">
-            <a href="https://patimbancarterminal.com/login"
-               target="_blank"
-               rel="noopener noreferrer"
-               class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#0A2540] hover:bg-[#1D4E74] text-white text-sm font-bold tracking-wide transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 border border-white/10">
-                <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
-                </svg>
-                <span>PICTOS Login</span>
-            </a>
-        </div> -->
-
     </div>
 </div>
 
@@ -403,10 +391,6 @@
                         <span>Domestic</span>
                     </button>
                 </div>
-
-                <p class="md:hidden text-[11px] text-slate-400 font-medium flex items-center gap-1 self-center">
-                    <span>&larr;</span> Drag or scroll map to explore <span>&rarr;</span>
-                </p>
             </div>
 
             {{-- Peta Leaflet --}}
@@ -674,11 +658,16 @@ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_M
             iconAnchor: [8, 8],
         });
 
-        // PERBAIKAN: Memaksa font emoji pada span bendera
+        // ---> FUNGSI UNTUK MENAMPILKAN GAMBAR BENDERA <---
+        // Mengambil 2 huruf pertama dari flag (misal "MY MY" jadi "MY"), lalu jadikan URL gambar
+        let flagCode = (route.flag || 'ID').replace(/[^a-zA-Z]/g, '').substring(0, 2).toUpperCase();
+        if(!flagCode) flagCode = 'ID'; // Default jika kosong
+        const flagImg = `<img src="https://flagcdn.com/24x18/${flagCode.toLowerCase()}.png" alt="${flagCode}" style="width: 24px; height: auto; border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); object-fit: cover;">`;
+
         const popupContent = `
             <div style="font-family: 'Poppins', sans-serif; min-width: 180px;">
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-                    <span style="font-size:24px; font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; line-height: 1;">${route.flag || '📍'}</span>
+                    ${flagImg}
                     <strong style="color:#0A2540; font-size:14px;">${route.name}</strong>
                 </div>
                 <p style="color:#64748B; font-size:11px; margin:0 0 4px 0;">${route.country}</p>
