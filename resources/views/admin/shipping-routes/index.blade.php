@@ -38,8 +38,8 @@
                             <tr class="hover:bg-red-50/30">
                                 <td class="py-4 px-4">
                                     <div class="flex items-center gap-3">
-                                        {{-- Tampilkan bendera + kode (misal: 🇮🇩 ID) --}}
-                                        <span class="text-sm font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded-md">{{ $route->flag }}</span>
+                                        {{-- Hanya render emoji dengan ukuran text-2xl --}}
+                                        <span class="text-2xl">{{ $route->flag }}</span>
                                         <div>
                                             <p class="font-bold text-[#0A2540]">{{ $route->name }}</p>
                                             <p class="text-gray-500 text-xs">{{ $route->country }}</p>
@@ -161,8 +161,8 @@
                                    class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-slate-50">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Flag</label>
-                            <select name="flag" id="inputFlag" placeholder="Cari bendera atau kode negara..."></select>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Flag (Emoji)</label>
+                            <select name="flag" id="inputFlag" placeholder="Cari negara (cth: Indonesia)..."></select>
                         </div>
                     </div>
 
@@ -220,23 +220,23 @@
         let map, marker;
         let flagSelect;
 
-        // --- DATA BENDERA (Format: "EMOJI KODE") ---
+        // --- DATA BENDERA (Format: Emoji Murni sebagai Value, Teks Lengkap untuk Pencarian) ---
         const flagOptions = [
-            { value: '🇮🇩 ID', text: '🇮🇩 ID - Indonesia' },
-            { value: '🇹🇭 TH', text: '🇹🇭 TH - Thailand' },
-            { value: '🇸🇬 SG', text: '🇸🇬 SG - Singapore' },
-            { value: '🇲🇾 MY', text: '🇲🇾 MY - Malaysia' },
-            { value: '🇵🇭 PH', text: '🇵🇭 PH - Philippines' },
-            { value: '🇻🇳 VN', text: '🇻🇳 VN - Vietnam' },
-            { value: '🇨🇳 CN', text: '🇨🇳 CN - China' },
-            { value: '🇯🇵 JP', text: '🇯🇵 JP - Japan' },
-            { value: '🇰🇷 KR', text: '🇰🇷 KR - South Korea' },
-            { value: '🇦🇺 AU', text: '🇦🇺 AU - Australia' },
-            { value: '🇺🇸 US', text: '🇺🇸 US - United States' },
-            { value: '🇳🇱 NL', text: '🇳🇱 NL - Netherlands' },
-            { value: '🇬🇧 UK', text: '🇬🇧 UK - United Kingdom' },
-            { value: '🇮🇳 IN', text: '🇮🇳 IN - India' },
-            { value: '🇦🇪 AE', text: '🇦🇪 AE - United Arab Emirates' }
+            { value: '🇮🇩', text: '🇮🇩 Indonesia' },
+            { value: '🇹🇭', text: '🇹🇭 Thailand' },
+            { value: '🇸🇬', text: '🇸🇬 Singapore' },
+            { value: '🇲🇾', text: '🇲🇾 Malaysia' },
+            { value: '🇵🇭', text: '🇵🇭 Philippines' },
+            { value: '🇻🇳', text: '🇻🇳 Vietnam' },
+            { value: '🇨🇳', text: '🇨🇳 China' },
+            { value: '🇯🇵', text: '🇯🇵 Japan' },
+            { value: '🇰🇷', text: '🇰🇷 South Korea' },
+            { value: '🇦🇺', text: '🇦🇺 Australia' },
+            { value: '🇺🇸', text: '🇺🇸 United States' },
+            { value: '🇳🇱', text: '🇳🇱 Netherlands' },
+            { value: '🇬🇧', text: '🇬🇧 United Kingdom' },
+            { value: '🇮🇳', text: '🇮🇳 India' },
+            { value: '🇦🇪', text: '🇦🇪 United Arab Emirates' }
         ];
 
         // Inisialisasi Tom Select
@@ -245,14 +245,16 @@
                 flagSelect = new TomSelect("#inputFlag", {
                     options: flagOptions,
                     create: false,
+                    // Mengizinkan pencarian berdasarkan kata kunci (teks)
+                    searchField: ['text'], 
                     sortField: { field: "text", direction: "asc" },
                     render: {
                         option: function(data, escape) {
                             return '<div>' + escape(data.text) + '</div>';
                         },
                         item: function(data, escape) {
-                            // Hanya tampilkan Emoji + Kode di dalam box input
-                            return '<div>' + escape(data.text).split(' - ')[0] + '</div>'; 
+                            // Karena value murni emoji, kita hanya render emojinya di box input
+                            return '<div class="text-xl">' + escape(data.value) + '</div>'; 
                         }
                     }
                 });
@@ -335,21 +337,17 @@
                 if (data.flag && flagSelect) {
                     let dbFlag = data.flag.trim();
                     
-                    // Pembersih jika database menyimpan data ganda seperti "TH TH"
-                    let flagParts = dbFlag.split(' ');
-                    if (flagParts.length >= 2 && flagParts[0] === flagParts[1]) {
-                        dbFlag = flagParts[0]; 
-                    }
-
-                    // Cocokkan dengan list opsi
+                    // Cocokkan dengan list opsi (mendukung data lama seperti "PH" atau emoji murni "🇵🇭")
                     let matchedFlag = flagOptions.find(opt => 
-                        opt.value.includes(dbFlag) || opt.text.includes(dbFlag)
+                        opt.value === dbFlag || 
+                        opt.text.includes(dbFlag) || 
+                        dbFlag.includes(opt.value)
                     );
                     
                     if (matchedFlag) {
                         flagSelect.setValue(matchedFlag.value);
                     } else {
-                        // Fallback jika data tidak ada di list
+                        // Fallback
                         flagSelect.addOption({ value: dbFlag, text: dbFlag });
                         flagSelect.setValue(dbFlag);
                     }
@@ -373,5 +371,3 @@
         });
     </script>
 </x-admin-layout>
-
-<!-- terbaru -->
