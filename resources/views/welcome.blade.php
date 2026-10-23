@@ -545,6 +545,10 @@
 @push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+{{-- Tambahan library untuk mendeteksi nama negara ke kode negara secara otomatis --}}
+<script src="https://cdn.jsdelivr.net/npm/i18n-iso-countries@7.7.0/dist/i18n-iso-countries.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/i18n-iso-countries@7.7.0/langs/en.min.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     AOS.init({ duration: 900, easing: 'ease-out-cubic', once: true, offset: 120 });
@@ -575,6 +579,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (routesData.length === 0) {
         console.warn('No shipping routes available.');
         return;
+    }
+
+    // Daftarkan bahasa Inggris untuk library deteksi negara
+    if (typeof countries !== 'undefined') {
+        countries.registerLocale(require("i18n-iso-countries/langs/en.json"));
     }
 
     // Inisialisasi peta
@@ -658,11 +667,27 @@ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_M
             iconAnchor: [8, 8],
         });
 
-        // ---> FUNGSI UNTUK MENAMPILKAN GAMBAR BENDERA <---
-        // Mengambil 2 huruf pertama dari flag (misal "MY MY" jadi "MY"), lalu jadikan URL gambar
-        let flagCode = (route.flag || 'ID').replace(/[^a-zA-Z]/g, '').substring(0, 2).toUpperCase();
-        if(!flagCode) flagCode = 'ID'; // Default jika kosong
-        const flagImg = `<img src="https://flagcdn.com/24x18/${flagCode.toLowerCase()}.png" alt="${flagCode}" style="width: 24px; height: auto; border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); object-fit: cover;">`;
+        // ---> DETEKSI NEGARA OTOMATIS UNTUK BENDERA <---
+        let flagCode = 'id'; // Default
+        
+        // Coba deteksi dari nama negara
+        if (route.country && typeof countries !== 'undefined') {
+            let isoCode = countries.getAlpha2Code(route.country, 'en');
+            if (isoCode) {
+                flagCode = isoCode.toLowerCase();
+            } else {
+                // Jika library gagal mendeteksi, gunakan nama manual untuk jaga-jaga
+                let countryName = route.country.toLowerCase();
+                if (countryName.includes('hong kong')) flagCode = 'hk';
+                else if (countryName.includes('malaysia')) flagCode = 'my';
+                else if (countryName.includes('singapore')) flagCode = 'sg';
+                else if (countryName.includes('thailand')) flagCode = 'th';
+                else if (countryName.includes('japan')) flagCode = 'jp';
+                else if (countryName.includes('china')) flagCode = 'cn';
+            }
+        }
+
+        const flagImg = `<img src="https://flagcdn.com/24x18/${flagCode}.png" alt="${flagCode}" style="width: 24px; height: auto; border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); object-fit: cover;">`;
 
         const popupContent = `
             <div style="font-family: 'Poppins', sans-serif; min-width: 180px;">
