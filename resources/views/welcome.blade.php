@@ -26,8 +26,8 @@
     .pict-hero { 
         position: relative; 
         overflow: hidden; 
-        background-color: #ffffff; /* Background dasar putih */
-        min-height: 85vh;
+        background-color: #ffffff; /* PUTIH MURNI agar Navbar terlihat kontras */
+        min-height: 100vh;
         display: flex;
         align-items: center;
         border-bottom: 1px solid #e2e8f0;
@@ -58,7 +58,10 @@
 
     /* Mobile overlay agar teks terbaca */
     @media (max-width: 1023px) {
-        .hero-split-wrapper { opacity: 0.3; }
+        .hero-split-wrapper { 
+            opacity: 0.15; 
+            width: 100%;
+        }
     }
 
     .hero-content-wrap {
@@ -163,7 +166,8 @@
 {{-- ═══════════════════════════════════════════════════════════════
      1. HERO SECTION — SPLIT WHITE / DIAGONAL IMAGE
 ═══════════════════════════════════════════════════════════════ --}}
-<section class="pict-hero pt-24 lg:pt-0">
+{{-- pt-32 memastikan teks turun ke bawah navbar yang melayang --}}
+<section class="pict-hero pt-32 pb-16 lg:pt-0 lg:pb-0">
     {{-- Gambar dengan potongan diagonal --}}
     <div class="hero-split-wrapper">
         <img src="{{ asset('assets/images/background.jpeg') }}"
@@ -173,7 +177,7 @@
     </div>
 
     {{-- Konten Teks --}}
-    <div class="hero-content-wrap max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-16 lg:py-0">
+    <div class="hero-content-wrap max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-12 lg:py-0">
         <div class="grid lg:grid-cols-12 gap-8 items-center">
             
             {{-- Kiri: Teks --}}
