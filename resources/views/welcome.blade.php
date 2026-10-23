@@ -170,7 +170,7 @@
 <section class="pict-hero pt-32 pb-16 lg:pt-0 lg:pb-0">
     {{-- Gambar dengan potongan diagonal --}}
     <div class="hero-split-wrapper">
-        <img src="{{ asset('assets/images/vessel-5.jpeg') }}"
+        <img src="{{ asset('assets/images/harmoni.png') }}"
              alt="Patimban Port terminal"
              class="hero-bg-img"
              fetchpriority="high">
