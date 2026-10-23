@@ -161,8 +161,8 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Flag</label>
-                            <input type="text" name="flag" id="inputFlag" placeholder="🇮🇩"
-                                   class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+                            <!-- Diubah menjadi select untuk Tom Select -->
+                            <select name="flag" id="inputFlag" placeholder="Cari bendera atau kode negara..."></select>
                         </div>
                     </div>
 
@@ -212,17 +212,65 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+    {{-- Tom Select (Untuk Flag Searchable) --}}
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+
     <script>
         let map, marker;
+        let flagSelect;
 
+        // --- DATA BENDERA ---
+        // Silakan tambah/ubah sesuai kebutuhan Anda
+        const flagOptions = [
+            { value: '🇮🇩 ID', text: '🇮🇩 ID - Indonesia' },
+            { value: '🇹🇭 TH', text: '🇹🇭 TH - Thailand' },
+            { value: '🇸🇬 SG', text: '🇸🇬 SG - Singapore' },
+            { value: '🇲🇾 MY', text: '🇲🇾 MY - Malaysia' },
+            { value: '🇵🇭 PH', text: '🇵🇭 PH - Philippines' },
+            { value: '🇻🇳 VN', text: '🇻🇳 VN - Vietnam' },
+            { value: '🇨🇳 CN', text: '🇨🇳 CN - China' },
+            { value: '🇯🇵 JP', text: '🇯🇵 JP - Japan' },
+            { value: '🇰🇷 KR', text: '🇰🇷 KR - South Korea' },
+            { value: '🇦🇺 AU', text: '🇦🇺 AU - Australia' },
+            { value: '🇺🇸 US', text: '🇺🇸 US - United States' },
+            { value: '🇳🇱 NL', text: '🇳🇱 NL - Netherlands' },
+            { value: '🇬🇧 UK', text: '🇬🇧 UK - United Kingdom' },
+            { value: '🇮🇳 IN', text: '🇮🇳 IN - India' },
+            { value: '🇦🇪 AE', text: '🇦🇪 AE - United Arab Emirates' }
+        ];
+
+        // Inisialisasi Tom Select untuk Flag
+        function initFlagSelect() {
+            if (!flagSelect) {
+                flagSelect = new TomSelect("#inputFlag", {
+                    options: flagOptions,
+                    create: false,
+                    sortField: {
+                        field: "text",
+                        direction: "asc"
+                    },
+                    render: {
+                        option: function(data, escape) {
+                            return '<div>' + escape(data.text) + '</div>';
+                        },
+                        item: function(data, escape) {
+                            return '<div>' + escape(data.text) + '</div>';
+                        }
+                    }
+                });
+            }
+        }
+
+        // --- PETA (LEAFLET) ---
         function initMap() {
             if (map) return;
             map = L.map('mapPicker').setView([10, 100], 3);
 
-     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-    attribution: 'Tiles © Esri',
-    maxZoom: 19,
-}).addTo(map);
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles © Esri',
+                maxZoom: 19,
+            }).addTo(map);
 
             marker = L.marker([0, 0], { draggable: true }).addTo(map);
             marker.setLatLng([-2, 108]);
@@ -244,15 +292,17 @@
             document.getElementById('inputLng').value = latlng.lng.toFixed(6);
         }
 
+        // --- MODAL LOGIC ---
         function openModal(mode, data = null) {
             const modal = document.getElementById('routeModal');
             const form = document.getElementById('routeForm');
             const title = document.getElementById('modalTitle');
             const method = document.getElementById('formMethod');
 
+            // Pastikan Tom Select & Peta terinisialisasi
+            initFlagSelect();
             modal.classList.remove('hidden');
 
-            // Inisialisasi peta setelah modal terbuka
             setTimeout(() => {
                 initMap();
                 map.invalidateSize();
@@ -263,6 +313,10 @@
                 form.action = "{{ route('shipping-routes.store') }}";
                 method.value = 'POST';
                 form.reset();
+
+                // Reset Flag Tom Select
+                if (flagSelect) flagSelect.clear();
+
                 marker.setLatLng([-2, 108]);
                 map.setView([10, 100], 3);
                 updateCoords({ lat: -2, lng: 108 });
@@ -279,11 +333,29 @@
                 document.getElementById('inputColor').value = data.color || '#0EA5E9';
                 document.getElementById('inputLat').value = data.latitude;
                 document.getElementById('inputLng').value = data.longitude;
-                document.getElementById('inputFlag').value = data.flag || '';
                 document.getElementById('inputTransit').value = data.transit_days || 0;
                 document.getElementById('inputSort').value = data.sort_order || 0;
                 document.getElementById('inputDesc').value = data.description || '';
                 document.getElementById('inputActive').checked = !!data.is_active;
+
+                // Set Value Flag pada Tom Select
+                if (data.flag && flagSelect) {
+                    // Coba cari opsi yang cocok (berdasarkan kode atau emoji)
+                    let matchedFlag = flagOptions.find(opt => 
+                        opt.value.includes(data.flag) || 
+                        opt.text.includes(data.flag)
+                    );
+                    
+                    if (matchedFlag) {
+                        flagSelect.setValue(matchedFlag.value);
+                    } else {
+                        // Jika tidak ada di list, tambahkan secara dinamis
+                        flagSelect.addOption({ value: data.flag, text: data.flag });
+                        flagSelect.setValue(data.flag);
+                    }
+                } else if (flagSelect) {
+                    flagSelect.clear();
+                }
 
                 const lat = parseFloat(data.latitude);
                 const lng = parseFloat(data.longitude);
@@ -295,5 +367,10 @@
         function closeModal() {
             document.getElementById('routeModal').classList.add('hidden');
         }
+
+        // Inisialisasi awal saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            initFlagSelect();
+        });
     </script>
 </x-admin-layout>
