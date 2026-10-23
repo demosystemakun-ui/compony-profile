@@ -32,12 +32,15 @@
         z-index: 0;
     }
 
-    /* Diagonal Clip Path for desktop */
+    /* Diagonal Clip Path yang digeser ke kanan agar teks aman */
     @media (min-width: 1024px) {
         .hero-split-wrapper {
-            width: 60%;
+            width: 70%;
             left: auto;
-            clip-path: polygon(15% 0, 100% 0, 100% 100%, 0% 100%);
+            clip-path: polygon(25% 0, 100% 0, 100% 100%, 5% 100%);
+        }
+        .hero-bg-img {
+            object-position: center 60%; /* Fokus foto agak ke atas */
         }
     }
 
@@ -49,10 +52,10 @@
     }
     .pict-hero:hover .hero-bg-img { transform: scale(1.06); }
 
+    /* Overlay pekat di kiri agar teks kontras dengan background */
     .hero-overlay-gradient {
         position: absolute; inset: 0; z-index: 1; pointer-events: none;
-        background:
-            linear-gradient(90deg, rgba(10, 15, 35, 0.95) 0%, rgba(26, 38, 96, 0.8) 45%, rgba(15, 23, 60, 0.2) 100%);
+        background: linear-gradient(90deg, #0a0f23 0%, #0a0f23 40%, rgba(10, 15, 35, 0.85) 60%, transparent 100%);
     }
 
     @media (max-width: 1023px) {
@@ -61,7 +64,7 @@
         }
     }
 
-    /* ═══ SHINY TEXT ═══ */
+    /* ═══ SHINY TEXT / GLOW ═══ */
     .shiny-text {
         background-size: 200% auto;
         -webkit-background-clip: text; background-clip: text;
@@ -81,19 +84,11 @@
         .hero-bg-img { transform: none !important; }
     }
 
-    /* ═══ HERO CONTENT ═══ */
+    /* ═══ HERO CONTENT ANIMATION ═══ */
     .hero-content { animation: fadeUp 1s cubic-bezier(.22, 1, .36, 1) both; }
     @keyframes fadeUp {
         from { opacity: 0; transform: translateY(28px); }
         to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .glass-description-card {
-        background: rgba(20, 35, 90, 0.35);
-        backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        border-radius: 1.25rem;
     }
 
     /* ═══ STATS CARD ═══ */
@@ -207,8 +202,8 @@
     <div class="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-24 lg:py-32 w-full">
         <div class="grid lg:grid-cols-12 gap-8 items-center">
             
-                       {{-- Left Content --}}
-            <div class="lg:col-span-7 flex flex-col justify-center h-full space-y-6">
+            {{-- Left Content --}}
+            <div class="lg:col-span-7 xl:col-span-6 flex flex-col justify-center h-full space-y-8 hero-content">
                 <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.15]">
                     <span class="shiny-text shiny-text-light">
                         PATIMBAN<br>
@@ -220,16 +215,16 @@
                     </span>
                 </h1>
 
-                {{-- Deskripsi dengan garis merah --}}
+                {{-- Deskripsi Polos dengan Aksen Garis Merah --}}
                 <div class="max-w-xl border-l-2 border-[#ec2029] pl-5">
-                    <p class="text-slate-200 text-base sm:text-lg leading-relaxed font-light m-0">
+                    <p class="text-slate-200 text-base sm:text-lg lg:text-xl leading-relaxed font-light m-0">
                         Providing professional Cargo Handling services at Patimban Port with world-class smart logistics capabilities, operational excellence, and unmatched safety standards.
                     </p>
                 </div>
             </div>
 
             {{-- Right Empty --}}
-            <div class="hidden lg:block lg:col-span-5"></div>
+            <div class="hidden lg:block lg:col-span-5 xl:col-span-6"></div>
         </div>
     </div>
 </section>
