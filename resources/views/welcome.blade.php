@@ -208,7 +208,7 @@
         <div class="grid lg:grid-cols-12 gap-8 items-center">
             
             {{-- Left Content --}}
-            <div class="lg:col-span-7 hero-content flex flex-col items-start text-left space-y-6">
+            <div class="lg:col-span-8 lg:col-span-7 hero-content flex flex-col items-start text-left space-y-8">
                 <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.15]">
                     <span class="shiny-text shiny-text-light">
                         PATIMBAN<br>
@@ -220,12 +220,13 @@
                     </span>
                 </h1>
 
-                <div class="glass-description-card max-w-2xl px-6 sm:px-8 py-5 text-slate-100 text-base sm:text-lg leading-relaxed">
+                {{-- Deskripsi Polos Tanpa Kotak Kaca --}}
+                <p class="max-w-xl text-slate-200 text-base sm:text-lg lg:text-xl leading-relaxed font-light border-l-2 border-[#ec2029] pl-5">
                     Providing professional Cargo Handling services at Patimban Port with world-class smart logistics capabilities, operational excellence, and unmatched safety standards.
-                </div>
+                </p>
             </div>
 
-            {{-- Right Empty (just for spacing on desktop, image is in background) --}}
+            {{-- Right Empty --}}
             <div class="hidden lg:block lg:col-span-5"></div>
         </div>
     </div>
