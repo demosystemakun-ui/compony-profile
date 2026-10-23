@@ -207,8 +207,8 @@
     <div class="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-24 lg:py-32 w-full">
         <div class="grid lg:grid-cols-12 gap-8 items-center">
             
-            {{-- Left Content --}}
-            <div class="lg:col-span-8 lg:col-span-7 hero-content flex flex-col items-start text-left space-y-8">
+                       {{-- Left Content --}}
+            <div class="lg:col-span-7 flex flex-col justify-center h-full space-y-6">
                 <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.15]">
                     <span class="shiny-text shiny-text-light">
                         PATIMBAN<br>
@@ -220,10 +220,12 @@
                     </span>
                 </h1>
 
-                {{-- Deskripsi Polos Tanpa Kotak Kaca --}}
-                <p class="max-w-xl text-slate-200 text-base sm:text-lg lg:text-xl leading-relaxed font-light border-l-2 border-[#ec2029] pl-5">
-                    Providing professional Cargo Handling services at Patimban Port with world-class smart logistics capabilities, operational excellence, and unmatched safety standards.
-                </p>
+                {{-- Deskripsi dengan garis merah --}}
+                <div class="max-w-xl border-l-2 border-[#ec2029] pl-5">
+                    <p class="text-slate-200 text-base sm:text-lg leading-relaxed font-light m-0">
+                        Providing professional Cargo Handling services at Patimban Port with world-class smart logistics capabilities, operational excellence, and unmatched safety standards.
+                    </p>
+                </div>
             </div>
 
             {{-- Right Empty --}}
