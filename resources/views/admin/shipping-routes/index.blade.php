@@ -38,7 +38,8 @@
                             <tr class="hover:bg-red-50/30">
                                 <td class="py-4 px-4">
                                     <div class="flex items-center gap-3">
-                                        <span class="text-2xl">{{ $route->flag }}</span>
+                                        {{-- Tampilkan bendera + kode (misal: 🇮🇩 ID) --}}
+                                        <span class="text-sm font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded-md">{{ $route->flag }}</span>
                                         <div>
                                             <p class="font-bold text-[#0A2540]">{{ $route->name }}</p>
                                             <p class="text-gray-500 text-xs">{{ $route->country }}</p>
@@ -161,7 +162,6 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Flag</label>
-                            <!-- Diubah menjadi select untuk Tom Select -->
                             <select name="flag" id="inputFlag" placeholder="Cari bendera atau kode negara..."></select>
                         </div>
                     </div>
@@ -220,8 +220,7 @@
         let map, marker;
         let flagSelect;
 
-        // --- DATA BENDERA ---
-        // Silakan tambah/ubah sesuai kebutuhan Anda
+        // --- DATA BENDERA (Format: "EMOJI KODE") ---
         const flagOptions = [
             { value: '🇮🇩 ID', text: '🇮🇩 ID - Indonesia' },
             { value: '🇹🇭 TH', text: '🇹🇭 TH - Thailand' },
@@ -240,22 +239,20 @@
             { value: '🇦🇪 AE', text: '🇦🇪 AE - United Arab Emirates' }
         ];
 
-        // Inisialisasi Tom Select untuk Flag
+        // Inisialisasi Tom Select
         function initFlagSelect() {
             if (!flagSelect) {
                 flagSelect = new TomSelect("#inputFlag", {
                     options: flagOptions,
                     create: false,
-                    sortField: {
-                        field: "text",
-                        direction: "asc"
-                    },
+                    sortField: { field: "text", direction: "asc" },
                     render: {
                         option: function(data, escape) {
                             return '<div>' + escape(data.text) + '</div>';
                         },
                         item: function(data, escape) {
-                            return '<div>' + escape(data.text) + '</div>';
+                            // Hanya tampilkan Emoji + Kode di dalam box input
+                            return '<div>' + escape(data.text).split(' - ')[0] + '</div>'; 
                         }
                     }
                 });
@@ -275,13 +272,11 @@
             marker = L.marker([0, 0], { draggable: true }).addTo(map);
             marker.setLatLng([-2, 108]);
 
-            // Klik peta → pindah marker
             map.on('click', function (e) {
                 marker.setLatLng(e.latlng);
                 updateCoords(e.latlng);
             });
 
-            // Drag marker → update koordinat
             marker.on('dragend', function () {
                 updateCoords(marker.getLatLng());
             });
@@ -299,7 +294,6 @@
             const title = document.getElementById('modalTitle');
             const method = document.getElementById('formMethod');
 
-            // Pastikan Tom Select & Peta terinisialisasi
             initFlagSelect();
             modal.classList.remove('hidden');
 
@@ -314,7 +308,6 @@
                 method.value = 'POST';
                 form.reset();
 
-                // Reset Flag Tom Select
                 if (flagSelect) flagSelect.clear();
 
                 marker.setLatLng([-2, 108]);
@@ -338,20 +331,27 @@
                 document.getElementById('inputDesc').value = data.description || '';
                 document.getElementById('inputActive').checked = !!data.is_active;
 
-                // Set Value Flag pada Tom Select
+                // --- PERBAIKAN LOGIKA FLAG SAAT EDIT ---
                 if (data.flag && flagSelect) {
-                    // Coba cari opsi yang cocok (berdasarkan kode atau emoji)
+                    let dbFlag = data.flag.trim();
+                    
+                    // Pembersih jika database menyimpan data ganda seperti "TH TH"
+                    let flagParts = dbFlag.split(' ');
+                    if (flagParts.length >= 2 && flagParts[0] === flagParts[1]) {
+                        dbFlag = flagParts[0]; 
+                    }
+
+                    // Cocokkan dengan list opsi
                     let matchedFlag = flagOptions.find(opt => 
-                        opt.value.includes(data.flag) || 
-                        opt.text.includes(data.flag)
+                        opt.value.includes(dbFlag) || opt.text.includes(dbFlag)
                     );
                     
                     if (matchedFlag) {
                         flagSelect.setValue(matchedFlag.value);
                     } else {
-                        // Jika tidak ada di list, tambahkan secara dinamis
-                        flagSelect.addOption({ value: data.flag, text: data.flag });
-                        flagSelect.setValue(data.flag);
+                        // Fallback jika data tidak ada di list
+                        flagSelect.addOption({ value: dbFlag, text: dbFlag });
+                        flagSelect.setValue(dbFlag);
                     }
                 } else if (flagSelect) {
                     flagSelect.clear();
@@ -368,9 +368,10 @@
             document.getElementById('routeModal').classList.add('hidden');
         }
 
-        // Inisialisasi awal saat halaman dimuat
         document.addEventListener('DOMContentLoaded', function() {
             initFlagSelect();
         });
     </script>
 </x-admin-layout>
+
+<!-- terbaru -->
