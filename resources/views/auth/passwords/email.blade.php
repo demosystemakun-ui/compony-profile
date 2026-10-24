@@ -16,7 +16,7 @@
 
                     <form method="POST" action="{{ route('password.email') }}">
                         @csrf
-
+<!-- hhahaahh -->
                         <div class="mb-3">
                             <label for="email" class="form-label">Email Admin</label>
                             <input id="email" type="email"
