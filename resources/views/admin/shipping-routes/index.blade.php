@@ -19,6 +19,16 @@
         </div>
     @endif
 
+    @if($errors->any())
+        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-800 rounded-lg text-sm">
+            <ul class="list-disc pl-5">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="bg-white overflow-hidden shadow-md rounded-2xl border border-gray-100">
         <div class="p-6">
             <div class="overflow-x-auto">
@@ -268,9 +278,17 @@ UM US UY UZ VA VC VE VG VI VN VU WF WS XK YE YT ZA ZM ZW`.split(/\s+/);
         });
     }
 
+    // Ambil versi longitude yang paling dekat dengan titik acuan (Indonesia ≈ 108)
+    function nearestLng(lng, ref = 108) {
+        while (lng - ref > 180)  lng -= 360;
+        while (lng - ref < -180) lng += 360;
+        return lng;
+    }
+
     function initMap() {
         if (map) return;
-        map = L.map('mapPicker').setView([10, 100], 3);
+        map = L.map('mapPicker', { minZoom: 2 }).setView([5, 110], 3); // fokus Asia-Pasifik
+
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Tiles © Esri',
             maxZoom: 19,
@@ -282,8 +300,11 @@ UM US UY UZ VA VC VE VG VI VN VU WF WS XK YE YT ZA ZM ZW`.split(/\s+/);
     }
 
     function updateCoords(latlng) {
-        document.getElementById('inputLat').value = Number(latlng.lat).toFixed(6);
-        document.getElementById('inputLng').value = Number(latlng.lng).toFixed(6);
+        // Marker tetap di tempat yang diklik (sisi Pasifik),
+        // tetapi yang disimpan ke form adalah longitude asli -180..180
+        const p = L.latLng(latlng.lat, latlng.lng).wrap();
+        document.getElementById('inputLat').value = p.lat.toFixed(6);
+        document.getElementById('inputLng').value = p.lng.toFixed(6);
     }
 
     function setFlagValue(raw) {
@@ -327,7 +348,7 @@ UM US UY UZ VA VC VE VG VI VN VU WF WS XK YE YT ZA ZM ZW`.split(/\s+/);
             // Marker & peta di-set setelah peta siap
             setTimeout(() => {
                 marker.setLatLng([-2, 108]);
-                map.setView([10, 100], 3);
+                map.setView([5, 110], 3);
                 updateCoords({ lat: -2, lng: 108 });
             }, 120);
 
@@ -355,8 +376,9 @@ UM US UY UZ VA VC VE VG VI VN VU WF WS XK YE YT ZA ZM ZW`.split(/\s+/);
             const lng = parseFloat(data.longitude);
             if (!isNaN(lat) && !isNaN(lng)) {
                 setTimeout(() => {
-                    marker.setLatLng([lat, lng]);
-                    map.setView([lat, lng], 6);
+                    const shown = nearestLng(lng);   // -99 ditampilkan di 261 (sisi Pasifik)
+                    marker.setLatLng([lat, shown]);
+                    map.setView([lat, shown], 5);
                 }, 120);
             }
         }

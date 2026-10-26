@@ -39,8 +39,28 @@ class ShippingRouteController extends Controller
             ->with('success', 'Rute berhasil dihapus!');
     }
 
+    /**
+     * Ubah longitude di luar rentang (mis. 261 atau -460 dari salinan peta Leaflet)
+     * menjadi nilai setara dalam rentang -180..180 (261 => -99).
+     */
+    private function normalizeLongitude(Request $request): void
+    {
+        $lng = $request->input('longitude');
+
+        if ($lng !== null && $lng !== '' && is_numeric($lng)) {
+            $wrapped = fmod((float) $lng + 180, 360);
+            if ($wrapped < 0) {
+                $wrapped += 360;
+            }
+            $request->merge(['longitude' => round($wrapped - 180, 6)]);
+        }
+    }
+
     private function validateData(Request $request): array
     {
+        // Normalisasi dulu sebelum validasi
+        $this->normalizeLongitude($request);
+
         $data = $request->validate([
             'name'         => 'required|string|max:255',
             'country'      => 'required|string|max:255',
@@ -59,6 +79,7 @@ class ShippingRouteController extends Controller
         // Override eksplisit (JANGAN pakai operator +)
         $data['is_active']  = $request->boolean('is_active');
         $data['sort_order'] = $data['sort_order'] ?? 0;
+        $data['transit_days'] = $data['transit_days'] ?? 0;
 
         return $data;
     }
