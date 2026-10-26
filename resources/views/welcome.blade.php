@@ -26,7 +26,7 @@
     .pict-hero { 
         position: relative; 
         overflow: hidden; 
-        background-color: #ffffff; /* PUTIH MURNI agar Navbar terlihat kontras */
+        background-color: #ffffff; 
         min-height: 100vh;
         display: flex;
         align-items: center;
@@ -40,12 +40,10 @@
         z-index: 0;
     }
 
-    /* Desktop: Gambar di kanan dengan potongan diagonal */
     @media (min-width: 1024px) {
         .hero-split-wrapper {
             width: 65%;
             left: auto;
-            /* Potongan miring dari atas-tengah ke kiri-bawah */
             clip-path: polygon(25% 0, 100% 0, 100% 100%, 0% 100%);
         }
     }
@@ -56,7 +54,6 @@
         object-position: center;
     }
 
-    /* Mobile overlay agar teks terbaca */
     @media (max-width: 1023px) {
         .hero-split-wrapper { 
             opacity: 0.15; 
@@ -164,11 +161,58 @@
 @section('content')
 
 {{-- ═══════════════════════════════════════════════════════════════
+     0. MODAL PERINGATAN LOKER (Hanya tampil sesekali)
+═══════════════════════════════════════════════════════════════ --}}
+<div id="scamWarningModal" class="fixed inset-0 z-[100] hidden overflow-y-auto bg-gray-900 bg-opacity-75 transition-opacity backdrop-blur-sm" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Background overlay -->
+        <div class="fixed inset-0 transition-opacity" aria-hidden="true"></div>
+
+        <!-- Modal panel -->
+        <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-gray-100">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <!-- Ikon Peringatan -->
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    
+                    <!-- Konten Teks -->
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                        <h3 class="text-xl leading-6 font-bold text-gray-900" id="modal-title">
+                            Pemberitahuan Resmi
+                        </h3>
+                        <div class="mt-3">
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                Mohon perhatiannya, segala bentuk informasi mengenai lowongan kerja (loker), rekrutmen, maupun kegiatan komersial lainnya yang <strong>bukan berasal dari situs resmi ini</strong> adalah di luar tanggung jawab dan sistem kami.
+                            </p>
+                            <p class="text-sm text-gray-600 leading-relaxed mt-2">
+                                Kami mengimbau kepada seluruh pengguna untuk <strong>tidak mempercayai</strong> pihak-pihak yang mengatasnamakan perusahaan kami secara tidak resmi. Untuk informasi yang valid dan terpercaya, silakan menghubungi kontak email resmi kami di:
+                            </p>
+                            <p class="text-sm font-bold text-[#26347a] mt-3 bg-blue-50 p-2 rounded inline-block">
+                                <a href="mailto:info@perusahaananda.com">info@perusahaananda.com</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tombol Aksi -->
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" id="closeModalBtn" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-5 py-2.5 bg-[#26347a] text-base font-bold text-white hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-900 sm:ml-3 sm:w-auto sm:text-sm transition-all duration-300">
+                    Saya Mengerti
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- ═══════════════════════════════════════════════════════════════
      1. HERO SECTION — SPLIT WHITE / DIAGONAL IMAGE
 ═══════════════════════════════════════════════════════════════ --}}
-{{-- pt-32 memastikan teks turun ke bawah navbar yang melayang --}}
 <section class="pict-hero pt-32 pb-16 lg:pt-0 lg:pb-0">
-    {{-- Gambar dengan potongan diagonal --}}
     <div class="hero-split-wrapper">
         <img src="{{ asset('assets/images/harmoni.png') }}"
              alt="Patimban Port terminal"
@@ -176,28 +220,19 @@
              fetchpriority="high">
     </div>
 
-    {{-- Konten Teks --}}
     <div class="hero-content-wrap max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-12 lg:py-0">
         <div class="grid lg:grid-cols-12 gap-8 items-center">
-            
-            {{-- Kiri: Teks --}}
             <div class="lg:col-span-6 xl:col-span-5 flex flex-col justify-center space-y-6">
-                
-
-
-                {{-- Judul Utama --}}
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-[1.1] tracking-tight">
                     PATIMBAN<br>
                     INTERNATIONAL<br>
                     <span class="text-[#ec2029]">CAR TERMINAL</span>
                 </h1>
 
-                {{-- Deskripsi --}}
                 <p class="text-slate-600 text-base sm:text-lg leading-relaxed max-w-md">
                     Providing professional Cargo Handling services at Patimban Port with world-class smart logistics capabilities, operational excellence, and unmatched safety standards.
                 </p>
 
-                {{-- Tombol CTA --}}
                 <div class="pt-2">
                     <a href="{{ url('/about') }}" class="inline-flex items-center gap-3 bg-[#ec2029] hover:bg-[#d11922] text-white px-6 py-3.5 text-sm font-bold transition-all duration-300 shadow-md hover:shadow-lg">
                         Learn More About PICT
@@ -208,7 +243,6 @@
                 </div>
             </div>
 
-            {{-- Kanan: Kosong (Area Gambar) --}}
             <div class="hidden lg:block lg:col-span-6 xl:col-span-7"></div>
         </div>
     </div>
@@ -526,24 +560,45 @@
 <script src="https://cdn.jsdelivr.net/npm/i18n-iso-countries@7.7.0/langs/en.min.js"></script>
 
 <script>
-/* ═══ HELPER ═══ */
+// ═══ LOGIKA POP-UP PERINGATAN LOKER ═══
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('scamWarningModal');
+    const closeBtn = document.getElementById('closeModalBtn');
+    
+    // Cek kapan terakhir kali user melihat pop-up ini
+    const lastSeen = localStorage.getItem('pict_scam_warning_last_seen');
+    const now = new Date().getTime();
+    
+    // Munculkan pop-up jika belum pernah lihat ATAU sudah lewat 7 hari (7 * 24 * 60 * 60 * 1000)
+    const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
+    
+    if (!lastSeen || (now - parseInt(lastSeen)) > sevenDaysInMs) {
+        // Beri sedikit delay agar tidak mengganggu animasi load halaman
+        setTimeout(() => {
+            modal.classList.remove('hidden');
+        }, 1000); 
+    }
 
-// Pilih versi longitude yang paling dekat dengan titik acuan (hub).
-// Contoh: Meksiko -99 dengan acuan 108 menjadi 261 (digambar di sisi Pasifik).
+    // Fungsi untuk menutup modal dan menyimpan waktu
+    closeBtn.addEventListener('click', function() {
+        modal.classList.add('hidden');
+        localStorage.setItem('pict_scam_warning_last_seen', new Date().getTime().toString());
+    });
+});
+
+/* ═══ HELPER MAPS ═══ */
 function nearestLng(lng, ref) {
     while (lng - ref > 180)  lng -= 360;
     while (lng - ref < -180) lng += 360;
     return lng;
 }
 
-// Cegah HTML/script nyasar dari data admin masuk ke popup
 function escapeHtml(value) {
     return String(value ?? '').replace(/[&<>"']/g, ch => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     }[ch]));
 }
 
-// Emoji bendera -> kode negara 2 huruf (🇲🇽 -> "mx")
 function flagCodeFromEmoji(str) {
     const cps = [...str]
         .map(c => c.codePointAt(0))
@@ -578,7 +633,6 @@ window.initHomeScripts = function() {
         requestAnimationFrame(tick);
     });
 
-    // Cegah inisialisasi ganda map saat pindah halaman
     if (window.myRouteMap) {
         window.myRouteMap.remove();
         window.myRouteMap = null;
@@ -607,7 +661,6 @@ window.initHomeScripts = function() {
         maxZoom: 19,
     }).addTo(window.myRouteMap);
 
-    // Filter data rusak (latitude/longitude 0 tetap dianggap valid)
     const parsedRoutes = routesData
         .filter(r => r && r.latitude !== null && r.latitude !== '' && r.longitude !== null && r.longitude !== '')
         .map(r => ({
@@ -619,13 +672,12 @@ window.initHomeScripts = function() {
 
     if (parsedRoutes.length === 0) return;
 
-    // Hub dipakai sebagai titik acuan: semua rute digambar di sisi peta yang paling dekat dengan hub
     const hubRaw = parsedRoutes.find(r => r.category === 'hub');
     const refLng = hubRaw ? hubRaw.longitude : 108;
 
     const validRoutes = parsedRoutes.map(r => ({
         ...r,
-        mapLng: nearestLng(r.longitude, refLng),   // Meksiko -99 menjadi 261
+        mapLng: nearestLng(r.longitude, refLng),
     }));
 
     const hub = validRoutes.find(r => r.category === 'hub');
@@ -660,11 +712,8 @@ window.initHomeScripts = function() {
     function resolveFlagHtml(route) {
         if (route.flag && typeof route.flag === 'string' && route.flag.trim() !== '') {
             const raw = route.flag.trim();
-
-            // Emoji bendera -> gambar (supaya tampil juga di Windows)
             const emojiCode = flagCodeFromEmoji(raw);
             if (emojiCode) return flagImg(emojiCode);
-
             if (/^[A-Za-z]{2,3}$/.test(raw)) return flagImg(raw.toLowerCase());
         }
 
@@ -802,5 +851,3 @@ document.addEventListener('DOMContentLoaded', window.initHomeScripts);
 document.addEventListener('swup:page:view', window.initHomeScripts);
 </script>
 @endpush
-
-<!-- hdajdajhdakj -->
