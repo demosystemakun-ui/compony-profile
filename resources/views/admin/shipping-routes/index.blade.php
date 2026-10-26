@@ -151,13 +151,11 @@
                     <div class="grid grid-cols-3 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Latitude</label>
-                            {{-- PERBAIKAN: type="number" step="any" agar mendukung minus desimal --}}
                             <input type="number" step="any" name="latitude" id="inputLat" required
                                    class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-slate-50">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Longitude</label>
-                            {{-- PERBAIKAN: type="number" step="any" agar mendukung minus desimal --}}
                             <input type="number" step="any" name="longitude" id="inputLng" required
                                    class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-slate-50">
                         </div>
@@ -217,40 +215,52 @@
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
-   <script>
-    // Menggunakan route() helper agar URL menyesuaikan prefix 'pict-internal-admin-portal'
-    const SHIPPING_ROUTE_BASE = "{{ route('shipping-routes.index') }}";
+<script>
+    const SHIPPING_ROUTE_BASE  = "{{ route('shipping-routes.index') }}";
     const SHIPPING_ROUTE_STORE = "{{ route('shipping-routes.store') }}";
 
     let map, marker;
     let flagSelect = null;
 
-    const flagOptions = [
-        { value: '🇮🇩', text: '🇮🇩 Indonesia' },
-        { value: '🇹🇭', text: '🇹🇭 Thailand' },
-        { value: '🇸🇬', text: '🇸🇬 Singapore' },
-        { value: '🇲🇾', text: '🇲🇾 Malaysia' },
-        { value: '🇵🇭', text: '🇵🇭 Philippines' },
-        { value: '🇻🇳', text: '🇻🇳 Vietnam' },
-        { value: '🇨🇳', text: '🇨🇳 China' },
-        { value: '🇯🇵', text: '🇯🇵 Japan' },
-        { value: '🇰🇷', text: '🇰🇷 South Korea' },
-        { value: '🇦🇺', text: '🇦🇺 Australia' },
-        { value: '🇺🇸', text: '🇺🇸 United States' },
-        { value: '🇳🇱', text: '🇳🇱 Netherlands' },
-        { value: '🇬🇧', text: '🇬🇧 United Kingdom' },
-        { value: '🇮🇳', text: '🇮🇳 India' },
-        { value: '🇦🇪', text: '🇦🇪 United Arab Emirates' },
-        { value: '🇲🇽', text: '🇲🇽 Mexico' }
-    ];
+    // ===== Daftar semua negara (ISO 3166-1 alpha-2) =====
+    const ISO_CODES = `AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ
+CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR
+GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP
+KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT
+MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW
+SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG
+UM US UY UZ VA VC VE VG VI VN VU WF WS XK YE YT ZA ZM ZW`.split(/\s+/);
+
+    // Kode negara -> emoji bendera
+    function codeToFlag(code) {
+        return String.fromCodePoint(...[...code].map(c => 127397 + c.charCodeAt(0)));
+    }
+
+    // Nama negara otomatis dalam Bahasa Indonesia
+    const regionNames = new Intl.DisplayNames(['id'], { type: 'region' });
+
+    const flagOptions = ISO_CODES.map(code => {
+        const flag = codeToFlag(code);
+        const name = regionNames.of(code);
+        return { value: flag, name: name, text: `${flag} ${name}` };
+    });
 
     function initFlagSelect() {
         if (flagSelect) return;
         flagSelect = new TomSelect("#inputFlag", {
             options: flagOptions,
             create: false,
-            searchField: ['text'],
-            sortField: { field: "text", direction: "asc" },
+            maxOptions: null,
+            searchField: ['name', 'text'],
+            sortField: { field: "name", direction: "asc" },
+            onChange(value) {
+                // Isi otomatis kolom Negara jika masih kosong
+                const opt = flagOptions.find(o => o.value === value);
+                const countryInput = document.getElementById('inputCountry');
+                if (opt && countryInput && !countryInput.value.trim()) {
+                    countryInput.value = opt.name;
+                }
+            },
             render: {
                 option: (data, escape) => '<div>' + escape(data.text) + '</div>',
                 item:   (data, escape) => '<div class="text-xl">' + escape(data.value) + '</div>'
@@ -272,27 +282,22 @@
     }
 
     function updateCoords(latlng) {
-        // Memastikan nilai yang dimasukkan ke input adalah string angka yang valid dengan 6 desimal
         document.getElementById('inputLat').value = Number(latlng.lat).toFixed(6);
         document.getElementById('inputLng').value = Number(latlng.lng).toFixed(6);
     }
 
     function setFlagValue(raw) {
         if (!flagSelect) return;
-        if (!raw) { flagSelect.clear(); return; }
+        if (!raw) { flagSelect.clear(true); return; }
 
         const val = String(raw).trim();
-        const match = flagOptions.find(o =>
-            o.value === val ||
-            o.text.includes(val) ||
-            val.includes(o.value)
-        );
+        const match = flagOptions.find(o => o.value === val || o.text.includes(val));
 
         if (match) {
-            flagSelect.setValue(match.value);
+            flagSelect.setValue(match.value, true);
         } else {
-            flagSelect.addOption({ value: val, text: val });
-            flagSelect.setValue(val);
+            flagSelect.addOption({ value: val, name: val, text: val });
+            flagSelect.setValue(val, true);
         }
     }
 
@@ -317,17 +322,19 @@
             method.value = 'POST';
 
             form.reset();
-            if (flagSelect) flagSelect.clear();
+            if (flagSelect) flagSelect.clear(true);
 
-            marker.setLatLng([-2, 108]);
-            map.setView([10, 100], 3);
-            updateCoords({ lat: -2, lng: 108 });
+            // Marker & peta di-set setelah peta siap
+            setTimeout(() => {
+                marker.setLatLng([-2, 108]);
+                map.setView([10, 100], 3);
+                updateCoords({ lat: -2, lng: 108 });
+            }, 120);
 
             document.getElementById('inputActive').checked = true;
             document.getElementById('inputColor').value = '#0EA5E9';
         } else {
             title.innerText = 'Edit Rute';
-            // URL PUT menyesuaikan prefix route secara otomatis
             form.action  = SHIPPING_ROUTE_BASE + '/' + data.id;
             method.value = 'PUT';
 
@@ -347,8 +354,10 @@
             const lat = parseFloat(data.latitude);
             const lng = parseFloat(data.longitude);
             if (!isNaN(lat) && !isNaN(lng)) {
-                marker.setLatLng([lat, lng]);
-                map.setView([lat, lng], 6);
+                setTimeout(() => {
+                    marker.setLatLng([lat, lng]);
+                    map.setView([lat, lng], 6);
+                }, 120);
             }
         }
     }
