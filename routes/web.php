@@ -6,7 +6,6 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TariffController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\SuperAdmin\UserController;
 use App\Http\Controllers\SuperAdmin\ActivityLogController;
@@ -53,7 +52,7 @@ Route::get('/news/{slug}', [NewsController::class, 'show'])
     ->name('news.show')
     ->where('slug', '[a-z0-9-]+');
 
-// ───── PUBLIC GALLERY IMAGE STREAM (BARU) ─────
+// ───── PUBLIC GALLERY IMAGE STREAM ─────
 Route::get('/media/gallery/{gallery}', [GalleryController::class, 'image'])->name('gallery.image');
 
 // AI Chat
@@ -105,7 +104,6 @@ Route::middleware(['auth'])->prefix('pict-internal-admin-portal')->group(functio
     });
 
     // ───── Gallery Management ─────
-    // Route resource: gallery.index, gallery.store, gallery.update, gallery.destroy
     Route::resource('gallery', GalleryController::class)->except(['show', 'create', 'edit']);
 
     // ───── Profile & Password ─────
@@ -151,6 +149,3 @@ Route::middleware('auth')->group(function () {
 Route::fallback(function () {
     abort(404);
 });
-Auth::routes();
-
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
