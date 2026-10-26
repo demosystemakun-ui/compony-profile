@@ -526,6 +526,36 @@
 <script src="https://cdn.jsdelivr.net/npm/i18n-iso-countries@7.7.0/langs/en.min.js"></script>
 
 <script>
+/* ═══ HELPER ═══ */
+
+// Pilih versi longitude yang paling dekat dengan titik acuan (hub).
+// Contoh: Meksiko -99 dengan acuan 108 menjadi 261 (digambar di sisi Pasifik).
+function nearestLng(lng, ref) {
+    while (lng - ref > 180)  lng -= 360;
+    while (lng - ref < -180) lng += 360;
+    return lng;
+}
+
+// Cegah HTML/script nyasar dari data admin masuk ke popup
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[ch]));
+}
+
+// Emoji bendera -> kode negara 2 huruf (🇲🇽 -> "mx")
+function flagCodeFromEmoji(str) {
+    const cps = [...str]
+        .map(c => c.codePointAt(0))
+        .filter(cp => cp >= 0x1F1E6 && cp <= 0x1F1FF);
+    if (cps.length < 2) return null;
+    return String.fromCharCode(cps[0] - 0x1F1E6 + 65, cps[1] - 0x1F1E6 + 65).toLowerCase();
+}
+
+function flagImg(code) {
+    return `<img src="https://flagcdn.com/24x18/${code}.png" alt="${code}" style="width:24px;height:auto;border-radius:2px;">`;
+}
+
 window.initHomeScripts = function() {
     if (typeof AOS !== 'undefined') {
         AOS.init({ duration: 900, easing: 'ease-out-cubic', once: true, offset: 120 });
@@ -569,26 +599,34 @@ window.initHomeScripts = function() {
     window.myRouteMap = L.map('routeMap', {
         scrollWheelZoom: false,
         worldCopyJump: true,
-    }).setView([10, 100], 3);
+        minZoom: 2,
+    }).setView([10, 120], 3);
 
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
         attribution: 'Tiles © Esri',
         maxZoom: 19,
     }).addTo(window.myRouteMap);
 
-    // Filter ketat agar peta tidak crash jika ada data rusak
-    const validRoutes = routesData.filter(r => {
-        if (!r || !r.latitude || !r.longitude) return false;
-        const lat = parseFloat(r.latitude);
-        const lng = parseFloat(r.longitude);
-        return !isNaN(lat) && !isNaN(lng);
-    }).map(r => ({
-        ...r,
-        latitude: parseFloat(r.latitude),
-        longitude: parseFloat(r.longitude),
-    }));
+    // Filter data rusak (latitude/longitude 0 tetap dianggap valid)
+    const parsedRoutes = routesData
+        .filter(r => r && r.latitude !== null && r.latitude !== '' && r.longitude !== null && r.longitude !== '')
+        .map(r => ({
+            ...r,
+            latitude: parseFloat(r.latitude),
+            longitude: parseFloat(r.longitude),
+        }))
+        .filter(r => !isNaN(r.latitude) && !isNaN(r.longitude));
 
-    if (validRoutes.length === 0) return;
+    if (parsedRoutes.length === 0) return;
+
+    // Hub dipakai sebagai titik acuan: semua rute digambar di sisi peta yang paling dekat dengan hub
+    const hubRaw = parsedRoutes.find(r => r.category === 'hub');
+    const refLng = hubRaw ? hubRaw.longitude : 108;
+
+    const validRoutes = parsedRoutes.map(r => ({
+        ...r,
+        mapLng: nearestLng(r.longitude, refLng),   // Meksiko -99 menjadi 261
+    }));
 
     const hub = validRoutes.find(r => r.category === 'hub');
     const linesLayer = L.layerGroup().addTo(window.myRouteMap);
@@ -608,7 +646,7 @@ window.initHomeScripts = function() {
             if (route.category === 'hub') return;
             try {
                 const line = L.polyline(
-                    [[hub.latitude, hub.longitude], [route.latitude, route.longitude]],
+                    [[hub.latitude, hub.mapLng], [route.latitude, route.mapLng]],
                     { color: route.color || markerColor(route.category), weight: 2, dashArray: '6 4', opacity: 0.7 }
                 );
                 line.addTo(linesLayer);
@@ -622,12 +660,12 @@ window.initHomeScripts = function() {
     function resolveFlagHtml(route) {
         if (route.flag && typeof route.flag === 'string' && route.flag.trim() !== '') {
             const raw = route.flag.trim();
-            if (/[\u{1F1E6}-\u{1F1FF}]/u.test(raw)) {
-                return `<span style="font-size:20px;line-height:1;">${raw}</span>`;
-            }
-            if (/^[A-Za-z]{2,3}$/.test(raw)) {
-                return `<img src="https://flagcdn.com/24x18/${raw.toLowerCase()}.png" alt="${raw}" style="width:24px;height:auto;border-radius:2px;">`;
-            }
+
+            // Emoji bendera -> gambar (supaya tampil juga di Windows)
+            const emojiCode = flagCodeFromEmoji(raw);
+            if (emojiCode) return flagImg(emojiCode);
+
+            if (/^[A-Za-z]{2,3}$/.test(raw)) return flagImg(raw.toLowerCase());
         }
 
         let flagCode = 'id';
@@ -654,10 +692,11 @@ window.initHomeScripts = function() {
             else if (c.includes('united kingdom') || c === 'uk') flagCode = 'gb';
             else if (c.includes('india')) flagCode = 'in';
             else if (c.includes('emirates') || c === 'uae') flagCode = 'ae';
-            else if (c.includes('mexico')) flagCode = 'mx';
+            else if (c.includes('mexico') || c.includes('meksiko')) flagCode = 'mx';
+            else if (c.includes('brunei')) flagCode = 'bn';
         }
 
-        return `<img src="https://flagcdn.com/24x18/${flagCode}.png" alt="${flagCode}" style="width:24px;height:auto;border-radius:2px;">`;
+        return flagImg(flagCode);
     }
 
     validRoutes.forEach(route => {
@@ -677,20 +716,19 @@ window.initHomeScripts = function() {
                 iconAnchor: [8, 8],
             });
 
-            const flagImg = resolveFlagHtml(route);
             const popupContent = `
                 <div style="font-family: 'Poppins', sans-serif; min-width: 180px;">
                     <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-                        ${flagImg}
-                        <strong style="color:#0A2540; font-size:14px;">${route.name ?? ''}</strong>
+                        ${resolveFlagHtml(route)}
+                        <strong style="color:#0A2540; font-size:14px;">${escapeHtml(route.name)}</strong>
                     </div>
-                    <p style="color:#64748B; font-size:11px; margin:0 0 4px 0;">${route.country ?? ''}</p>
-                    ${route.description ? `<p style="color:#475569; font-size:11px; margin:6px 0;">${route.description}</p>` : ''}
-                    ${route.transit_days ? `<p style="color:#EC2029; font-size:11px; font-weight:600; margin-top:6px;">⚓ Transit: ${route.transit_days} days</p>` : ''}
+                    <p style="color:#64748B; font-size:11px; margin:0 0 4px 0;">${escapeHtml(route.country)}</p>
+                    ${route.description ? `<p style="color:#475569; font-size:11px; margin:6px 0;">${escapeHtml(route.description)}</p>` : ''}
+                    ${route.transit_days ? `<p style="color:#EC2029; font-size:11px; font-weight:600; margin-top:6px;">⚓ Transit: ${escapeHtml(route.transit_days)} days</p>` : ''}
                 </div>
             `;
 
-            const marker = L.marker([route.latitude, route.longitude], { icon })
+            const marker = L.marker([route.latitude, route.mapLng], { icon })
                 .bindPopup(popupContent, { closeButton: true, maxWidth: 260 })
                 .addTo(markersLayer);
 
@@ -702,7 +740,7 @@ window.initHomeScripts = function() {
 
     if (validRoutes.length > 1) {
         try {
-            const bounds = L.latLngBounds(validRoutes.map(r => [r.latitude, r.longitude]));
+            const bounds = L.latLngBounds(validRoutes.map(r => [r.latitude, r.mapLng]));
             window.myRouteMap.fitBounds(bounds, { padding: [50, 50], maxZoom: 5 });
         } catch (e) {}
     }
