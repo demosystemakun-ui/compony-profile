@@ -38,7 +38,6 @@
                             <tr class="hover:bg-red-50/30">
                                 <td class="py-4 px-4">
                                     <div class="flex items-center gap-3">
-                                        {{-- Tampilkan flag emoji dari DB; fallback ke kode negara --}}
                                         <span class="text-2xl">{{ $route->flag ?: '🏳️' }}</span>
                                         <div>
                                             <p class="font-bold text-[#0A2540]">{{ $route->name }}</p>
@@ -152,12 +151,14 @@
                     <div class="grid grid-cols-3 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Latitude</label>
-                            <input type="text" name="latitude" id="inputLat" required
+                            {{-- PERBAIKAN: type="number" step="any" agar mendukung minus desimal --}}
+                            <input type="number" step="any" name="latitude" id="inputLat" required
                                    class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-slate-50">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Longitude</label>
-                            <input type="text" name="longitude" id="inputLng" required
+                            {{-- PERBAIKAN: type="number" step="any" agar mendukung minus desimal --}}
+                            <input type="number" step="any" name="longitude" id="inputLng" required
                                    class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-slate-50">
                         </div>
                         <div>
@@ -271,6 +272,7 @@
     }
 
     function updateCoords(latlng) {
+        // Memastikan nilai yang dimasukkan ke input adalah string angka yang valid dengan 6 desimal
         document.getElementById('inputLat').value = Number(latlng.lat).toFixed(6);
         document.getElementById('inputLng').value = Number(latlng.lng).toFixed(6);
     }
@@ -325,7 +327,7 @@
             document.getElementById('inputColor').value = '#0EA5E9';
         } else {
             title.innerText = 'Edit Rute';
-            // PERBAIKAN URL PUT DI SINI
+            // URL PUT menyesuaikan prefix route secara otomatis
             form.action  = SHIPPING_ROUTE_BASE + '/' + data.id;
             method.value = 'PUT';
 
