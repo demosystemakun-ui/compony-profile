@@ -216,147 +216,147 @@
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
-    <script>
-        // URL dasar (pakai route helper agar konsisten dengan prefix admin yang aktif)
-        const SHIPPING_ROUTE_BASE = "{{ url('admin/shipping-routes') }}";
-        const SHIPPING_ROUTE_STORE = "{{ route('shipping-routes.store') }}";
+   <script>
+    // Menggunakan route() helper agar URL menyesuaikan prefix 'pict-internal-admin-portal'
+    const SHIPPING_ROUTE_BASE = "{{ route('shipping-routes.index') }}";
+    const SHIPPING_ROUTE_STORE = "{{ route('shipping-routes.store') }}";
 
-        let map, marker;
-        let flagSelect = null;
+    let map, marker;
+    let flagSelect = null;
 
-        const flagOptions = [
-            { value: '🇮🇩', text: '🇮🇩 Indonesia' },
-            { value: '🇹🇭', text: '🇹🇭 Thailand' },
-            { value: '🇸🇬', text: '🇸🇬 Singapore' },
-            { value: '🇲🇾', text: '🇲🇾 Malaysia' },
-            { value: '🇵🇭', text: '🇵🇭 Philippines' },
-            { value: '🇻🇳', text: '🇻🇳 Vietnam' },
-            { value: '🇨🇳', text: '🇨🇳 China' },
-            { value: '🇯🇵', text: '🇯🇵 Japan' },
-            { value: '🇰🇷', text: '🇰🇷 South Korea' },
-            { value: '🇦🇺', text: '🇦🇺 Australia' },
-            { value: '🇺🇸', text: '🇺🇸 United States' },
-            { value: '🇳🇱', text: '🇳🇱 Netherlands' },
-            { value: '🇬🇧', text: '🇬🇧 United Kingdom' },
-            { value: '🇮🇳', text: '🇮🇳 India' },
-            { value: '🇦🇪', text: '🇦🇪 United Arab Emirates' }
-        ];
+    const flagOptions = [
+        { value: '🇮🇩', text: '🇮🇩 Indonesia' },
+        { value: '🇹🇭', text: '🇹🇭 Thailand' },
+        { value: '🇸🇬', text: '🇸🇬 Singapore' },
+        { value: '🇲🇾', text: '🇲🇾 Malaysia' },
+        { value: '🇵🇭', text: '🇵🇭 Philippines' },
+        { value: '🇻🇳', text: '🇻🇳 Vietnam' },
+        { value: '🇨🇳', text: '🇨🇳 China' },
+        { value: '🇯🇵', text: '🇯🇵 Japan' },
+        { value: '🇰🇷', text: '🇰🇷 South Korea' },
+        { value: '🇦🇺', text: '🇦🇺 Australia' },
+        { value: '🇺🇸', text: '🇺🇸 United States' },
+        { value: '🇳🇱', text: '🇳🇱 Netherlands' },
+        { value: '🇬🇧', text: '🇬🇧 United Kingdom' },
+        { value: '🇮🇳', text: '🇮🇳 India' },
+        { value: '🇦🇪', text: '🇦🇪 United Arab Emirates' },
+        { value: '🇲🇽', text: '🇲🇽 Mexico' }
+    ];
 
-        function initFlagSelect() {
-            if (flagSelect) return;
-            flagSelect = new TomSelect("#inputFlag", {
-                options: flagOptions,
-                create: false,
-                searchField: ['text'],
-                sortField: { field: "text", direction: "asc" },
-                render: {
-                    option: (data, escape) => '<div>' + escape(data.text) + '</div>',
-                    item:   (data, escape) => '<div class="text-xl">' + escape(data.value) + '</div>'
-                }
-            });
+    function initFlagSelect() {
+        if (flagSelect) return;
+        flagSelect = new TomSelect("#inputFlag", {
+            options: flagOptions,
+            create: false,
+            searchField: ['text'],
+            sortField: { field: "text", direction: "asc" },
+            render: {
+                option: (data, escape) => '<div>' + escape(data.text) + '</div>',
+                item:   (data, escape) => '<div class="text-xl">' + escape(data.value) + '</div>'
+            }
+        });
+    }
+
+    function initMap() {
+        if (map) return;
+        map = L.map('mapPicker').setView([10, 100], 3);
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles © Esri',
+            maxZoom: 19,
+        }).addTo(map);
+
+        marker = L.marker([-2, 108], { draggable: true }).addTo(map);
+        map.on('click', (e) => { marker.setLatLng(e.latlng); updateCoords(e.latlng); });
+        marker.on('dragend', () => updateCoords(marker.getLatLng()));
+    }
+
+    function updateCoords(latlng) {
+        document.getElementById('inputLat').value = Number(latlng.lat).toFixed(6);
+        document.getElementById('inputLng').value = Number(latlng.lng).toFixed(6);
+    }
+
+    function setFlagValue(raw) {
+        if (!flagSelect) return;
+        if (!raw) { flagSelect.clear(); return; }
+
+        const val = String(raw).trim();
+        const match = flagOptions.find(o =>
+            o.value === val ||
+            o.text.includes(val) ||
+            val.includes(o.value)
+        );
+
+        if (match) {
+            flagSelect.setValue(match.value);
+        } else {
+            flagSelect.addOption({ value: val, text: val });
+            flagSelect.setValue(val);
         }
+    }
 
-        function initMap() {
-            if (map) return;
-            map = L.map('mapPicker').setView([10, 100], 3);
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Tiles © Esri',
-                maxZoom: 19,
-            }).addTo(map);
+    function openModal(mode, data = null) {
+        const modal  = document.getElementById('routeModal');
+        const form   = document.getElementById('routeForm');
+        const title  = document.getElementById('modalTitle');
+        const method = document.getElementById('formMethod');
 
-            marker = L.marker([-2, 108], { draggable: true }).addTo(map);
-            map.on('click', (e) => { marker.setLatLng(e.latlng); updateCoords(e.latlng); });
-            marker.on('dragend', () => updateCoords(marker.getLatLng()));
-        }
+        initFlagSelect();
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
 
-        function updateCoords(latlng) {
-            document.getElementById('inputLat').value = Number(latlng.lat).toFixed(6);
-            document.getElementById('inputLng').value = Number(latlng.lng).toFixed(6);
-        }
+        setTimeout(() => {
+            initMap();
+            map.invalidateSize();
+        }, 100);
 
-        // Set nilai flag ke Tom Select, baik untuk kode ISO lama maupun emoji baru
-        function setFlagValue(raw) {
-            if (!flagSelect) return;
-            if (!raw) { flagSelect.clear(); return; }
+        if (mode === 'add') {
+            title.innerText = 'Tambah Rute Baru';
+            form.action  = SHIPPING_ROUTE_STORE;
+            method.value = 'POST';
 
-            const val = String(raw).trim();
-            const match = flagOptions.find(o =>
-                o.value === val ||
-                o.text.includes(val) ||
-                val.includes(o.value)
-            );
+            form.reset();
+            if (flagSelect) flagSelect.clear();
 
-            if (match) {
-                flagSelect.setValue(match.value);
-            } else {
-                flagSelect.addOption({ value: val, text: val });
-                flagSelect.setValue(val);
+            marker.setLatLng([-2, 108]);
+            map.setView([10, 100], 3);
+            updateCoords({ lat: -2, lng: 108 });
+
+            document.getElementById('inputActive').checked = true;
+            document.getElementById('inputColor').value = '#0EA5E9';
+        } else {
+            title.innerText = 'Edit Rute';
+            // PERBAIKAN URL PUT DI SINI
+            form.action  = SHIPPING_ROUTE_BASE + '/' + data.id;
+            method.value = 'PUT';
+
+            document.getElementById('inputName').value     = data.name ?? '';
+            document.getElementById('inputCountry').value  = data.country ?? '';
+            document.getElementById('inputCategory').value = data.category ?? 'domestic';
+            document.getElementById('inputColor').value    = data.color || '#0EA5E9';
+            document.getElementById('inputLat').value      = data.latitude ?? '';
+            document.getElementById('inputLng').value      = data.longitude ?? '';
+            document.getElementById('inputTransit').value  = data.transit_days ?? 0;
+            document.getElementById('inputSort').value     = data.sort_order ?? 0;
+            document.getElementById('inputDesc').value     = data.description ?? '';
+            document.getElementById('inputActive').checked = Boolean(data.is_active);
+
+            setFlagValue(data.flag);
+
+            const lat = parseFloat(data.latitude);
+            const lng = parseFloat(data.longitude);
+            if (!isNaN(lat) && !isNaN(lng)) {
+                marker.setLatLng([lat, lng]);
+                map.setView([lat, lng], 6);
             }
         }
+    }
 
-        function openModal(mode, data = null) {
-            const modal  = document.getElementById('routeModal');
-            const form   = document.getElementById('routeForm');
-            const title  = document.getElementById('modalTitle');
-            const method = document.getElementById('formMethod');
+    function closeModal() {
+        const modal = document.getElementById('routeModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
 
-            initFlagSelect();
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-
-            setTimeout(() => {
-                initMap();
-                map.invalidateSize();
-            }, 100);
-
-            if (mode === 'add') {
-                title.innerText = 'Tambah Rute Baru';
-                form.action  = SHIPPING_ROUTE_STORE;
-                method.value = 'POST';
-
-                form.reset();
-                if (flagSelect) flagSelect.clear();
-
-                marker.setLatLng([-2, 108]);
-                map.setView([10, 100], 3);
-                updateCoords({ lat: -2, lng: 108 });
-
-                // PENTING: set setelah form.reset()
-                document.getElementById('inputActive').checked = true;
-                document.getElementById('inputColor').value = '#0EA5E9';
-            } else {
-                title.innerText = 'Edit Rute';
-                form.action  = SHIPPING_ROUTE_BASE + '/' + data.id;
-                method.value = 'PUT';
-
-                document.getElementById('inputName').value     = data.name ?? '';
-                document.getElementById('inputCountry').value  = data.country ?? '';
-                document.getElementById('inputCategory').value = data.category ?? 'domestic';
-                document.getElementById('inputColor').value    = data.color || '#0EA5E9';
-                document.getElementById('inputLat').value      = data.latitude ?? '';
-                document.getElementById('inputLng').value      = data.longitude ?? '';
-                document.getElementById('inputTransit').value  = data.transit_days ?? 0;
-                document.getElementById('inputSort').value     = data.sort_order ?? 0;
-                document.getElementById('inputDesc').value     = data.description ?? '';
-                document.getElementById('inputActive').checked = Boolean(data.is_active);
-
-                setFlagValue(data.flag);
-
-                const lat = parseFloat(data.latitude);
-                const lng = parseFloat(data.longitude);
-                if (!isNaN(lat) && !isNaN(lng)) {
-                    marker.setLatLng([lat, lng]);
-                    map.setView([lat, lng], 6);
-                }
-            }
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('routeModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        document.addEventListener('DOMContentLoaded', initFlagSelect);
-    </script>
+    document.addEventListener('DOMContentLoaded', initFlagSelect);
+</script>
 </x-admin-layout>

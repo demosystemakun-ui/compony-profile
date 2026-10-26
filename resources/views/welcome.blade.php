@@ -526,16 +526,12 @@
 <script src="https://cdn.jsdelivr.net/npm/i18n-iso-countries@7.7.0/langs/en.min.js"></script>
 
 <script>
-// Bungkus dalam fungsi global agar bisa dipanggil ulang oleh Swup
 window.initHomeScripts = function() {
-    // 1. Init AOS (jika belum)
     if (typeof AOS !== 'undefined') {
         AOS.init({ duration: 900, easing: 'ease-out-cubic', once: true, offset: 120 });
     }
 
-    /* ═══════════════════════════════════════════════════════════════
-       STATS COUNTER
-    ═══════════════════════════════════════════════════════════════ */
+    // Stats Counter
     document.querySelectorAll('.stat-number').forEach(el => {
         const target = parseInt(el.dataset.target, 10);
         if (isNaN(target)) return;
@@ -552,11 +548,7 @@ window.initHomeScripts = function() {
         requestAnimationFrame(tick);
     });
 
-    /* ═══════════════════════════════════════════════════════════════
-       SHIPPING ROUTE — LEAFLET.JS
-    ═══════════════════════════════════════════════════════════════ */
-    
-    // Cegah inisialisasi ganda jika peta sudah ada (misal karena Swup cache)
+    // Cegah inisialisasi ganda map saat pindah halaman
     if (window.myRouteMap) {
         window.myRouteMap.remove();
         window.myRouteMap = null;
@@ -565,18 +557,15 @@ window.initHomeScripts = function() {
     const routesData = @json($shippingRoutes ?? []);
 
     if (!Array.isArray(routesData) || routesData.length === 0) {
-        console.warn('[PICT] No shipping routes available.');
         return;
     }
 
     const mapEl = document.getElementById('routeMap');
     if (!mapEl) {
-        // Karena Swup, elemen mungkin belum siap saat script jalan. Beri jeda sedikit.
         setTimeout(window.initHomeScripts, 100);
         return;
     }
 
-    // Init Map
     window.myRouteMap = L.map('routeMap', {
         scrollWheelZoom: false,
         worldCopyJump: true,
@@ -587,20 +576,19 @@ window.initHomeScripts = function() {
         maxZoom: 19,
     }).addTo(window.myRouteMap);
 
-    const validRoutes = routesData.filter(r =>
-        r &&
-        r.latitude !== null && r.latitude !== undefined && !isNaN(parseFloat(r.latitude)) &&
-        r.longitude !== null && r.longitude !== undefined && !isNaN(parseFloat(r.longitude))
-    ).map(r => ({
+    // Filter ketat agar peta tidak crash jika ada data rusak
+    const validRoutes = routesData.filter(r => {
+        if (!r || !r.latitude || !r.longitude) return false;
+        const lat = parseFloat(r.latitude);
+        const lng = parseFloat(r.longitude);
+        return !isNaN(lat) && !isNaN(lng);
+    }).map(r => ({
         ...r,
         latitude: parseFloat(r.latitude),
         longitude: parseFloat(r.longitude),
     }));
 
-    if (validRoutes.length === 0) {
-        console.warn('[PICT] No valid routes with coordinates.');
-        return;
-    }
+    if (validRoutes.length === 0) return;
 
     const hub = validRoutes.find(r => r.category === 'hub');
     const linesLayer = L.layerGroup().addTo(window.myRouteMap);
@@ -618,29 +606,27 @@ window.initHomeScripts = function() {
     if (hub) {
         validRoutes.forEach(route => {
             if (route.category === 'hub') return;
-            const line = L.polyline(
-                [[hub.latitude, hub.longitude], [route.latitude, route.longitude]],
-                {
-                    color: route.color || markerColor(route.category),
-                    weight: 2,
-                    dashArray: '6 4',
-                    opacity: 0.7,
-                }
-            );
-            line.addTo(linesLayer);
-            lineRefs.push({ line, category: route.category });
+            try {
+                const line = L.polyline(
+                    [[hub.latitude, hub.longitude], [route.latitude, route.longitude]],
+                    { color: route.color || markerColor(route.category), weight: 2, dashArray: '6 4', opacity: 0.7 }
+                );
+                line.addTo(linesLayer);
+                lineRefs.push({ line, category: route.category });
+            } catch (e) {
+                console.warn("Gagal menggambar garis:", e);
+            }
         });
     }
 
     function resolveFlagHtml(route) {
         if (route.flag && typeof route.flag === 'string' && route.flag.trim() !== '') {
             const raw = route.flag.trim();
-            const isEmoji = /[\u{1F1E6}-\u{1F1FF}]/u.test(raw);
-            if (isEmoji) {
+            if (/[\u{1F1E6}-\u{1F1FF}]/u.test(raw)) {
                 return `<span style="font-size:20px;line-height:1;">${raw}</span>`;
             }
             if (/^[A-Za-z]{2,3}$/.test(raw)) {
-                return `<img src="https://flagcdn.com/24x18/${raw.toLowerCase()}.png" alt="${raw}" style="width:24px;height:auto;border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,0.2);object-fit:cover;">`;
+                return `<img src="https://flagcdn.com/24x18/${raw.toLowerCase()}.png" alt="${raw}" style="width:24px;height:auto;border-radius:2px;">`;
             }
         }
 
@@ -668,50 +654,57 @@ window.initHomeScripts = function() {
             else if (c.includes('united kingdom') || c === 'uk') flagCode = 'gb';
             else if (c.includes('india')) flagCode = 'in';
             else if (c.includes('emirates') || c === 'uae') flagCode = 'ae';
+            else if (c.includes('mexico')) flagCode = 'mx';
         }
 
-        return `<img src="https://flagcdn.com/24x18/${flagCode}.png" alt="${flagCode}" style="width:24px;height:auto;border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,0.2);object-fit:cover;">`;
+        return `<img src="https://flagcdn.com/24x18/${flagCode}.png" alt="${flagCode}" style="width:24px;height:auto;border-radius:2px;">`;
     }
 
     validRoutes.forEach(route => {
-        const color = route.color || markerColor(route.category);
-        const isHub = route.category === 'hub';
+        try {
+            const color = route.color || markerColor(route.category);
+            const isHub = route.category === 'hub';
 
-        const icon = L.divIcon({
-            className: 'custom-marker',
-            html: `
-                <div style="position:relative;">
-                    <div style="width: ${isHub ? 24 : 16}px;height: ${isHub ? 24 : 16}px;background: ${color};border: 3px solid white;border-radius: 50%;box-shadow: 0 2px 8px rgba(0,0,0,0.3);"></div>
-                    ${isHub ? `<div style="position: absolute;top: -8px; left: -8px;width: 40px; height: 40px;border-radius: 50%;background: ${color};opacity: 0.2;animation: pulse 2s infinite;"></div>` : ''}
+            const icon = L.divIcon({
+                className: 'custom-marker',
+                html: `
+                    <div style="position:relative;">
+                        <div style="width: ${isHub ? 24 : 16}px;height: ${isHub ? 24 : 16}px;background: ${color};border: 3px solid white;border-radius: 50%;box-shadow: 0 2px 8px rgba(0,0,0,0.3);"></div>
+                        ${isHub ? `<div style="position: absolute;top: -8px; left: -8px;width: 40px; height: 40px;border-radius: 50%;background: ${color};opacity: 0.2;animation: pulse 2s infinite;"></div>` : ''}
+                    </div>
+                `,
+                iconSize: [16, 16],
+                iconAnchor: [8, 8],
+            });
+
+            const flagImg = resolveFlagHtml(route);
+            const popupContent = `
+                <div style="font-family: 'Poppins', sans-serif; min-width: 180px;">
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                        ${flagImg}
+                        <strong style="color:#0A2540; font-size:14px;">${route.name ?? ''}</strong>
+                    </div>
+                    <p style="color:#64748B; font-size:11px; margin:0 0 4px 0;">${route.country ?? ''}</p>
+                    ${route.description ? `<p style="color:#475569; font-size:11px; margin:6px 0;">${route.description}</p>` : ''}
+                    ${route.transit_days ? `<p style="color:#EC2029; font-size:11px; font-weight:600; margin-top:6px;">⚓ Transit: ${route.transit_days} days</p>` : ''}
                 </div>
-            `,
-            iconSize: [16, 16],
-            iconAnchor: [8, 8],
-        });
+            `;
 
-        const flagImg = resolveFlagHtml(route);
-        const popupContent = `
-            <div style="font-family: 'Poppins', sans-serif; min-width: 180px;">
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-                    ${flagImg}
-                    <strong style="color:#0A2540; font-size:14px;">${route.name ?? ''}</strong>
-                </div>
-                <p style="color:#64748B; font-size:11px; margin:0 0 4px 0;">${route.country ?? ''}</p>
-                ${route.description ? `<p style="color:#475569; font-size:11px; margin:6px 0;">${route.description}</p>` : ''}
-                ${route.transit_days ? `<p style="color:#EC2029; font-size:11px; font-weight:600; margin-top:6px;">⚓ Transit: ${route.transit_days} days</p>` : ''}
-            </div>
-        `;
+            const marker = L.marker([route.latitude, route.longitude], { icon })
+                .bindPopup(popupContent, { closeButton: true, maxWidth: 260 })
+                .addTo(markersLayer);
 
-        const marker = L.marker([route.latitude, route.longitude], { icon })
-            .bindPopup(popupContent, { closeButton: true, maxWidth: 260 })
-            .addTo(markersLayer);
-
-        markerRefs.push({ marker, category: route.category });
+            markerRefs.push({ marker, category: route.category });
+        } catch (e) {
+            console.warn("Gagal menggambar marker untuk: " + route.name, e);
+        }
     });
 
     if (validRoutes.length > 1) {
-        const bounds = L.latLngBounds(validRoutes.map(r => [r.latitude, r.longitude]));
-        window.myRouteMap.fitBounds(bounds, { padding: [50, 50], maxZoom: 5 });
+        try {
+            const bounds = L.latLngBounds(validRoutes.map(r => [r.latitude, r.longitude]));
+            window.myRouteMap.fitBounds(bounds, { padding: [50, 50], maxZoom: 5 });
+        } catch (e) {}
     }
 
     const filterButtons = document.querySelectorAll('.route-filter-btn');
@@ -767,12 +760,7 @@ window.initHomeScripts = function() {
     setActiveRoute('all');
 };
 
-// 2. Jalankan saat halaman dimuat pertama kali
 document.addEventListener('DOMContentLoaded', window.initHomeScripts);
-
-// 3. Jalankan saat Swup selesai mengganti halaman (Transisi)
-document.addEventListener('swup:page:view', window.initHomeScripts);
-// Fallback untuk Swup versi baru
 document.addEventListener('swup:page:view', window.initHomeScripts);
 </script>
 @endpush

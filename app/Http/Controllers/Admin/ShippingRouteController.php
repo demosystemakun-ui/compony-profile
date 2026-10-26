@@ -39,13 +39,6 @@ class ShippingRouteController extends Controller
             ->with('success', 'Rute berhasil dihapus!');
     }
 
-    /**
-     * Validasi + normalisasi data.
-     *
-     * PENTING: Jangan pakai operator "+" untuk menimpa is_active,
-     * karena operator + pada array PHP TIDAK menimpa key yang sudah ada.
-     * Akibatnya nilai string "on" dari checkbox bisa lolos ke DB sebagai 0.
-     */
     private function validateData(Request $request): array
     {
         $data = $request->validate([
@@ -56,7 +49,7 @@ class ShippingRouteController extends Controller
             'latitude'     => 'required|numeric|between:-90,90',
             'longitude'    => 'required|numeric|between:-180,180',
             'color'        => 'nullable|string|max:20',
-            'flag'         => 'nullable|string|max:10',
+            'flag'         => 'nullable|string|max:50',
             'description'  => 'nullable|string',
             'transit_days' => 'nullable|integer|min:0',
             'sort_order'   => 'nullable|integer',
