@@ -526,8 +526,12 @@
 <script src="https://cdn.jsdelivr.net/npm/i18n-iso-countries@7.7.0/langs/en.min.js"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    AOS.init({ duration: 900, easing: 'ease-out-cubic', once: true, offset: 120 });
+// Bungkus dalam fungsi global agar bisa dipanggil ulang oleh Swup
+window.initHomeScripts = function() {
+    // 1. Init AOS (jika belum)
+    if (typeof AOS !== 'undefined') {
+        AOS.init({ duration: 900, easing: 'ease-out-cubic', once: true, offset: 120 });
+    }
 
     /* ═══════════════════════════════════════════════════════════════
        STATS COUNTER
@@ -551,6 +555,13 @@ document.addEventListener('DOMContentLoaded', function () {
     /* ═══════════════════════════════════════════════════════════════
        SHIPPING ROUTE — LEAFLET.JS
     ═══════════════════════════════════════════════════════════════ */
+    
+    // Cegah inisialisasi ganda jika peta sudah ada (misal karena Swup cache)
+    if (window.myRouteMap) {
+        window.myRouteMap.remove();
+        window.myRouteMap = null;
+    }
+
     const routesData = @json($shippingRoutes ?? []);
 
     if (!Array.isArray(routesData) || routesData.length === 0) {
@@ -558,26 +569,15 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    // Register locale i18n-iso-countries — JANGAN pakai require(), pakai locale yang sudah di-load via <script>
-    if (typeof countries !== 'undefined' && typeof countries.registerLocale === 'function') {
-        try {
-            // countries.locales sudah berisi 'en' dari langs/en.min.js
-            // Jika belum terdaftar, daftarkan manual
-            if (!countries.getSupportedLocales || !countries.getSupportedLocales().includes('en')) {
-                // Fallback: min.js sudah menambahkan locale, jadi tidak perlu apa-apa
-            }
-        } catch (e) {
-            console.warn('[PICT] i18n-iso-countries locale warning:', e);
-        }
-    }
-
     const mapEl = document.getElementById('routeMap');
     if (!mapEl) {
-        console.warn('[PICT] #routeMap element not found.');
+        // Karena Swup, elemen mungkin belum siap saat script jalan. Beri jeda sedikit.
+        setTimeout(window.initHomeScripts, 100);
         return;
     }
 
-    const map = L.map('routeMap', {
+    // Init Map
+    window.myRouteMap = L.map('routeMap', {
         scrollWheelZoom: false,
         worldCopyJump: true,
     }).setView([10, 100], 3);
@@ -585,9 +585,8 @@ document.addEventListener('DOMContentLoaded', function () {
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
         attribution: 'Tiles © Esri',
         maxZoom: 19,
-    }).addTo(map);
+    }).addTo(window.myRouteMap);
 
-    // Filter rute yang koordinatnya valid
     const validRoutes = routesData.filter(r =>
         r &&
         r.latitude !== null && r.latitude !== undefined && !isNaN(parseFloat(r.latitude)) &&
@@ -604,8 +603,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const hub = validRoutes.find(r => r.category === 'hub');
-    const linesLayer = L.layerGroup().addTo(map);
-    const markersLayer = L.layerGroup().addTo(map);
+    const linesLayer = L.layerGroup().addTo(window.myRouteMap);
+    const markersLayer = L.layerGroup().addTo(window.myRouteMap);
 
     function markerColor(category) {
         if (category === 'hub') return '#EC2029';
@@ -616,7 +615,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const markerRefs = [];
     const lineRefs = [];
 
-    /* ── Garis hub → rute ── */
     if (hub) {
         validRoutes.forEach(route => {
             if (route.category === 'hub') return;
@@ -634,34 +632,24 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    /* ── Flag helper: prioritaskan emoji dari DB, fallback ke flagcdn ── */
     function resolveFlagHtml(route) {
-        // 1) Kalau DB menyimpan flag emoji, langsung pakai
         if (route.flag && typeof route.flag === 'string' && route.flag.trim() !== '') {
             const raw = route.flag.trim();
-            // Cek apakah isinya emoji (non-ASCII) — anggap emoji flag
             const isEmoji = /[\u{1F1E6}-\u{1F1FF}]/u.test(raw);
             if (isEmoji) {
                 return `<span style="font-size:20px;line-height:1;">${raw}</span>`;
             }
-            // Kalau isinya kode ISO lama (mis. "ID", "PH"), render via flagcdn juga
             if (/^[A-Za-z]{2,3}$/.test(raw)) {
-                return `<img src="https://flagcdn.com/24x18/${raw.toLowerCase()}.png"
-                             alt="${raw}"
-                             style="width:24px;height:auto;border-radius:2px;
-                                    box-shadow:0 1px 3px rgba(0,0,0,0.2);object-fit:cover;">`;
+                return `<img src="https://flagcdn.com/24x18/${raw.toLowerCase()}.png" alt="${raw}" style="width:24px;height:auto;border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,0.2);object-fit:cover;">`;
             }
         }
 
-        // 2) Fallback: resolve dari country
         let flagCode = 'id';
         if (route.country && typeof countries !== 'undefined' && typeof countries.getAlpha2Code === 'function') {
             try {
                 const iso = countries.getAlpha2Code(route.country, 'en');
                 if (iso) flagCode = iso.toLowerCase();
-            } catch (e) {
-                // fallback manual
-            }
+            } catch (e) {}
         }
         if (flagCode === 'id' && route.country) {
             const c = route.country.toLowerCase();
@@ -682,13 +670,9 @@ document.addEventListener('DOMContentLoaded', function () {
             else if (c.includes('emirates') || c === 'uae') flagCode = 'ae';
         }
 
-        return `<img src="https://flagcdn.com/24x18/${flagCode}.png"
-                     alt="${flagCode}"
-                     style="width:24px;height:auto;border-radius:2px;
-                            box-shadow:0 1px 3px rgba(0,0,0,0.2);object-fit:cover;">`;
+        return `<img src="https://flagcdn.com/24x18/${flagCode}.png" alt="${flagCode}" style="width:24px;height:auto;border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,0.2);object-fit:cover;">`;
     }
 
-    /* ── Marker per rute ── */
     validRoutes.forEach(route => {
         const color = route.color || markerColor(route.category);
         const isHub = route.category === 'hub';
@@ -697,23 +681,8 @@ document.addEventListener('DOMContentLoaded', function () {
             className: 'custom-marker',
             html: `
                 <div style="position:relative;">
-                    <div style="
-                        width: ${isHub ? 24 : 16}px;
-                        height: ${isHub ? 24 : 16}px;
-                        background: ${color};
-                        border: 3px solid white;
-                        border-radius: 50%;
-                        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-                    "></div>
-                    ${isHub ? `<div style="
-                        position: absolute;
-                        top: -8px; left: -8px;
-                        width: 40px; height: 40px;
-                        border-radius: 50%;
-                        background: ${color};
-                        opacity: 0.2;
-                        animation: pulse 2s infinite;
-                    "></div>` : ''}
+                    <div style="width: ${isHub ? 24 : 16}px;height: ${isHub ? 24 : 16}px;background: ${color};border: 3px solid white;border-radius: 50%;box-shadow: 0 2px 8px rgba(0,0,0,0.3);"></div>
+                    ${isHub ? `<div style="position: absolute;top: -8px; left: -8px;width: 40px; height: 40px;border-radius: 50%;background: ${color};opacity: 0.2;animation: pulse 2s infinite;"></div>` : ''}
                 </div>
             `,
             iconSize: [16, 16],
@@ -721,7 +690,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         const flagImg = resolveFlagHtml(route);
-
         const popupContent = `
             <div style="font-family: 'Poppins', sans-serif; min-width: 180px;">
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
@@ -741,13 +709,11 @@ document.addEventListener('DOMContentLoaded', function () {
         markerRefs.push({ marker, category: route.category });
     });
 
-    /* ── Fit bounds ── */
     if (validRoutes.length > 1) {
         const bounds = L.latLngBounds(validRoutes.map(r => [r.latitude, r.longitude]));
-        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 5 });
+        window.myRouteMap.fitBounds(bounds, { padding: [50, 50], maxZoom: 5 });
     }
 
-    /* ── Filter buttons ── */
     const filterButtons = document.querySelectorAll('.route-filter-btn');
     const infoTitle = document.getElementById('routeInfoTitle');
     const infoDesc = document.getElementById('routeInfoDesc');
@@ -799,6 +765,14 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     setActiveRoute('all');
-});
+};
+
+// 2. Jalankan saat halaman dimuat pertama kali
+document.addEventListener('DOMContentLoaded', window.initHomeScripts);
+
+// 3. Jalankan saat Swup selesai mengganti halaman (Transisi)
+document.addEventListener('swup:page:view', window.initHomeScripts);
+// Fallback untuk Swup versi baru
+document.addEventListener('swup:page:view', window.initHomeScripts);
 </script>
 @endpush
