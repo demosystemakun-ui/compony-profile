@@ -235,7 +235,7 @@
                     </label>
                     {{-- Pakai config(), bukan env(): env() bernilai null saat config di-cache --}}
                     <div class="g-recaptcha"
-                         data-sitekey="{{ config('services.recaptcha.site_key') ?: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI' }}"
+                         data-sitekey="{{ config('services.recaptcha.site_key') ?: '6LfIEQEuAAAAAO54MHhJbLb_YhtGYoQbfjKVplIS' }}"
                          data-callback="enableSubmitButton"></div>
                 </div>
 
