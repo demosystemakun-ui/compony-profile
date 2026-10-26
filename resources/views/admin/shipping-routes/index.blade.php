@@ -38,8 +38,8 @@
                             <tr class="hover:bg-red-50/30">
                                 <td class="py-4 px-4">
                                     <div class="flex items-center gap-3">
-                                        {{-- Hanya render emoji dengan ukuran text-2xl --}}
-                                        <span class="text-2xl">{{ $route->flag }}</span>
+                                        {{-- Tampilkan flag emoji dari DB; fallback ke kode negara --}}
+                                        <span class="text-2xl">{{ $route->flag ?: '🏳️' }}</span>
                                         <div>
                                             <p class="font-bold text-[#0A2540]">{{ $route->name }}</p>
                                             <p class="text-gray-500 text-xs">{{ $route->country }}</p>
@@ -98,7 +98,7 @@
     </div>
 
     {{-- Modal Form --}}
-    <div id="routeModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div id="routeModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
         <div class="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
             <form id="routeForm" method="POST">
                 @csrf
@@ -162,7 +162,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Flag (Emoji)</label>
-                            <select name="flag" id="inputFlag" placeholder="Cari negara (cth: Indonesia)..."></select>
+                            <select name="flag" id="inputFlag"></select>
                         </div>
                     </div>
 
@@ -187,7 +187,7 @@
 
                     <div>
                         <label class="inline-flex items-center gap-2">
-                            <input type="checkbox" name="is_active" id="inputActive" value="1"
+                            <input type="checkbox" name="is_active" id="inputActive" value="1" checked
                                    class="rounded border-slate-300 text-[#EC2029]">
                             <span class="text-sm font-medium text-slate-700">Aktifkan rute ini</span>
                         </label>
@@ -217,10 +217,13 @@
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
     <script>
-        let map, marker;
-        let flagSelect;
+        // URL dasar (pakai route helper agar konsisten dengan prefix admin yang aktif)
+        const SHIPPING_ROUTE_BASE = "{{ url('admin/shipping-routes') }}";
+        const SHIPPING_ROUTE_STORE = "{{ route('shipping-routes.store') }}";
 
-        // --- DATA BENDERA (Format: Emoji Murni sebagai Value, Teks Lengkap untuk Pencarian) ---
+        let map, marker;
+        let flagSelect = null;
+
         const flagOptions = [
             { value: '🇮🇩', text: '🇮🇩 Indonesia' },
             { value: '🇹🇭', text: '🇹🇭 Thailand' },
@@ -239,65 +242,67 @@
             { value: '🇦🇪', text: '🇦🇪 United Arab Emirates' }
         ];
 
-        // Inisialisasi Tom Select
         function initFlagSelect() {
-            if (!flagSelect) {
-                flagSelect = new TomSelect("#inputFlag", {
-                    options: flagOptions,
-                    create: false,
-                    // Mengizinkan pencarian berdasarkan kata kunci (teks)
-                    searchField: ['text'], 
-                    sortField: { field: "text", direction: "asc" },
-                    render: {
-                        option: function(data, escape) {
-                            return '<div>' + escape(data.text) + '</div>';
-                        },
-                        item: function(data, escape) {
-                            // Karena value murni emoji, kita hanya render emojinya di box input
-                            return '<div class="text-xl">' + escape(data.value) + '</div>'; 
-                        }
-                    }
-                });
-            }
+            if (flagSelect) return;
+            flagSelect = new TomSelect("#inputFlag", {
+                options: flagOptions,
+                create: false,
+                searchField: ['text'],
+                sortField: { field: "text", direction: "asc" },
+                render: {
+                    option: (data, escape) => '<div>' + escape(data.text) + '</div>',
+                    item:   (data, escape) => '<div class="text-xl">' + escape(data.value) + '</div>'
+                }
+            });
         }
 
-        // --- PETA (LEAFLET) ---
         function initMap() {
             if (map) return;
             map = L.map('mapPicker').setView([10, 100], 3);
-
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
                 attribution: 'Tiles © Esri',
                 maxZoom: 19,
             }).addTo(map);
 
-            marker = L.marker([0, 0], { draggable: true }).addTo(map);
-            marker.setLatLng([-2, 108]);
-
-            map.on('click', function (e) {
-                marker.setLatLng(e.latlng);
-                updateCoords(e.latlng);
-            });
-
-            marker.on('dragend', function () {
-                updateCoords(marker.getLatLng());
-            });
+            marker = L.marker([-2, 108], { draggable: true }).addTo(map);
+            map.on('click', (e) => { marker.setLatLng(e.latlng); updateCoords(e.latlng); });
+            marker.on('dragend', () => updateCoords(marker.getLatLng()));
         }
 
         function updateCoords(latlng) {
-            document.getElementById('inputLat').value = latlng.lat.toFixed(6);
-            document.getElementById('inputLng').value = latlng.lng.toFixed(6);
+            document.getElementById('inputLat').value = Number(latlng.lat).toFixed(6);
+            document.getElementById('inputLng').value = Number(latlng.lng).toFixed(6);
         }
 
-        // --- MODAL LOGIC ---
+        // Set nilai flag ke Tom Select, baik untuk kode ISO lama maupun emoji baru
+        function setFlagValue(raw) {
+            if (!flagSelect) return;
+            if (!raw) { flagSelect.clear(); return; }
+
+            const val = String(raw).trim();
+            const match = flagOptions.find(o =>
+                o.value === val ||
+                o.text.includes(val) ||
+                val.includes(o.value)
+            );
+
+            if (match) {
+                flagSelect.setValue(match.value);
+            } else {
+                flagSelect.addOption({ value: val, text: val });
+                flagSelect.setValue(val);
+            }
+        }
+
         function openModal(mode, data = null) {
-            const modal = document.getElementById('routeModal');
-            const form = document.getElementById('routeForm');
-            const title = document.getElementById('modalTitle');
+            const modal  = document.getElementById('routeModal');
+            const form   = document.getElementById('routeForm');
+            const title  = document.getElementById('modalTitle');
             const method = document.getElementById('formMethod');
 
             initFlagSelect();
             modal.classList.remove('hidden');
+            modal.classList.add('flex');
 
             setTimeout(() => {
                 initMap();
@@ -306,68 +311,52 @@
 
             if (mode === 'add') {
                 title.innerText = 'Tambah Rute Baru';
-                form.action = "{{ route('shipping-routes.store') }}";
+                form.action  = SHIPPING_ROUTE_STORE;
                 method.value = 'POST';
-                form.reset();
 
+                form.reset();
                 if (flagSelect) flagSelect.clear();
 
                 marker.setLatLng([-2, 108]);
                 map.setView([10, 100], 3);
                 updateCoords({ lat: -2, lng: 108 });
+
+                // PENTING: set setelah form.reset()
                 document.getElementById('inputActive').checked = true;
                 document.getElementById('inputColor').value = '#0EA5E9';
             } else {
                 title.innerText = 'Edit Rute';
-                form.action = "{{ url('/pict-internal-admin-portal/shipping-routes') }}/" + data.id;
+                form.action  = SHIPPING_ROUTE_BASE + '/' + data.id;
                 method.value = 'PUT';
 
-                document.getElementById('inputName').value = data.name;
-                document.getElementById('inputCountry').value = data.country;
-                document.getElementById('inputCategory').value = data.category;
-                document.getElementById('inputColor').value = data.color || '#0EA5E9';
-                document.getElementById('inputLat').value = data.latitude;
-                document.getElementById('inputLng').value = data.longitude;
-                document.getElementById('inputTransit').value = data.transit_days || 0;
-                document.getElementById('inputSort').value = data.sort_order || 0;
-                document.getElementById('inputDesc').value = data.description || '';
-                document.getElementById('inputActive').checked = !!data.is_active;
+                document.getElementById('inputName').value     = data.name ?? '';
+                document.getElementById('inputCountry').value  = data.country ?? '';
+                document.getElementById('inputCategory').value = data.category ?? 'domestic';
+                document.getElementById('inputColor').value    = data.color || '#0EA5E9';
+                document.getElementById('inputLat').value      = data.latitude ?? '';
+                document.getElementById('inputLng').value      = data.longitude ?? '';
+                document.getElementById('inputTransit').value  = data.transit_days ?? 0;
+                document.getElementById('inputSort').value     = data.sort_order ?? 0;
+                document.getElementById('inputDesc').value     = data.description ?? '';
+                document.getElementById('inputActive').checked = Boolean(data.is_active);
 
-                // --- PERBAIKAN LOGIKA FLAG SAAT EDIT ---
-                if (data.flag && flagSelect) {
-                    let dbFlag = data.flag.trim();
-                    
-                    // Cocokkan dengan list opsi (mendukung data lama seperti "PH" atau emoji murni "🇵🇭")
-                    let matchedFlag = flagOptions.find(opt => 
-                        opt.value === dbFlag || 
-                        opt.text.includes(dbFlag) || 
-                        dbFlag.includes(opt.value)
-                    );
-                    
-                    if (matchedFlag) {
-                        flagSelect.setValue(matchedFlag.value);
-                    } else {
-                        // Fallback
-                        flagSelect.addOption({ value: dbFlag, text: dbFlag });
-                        flagSelect.setValue(dbFlag);
-                    }
-                } else if (flagSelect) {
-                    flagSelect.clear();
-                }
+                setFlagValue(data.flag);
 
                 const lat = parseFloat(data.latitude);
                 const lng = parseFloat(data.longitude);
-                marker.setLatLng([lat, lng]);
-                map.setView([lat, lng], 6);
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    marker.setLatLng([lat, lng]);
+                    map.setView([lat, lng], 6);
+                }
             }
         }
 
         function closeModal() {
-            document.getElementById('routeModal').classList.add('hidden');
+            const modal = document.getElementById('routeModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            initFlagSelect();
-        });
+        document.addEventListener('DOMContentLoaded', initFlagSelect);
     </script>
 </x-admin-layout>

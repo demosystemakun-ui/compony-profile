@@ -519,7 +519,6 @@
 </section>
 
 @endsection
-
 @push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -535,6 +534,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ═══════════════════════════════════════════════════════════════ */
     document.querySelectorAll('.stat-number').forEach(el => {
         const target = parseInt(el.dataset.target, 10);
+        if (isNaN(target)) return;
         const duration = 1500;
         const start = performance.now();
 
@@ -553,13 +553,28 @@ document.addEventListener('DOMContentLoaded', function () {
     ═══════════════════════════════════════════════════════════════ */
     const routesData = @json($shippingRoutes ?? []);
 
-    if (routesData.length === 0) {
-        console.warn('No shipping routes available.');
+    if (!Array.isArray(routesData) || routesData.length === 0) {
+        console.warn('[PICT] No shipping routes available.');
         return;
     }
 
-    if (typeof countries !== 'undefined') {
-        countries.registerLocale(require("i18n-iso-countries/langs/en.json"));
+    // Register locale i18n-iso-countries — JANGAN pakai require(), pakai locale yang sudah di-load via <script>
+    if (typeof countries !== 'undefined' && typeof countries.registerLocale === 'function') {
+        try {
+            // countries.locales sudah berisi 'en' dari langs/en.min.js
+            // Jika belum terdaftar, daftarkan manual
+            if (!countries.getSupportedLocales || !countries.getSupportedLocales().includes('en')) {
+                // Fallback: min.js sudah menambahkan locale, jadi tidak perlu apa-apa
+            }
+        } catch (e) {
+            console.warn('[PICT] i18n-iso-countries locale warning:', e);
+        }
+    }
+
+    const mapEl = document.getElementById('routeMap');
+    if (!mapEl) {
+        console.warn('[PICT] #routeMap element not found.');
+        return;
     }
 
     const map = L.map('routeMap', {
@@ -572,7 +587,23 @@ document.addEventListener('DOMContentLoaded', function () {
         maxZoom: 19,
     }).addTo(map);
 
-    const hub = routesData.find(r => r.category === 'hub');
+    // Filter rute yang koordinatnya valid
+    const validRoutes = routesData.filter(r =>
+        r &&
+        r.latitude !== null && r.latitude !== undefined && !isNaN(parseFloat(r.latitude)) &&
+        r.longitude !== null && r.longitude !== undefined && !isNaN(parseFloat(r.longitude))
+    ).map(r => ({
+        ...r,
+        latitude: parseFloat(r.latitude),
+        longitude: parseFloat(r.longitude),
+    }));
+
+    if (validRoutes.length === 0) {
+        console.warn('[PICT] No valid routes with coordinates.');
+        return;
+    }
+
+    const hub = validRoutes.find(r => r.category === 'hub');
     const linesLayer = L.layerGroup().addTo(map);
     const markersLayer = L.layerGroup().addTo(map);
 
@@ -585,8 +616,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const markerRefs = [];
     const lineRefs = [];
 
+    /* ── Garis hub → rute ── */
     if (hub) {
-        routesData.forEach(route => {
+        validRoutes.forEach(route => {
             if (route.category === 'hub') return;
             const line = L.polyline(
                 [[hub.latitude, hub.longitude], [route.latitude, route.longitude]],
@@ -602,7 +634,62 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    routesData.forEach(route => {
+    /* ── Flag helper: prioritaskan emoji dari DB, fallback ke flagcdn ── */
+    function resolveFlagHtml(route) {
+        // 1) Kalau DB menyimpan flag emoji, langsung pakai
+        if (route.flag && typeof route.flag === 'string' && route.flag.trim() !== '') {
+            const raw = route.flag.trim();
+            // Cek apakah isinya emoji (non-ASCII) — anggap emoji flag
+            const isEmoji = /[\u{1F1E6}-\u{1F1FF}]/u.test(raw);
+            if (isEmoji) {
+                return `<span style="font-size:20px;line-height:1;">${raw}</span>`;
+            }
+            // Kalau isinya kode ISO lama (mis. "ID", "PH"), render via flagcdn juga
+            if (/^[A-Za-z]{2,3}$/.test(raw)) {
+                return `<img src="https://flagcdn.com/24x18/${raw.toLowerCase()}.png"
+                             alt="${raw}"
+                             style="width:24px;height:auto;border-radius:2px;
+                                    box-shadow:0 1px 3px rgba(0,0,0,0.2);object-fit:cover;">`;
+            }
+        }
+
+        // 2) Fallback: resolve dari country
+        let flagCode = 'id';
+        if (route.country && typeof countries !== 'undefined' && typeof countries.getAlpha2Code === 'function') {
+            try {
+                const iso = countries.getAlpha2Code(route.country, 'en');
+                if (iso) flagCode = iso.toLowerCase();
+            } catch (e) {
+                // fallback manual
+            }
+        }
+        if (flagCode === 'id' && route.country) {
+            const c = route.country.toLowerCase();
+            if (c.includes('hong kong')) flagCode = 'hk';
+            else if (c.includes('malaysia')) flagCode = 'my';
+            else if (c.includes('singapore')) flagCode = 'sg';
+            else if (c.includes('thailand')) flagCode = 'th';
+            else if (c.includes('japan')) flagCode = 'jp';
+            else if (c.includes('china')) flagCode = 'cn';
+            else if (c.includes('philippines')) flagCode = 'ph';
+            else if (c.includes('vietnam')) flagCode = 'vn';
+            else if (c.includes('korea')) flagCode = 'kr';
+            else if (c.includes('australia')) flagCode = 'au';
+            else if (c.includes('united states') || c === 'usa' || c === 'us') flagCode = 'us';
+            else if (c.includes('netherlands')) flagCode = 'nl';
+            else if (c.includes('united kingdom') || c === 'uk') flagCode = 'gb';
+            else if (c.includes('india')) flagCode = 'in';
+            else if (c.includes('emirates') || c === 'uae') flagCode = 'ae';
+        }
+
+        return `<img src="https://flagcdn.com/24x18/${flagCode}.png"
+                     alt="${flagCode}"
+                     style="width:24px;height:auto;border-radius:2px;
+                            box-shadow:0 1px 3px rgba(0,0,0,0.2);object-fit:cover;">`;
+    }
+
+    /* ── Marker per rute ── */
+    validRoutes.forEach(route => {
         const color = route.color || markerColor(route.category);
         const isHub = route.category === 'hub';
 
@@ -633,31 +720,15 @@ document.addEventListener('DOMContentLoaded', function () {
             iconAnchor: [8, 8],
         });
 
-        let flagCode = 'id';
-        if (route.country && typeof countries !== 'undefined') {
-            let isoCode = countries.getAlpha2Code(route.country, 'en');
-            if (isoCode) {
-                flagCode = isoCode.toLowerCase();
-            } else {
-                let countryName = route.country.toLowerCase();
-                if (countryName.includes('hong kong')) flagCode = 'hk';
-                else if (countryName.includes('malaysia')) flagCode = 'my';
-                else if (countryName.includes('singapore')) flagCode = 'sg';
-                else if (countryName.includes('thailand')) flagCode = 'th';
-                else if (countryName.includes('japan')) flagCode = 'jp';
-                else if (countryName.includes('china')) flagCode = 'cn';
-            }
-        }
-
-        const flagImg = `<img src="https://flagcdn.com/24x18/${flagCode}.png" alt="${flagCode}" style="width: 24px; height: auto; border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); object-fit: cover;">`;
+        const flagImg = resolveFlagHtml(route);
 
         const popupContent = `
             <div style="font-family: 'Poppins', sans-serif; min-width: 180px;">
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
                     ${flagImg}
-                    <strong style="color:#0A2540; font-size:14px;">${route.name}</strong>
+                    <strong style="color:#0A2540; font-size:14px;">${route.name ?? ''}</strong>
                 </div>
-                <p style="color:#64748B; font-size:11px; margin:0 0 4px 0;">${route.country}</p>
+                <p style="color:#64748B; font-size:11px; margin:0 0 4px 0;">${route.country ?? ''}</p>
                 ${route.description ? `<p style="color:#475569; font-size:11px; margin:6px 0;">${route.description}</p>` : ''}
                 ${route.transit_days ? `<p style="color:#EC2029; font-size:11px; font-weight:600; margin-top:6px;">⚓ Transit: ${route.transit_days} days</p>` : ''}
             </div>
@@ -670,11 +741,13 @@ document.addEventListener('DOMContentLoaded', function () {
         markerRefs.push({ marker, category: route.category });
     });
 
-    if (routesData.length > 1) {
-        const bounds = L.latLngBounds(routesData.map(r => [r.latitude, r.longitude]));
+    /* ── Fit bounds ── */
+    if (validRoutes.length > 1) {
+        const bounds = L.latLngBounds(validRoutes.map(r => [r.latitude, r.longitude]));
         map.fitBounds(bounds, { padding: [50, 50], maxZoom: 5 });
     }
 
+    /* ── Filter buttons ── */
     const filterButtons = document.querySelectorAll('.route-filter-btn');
     const infoTitle = document.getElementById('routeInfoTitle');
     const infoDesc = document.getElementById('routeInfoDesc');
@@ -682,7 +755,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const ROUTE_INFO = {
         all: {
             title: 'Patimban Port Comprehensive Network',
-            desc: `Displaying all ${routesData.length} active routes connecting Patimban Port to global and regional markets.`,
+            desc: `Displaying all ${validRoutes.length} active routes connecting Patimban Port to global and regional markets.`,
         },
         international: {
             title: 'International Shipping Routes',

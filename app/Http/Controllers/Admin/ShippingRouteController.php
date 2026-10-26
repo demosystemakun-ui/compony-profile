@@ -39,21 +39,34 @@ class ShippingRouteController extends Controller
             ->with('success', 'Rute berhasil dihapus!');
     }
 
+    /**
+     * Validasi + normalisasi data.
+     *
+     * PENTING: Jangan pakai operator "+" untuk menimpa is_active,
+     * karena operator + pada array PHP TIDAK menimpa key yang sudah ada.
+     * Akibatnya nilai string "on" dari checkbox bisa lolos ke DB sebagai 0.
+     */
     private function validateData(Request $request): array
     {
-        return $request->validate([
-            'name' => 'required|string|max:255',
-            'country' => 'required|string|max:255',
-            'region' => 'nullable|string|max:255',
-            'category' => 'required|in:hub,domestic,international',
-            'latitude' => 'required|numeric|between:-90,90',
-            'longitude' => 'required|numeric|between:-180,180',
-            'color' => 'nullable|string|max:20',
-            'flag' => 'nullable|string|max:10',
-            'description' => 'nullable|string',
+        $data = $request->validate([
+            'name'         => 'required|string|max:255',
+            'country'      => 'required|string|max:255',
+            'region'       => 'nullable|string|max:255',
+            'category'     => 'required|in:hub,domestic,international',
+            'latitude'     => 'required|numeric|between:-90,90',
+            'longitude'    => 'required|numeric|between:-180,180',
+            'color'        => 'nullable|string|max:20',
+            'flag'         => 'nullable|string|max:10',
+            'description'  => 'nullable|string',
             'transit_days' => 'nullable|integer|min:0',
-            'sort_order' => 'nullable|integer',
-            'is_active' => 'nullable|boolean',
-        ]) + ['is_active' => $request->boolean('is_active')];
+            'sort_order'   => 'nullable|integer',
+            'is_active'    => 'nullable|boolean',
+        ]);
+
+        // Override eksplisit (JANGAN pakai operator +)
+        $data['is_active']  = $request->boolean('is_active');
+        $data['sort_order'] = $data['sort_order'] ?? 0;
+
+        return $data;
     }
 }
