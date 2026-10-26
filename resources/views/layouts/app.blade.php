@@ -162,37 +162,37 @@
     @include('layouts.footer')
 
     {{-- ═══════════════════════════════════════════════════════════════
-         MODAL PERINGATAN LOKER (Hanya muncul di halaman publik)
+         OFFICIAL NOTICE MODAL (Public pages only)
     ═══════════════════════════════════════════════════════════════ --}}
     @if(!request()->is('pict-internal-admin-portal*'))
     <div id="scamWarningModal" class="fixed inset-0 z-[9999] hidden bg-gray-900/75 backdrop-blur-sm" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <!-- Wrapper statis di tengah layar -->
+        <!-- Static wrapper centered on screen -->
         <div class="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto">
             
-            <!-- Modal panel -->
-            <div class="relative w-full max-w-lg rounded-2xl bg-white text-left shadow-2xl border border-gray-100 transform transition-all">
+            <!-- Modal panel: added overflow-hidden to fix the square corners issue -->
+            <div class="relative w-full max-w-lg rounded-2xl bg-white text-left shadow-2xl border border-gray-100 overflow-hidden transform transition-all">
                 <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                     <div class="sm:flex sm:items-start">
-                        <!-- Ikon Peringatan -->
+                        <!-- Warning Icon -->
                         <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
                             <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                             </svg>
                         </div>
                         
-                        <!-- Konten Teks -->
+                        <!-- Text Content (English) -->
                         <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
                             <h3 class="text-xl font-bold leading-6 text-gray-900" id="modal-title">
-                                Pemberitahuan Resmi
+                                Official Notice
                             </h3>
                             <div class="mt-3">
                                 <p class="text-sm text-gray-600 leading-relaxed">
-                                    Mohon perhatiannya, segala bentuk informasi mengenai lowongan kerja (loker), rekrutmen, maupun kegiatan komersial lainnya yang <strong>bukan berasal dari situs resmi ini</strong> adalah di luar tanggung jawab dan sistem kami.
+                                    Please be advised that any information regarding job vacancies, recruitment, or other commercial activities that <strong>do not originate from this official website</strong> are beyond our responsibility and outside our system.
                                 </p>
                                 <p class="text-sm text-gray-600 leading-relaxed mt-3">
-                                    Kami mengimbau kepada seluruh pengguna untuk <strong>tidak mempercayai</strong> pihak-pihak yang mengatasnamakan perusahaan kami secara tidak resmi. Untuk informasi yang valid dan terpercaya, silakan menghubungi kontak email resmi kami di:
+                                    We strongly urge all users to <strong>not trust</strong> any parties claiming to represent our company unofficially. For valid and trusted information, please contact our official email at:
                                 </p>
-                                <!-- Kotak Email -->
+                                <!-- Email Box -->
                                 <div class="mt-4 inline-block bg-blue-50 px-4 py-2 rounded-lg border border-blue-100">
                                     <p class="text-sm font-bold text-[#26347a]">
                                         <a href="mailto:info@pict.co.id" class="hover:underline">info@pict.co.id</a>
@@ -203,17 +203,17 @@
                     </div>
                 </div>
                 
-                <!-- Tombol Aksi -->
-                <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 border-t border-gray-100 rounded-b-2xl">
+                <!-- Action Button -->
+                <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 border-t border-gray-100">
                     <button type="button" id="closeModalBtn" class="inline-flex w-full justify-center rounded-lg border border-transparent bg-[#26347a] px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:ring-offset-2 sm:ml-3 sm:w-auto transition-colors">
-                        Saya Mengerti
+                        I Understand
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Script Khusus Modal -->
+    <!-- Modal Specific Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const modal = document.getElementById('scamWarningModal');
@@ -228,14 +228,14 @@
             if (!lastSeen || (now - parseInt(lastSeen)) > sevenDaysInMs) {
                 setTimeout(() => {
                     modal.classList.remove('hidden');
-                    // KUNCI SCROLL
+                    // Lock body scroll
                     document.body.style.overflow = 'hidden';
                 }, 1000); 
             }
 
             closeBtn.addEventListener('click', function() {
                 modal.classList.add('hidden');
-                // BUKA SCROLL
+                // Unlock body scroll
                 document.body.style.overflow = '';
                 localStorage.setItem('pict_scam_warning_last_seen', new Date().getTime().toString());
             });
