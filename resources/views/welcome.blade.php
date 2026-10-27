@@ -648,22 +648,23 @@ window.initHomeScripts = function() {
                 const startLatLng = L.latLng(hub.latitude, hub.mapLng);
                 const endLatLng = L.latLng(route.latitude, route.mapLng);
                 
-                // Ikon Kapal (menggunakan SVG)
+                // 1. Hitung sudut rotasi agar kapal menghadap ke arah tujuan
+                const dy = endLatLng.lat - startLatLng.lat;
+                const dx = endLatLng.lng - startLatLng.lng;
+                const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+                // 2. Ikon Kapal Asli (SVG) tanpa lingkaran, dengan rotasi
                 const shipIcon = L.divIcon({
                     className: 'ship-icon',
                     html: `
-                        <div style="background: #26347a; border: 2px solid white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M2 21h20"></path>
-                                <path d="M5 21v-4"></path>
-                                <path d="M19 21v-4"></path>
-                                <path d="M12 3v14"></path>
-                                <path d="M8 10l4-4 4 4"></path>
+                        <div style="transform: rotate(${angle}deg); transform-origin: center; width: 24px; height: 24px; display:flex; align-items:center; justify-content:center; filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.4));">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#26347a" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2 L20 18 L12 14 L4 18 Z"></path>
                             </svg>
                         </div>
                     `,
                     iconSize: [24, 24],
-                    iconAnchor: [12, 12]
+                    iconAnchor: [12, 12] // Titik tengah ikon
                 });
 
                 const shipMarker = L.marker(startLatLng, { icon: shipIcon, interactive: false }).addTo(shipsLayer);
