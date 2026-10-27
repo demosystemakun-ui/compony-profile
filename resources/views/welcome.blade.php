@@ -128,6 +128,18 @@
     }
     .leaflet-popup-content { margin: 12px 16px; }
 
+    /* ═══ CUSTOM TOOLTIP STYLE ═══ */
+    .custom-tooltip {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+        padding: 4px 8px;
+    }
+    .custom-tooltip::before {
+        display: none; /* Menghilangkan panah segitiga bawaan Leaflet */
+    }
+
     /* ═══ LEAFLET PULSE ANIMATION ═══ */
     @keyframes pulse {
         0%, 100% { transform: scale(1); opacity: 0.4; }
@@ -164,7 +176,6 @@
      1. HERO SECTION — SPLIT WHITE / DIAGONAL IMAGE
 ═══════════════════════════════════════════════════════════════ --}}
 <section class="pict-hero pt-32 pb-16 lg:pt-0 lg:pb-0">
-    {{-- Gambar dengan potongan diagonal --}}
     <div class="hero-split-wrapper">
         <img src="{{ asset('assets/images/harmoni.png') }}"
              alt="Patimban Port terminal"
@@ -172,25 +183,19 @@
              fetchpriority="high">
     </div>
 
-    {{-- Konten Teks --}}
     <div class="hero-content-wrap max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-12 lg:py-0">
         <div class="grid lg:grid-cols-12 gap-8 items-center">
-            
-            {{-- Kiri: Teks --}}
             <div class="lg:col-span-6 xl:col-span-5 flex flex-col justify-center space-y-6">
-                {{-- Judul Utama --}}
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-[1.1] tracking-tight">
                     PATIMBAN<br>
                     INTERNATIONAL<br>
                     <span class="text-[#ec2029]">CAR TERMINAL</span>
                 </h1>
 
-                {{-- Deskripsi --}}
                 <p class="text-slate-600 text-base sm:text-lg leading-relaxed max-w-md">
                     Providing professional Cargo Handling services at Patimban Port with world-class smart logistics capabilities, operational excellence, and unmatched safety standards.
                 </p>
 
-                {{-- Tombol CTA --}}
                 <div class="pt-2">
                     <a href="{{ url('/about') }}" class="inline-flex items-center gap-3 bg-[#ec2029] hover:bg-[#d11922] text-white px-6 py-3.5 text-sm font-bold transition-all duration-300 shadow-md hover:shadow-lg">
                         Learn More About PICT
@@ -200,8 +205,6 @@
                     </a>
                 </div>
             </div>
-
-            {{-- Kanan: Kosong (Area Gambar) --}}
             <div class="hidden lg:block lg:col-span-6 xl:col-span-7"></div>
         </div>
     </div>
@@ -627,7 +630,6 @@ window.initHomeScripts = function() {
 
     const markerRefs = [];
     const lineRefs = [];
-    let hubMarker = null;
 
     if (hub) {
         validRoutes.forEach(route => {
@@ -701,6 +703,17 @@ window.initHomeScripts = function() {
                 iconAnchor: [8, 8],
             });
 
+            // HTML Tampilan Tooltip (Teks menempel)
+            const tooltipContent = `
+                <div style="font-family: 'Poppins', sans-serif; text-align: center;">
+                    <div style="display:flex; align-items:center; justify-content:center; gap:6px;">
+                        ${resolveFlagHtml(route)}
+                        <strong style="color:#0A2540; font-size:12px; white-space:nowrap;">${escapeHtml(route.name)}</strong>
+                    </div>
+                </div>
+            `;
+
+            // HTML Tampilan Popup (Saat di klik)
             const popupContent = `
                 <div style="font-family: 'Poppins', sans-serif; min-width: 180px;">
                     <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
@@ -714,23 +727,20 @@ window.initHomeScripts = function() {
             `;
 
             const marker = L.marker([route.latitude, route.mapLng], { icon })
+                // .bindTooltip berfungsi untuk teks yang menempel permanen
+                .bindTooltip(tooltipContent, {
+                    permanent: true, // <-- DIUBAH JADI TRUE AGAR SEMUA TITIK MUNCUL TEKSNYA
+                    direction: isHub ? 'top' : 'right', // Posisi teks: di atas Hub, di samping negara lain
+                    offset: isHub ? [0, -15] : [10, 0],
+                    opacity: 1,
+                    className: 'custom-tooltip'
+                })
                 .bindPopup(popupContent, { 
-                    closeButton: false, 
+                    closeButton: true, 
                     maxWidth: 260,
                     autoPan: true 
                 })
                 .addTo(markersLayer);
-
-            if (isHub) {
-                hubMarker = marker;
-            } else {
-                marker.on('mouseover', function () {
-                    this.openPopup();
-                });
-                marker.on('mouseout', function () {
-                    this.closePopup();
-                });
-            }
 
             markerRefs.push({ marker, category: route.category });
         } catch (e) {
@@ -744,31 +754,6 @@ window.initHomeScripts = function() {
             window.myRouteMap.fitBounds(bounds, { padding: [50, 50], maxZoom: 5 });
         } catch (e) {}
     }
-
-    if (hubMarker) {
-        setTimeout(() => {
-            hubMarker.openPopup();
-        }, 800);
-    }
-
-    const updatePopupScale = () => {
-        const zoom = window.myRouteMap.getZoom();
-        const popupContainer = document.querySelector('.leaflet-popup');
-        if (!popupContainer) return;
-
-        let scale = 1;
-        if (zoom <= 3) scale = 0.75;
-        else if (zoom === 4) scale = 0.85;
-
-        popupContainer.style.transformOrigin = 'bottom center';
-        popupContainer.style.transition = 'transform 0.3s ease-out';
-        popupContainer.style.transform = `scale(${scale})`;
-    };
-
-    window.myRouteMap.on('zoomend', updatePopupScale);
-    window.myRouteMap.on('popupopen', () => {
-        setTimeout(updatePopupScale, 50);
-    });
 
     const filterButtons = document.querySelectorAll('.route-filter-btn');
     const infoTitle = document.getElementById('routeInfoTitle');
