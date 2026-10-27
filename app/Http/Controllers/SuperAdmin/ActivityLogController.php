@@ -31,10 +31,6 @@ class ActivityLogController extends Controller
 
         return view('super-admin.activity-logs.index', compact('logs'));
     }
-
-    public function clear()
-    {
-        ActivityLog::truncate();
-        return back()->with('success', 'Semua log berhasil dihapus.');
-    }
+    
+    // Method clear() sudah dihapus.
 }
