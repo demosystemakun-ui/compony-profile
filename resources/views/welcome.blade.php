@@ -621,6 +621,7 @@ window.initHomeScripts = function() {
     const hub = validRoutes.find(r => r.category === 'hub');
     const linesLayer = L.layerGroup().addTo(window.myRouteMap);
     const markersLayer = L.layerGroup().addTo(window.myRouteMap);
+    const shipsLayer = L.layerGroup().addTo(window.myRouteMap); // Layer khusus untuk kapal
 
     function markerColor(category) {
         if (category === 'hub') return '#EC2029';
@@ -630,6 +631,7 @@ window.initHomeScripts = function() {
 
     const markerRefs = [];
     const lineRefs = [];
+    const ships = []; // Array untuk menyimpan data animasi kapal
 
     if (hub) {
         validRoutes.forEach(route => {
@@ -641,6 +643,43 @@ window.initHomeScripts = function() {
                 );
                 line.addTo(linesLayer);
                 lineRefs.push({ line, category: route.category });
+
+                // --- PERSIAPAN ANIMASI KAPAL ---
+                const startLatLng = L.latLng(hub.latitude, hub.mapLng);
+                const endLatLng = L.latLng(route.latitude, route.mapLng);
+                
+                // Ikon Kapal (menggunakan SVG)
+                const shipIcon = L.divIcon({
+                    className: 'ship-icon',
+                    html: `
+                        <div style="background: #26347a; border: 2px solid white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2 21h20"></path>
+                                <path d="M5 21v-4"></path>
+                                <path d="M19 21v-4"></path>
+                                <path d="M12 3v14"></path>
+                                <path d="M8 10l4-4 4 4"></path>
+                            </svg>
+                        </div>
+                    `,
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                });
+
+                const shipMarker = L.marker(startLatLng, { icon: shipIcon, interactive: false }).addTo(shipsLayer);
+
+                // Simpan data animasi
+                ships.push({
+                    marker: shipMarker,
+                    startLat: hub.latitude,
+                    startLng: hub.mapLng,
+                    endLat: route.latitude,
+                    endLng: route.mapLng,
+                    progress: Math.random(), // Mulai dari posisi acak agar tidak menumpuk di awal
+                    speed: 0.001 + Math.random() * 0.001, // Kecepatan acak agar tidak seragam
+                    category: route.category
+                });
+
             } catch (e) {
                 console.warn("Gagal menggambar garis:", e);
             }
@@ -703,7 +742,6 @@ window.initHomeScripts = function() {
                 iconAnchor: [8, 8],
             });
 
-            // HTML Tampilan Tooltip (Teks menempel)
             const tooltipContent = `
                 <div style="font-family: 'Poppins', sans-serif; text-align: center;">
                     <div style="display:flex; align-items:center; justify-content:center; gap:6px;">
@@ -713,7 +751,6 @@ window.initHomeScripts = function() {
                 </div>
             `;
 
-            // HTML Tampilan Popup (Saat di klik)
             const popupContent = `
                 <div style="font-family: 'Poppins', sans-serif; min-width: 180px;">
                     <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
@@ -727,10 +764,9 @@ window.initHomeScripts = function() {
             `;
 
             const marker = L.marker([route.latitude, route.mapLng], { icon })
-                // .bindTooltip berfungsi untuk teks yang menempel permanen
                 .bindTooltip(tooltipContent, {
-                    permanent: true, // <-- DIUBAH JADI TRUE AGAR SEMUA TITIK MUNCUL TEKSNYA
-                    direction: isHub ? 'top' : 'right', // Posisi teks: di atas Hub, di samping negara lain
+                    permanent: true,
+                    direction: isHub ? 'top' : 'right',
                     offset: isHub ? [0, -15] : [10, 0],
                     opacity: 1,
                     className: 'custom-tooltip'
@@ -754,6 +790,34 @@ window.initHomeScripts = function() {
             window.myRouteMap.fitBounds(bounds, { padding: [50, 50], maxZoom: 5 });
         } catch (e) {}
     }
+
+    // --- LOOP ANIMASI KAPAL ---
+    function animateShips() {
+        ships.forEach(ship => {
+            // Update progress
+            ship.progress += ship.speed;
+
+            // Jika kapal sudah sampai tujuan, reset kembali ke awal
+            if (ship.progress >= 1) {
+                ship.progress = 0;
+            }
+
+            // Interpolasi posisi (Rumus Linear Interpolation)
+            const currentLat = ship.startLat + (ship.endLat - ship.startLat) * ship.progress;
+            const currentLng = ship.startLng + (ship.endLng - ship.startLng) * ship.progress;
+
+            // Pindahkan marker kapal
+            ship.marker.setLatLng([currentLat, currentLng]);
+        });
+
+        // Panggil frame berikutnya
+        if (window.myRouteMap) {
+            requestAnimationFrame(animateShips);
+        }
+    }
+
+    // Mulai animasi
+    animateShips();
 
     const filterButtons = document.querySelectorAll('.route-filter-btn');
     const infoTitle = document.getElementById('routeInfoTitle');
@@ -793,6 +857,15 @@ window.initHomeScripts = function() {
                 if (!linesLayer.hasLayer(line)) linesLayer.addLayer(line);
             } else {
                 linesLayer.removeLayer(line);
+            }
+        });
+
+        // Filter Kapal
+        ships.forEach(ship => {
+            if (category === 'all' || ship.category === category) {
+                if (!shipsLayer.hasLayer(ship.marker)) shipsLayer.addLayer(ship.marker);
+            } else {
+                shipsLayer.removeLayer(ship.marker);
             }
         });
 
