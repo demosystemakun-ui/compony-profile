@@ -78,18 +78,15 @@
                                 <td class="py-4 px-4">
                                     <div class="flex items-center justify-center gap-2">
                                         <button onclick='openModal("edit", @json($route))'
-                                                class="text-amber-700 text-xs font-semibold bg-amber-50 px-3 py-1.5 rounded-md border border-amber-200 hover:bg-amber-100">
+                                                class="text-amber-700 text-xs font-semibold bg-amber-50 px-3 py-1.5 rounded-md border border-amber-200 hover:bg-amber-100 transition-colors">
                                             Edit
                                         </button>
-                                        <form action="{{ route('shipping-routes.destroy', $route) }}" method="POST"
-                                              onsubmit="return confirm('Hapus rute ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                    class="text-red-700 text-xs font-semibold bg-red-50 px-3 py-1.5 rounded-md border border-red-200 hover:bg-red-100">
-                                                Hapus
-                                            </button>
-                                        </form>
+                                        {{-- TOMBOL HAPUS DIPERBARUI UNTUK MEMANGGIL MODAL KUSTOM --}}
+                                        <button type="button" 
+                                                onclick="openDeleteModal('{{ $route->id }}', '{{ addslashes($route->name) }}')"
+                                                class="text-red-700 text-xs font-semibold bg-red-50 px-3 py-1.5 rounded-md border border-red-200 hover:bg-red-100 transition-colors">
+                                            Hapus
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -102,6 +99,35 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    {{-- MODAL KONFIRMASI HAPUS (KUSTOM PROFESIONAL) --}}
+    <div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden transform transition-all scale-95 opacity-0" id="deleteModalContent">
+            <div class="p-6">
+                <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mb-4 mx-auto">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-center text-slate-900 mb-2">Hapus Rute Ini?</h3>
+                <p class="text-center text-slate-500 text-sm mb-6">
+                    Data rute <span id="deleteRouteName" class="font-semibold text-slate-700"></span> akan dihapus secara permanen dan tidak dapat dikembalikan.
+                </p>
+                <div class="flex gap-3">
+                    <button type="button" id="cancelDeleteBtn" class="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-colors">
+                        Batal
+                    </button>
+                    <form id="deleteForm" method="POST" class="flex-1">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="w-full px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl transition-colors shadow-md shadow-red-600/20">
+                            Ya, Hapus
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -390,6 +416,50 @@ UM US UY UZ VA VC VE VG VI VN VU WF WS XK YE YT ZA ZM ZW`.split(/\s+/);
         modal.classList.remove('flex');
     }
 
-    document.addEventListener('DOMContentLoaded', initFlagSelect);
+    // ===== LOGIKA MODAL HAPUS KUSTOM =====
+    function openDeleteModal(id, name) {
+        const modal = document.getElementById('deleteModal');
+        const content = document.getElementById('deleteModalContent');
+        const form = document.getElementById('deleteForm');
+        const nameSpan = document.getElementById('deleteRouteName');
+
+        nameSpan.textContent = `"${name}"`;
+        
+        // Ganti action URL form secara dinamis (sesuaikan dengan route resource Anda)
+        form.action = `${SHIPPING_ROUTE_BASE}/${id}`;
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        
+        setTimeout(() => {
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function closeDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        const content = document.getElementById('deleteModalContent');
+
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }, 200);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initFlagSelect();
+        
+        // Event listener untuk modal hapus
+        document.getElementById('cancelDeleteBtn').addEventListener('click', closeDeleteModal);
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDeleteModal();
+            }
+        });
+    });
 </script>
 </x-admin-layout>
