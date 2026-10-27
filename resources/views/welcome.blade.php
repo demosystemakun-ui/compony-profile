@@ -26,7 +26,7 @@
     .pict-hero { 
         position: relative; 
         overflow: hidden; 
-        background-color: #ffffff; /* PUTIH MURNI agar Navbar terlihat kontras */
+        background-color: #ffffff;
         min-height: 100vh;
         display: flex;
         align-items: center;
@@ -40,12 +40,10 @@
         z-index: 0;
     }
 
-    /* Desktop: Gambar di kanan dengan potongan diagonal */
     @media (min-width: 1024px) {
         .hero-split-wrapper {
             width: 65%;
             left: auto;
-            /* Potongan miring dari atas-tengah ke kiri-bawah */
             clip-path: polygon(25% 0, 100% 0, 100% 100%, 0% 100%);
         }
     }
@@ -56,7 +54,6 @@
         object-position: center;
     }
 
-    /* Mobile overlay agar teks terbaca */
     @media (max-width: 1023px) {
         .hero-split-wrapper { 
             opacity: 0.15; 
@@ -166,7 +163,6 @@
 {{-- ═══════════════════════════════════════════════════════════════
      1. HERO SECTION — SPLIT WHITE / DIAGONAL IMAGE
 ═══════════════════════════════════════════════════════════════ --}}
-{{-- pt-32 memastikan teks turun ke bawah navbar yang melayang --}}
 <section class="pict-hero pt-32 pb-16 lg:pt-0 lg:pb-0">
     {{-- Gambar dengan potongan diagonal --}}
     <div class="hero-split-wrapper">
@@ -182,9 +178,6 @@
             
             {{-- Kiri: Teks --}}
             <div class="lg:col-span-6 xl:col-span-5 flex flex-col justify-center space-y-6">
-                
-
-
                 {{-- Judul Utama --}}
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-[1.1] tracking-tight">
                     PATIMBAN<br>
@@ -519,6 +512,7 @@
 </section>
 
 @endsection
+
 @push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -527,23 +521,18 @@
 
 <script>
 /* ═══ HELPER ═══ */
-
-// Pilih versi longitude yang paling dekat dengan titik acuan (hub).
-// Contoh: Meksiko -99 dengan acuan 108 menjadi 261 (digambar di sisi Pasifik).
 function nearestLng(lng, ref) {
     while (lng - ref > 180)  lng -= 360;
     while (lng - ref < -180) lng += 360;
     return lng;
 }
 
-// Cegah HTML/script nyasar dari data admin masuk ke popup
 function escapeHtml(value) {
     return String(value ?? '').replace(/[&<>"']/g, ch => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     }[ch]));
 }
 
-// Emoji bendera -> kode negara 2 huruf (🇲🇽 -> "mx")
 function flagCodeFromEmoji(str) {
     const cps = [...str]
         .map(c => c.codePointAt(0))
@@ -607,7 +596,6 @@ window.initHomeScripts = function() {
         maxZoom: 19,
     }).addTo(window.myRouteMap);
 
-    // Filter data rusak (latitude/longitude 0 tetap dianggap valid)
     const parsedRoutes = routesData
         .filter(r => r && r.latitude !== null && r.latitude !== '' && r.longitude !== null && r.longitude !== '')
         .map(r => ({
@@ -619,13 +607,12 @@ window.initHomeScripts = function() {
 
     if (parsedRoutes.length === 0) return;
 
-    // Hub dipakai sebagai titik acuan: semua rute digambar di sisi peta yang paling dekat dengan hub
     const hubRaw = parsedRoutes.find(r => r.category === 'hub');
     const refLng = hubRaw ? hubRaw.longitude : 108;
 
     const validRoutes = parsedRoutes.map(r => ({
         ...r,
-        mapLng: nearestLng(r.longitude, refLng),   // Meksiko -99 menjadi 261
+        mapLng: nearestLng(r.longitude, refLng),
     }));
 
     const hub = validRoutes.find(r => r.category === 'hub');
@@ -640,6 +627,7 @@ window.initHomeScripts = function() {
 
     const markerRefs = [];
     const lineRefs = [];
+    let hubMarker = null;
 
     if (hub) {
         validRoutes.forEach(route => {
@@ -660,11 +648,8 @@ window.initHomeScripts = function() {
     function resolveFlagHtml(route) {
         if (route.flag && typeof route.flag === 'string' && route.flag.trim() !== '') {
             const raw = route.flag.trim();
-
-            // Emoji bendera -> gambar (supaya tampil juga di Windows)
             const emojiCode = flagCodeFromEmoji(raw);
             if (emojiCode) return flagImg(emojiCode);
-
             if (/^[A-Za-z]{2,3}$/.test(raw)) return flagImg(raw.toLowerCase());
         }
 
@@ -729,8 +714,23 @@ window.initHomeScripts = function() {
             `;
 
             const marker = L.marker([route.latitude, route.mapLng], { icon })
-                .bindPopup(popupContent, { closeButton: true, maxWidth: 260 })
+                .bindPopup(popupContent, { 
+                    closeButton: false, 
+                    maxWidth: 260,
+                    autoPan: true 
+                })
                 .addTo(markersLayer);
+
+            if (isHub) {
+                hubMarker = marker;
+            } else {
+                marker.on('mouseover', function () {
+                    this.openPopup();
+                });
+                marker.on('mouseout', function () {
+                    this.closePopup();
+                });
+            }
 
             markerRefs.push({ marker, category: route.category });
         } catch (e) {
@@ -744,6 +744,31 @@ window.initHomeScripts = function() {
             window.myRouteMap.fitBounds(bounds, { padding: [50, 50], maxZoom: 5 });
         } catch (e) {}
     }
+
+    if (hubMarker) {
+        setTimeout(() => {
+            hubMarker.openPopup();
+        }, 800);
+    }
+
+    const updatePopupScale = () => {
+        const zoom = window.myRouteMap.getZoom();
+        const popupContainer = document.querySelector('.leaflet-popup');
+        if (!popupContainer) return;
+
+        let scale = 1;
+        if (zoom <= 3) scale = 0.75;
+        else if (zoom === 4) scale = 0.85;
+
+        popupContainer.style.transformOrigin = 'bottom center';
+        popupContainer.style.transition = 'transform 0.3s ease-out';
+        popupContainer.style.transform = `scale(${scale})`;
+    };
+
+    window.myRouteMap.on('zoomend', updatePopupScale);
+    window.myRouteMap.on('popupopen', () => {
+        setTimeout(updatePopupScale, 50);
+    });
 
     const filterButtons = document.querySelectorAll('.route-filter-btn');
     const infoTitle = document.getElementById('routeInfoTitle');
@@ -802,5 +827,3 @@ document.addEventListener('DOMContentLoaded', window.initHomeScripts);
 document.addEventListener('swup:page:view', window.initHomeScripts);
 </script>
 @endpush
-
-<!-- hdajdajhdakj -->
