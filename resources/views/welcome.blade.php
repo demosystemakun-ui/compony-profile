@@ -128,18 +128,6 @@
     }
     .leaflet-popup-content { margin: 12px 16px; }
 
-    /* ═══ CUSTOM TOOLTIP STYLE ═══ */
-    .custom-tooltip {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
-        padding: 4px 8px;
-    }
-    .custom-tooltip::before {
-        display: none; /* Menghilangkan panah segitiga bawaan Leaflet */
-    }
-
     /* ═══ LEAFLET PULSE ANIMATION ═══ */
     @keyframes pulse {
         0%, 100% { transform: scale(1); opacity: 0.4; }
@@ -176,6 +164,7 @@
      1. HERO SECTION — SPLIT WHITE / DIAGONAL IMAGE
 ═══════════════════════════════════════════════════════════════ --}}
 <section class="pict-hero pt-32 pb-16 lg:pt-0 lg:pb-0">
+    {{-- Gambar dengan potongan diagonal --}}
     <div class="hero-split-wrapper">
         <img src="{{ asset('assets/images/harmoni.png') }}"
              alt="Patimban Port terminal"
@@ -183,19 +172,25 @@
              fetchpriority="high">
     </div>
 
+    {{-- Konten Teks --}}
     <div class="hero-content-wrap max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-12 lg:py-0">
         <div class="grid lg:grid-cols-12 gap-8 items-center">
+            
+            {{-- Kiri: Teks --}}
             <div class="lg:col-span-6 xl:col-span-5 flex flex-col justify-center space-y-6">
+                {{-- Judul Utama --}}
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-[1.1] tracking-tight">
                     PATIMBAN<br>
                     INTERNATIONAL<br>
                     <span class="text-[#ec2029]">CAR TERMINAL</span>
                 </h1>
 
+                {{-- Deskripsi --}}
                 <p class="text-slate-600 text-base sm:text-lg leading-relaxed max-w-md">
                     Providing professional Cargo Handling services at Patimban Port with world-class smart logistics capabilities, operational excellence, and unmatched safety standards.
                 </p>
 
+                {{-- Tombol CTA --}}
                 <div class="pt-2">
                     <a href="{{ url('/about') }}" class="inline-flex items-center gap-3 bg-[#ec2029] hover:bg-[#d11922] text-white px-6 py-3.5 text-sm font-bold transition-all duration-300 shadow-md hover:shadow-lg">
                         Learn More About PICT
@@ -205,6 +200,8 @@
                     </a>
                 </div>
             </div>
+
+            {{-- Kanan: Kosong (Area Gambar) --}}
             <div class="hidden lg:block lg:col-span-6 xl:col-span-7"></div>
         </div>
     </div>
@@ -621,7 +618,6 @@ window.initHomeScripts = function() {
     const hub = validRoutes.find(r => r.category === 'hub');
     const linesLayer = L.layerGroup().addTo(window.myRouteMap);
     const markersLayer = L.layerGroup().addTo(window.myRouteMap);
-    const shipsLayer = L.layerGroup().addTo(window.myRouteMap); // Layer khusus untuk kapal
 
     function markerColor(category) {
         if (category === 'hub') return '#EC2029';
@@ -631,7 +627,7 @@ window.initHomeScripts = function() {
 
     const markerRefs = [];
     const lineRefs = [];
-    const ships = []; // Array untuk menyimpan data animasi kapal
+    let hubMarker = null;
 
     if (hub) {
         validRoutes.forEach(route => {
@@ -643,56 +639,6 @@ window.initHomeScripts = function() {
                 );
                 line.addTo(linesLayer);
                 lineRefs.push({ line, category: route.category });
-
-                // --- ANIMASI KAPAL ---
-                const startLatLng = L.latLng(hub.latitude, hub.mapLng);
-                const endLatLng = L.latLng(route.latitude, route.mapLng);
-                
-                // Hitung sudut rotasi
-                const dy = endLatLng.lat - startLatLng.lat;
-                const dx = endLatLng.lng - startLatLng.lng;
-                
-                // Karena SVG kapal kita menghadap ke atas (0 derajat), kita tambahkan 90 derajat
-                // agar ujung kapal sejajar dengan arah garis (Math.atan2 menghasilkan sudut dari sumbu X).
-                const angle = Math.atan2(dy, dx) * (180 / Math.PI) + 90;
-
-                // SVG Kapal yang lebih realistis (memiliki lambung dan cerobong)
-                // Warna putih dengan outline biru agar terlihat jelas di peta
-                const shipSvg = `
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="#26347a" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
-                        <!-- Lambung Kapal -->
-                        <path d="M4 12 L20 12 L17 19 L7 19 Z" fill="#26347a" stroke="white" stroke-width="1"/>
-                        <!-- Cerobong Asap -->
-                        <rect x="9" y="6" width="6" height="5" fill="#26347a" stroke="white" stroke-width="1"/>
-                        <!-- Ujung Runcing / Haluan -->
-                        <path d="M12 2 L20 12 L4 12 Z" fill="#ec2029" stroke="white" stroke-width="1"/>
-                    </svg>
-                `;
-
-                const shipIcon = L.divIcon({
-                    className: 'ship-icon',
-                    html: `
-                        <div style="transform: rotate(${angle}deg); transform-origin: center; width: 24px; height: 24px; display:flex; align-items:center; justify-content:center;">
-                            ${shipSvg}
-                        </div>
-                    `,
-                    iconSize: [24, 24],
-                    iconAnchor: [12, 12] // Titik tengah tepat di garis
-                });
-
-                const shipMarker = L.marker(startLatLng, { icon: shipIcon, interactive: false }).addTo(shipsLayer);
-
-                ships.push({
-                    marker: shipMarker,
-                    startLat: hub.latitude,
-                    startLng: hub.mapLng,
-                    endLat: route.latitude,
-                    endLng: route.mapLng,
-                    progress: Math.random(),
-                    speed: 0.001 + Math.random() * 0.001,
-                    category: route.category
-                });
-
             } catch (e) {
                 console.warn("Gagal menggambar garis:", e);
             }
@@ -755,15 +701,6 @@ window.initHomeScripts = function() {
                 iconAnchor: [8, 8],
             });
 
-            const tooltipContent = `
-                <div style="font-family: 'Poppins', sans-serif; text-align: center;">
-                    <div style="display:flex; align-items:center; justify-content:center; gap:6px;">
-                        ${resolveFlagHtml(route)}
-                        <strong style="color:#0A2540; font-size:12px; white-space:nowrap;">${escapeHtml(route.name)}</strong>
-                    </div>
-                </div>
-            `;
-
             const popupContent = `
                 <div style="font-family: 'Poppins', sans-serif; min-width: 180px;">
                     <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
@@ -777,19 +714,23 @@ window.initHomeScripts = function() {
             `;
 
             const marker = L.marker([route.latitude, route.mapLng], { icon })
-                .bindTooltip(tooltipContent, {
-                    permanent: true,
-                    direction: isHub ? 'top' : 'right',
-                    offset: isHub ? [0, -15] : [10, 0],
-                    opacity: 1,
-                    className: 'custom-tooltip'
-                })
                 .bindPopup(popupContent, { 
-                    closeButton: true, 
+                    closeButton: false, 
                     maxWidth: 260,
                     autoPan: true 
                 })
                 .addTo(markersLayer);
+
+            if (isHub) {
+                hubMarker = marker;
+            } else {
+                marker.on('mouseover', function () {
+                    this.openPopup();
+                });
+                marker.on('mouseout', function () {
+                    this.closePopup();
+                });
+            }
 
             markerRefs.push({ marker, category: route.category });
         } catch (e) {
@@ -804,33 +745,30 @@ window.initHomeScripts = function() {
         } catch (e) {}
     }
 
-    // --- LOOP ANIMASI KAPAL ---
-    function animateShips() {
-        ships.forEach(ship => {
-            // Update progress
-            ship.progress += ship.speed;
-
-            // Jika kapal sudah sampai tujuan, reset kembali ke awal
-            if (ship.progress >= 1) {
-                ship.progress = 0;
-            }
-
-            // Interpolasi posisi (Rumus Linear Interpolation)
-            const currentLat = ship.startLat + (ship.endLat - ship.startLat) * ship.progress;
-            const currentLng = ship.startLng + (ship.endLng - ship.startLng) * ship.progress;
-
-            // Pindahkan marker kapal
-            ship.marker.setLatLng([currentLat, currentLng]);
-        });
-
-        // Panggil frame berikutnya
-        if (window.myRouteMap) {
-            requestAnimationFrame(animateShips);
-        }
+    if (hubMarker) {
+        setTimeout(() => {
+            hubMarker.openPopup();
+        }, 800);
     }
 
-    // Mulai animasi
-    animateShips();
+    const updatePopupScale = () => {
+        const zoom = window.myRouteMap.getZoom();
+        const popupContainer = document.querySelector('.leaflet-popup');
+        if (!popupContainer) return;
+
+        let scale = 1;
+        if (zoom <= 3) scale = 0.75;
+        else if (zoom === 4) scale = 0.85;
+
+        popupContainer.style.transformOrigin = 'bottom center';
+        popupContainer.style.transition = 'transform 0.3s ease-out';
+        popupContainer.style.transform = `scale(${scale})`;
+    };
+
+    window.myRouteMap.on('zoomend', updatePopupScale);
+    window.myRouteMap.on('popupopen', () => {
+        setTimeout(updatePopupScale, 50);
+    });
 
     const filterButtons = document.querySelectorAll('.route-filter-btn');
     const infoTitle = document.getElementById('routeInfoTitle');
@@ -870,14 +808,6 @@ window.initHomeScripts = function() {
                 if (!linesLayer.hasLayer(line)) linesLayer.addLayer(line);
             } else {
                 linesLayer.removeLayer(line);
-            }
-        });
-
-        ships.forEach(ship => {
-            if (category === 'all' || ship.category === category) {
-                if (!shipsLayer.hasLayer(ship.marker)) shipsLayer.addLayer(ship.marker);
-            } else {
-                shipsLayer.removeLayer(ship.marker);
             }
         });
 
