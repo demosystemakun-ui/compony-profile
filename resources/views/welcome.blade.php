@@ -644,40 +644,52 @@ window.initHomeScripts = function() {
                 line.addTo(linesLayer);
                 lineRefs.push({ line, category: route.category });
 
-                // --- PERSIAPAN ANIMASI KAPAL ---
+                // --- ANIMASI KAPAL ---
                 const startLatLng = L.latLng(hub.latitude, hub.mapLng);
                 const endLatLng = L.latLng(route.latitude, route.mapLng);
                 
-                // 1. Hitung sudut rotasi agar kapal menghadap ke arah tujuan
+                // Hitung sudut rotasi
                 const dy = endLatLng.lat - startLatLng.lat;
                 const dx = endLatLng.lng - startLatLng.lng;
-                const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+                
+                // Karena SVG kapal kita menghadap ke atas (0 derajat), kita tambahkan 90 derajat
+                // agar ujung kapal sejajar dengan arah garis (Math.atan2 menghasilkan sudut dari sumbu X).
+                const angle = Math.atan2(dy, dx) * (180 / Math.PI) + 90;
 
-                // 2. Ikon Kapal Asli (SVG) tanpa lingkaran, dengan rotasi
+                // SVG Kapal yang lebih realistis (memiliki lambung dan cerobong)
+                // Warna putih dengan outline biru agar terlihat jelas di peta
+                const shipSvg = `
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="#26347a" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+                        <!-- Lambung Kapal -->
+                        <path d="M4 12 L20 12 L17 19 L7 19 Z" fill="#26347a" stroke="white" stroke-width="1"/>
+                        <!-- Cerobong Asap -->
+                        <rect x="9" y="6" width="6" height="5" fill="#26347a" stroke="white" stroke-width="1"/>
+                        <!-- Ujung Runcing / Haluan -->
+                        <path d="M12 2 L20 12 L4 12 Z" fill="#ec2029" stroke="white" stroke-width="1"/>
+                    </svg>
+                `;
+
                 const shipIcon = L.divIcon({
                     className: 'ship-icon',
                     html: `
-                        <div style="transform: rotate(${angle}deg); transform-origin: center; width: 24px; height: 24px; display:flex; align-items:center; justify-content:center; filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.4));">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#26347a" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 2 L20 18 L12 14 L4 18 Z"></path>
-                            </svg>
+                        <div style="transform: rotate(${angle}deg); transform-origin: center; width: 24px; height: 24px; display:flex; align-items:center; justify-content:center;">
+                            ${shipSvg}
                         </div>
                     `,
                     iconSize: [24, 24],
-                    iconAnchor: [12, 12] // Titik tengah ikon
+                    iconAnchor: [12, 12] // Titik tengah tepat di garis
                 });
 
                 const shipMarker = L.marker(startLatLng, { icon: shipIcon, interactive: false }).addTo(shipsLayer);
 
-                // Simpan data animasi
                 ships.push({
                     marker: shipMarker,
                     startLat: hub.latitude,
                     startLng: hub.mapLng,
                     endLat: route.latitude,
                     endLng: route.mapLng,
-                    progress: Math.random(), // Mulai dari posisi acak agar tidak menumpuk di awal
-                    speed: 0.001 + Math.random() * 0.001, // Kecepatan acak agar tidak seragam
+                    progress: Math.random(),
+                    speed: 0.001 + Math.random() * 0.001,
                     category: route.category
                 });
 
@@ -861,7 +873,6 @@ window.initHomeScripts = function() {
             }
         });
 
-        // Filter Kapal
         ships.forEach(ship => {
             if (category === 'all' || ship.category === category) {
                 if (!shipsLayer.hasLayer(ship.marker)) shipsLayer.addLayer(ship.marker);
