@@ -3,9 +3,9 @@
         <div class="flex flex-wrap gap-3 justify-between items-center">
             <div>
                 <h2 class="font-bold text-2xl text-[#0A2540] leading-tight tracking-tight">
-                    {{ __('Detail Berita') }}
+                    {{ __('Detail News') }}
                 </h2>
-                <p class="text-xs text-gray-500 mt-1">Pratinjau berita sebelum / sesudah dipublikasikan</p>
+                <p class="text-xs text-gray-500 mt-1">Preview news before / after publishing</p>
             </div>
             <div class="flex items-center gap-2">
                 <a href="{{ route('admin.news.index') }}"
@@ -13,7 +13,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
-                    Kembali
+                    Back
                 </a>
                 <a href="{{ route('news.edit', $news->id) }}"
                    class="inline-flex items-center gap-1.5 text-sm font-semibold text-white bg-amber-600 hover:bg-amber-700 px-4 py-2 rounded-lg shadow-sm transition-colors">
@@ -49,7 +49,7 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-base font-bold text-[#0A2540]">Pratinjau Berita</h3>
+                        <h3 class="text-base font-bold text-[#0A2540]">Preview News</h3>
                         <p class="text-[11px] text-gray-500">ID #{{ $news->id }} — {{ $news->slug }}</p>
                     </div>
                 </div>
@@ -88,9 +88,9 @@
                                       d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                             </svg>
                             <span>
-                                Oleh
+                                By
                                 <span class="font-semibold text-[#0A2540]">
-                                    {{ $news->updatedBy->name ?? 'Tidak tercatat' }}
+                                    {{ $news->updatedBy->name ?? 'Not recorded' }}
                                 </span>
                             </span>
                         </div>
@@ -100,7 +100,7 @@
                                       d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                             <span>
-                                Diperbarui
+                                Updated
                                 <span class="font-semibold text-[#0A2540]">
                                     {{ optional($news->updated_at)->diffForHumans() ?? '-' }}
                                 </span>
@@ -133,7 +133,7 @@
                 <div class="px-6 sm:px-8 py-5 bg-gray-50 border-t border-gray-100 flex flex-wrap items-center justify-end gap-3">
                     <a href="{{ route('admin.news.index') }}"
                        class="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-[#0A2540] bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm transition-colors">
-                        Kembali ke Daftar
+                        Back to List
                     </a>
                     <a href="{{ route('news.show', $news->slug) }}" target="_blank" rel="noopener"
                        class="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-4 py-2 rounded-lg shadow-sm transition-colors">
@@ -141,11 +141,11 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                         </svg>
-                        Lihat di Halaman Publik
+                        View on Public Page
                     </a>
                     <a href="{{ route('news.edit', $news->id) }}"
                        class="inline-flex items-center gap-1.5 text-sm font-semibold text-white bg-amber-600 hover:bg-amber-700 px-4 py-2 rounded-lg shadow-sm transition-colors">
-                        Edit Berita
+                        Edit News
                     </a>
                     <form action="{{ route('news.destroy', $news->id) }}" method="POST"
                           onsubmit="return confirm('Yakin ingin menghapus berita ini?');">
@@ -157,7 +157,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                             </svg>
-                            Hapus
+                            Delete
                         </button>
                     </form>
                 </div>

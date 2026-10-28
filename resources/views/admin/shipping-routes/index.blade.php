@@ -5,10 +5,10 @@
                 <h2 class="font-bold text-2xl text-[#0A2540] leading-tight tracking-tight">
                     {{ __('Shipping Routes') }}
                 </h2>
-                <p class="text-xs text-gray-500 mt-1">Kelola rute pelayaran yang tampil di peta publik</p>
+                <p class="text-xs text-gray-500 mt-1">Manage shipping routes that appear on the public map</p>
             </div>
             <button onclick="openModal('add')" class="bg-[#EC2029] hover:bg-[#961c22] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
-                + Tambah Rute
+                + Add Route
             </button>
         </div>
     </x-slot>
@@ -35,12 +35,12 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="border-b-2 border-gray-100 text-gray-500 text-xs uppercase tracking-wider">
-                            <th class="py-3.5 px-4 font-bold">Pelabuhan</th>
-                            <th class="py-3.5 px-4 font-bold">Kategori</th>
-                            <th class="py-3.5 px-4 font-bold">Koordinat</th>
+                            <th class="py-3.5 px-4 font-bold">Port</th>
+                            <th class="py-3.5 px-4 font-bold">Category</th>
+                            <th class="py-3.5 px-4 font-bold">Coordinates</th>
                             <th class="py-3.5 px-4 font-bold">Transit</th>
                             <th class="py-3.5 px-4 font-bold">Status</th>
-                            <th class="py-3.5 px-4 text-center font-bold">Aksi</th>
+                            <th class="py-3.5 px-4 text-center font-bold">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 text-sm">
@@ -81,11 +81,10 @@
                                                 class="text-amber-700 text-xs font-semibold bg-amber-50 px-3 py-1.5 rounded-md border border-amber-200 hover:bg-amber-100 transition-colors">
                                             Edit
                                         </button>
-                                        {{-- TOMBOL HAPUS DIPERBARUI UNTUK MEMANGGIL MODAL KUSTOM --}}
                                         <button type="button" 
                                                 onclick="openDeleteModal('{{ $route->id }}', '{{ addslashes($route->name) }}')"
                                                 class="text-red-700 text-xs font-semibold bg-red-50 px-3 py-1.5 rounded-md border border-red-200 hover:bg-red-100 transition-colors">
-                                            Hapus
+                                            Delete
                                         </button>
                                     </div>
                                 </td>
@@ -93,7 +92,7 @@
                         @empty
                             <tr>
                                 <td colspan="6" class="py-12 text-center text-gray-400 text-sm">
-                                    Belum ada rute. Klik "+ Tambah Rute" untuk memulai.
+                                    No shipping routes available. Click "+ Add Route" to get started.
                                 </td>
                             </tr>
                         @endforelse

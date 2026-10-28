@@ -8,9 +8,6 @@
     <div class="py-12 bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
 
-            {{-- ═══════════════════════════════════════════════ --}}
-            {{-- FORM TAMBAH BERITA --}}
-            {{-- ═══════════════════════════════════════════════ --}}
             <div class="max-w-3xl mx-auto">
                 <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-100 p-6 sm:p-8 text-gray-900">
 

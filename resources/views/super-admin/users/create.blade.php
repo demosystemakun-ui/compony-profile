@@ -1,6 +1,6 @@
 <x-admin-layout>
     <x-slot name="header">
-        <h2 class="font-bold text-2xl text-[#0A2540]">Tambah User Baru</h2>
+        <h2 class="font-bold text-2xl text-[#0A2540]">Add New User</h2>
     </x-slot>
 
     <div class="py-8">
@@ -10,7 +10,7 @@
                     @csrf
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
                         <input type="text" name="name" value="{{ old('name') }}" required
                                class="w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring-red-500 text-sm">
                         @error('name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
@@ -31,7 +31,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
                         <input type="password" name="password_confirmation" required
                                class="w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring-red-500 text-sm">
                     </div>
@@ -49,11 +49,11 @@
                     <div class="flex justify-end gap-2 pt-3">
                         <a href="{{ route('users.index') }}"
                            class="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition">
-                            Batal
+                            Cancel
                         </a>
                         <button type="submit"
                                 class="px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition shadow-md">
-                            Simpan
+                            Save
                         </button>
                     </div>
                 </form>

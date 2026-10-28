@@ -12,7 +12,7 @@
 
                     {{-- Nama --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
                         <input type="text" name="name" 
                                value="{{ old('name', $user->name) }}" required
                                class="w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring-red-500 text-sm">
@@ -31,7 +31,7 @@
                     {{-- Password --}}
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">
-                            Password <span class="text-gray-400 font-normal">(Kosongkan jika tidak diubah)</span>
+                            Password <span class="text-gray-400 font-normal">(Leave blank to keep current)</span>
                         </label>
                         <input type="password" name="password"
                                placeholder="••••••••"
@@ -41,7 +41,7 @@
 
                     {{-- Konfirmasi Password --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
                         <input type="password" name="password_confirmation"
                                placeholder="••••••••"
                                class="w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring-red-500 text-sm">
@@ -62,7 +62,7 @@
                     <div class="flex justify-end gap-2 pt-3">
                         <a href="{{ route('users.index') }}"
                            class="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition">
-                            Batal
+                            Cancel
                         </a>
                         <button type="submit"
                                 class="px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition shadow-md">

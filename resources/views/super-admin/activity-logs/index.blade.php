@@ -2,10 +2,9 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <div>
-                <h2 class="font-bold text-2xl text-[#0A2540]">Log Aktivitas</h2>
-                <p class="text-xs text-gray-500 mt-1">Pantau semua aktivitas user di admin panel</p>
+                <h2 class="font-bold text-2xl text-[#0A2540]">Activity Logs</h2>
+                <p class="text-xs text-gray-500 mt-1">Monitor all user activities in the admin panel</p>
             </div>
-            {{-- Tombol Bersihkan Log DIHAPUS --}}
         </div>
     </x-slot>
 
@@ -18,14 +17,14 @@
                     <div>
                         <label class="block text-xs font-medium text-gray-600 mb-1">Action</label>
                         <select name="action" class="rounded-lg border-gray-300 text-sm">
-                            <option value="">Semua</option>
+                            <option value="">All Actions</option>
                             @foreach(['created','updated','deleted','login','logout'] as $act)
                                 <option value="{{ $act }}" @selected(request('action')===$act)>{{ ucfirst($act) }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Tanggal</label>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Date</label>
                         <input type="date" name="date" value="{{ request('date') }}"
                                class="rounded-lg border-gray-300 text-sm">
                     </div>
@@ -46,10 +45,10 @@
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b-2 border-gray-100 text-gray-500 text-xs uppercase bg-gray-50/50">
-                                <th class="py-3.5 px-4 font-bold">Waktu</th>
+                                <th class="py-3.5 px-4 font-bold">Time</th>
                                 <th class="py-3.5 px-4 font-bold">User</th>
                                 <th class="py-3.5 px-4 font-bold">Action</th>
-                                <th class="py-3.5 px-4 font-bold">Deskripsi</th>
+                                <th class="py-3.5 px-4 font-bold">Description</th>
                                 <th class="py-3.5 px-4 font-bold">IP</th>
                             </tr>
                         </thead>
@@ -82,7 +81,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="py-12 text-center text-gray-400">Belum ada aktivitas.</td>
+                                    <td colspan="5" class="py-12 text-center text-gray-400">No activities available.</td>
                                 </tr>
                             @endforelse
                         </tbody>

@@ -233,7 +233,6 @@
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
                         Security Verification <span class="text-red-500">*</span>
                     </label>
-                    {{-- Pakai config(), bukan env(): env() bernilai null saat config di-cache --}}
                     <div class="g-recaptcha"
                          data-sitekey="{{ config('services.recaptcha.site_key') ?: '6LfrWQEuAAAAAIasdfZ46CqUIJ1O426BFN_49O5Q' }}"
                          data-callback="enableSubmitButton"></div>

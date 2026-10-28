@@ -2,15 +2,15 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <div>
-                <h2 class="font-bold text-2xl text-[#0A2540]">Manajemen User</h2>
-                <p class="text-xs text-gray-500 mt-1">Kelola semua user yang memiliki akses ke admin panel</p>
+                <h2 class="font-bold text-2xl text-[#0A2540]">User Management</h2>
+                <p class="text-xs text-gray-500 mt-1">Manage all users who have access to the admin panel</p>
             </div>
             <a href="{{ route('users.create') }}"
                class="inline-flex items-center gap-1.5 bg-[#0A2540] hover:bg-[#132f4c] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-all shadow-md">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
                 </svg>
-                Tambah User
+                Add User
             </a>
         </div>
     </x-slot>
@@ -35,11 +35,11 @@
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b-2 border-gray-100 text-gray-500 text-xs uppercase bg-gray-50/50">
-                                <th class="py-3.5 px-4 font-bold">Nama</th>
+                                <th class="py-3.5 px-4 font-bold">Name</th>
                                 <th class="py-3.5 px-4 font-bold">Email</th>
                                 <th class="py-3.5 px-4 font-bold">Role</th>
-                                <th class="py-3.5 px-4 font-bold">Dibuat</th>
-                                <th class="py-3.5 px-4 text-center font-bold">Aksi</th>
+                                <th class="py-3.5 px-4 font-bold">Created</th>
+                                <th class="py-3.5 px-4 text-center font-bold">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 text-sm">
@@ -82,7 +82,7 @@
                                                     @method('DELETE')
                                                     <button type="submit"
                                                             class="inline-flex items-center gap-1 text-red-700 font-semibold text-xs bg-red-50 px-3 py-1.5 rounded-md border border-red-200 hover:bg-red-100">
-                                                        Hapus
+                                                        Delete
                                                     </button>
                                                 </form>
                                             @endif

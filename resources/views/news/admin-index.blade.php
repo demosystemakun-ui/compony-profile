@@ -5,14 +5,14 @@
                 <h2 class="font-bold text-2xl text-[#0A2540] leading-tight tracking-tight">
                     {{ __('Kelola Berita') }}
                 </h2>
-                <p class="text-xs text-gray-500 mt-1">Kelola semua artikel berita yang tampil di website</p>
+                <p class="text-xs text-gray-500 mt-1">Manage all news articles that appear on the website</p>
             </div>
             <a href="{{ route('news.create') }}"
                class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg shadow-sm transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
-                Tambah Berita
+               Add News
             </a>
         </div>
     </x-slot>
@@ -38,8 +38,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold text-[#0A2540]">Daftar Berita</h3>
-                        <p class="text-xs text-gray-500">Total: {{ $newsList->total() }} berita</p>
+                        <h3 class="text-lg font-bold text-[#0A2540]">Dashboard News</h3>
+                        <p class="text-xs text-gray-500">Total: {{ $newsList->total() }} news articles</p>
                     </div>
                 </div>
 
@@ -48,12 +48,12 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="border-b-2 border-gray-100 text-gray-500 text-xs uppercase tracking-wider bg-gray-50/50">
-                                    <th class="py-3.5 px-4 font-bold">Gambar</th>
-                                    <th class="py-3.5 px-4 font-bold">Judul</th>
-                                    <th class="py-3.5 px-4 font-bold">Kategori</th>
-                                    <th class="py-3.5 px-4 font-bold">Diperbarui</th>
-                                    <th class="py-3.5 px-4 font-bold">Oleh</th>
-                                    <th class="py-3.5 px-4 text-center font-bold">Aksi</th>
+                                    <th class="py-3.5 px-4 font-bold">Image</th>
+                                    <th class="py-3.5 px-4 font-bold">Title</th>
+                                    <th class="py-3.5 px-4 font-bold">Category</th>
+                                    <th class="py-3.5 px-4 font-bold">Updated</th>
+                                    <th class="py-3.5 px-4 font-bold">By</th>
+                                    <th class="py-3.5 px-4 text-center font-bold">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 text-sm">
@@ -94,10 +94,10 @@
                                             <div class="flex items-center gap-1.5">
                                                 @if($daysAgo > 30)
                                                     <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                                                    <span class="text-red-600 font-semibold">{{ $daysAgo }} hari lalu</span>
+                                                    <span class="text-red-600 font-semibold">{{ $daysAgo }} days ago</span>
                                                 @elseif($daysAgo > 7)
                                                     <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                                                    <span class="text-amber-600 font-medium">{{ $daysAgo }} hari lalu</span>
+                                                    <span class="text-amber-600 font-medium">{{ $daysAgo }} days ago</span>
                                                 @else
                                                     <span class="w-2 h-2 rounded-full bg-green-500"></span>
                                                     <span class="text-gray-500">{{ optional($item->updated_at)->diffForHumans() ?? '-' }}</span>
@@ -114,7 +114,7 @@
                                                     <span class="text-xs font-semibold text-[#0A2540]">{{ $item->updatedBy->name }}</span>
                                                 </div>
                                             @else
-                                                <span class="text-[10px] text-gray-400 italic">Tidak tercatat</span>
+                                                <span class="text-[10px] text-gray-400 italic">Not recorded</span>
                                             @endif
                                         </td>
 
@@ -134,7 +134,7 @@
                                                     @method('DELETE')
                                                     <button type="submit"
                                                             class="inline-flex items-center gap-1 text-red-700 hover:bg-red-100 font-semibold text-xs bg-red-50 px-3 py-1.5 rounded-md border border-red-200 transition-colors">
-                                                        Hapus
+                                                        Delete
                                                     </button>
                                                 </form>
                                             </div>
@@ -143,9 +143,10 @@
                                 @empty
                                     <tr>
                                         <td colspan="6" class="py-12 text-center text-gray-400 text-sm">
-                                            Belum ada berita.
+                                            No news articles available. You can add a new article by clicking the "Add News" button above
+                                            or <a href="{{ route('news.create') }}" class="text-red-600 font
                                             <a href="{{ route('news.create') }}" class="text-red-600 font-semibold hover:underline">
-                                                Tambah sekarang
+                                                Add News
                                             </a>.
                                         </td>
                                     </tr>
