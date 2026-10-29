@@ -444,8 +444,8 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-[#0A2540]">Dokumen Tarif</h3>
-                            <p class="text-xs text-gray-500">Kelola dokumen tarif layanan dalam format PDF</p>
+                            <h3 class="text-lg font-bold text-[#0A2540]">Tariff Documents</h3>
+                            <p class="text-xs text-gray-500">Manage service tariff documents in PDF format</p>
                         </div>
                     </div>
                     <a href="{{ route('admin.tariffs.index') }}"
