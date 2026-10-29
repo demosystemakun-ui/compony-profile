@@ -43,11 +43,11 @@
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-sm font-semibold text-[#0A2540] mb-1.5">
-                                Kategori <span class="text-red-500">*</span>
+                                Category <span class="text-red-500">*</span>
                             </label>
                             <select name="tag"
                                     class="w-full rounded-lg border-gray-300 text-sm focus:border-[#0A2540] focus:ring-[#0A2540] transition-colors" required>
-                                <option value="" disabled @selected(!old('tag', $tariff->tag))>Pilih kategori</option>
+                                <option value="" disabled @selected(!old('tag', $tariff->tag))>Select Category</option>
                                 @foreach(\App\Models\Tariff::TAGS as $tag)
                                     <option value="{{ $tag }}" @selected(old('tag', $tariff->tag) === $tag)>{{ $tag }}</option>
                                 @endforeach
@@ -56,7 +56,7 @@
                         </div>
                         <div class="sm:col-span-2">
                             <label class="block text-sm font-semibold text-[#0A2540] mb-1.5">
-                                Judul <span class="text-red-500">*</span>
+                                Title <span class="text-red-500">*</span>
                             </label>
                             <input type="text" name="title" value="{{ old('title', $tariff->title) }}" placeholder="Domestic Tariffs"
                                    class="w-full rounded-lg border-gray-300 text-sm focus:border-[#0A2540] focus:ring-[#0A2540] transition-colors" required>
