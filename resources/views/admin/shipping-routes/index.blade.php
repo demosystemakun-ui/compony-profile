@@ -178,8 +178,11 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Warna</label>
-                            <input type="color" name="color" id="inputColor" value="#0EA5E9"
-                                   class="w-full h-10 border border-slate-300 rounded-lg">
+                            <select name="color" id="inputColor"
+                                    class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+                                <option value="#0EA5E9" selected>Biru</option>
+                                <option value="#F97316">Oranye</option>
+                            </select>
                         </div>
                     </div>
 
