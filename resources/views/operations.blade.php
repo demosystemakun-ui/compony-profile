@@ -116,8 +116,8 @@
 <section class="relative min-h-[85vh] w-full flex flex-col justify-between overflow-hidden bg-slate-900 pt-28 pb-0">
     <div id="hero-slideshow"
          data-images='{{ json_encode([
-             secure_asset("assets/images/background.jpeg"),
-             secure_asset("assets/images/patimban-yard-1.jpeg"),
+             secure_asset("assets/images/vessel-1.jpeg"),
+             secure_asset("assets/images/patimban-yard-2.jpeg"),
              secure_asset("assets/images/vessel-5.jpeg"),
              secure_asset("assets/images/car-4.jpeg")
          ]) }}'
