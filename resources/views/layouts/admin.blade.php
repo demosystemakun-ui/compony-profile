@@ -8,8 +8,9 @@
         <title>{{ config('app.name', 'Laravel') }} - Admin Panel</title>
 
         {{-- ═══ FAVICON (IKON TAB BROWSER) ═══ --}}
-        <link rel="icon" type="image/png" href="{{ asset('assets/images/pict.png') }}">
-        <link rel="apple-touch-icon" href="{{ asset('assets/images/pict.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/pict.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/pict.png') }}">
+
 
         {{-- Google Fonts --}}
         <link rel="preconnect" href="https://fonts.bunny.net">

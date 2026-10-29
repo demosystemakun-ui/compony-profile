@@ -10,8 +10,9 @@
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
-
-   <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/pict.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('assets/images/pict.png') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
         :root {

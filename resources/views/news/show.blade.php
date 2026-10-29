@@ -7,7 +7,6 @@
 <section class="bg-slate-50 py-24 sm:py-32">
     <div class="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12">
 
-        {{-- Tombol kembali --}}
         <a href="{{ route('news') }}"
            class="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-[#0A2540] transition-colors mb-8">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
