@@ -180,8 +180,8 @@
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Warna</label>
                             <select name="color" id="inputColor"
                                     class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
-                                <option value="#0EA5E9" selected>Biru</option>
-                                <option value="#F97316">Oranye</option>
+                                <option value="#0EA5E9">Biru</option>
+                                <option value="#f9d716">Yellow</option>
                             </select>
                         </div>
                     </div>
@@ -198,7 +198,7 @@
                                    class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-slate-50">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Flag (Emoji)</label>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Flag</label>
                             <select name="flag" id="inputFlag"></select>
                         </div>
                     </div>
