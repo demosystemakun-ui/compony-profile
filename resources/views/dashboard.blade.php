@@ -11,9 +11,9 @@
         <div class="flex flex-wrap gap-3 justify-between items-center">
             <div>
                 <h2 class="font-bold text-2xl text-[#0A2540] leading-tight tracking-tight">
-                    {{ __('Dashboard - Kelola Konten') }}
+                    {{ __('Dashboard - Manage Content') }}
                 </h2>
-                <p class="text-xs text-gray-500 mt-1">Ringkasan aktivitas dan konten publikasi PICT</p>
+                <p class="text-xs text-gray-500 mt-1">Summary of activities and published content for PICT</p>
             </div>
             <div class="flex items-center gap-2 text-xs text-gray-500 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -44,7 +44,7 @@
                    class="group bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md hover:border-red-200 transition-all">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
-                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Berita</p>
+                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total News</p>
                             <p class="text-3xl font-bold text-[#0A2540] mt-2">{{ $totalNews }}</p>
                             <p class="text-[11px] text-gray-400 mt-1">Update: {{ $lastNewsAgo }}</p>
                         </div>
@@ -78,7 +78,7 @@
                    class="group bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md hover:border-emerald-200 transition-all">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
-                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Galeri</p>
+                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Gallery</p>
                             <p class="text-3xl font-bold text-[#0A2540] mt-2">{{ $totalGallery ?? 0 }}</p>
                             <p class="text-[11px] text-gray-400 mt-1">Update: {{ $lastGalleryAgo ?? '-' }}</p>
                         </div>
@@ -95,9 +95,9 @@
                    class="group bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md hover:border-amber-200 transition-all">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
-                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Rute Pelayaran</p>
+                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Shipping Routes</p>
                             <p class="text-3xl font-bold text-[#0A2540] mt-2">{{ $totalRoutes ?? 0 }}</p>
-                            <p class="text-[11px] text-gray-400 mt-1">{{ $activeRoutes ?? 0 }} rute aktif</p>
+                            <p class="text-[11px] text-gray-400 mt-1">{{ $activeRoutes ?? 0 }} active routes</p>
                         </div>
                         <div class="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition">
                             <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -113,9 +113,9 @@
                        class="group bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md hover:border-purple-200 transition-all">
                         <div class="flex items-start justify-between">
                             <div class="flex-1">
-                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total User</p>
+                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Users</p>
                                 <p class="text-3xl font-bold text-[#0A2540] mt-2">{{ $totalUsers }}</p>
-                                <p class="text-[11px] text-gray-400 mt-1">Terdaftar di sistem</p>
+                                <p class="text-[11px] text-gray-400 mt-1">Registered in the system</p>
                             </div>
                             <div class="w-11 h-11 rounded-xl bg-purple-50 flex items-center justify-center group-hover:bg-purple-100 transition">
                                 <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,9 +138,9 @@
                         </svg>
                     </div>
                     <div class="flex-1">
-                        <h3 class="text-sm font-bold text-amber-900">Ada {{ $staleNews + $staleTariffs }} konten yang perlu diperbarui</h3>
+                        <h3 class="text-sm font-bold text-amber-900">There are {{ $staleNews + $staleTariffs }} pieces of content that need to be updated</h3>
                         <p class="text-xs text-amber-800 mt-0.5">
-                            {{ $staleNews }} berita dan {{ $staleTariffs }} tarif sudah lebih dari 30 hari tidak diupdate.
+                            {{ $staleNews }} news articles and {{ $staleTariffs }} tariffs have not been updated for more than 30 days.
                         </p>
                     </div>
                 </div>
@@ -160,8 +160,8 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-base font-bold text-[#0A2540]">Konten Perlu Perhatian</h3>
-                            <p class="text-[11px] text-gray-500">Berita yang belum diupdate lebih dari 30 hari</p>
+                            <h3 class="text-base font-bold text-[#0A2540]">Content Requiring Attention</h3>
+                            <p class="text-[11px] text-gray-500">News articles that have not been updated for more than 30 days</p>
                         </div>
                     </div>
 
@@ -178,7 +178,7 @@
                                     <div class="flex-1 min-w-0">
                                         <p class="text-sm font-semibold text-[#0A2540] truncate">{{ $item->title }}</p>
                                         <p class="text-[11px] text-gray-500 mt-0.5">
-                                            {{ $item->category }} • {{ $daysAgo }} hari lalu
+                                            {{ $item->category }} • {{ $daysAgo }} days ago
                                         </p>
                                     </div>
                                     <a href="{{ route('news.edit', $item->id) }}"
@@ -199,8 +199,8 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     </svg>
                                 </div>
-                                <p class="text-sm text-gray-500">Semua konten terupdate!</p>
-                                <p class="text-[11px] text-gray-400 mt-1">Tidak ada berita yang perlu perhatian.</p>
+                                <p class="text-sm text-gray-500">All content is up to date!</p>
+                                <p class="text-[11px] text-gray-400 mt-1">There are no news articles requiring attention.</p>
                             </div>
                         @endforelse
                     </div>
@@ -217,13 +217,13 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 class="text-base font-bold text-[#0A2540]">Aktivitas Terbaru</h3>
-                                    <p class="text-[11px] text-gray-500">5 log terakhir dari semua user</p>
+                                    <h3 class="text-base font-bold text-[#0A2540]">Recent Activities</h3>
+                                    <p class="text-[11px] text-gray-500">5 latest logs from all users</p>
                                 </div>
                             </div>
                             <a href="{{ route('activity-logs.index') }}"
                                class="text-[11px] font-semibold text-[#0A2540] hover:text-red-600 transition">
-                                Lihat semua →
+                                View all →
                             </a>
                         </div>
 
@@ -248,7 +248,7 @@
                                     </div>
                                 </div>
                             @empty
-                                <div class="py-8 text-center text-sm text-gray-400">Belum ada aktivitas.</div>
+                                <div class="py-8 text-center text-sm text-gray-400">No recent activities.</div>
                             @endforelse
                         </div>
                     </div>
@@ -257,11 +257,11 @@
 
             {{-- ═══════════════════════════════════════════════════════ --}}
             {{-- QUICK ACTIONS --}}
-            {{-- ═══════════════════════════════════════════════════════ --}}
+            {{-- ══════════════════════════════════════════════════════ --}}
             <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-slate-50/50 to-transparent">
                     <h3 class="text-base font-bold text-[#0A2540]">Quick Actions</h3>
-                    <p class="text-[11px] text-gray-500">Akses cepat ke fitur utama</p>
+                    <p class="text-[11px] text-gray-500">Quick access to main features</p>
                 </div>
                 <div class="p-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                     <a href="{{ route('news.create') }}"
@@ -269,7 +269,7 @@
                         <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
-                        <span class="text-[11px] font-bold text-red-700 uppercase tracking-wider">Tambah Berita</span>
+                        <span class="text-[11px] font-bold text-red-700 uppercase tracking-wider">Add News</span>
                     </a>
 
                     <a href="{{ route('admin.tariffs.create') }}"
@@ -277,7 +277,7 @@
                         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
-                        <span class="text-[11px] font-bold text-blue-700 uppercase tracking-wider">Tambah Tarif</span>
+                        <span class="text-[11px] font-bold text-blue-700 uppercase tracking-wider">Add Tariff</span>
                     </a>
 
                     <a href="{{ url('/pict-internal-admin-portal/gallery') }}"
@@ -285,7 +285,7 @@
                         <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
-                        <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Tambah Galeri</span>
+                        <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Add Gallery</span>
                     </a>
 
                     <a href="{{ url('/pict-internal-admin-portal/shipping-routes') }}"
@@ -293,7 +293,7 @@
                         <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
-                        <span class="text-[11px] font-bold text-amber-700 uppercase tracking-wider">Tambah Rute</span>
+                        <span class="text-[11px] font-bold text-amber-700 uppercase tracking-wider">Add Shipping Route</span>
                     </a>
 
                     <a href="{{ url('/') }}" target="_blank"
@@ -301,7 +301,7 @@
                         <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                         </svg>
-                        <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Lihat Website</span>
+                        <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">View Website</span>
                     </a>
                 </div>
             </div>
@@ -312,8 +312,8 @@
             @if($topCategories->count() > 0)
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50/50 to-transparent">
-                        <h3 class="text-base font-bold text-[#0A2540]">Top Kategori Berita</h3>
-                        <p class="text-[11px] text-gray-500">5 kategori dengan berita terbanyak</p>
+                        <h3 class="text-base font-bold text-[#0A2540]">Top News Categories</h3>
+                        <p class="text-[11px] text-gray-500">5 categories with the most news</p>
                     </div>
                     <div class="p-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                         @foreach($topCategories as $cat)
@@ -338,13 +338,13 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-[#0A2540]">Daftar Berita Terpublikasi</h3>
-                            <p class="text-xs text-gray-500">Kelola semua artikel dan berita yang tampil di website</p>
+                            <h3 class="text-lg font-bold text-[#0A2540]">Published News List</h3>
+                            <p class="text-xs text-gray-500">Manage all articles and news that appear on the website</p>
                         </div>
                     </div>
                     <a href="{{ route('admin.news.index') }}"
                        class="inline-flex items-center gap-1 text-sm font-semibold text-[#0A2540] hover:text-red-600 transition-colors">
-                        Lihat semua →
+                        View All →
                     </a>
                 </div>
 
@@ -353,11 +353,11 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="border-b-2 border-gray-100 text-gray-500 text-xs uppercase tracking-wider bg-gray-50/50">
-                                    <th class="py-3.5 px-4 font-bold">Judul</th>
-                                    <th class="py-3.5 px-4 font-bold">Kategori</th>
-                                    <th class="py-3.5 px-4 font-bold">Diperbarui</th>
-                                    <th class="py-3.5 px-4 font-bold">Oleh</th>
-                                    <th class="py-3.5 px-4 text-center font-bold">Aksi</th>
+                                    <th class="py-3.5 px-4 font-bold">Title</th>
+                                    <th class="py-3.5 px-4 font-bold">Category</th>
+                                    <th class="py-3.5 px-4 font-bold">Updated</th>
+                                    <th class="py-3.5 px-4 font-bold">Author</th>
+                                    <th class="py-3.5 px-4 text-center font-bold">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 text-sm">
@@ -379,10 +379,10 @@
                                             <div class="flex items-center gap-1.5">
                                                 @if($daysAgo > 30)
                                                     <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                                                    <span class="text-red-600 font-semibold">{{ $daysAgo }} hari lalu</span>
+                                                    <span class="text-red-600 font-semibold">{{ $daysAgo }} days ago</span>
                                                 @elseif($daysAgo > 7)
                                                     <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                                                    <span class="text-amber-600 font-medium">{{ $daysAgo }} hari lalu</span>
+                                                    <span class="text-amber-600 font-medium">{{ $daysAgo }} days ago</span>
                                                 @else
                                                     <span class="w-2 h-2 rounded-full bg-green-500"></span>
                                                     <span class="text-gray-500">
@@ -400,7 +400,7 @@
                                                     <span class="text-xs font-semibold text-[#0A2540]">{{ $item->updatedBy->name }}</span>
                                                 </div>
                                             @else
-                                                <span class="text-[10px] text-gray-400 italic">Tidak tercatat</span>
+                                                <span class="text-[10px] text-gray-400 italic">Not recorded</span>
                                             @endif
                                         </td>
                                         <td class="py-4 px-4">
@@ -415,7 +415,7 @@
                                                     @method('DELETE')
                                                     <button type="submit"
                                                             class="inline-flex items-center gap-1 text-red-700 hover:bg-red-100 font-semibold text-xs bg-red-50 px-3 py-1.5 rounded-md border border-red-200 transition-colors">
-                                                        Hapus
+                                                        Delete
                                                     </button>
                                                 </form>
                                             </div>
@@ -423,7 +423,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="py-12 text-center text-gray-400 text-sm">Belum ada berita.</td>
+                                        <td colspan="5" class="py-12 text-center text-gray-400 text-sm">No news available.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -450,7 +450,7 @@
                     </div>
                     <a href="{{ route('admin.tariffs.index') }}"
                        class="inline-flex items-center gap-1 text-sm font-semibold text-[#0A2540] hover:text-red-600 transition-colors">
-                        Lihat semua →
+                        View All →
                     </a>
                 </div>
 
@@ -459,11 +459,11 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="border-b-2 border-gray-100 text-gray-500 text-xs uppercase tracking-wider bg-gray-50/50">
-                                    <th class="py-3.5 px-4 font-bold">Judul</th>
-                                    <th class="py-3.5 px-4 font-bold">Kategori</th>
+                                    <th class="py-3.5 px-4 font-bold">Title</th>
+                                    <th class="py-3.5 px-4 font-bold">Category</th>
                                     <th class="py-3.5 px-4 font-bold">File PDF</th>
-                                    <th class="py-3.5 px-4 font-bold">Diperbarui</th>
-                                    <th class="py-3.5 px-4 text-center font-bold">Aksi</th>
+                                    <th class="py-3.5 px-4 font-bold">Updated</th>
+                                    <th class="py-3.5 px-4 text-center font-bold">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 text-sm">
@@ -478,7 +478,7 @@
                                             {{ $tariff->title }}
                                             @unless($tariff->is_active)
                                                 <span class="ml-2 text-[10px] font-semibold text-gray-500 bg-gray-100 border border-gray-200 px-1.5 py-0.5 rounded">
-                                                    Disembunyikan
+                                                    Hidden
                                                 </span>
                                             @endunless
                                         </td>
@@ -492,11 +492,11 @@
                                                 <a href="{{ route('admin.tariffs.preview', $tariff) }}?v={{ $tariff->updated_at?->timestamp }}"
                                                    target="_blank" rel="noopener"
                                                    class="inline-flex items-center gap-1 text-blue-700 hover:text-blue-900 text-xs font-semibold hover:underline">
-                                                    Lihat PDF
+                                                    View PDF
                                                 </a>
                                             @else
                                                 <span class="text-[10px] text-red-600 font-semibold bg-red-50 border border-red-100 px-2 py-1 rounded">
-                                                    Belum diunggah
+                                                    Not uploaded
                                                 </span>
                                             @endif
                                         </td>
@@ -504,10 +504,10 @@
                                             <div class="flex items-center gap-1.5">
                                                 @if($daysAgo > 30)
                                                     <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                                                    <span class="text-red-600 font-semibold">{{ $daysAgo }} hari lalu</span>
+                                                    <span class="text-red-600 font-semibold">{{ $daysAgo }} days ago</span>
                                                 @elseif($daysAgo > 7)
                                                     <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                                                    <span class="text-amber-600 font-medium">{{ $daysAgo }} hari lalu</span>
+                                                    <span class="text-amber-600 font-medium">{{ $daysAgo }} days ago</span>
                                                 @else
                                                     <span class="w-2 h-2 rounded-full bg-green-500"></span>
                                                     <span class="text-gray-500">
@@ -523,12 +523,12 @@
                                                     Edit
                                                 </a>
                                                 <form action="{{ route('admin.tariffs.destroy', $tariff) }}" method="POST"
-                                                      onsubmit="return confirm('Hapus tarif ini?');">
+                                                      onsubmit="return confirm('Delete this tariff?');">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit"
                                                             class="inline-flex items-center gap-1 text-red-700 hover:bg-red-100 font-semibold text-xs bg-red-50 px-3 py-1.5 rounded-md border border-red-200 transition-colors">
-                                                        Hapus
+                                                        Delete
                                                     </button>
                                                 </form>
                                             </div>
@@ -536,7 +536,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="py-12 text-center text-gray-400 text-sm">Belum ada tarif.</td>
+                                        <td colspan="5" class="py-12 text-center text-gray-400 text-sm">No tariffs available.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

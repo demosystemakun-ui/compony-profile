@@ -3,12 +3,12 @@
         <div class="flex flex-wrap gap-3 justify-between items-center">
             <div>
                 <h2 class="font-bold text-2xl text-[#0A2540] leading-tight tracking-tight">
-                    {{ __('Kelola Galeri Terminal') }}
+                    {{ __('Manage Terminal Gallery') }}
                 </h2>
-                <p class="text-xs text-gray-500 mt-1">Kelola gambar yang tampil di halaman Home, Operations, dan Services.</p>
+                <p class="text-xs text-gray-500 mt-1">Manage images that appear on the Home, Operations, and Services pages.</p>
             </div>
             <button onclick="openModal('add')" class="bg-[#EC2029] hover:bg-[#961c22] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
-                + Tambah Gambar
+                + Add Image
             </button>
         </div>
     </x-slot>
@@ -30,8 +30,8 @@
                 </svg>
             </div>
             <div>
-                <h3 class="text-lg font-bold text-[#0A2540]">Daftar Gambar Galeri</h3>
-                <p class="text-xs text-gray-500">Semua gambar yang dikelola di sini akan tampil otomatis di halaman publik</p>
+                <h3 class="text-lg font-bold text-[#0A2540]">Image Gallery List</h3>
+                <p class="text-xs text-gray-500">All images managed here will automatically display on the public pages</p>
             </div>
         </div>
 
@@ -40,11 +40,11 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="border-b-2 border-gray-100 text-gray-500 text-xs uppercase tracking-wider bg-gray-50/50">
-                            <th class="py-3.5 px-4 font-bold">Gambar</th>
-                            <th class="py-3.5 px-4 font-bold">Judul & Deskripsi</th>
-                            <th class="py-3.5 px-4 font-bold">Halaman / Section</th>
+                            <th class="py-3.5 px-4 font-bold">Image</th>
+                            <th class="py-3.5 px-4 font-bold">Title & Description</th>
+                            <th class="py-3.5 px-4 font-bold">Page / Section</th>
                             <th class="py-3.5 px-4 font-bold">Tag</th>
-                            <th class="py-3.5 px-4 text-center font-bold">Aksi</th>
+                            <th class="py-3.5 px-4 text-center font-bold">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 text-sm">
@@ -86,7 +86,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="py-12 text-center text-gray-400 text-sm">Belum ada data galeri. Silakan klik "+ Tambah Gambar".</td>
+                            <td colspan="5" class="py-12 text-center text-gray-400 text-sm">No gallery data available. Please click "+ Add Image".</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -103,19 +103,19 @@
                 <input type="hidden" name="_method" id="formMethod" value="POST">
                 
                 <div class="p-6 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white z-10">
-                    <h3 id="modalTitle" class="text-lg font-bold text-[#0A2540]">Tambah Gambar Baru</h3>
+                    <h3 id="modalTitle" class="text-lg font-bold text-[#0A2540]">Add New Image</h3>
                     <button type="button" onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-2xl leading-none">&times;</button>
                 </div>
 
                 <div class="p-6 space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Judul Gambar</label>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Image Title</label>
                         <input type="text" name="title" id="inputTitle" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#EC2029] focus:border-[#EC2029] outline-none">
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Halaman Target</label>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Target Page</label>
                             <select name="page" id="inputPage" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#EC2029] outline-none">
                                 <option value="home">Home</option>
                                 <option value="operations">Operations</option>
@@ -130,31 +130,31 @@
                                 <option value="portfolio">portfolio (Services)</option>
                                 <option value="value_added">value_added (Services)</option>
                             </select>
-                            <p class="text-[10px] text-slate-400 mt-1">Pilih sesuai halaman target.</p>
+                            <p class="text-[10px] text-slate-400 mt-1">Select the target page.</p>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Urutan Tampil (Sort Order)</label>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Sort Order</label>
                         <input type="number" name="sort_order" id="inputSort" value="0" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#EC2029] outline-none">
-                        <p class="text-[10px] text-slate-400 mt-1">Angka lebih kecil tampil lebih dulu.</p>
+                        <p class="text-[10px] text-slate-400 mt-1">Smaller numbers appear first.</p>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tag (Badge)</label>
-                            <input type="text" name="tag" id="inputTag" required placeholder="Contoh: CBU Units" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#EC2029] outline-none">
+                            <input type="text" name="tag" id="inputTag" required placeholder="Example: CBU Units" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#EC2029] outline-none">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Info Tanggal</label>
-                            <input type="text" name="date_info" id="inputDate" required placeholder="Contoh: Quality Control" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#EC2029] outline-none">
+                            <input type="text" name="date_info" id="inputDate" required placeholder="Example: Quality Control" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#EC2029] outline-none">
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Lokasi / Fitur</label>
-                        <input type="text" name="location" id="inputLocation" required placeholder="Contoh: Inspection Area" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#EC2029] outline-none">
-                        <p class="text-[10px] text-slate-400 mt-1">Untuk bullet points di Services, pisahkan dengan tanda <code>|</code>. Contoh: <code>300m Pier|Mooring Teams|Fresh Water</code></p>
+                        <input type="text" name="location" id="inputLocation" required placeholder="Example: Inspection Area" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#EC2029] outline-none">
+                        <p class="text-[10px] text-slate-400 mt-1">For bullet points in Services, separate with the <code>|</code> symbol. Example: <code>300m Pier|Mooring Teams|Fresh Water</code></p>
                     </div>
 
                     <div>
@@ -163,9 +163,9 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Upload Gambar</label>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Upload Image</label>
                         <input type="file" name="image" id="inputImage" accept="image/*" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#0A2540] file:text-white hover:file:bg-slate-800">
-                        <p id="imageHelp" class="text-xs text-slate-400 mt-1 hidden">Biarkan kosong jika tidak ingin mengubah gambar.</p>
+                        <p id="imageHelp" class="text-xs text-slate-400 mt-1 hidden">Leave blank if you don't want to change the image.</p>
                     </div>
                 </div>
 
