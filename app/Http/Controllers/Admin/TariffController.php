@@ -71,8 +71,8 @@ class TariffController extends Controller
             'title'       => ['required', 'string', 'max:120'],
             'description' => ['nullable', 'string', 'max:300'],
             'icon'        => ['required', Rule::in(array_keys(Tariff::ICONS))],
-            'sort_order'  => ['nullable', 'integer', 'min:0', 'max:999'],
-            'pdf'         => ['nullable', 'file', 'mimes:pdf', 'max:20480'], // 20 MB
+            'sort_order'  => ['nullable', 'integer', Rule::in([1, 2, 3])],
+            'pdf'         => ['nullable', 'file', 'mimes:pdf', 'max:10240'], //10 MB
         ]);
 
         $data['is_active']  = $request->boolean('is_active');

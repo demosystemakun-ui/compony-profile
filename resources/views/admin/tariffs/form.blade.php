@@ -4,10 +4,10 @@
     <x-slot name="header">
         <div>
             <h2 class="font-bold text-2xl text-[#0A2540] leading-tight tracking-tight">
-                {{ $isEdit ? 'Edit Tarif' : 'Tambah Tarif' }}
+                {{ $isEdit ? 'Edit Tariff' : 'Add Tariff' }}
             </h2>
             <p class="text-xs text-gray-500 mt-1">
-                {{ $isEdit ? 'Perbarui informasi dokumen tarif layanan' : 'Tambahkan dokumen tarif layanan baru' }}
+                {{ $isEdit ? 'Update tariff document information' : 'Add new tariff document' }}
             </p>
         </div>
     </x-slot>
@@ -28,9 +28,9 @@
                     </div>
                     <div>
                         <h3 class="text-base font-bold text-[#0A2540]">
-                            {{ $isEdit ? 'Formulir Edit Tarif' : 'Formulir Tarif Baru' }}
+                            {{ $isEdit ? 'Edit Tariff Form' : 'New Tariff Form' }}
                         </h3>
-                        <p class="text-xs text-gray-500">Lengkapi informasi di bawah ini dengan benar</p>
+                        <p class="text-xs text-gray-500">Complete the information below correctly</p>
                     </div>
                 </div>
 
@@ -66,9 +66,9 @@
 
                     {{-- Deskripsi --}}
                     <div>
-                        <label class="block text-sm font-semibold text-[#0A2540] mb-1.5">Deskripsi Singkat</label>
+                        <label class="block text-sm font-semibold text-[#0A2540] mb-1.5">Short Description</label>
                         <textarea name="description" rows="3"
-                                  placeholder="Jelaskan secara singkat isi dokumen tarif ini..."
+                                  placeholder="Explain the content of this tariff document..."
                                   class="w-full rounded-lg border-gray-300 text-sm focus:border-[#0A2540] focus:ring-[#0A2540] transition-colors resize-none">{{ old('description', $tariff->description) }}</textarea>
                         @error('description') <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p> @enderror
                     </div>
@@ -85,9 +85,13 @@
                             @error('icon') <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-[#0A2540] mb-1.5">Urutan Tampil</label>
-                            <input type="number" name="sort_order" min="0" value="{{ old('sort_order', $tariff->sort_order ?? 0) }}"
-                                   class="w-full rounded-lg border-gray-300 text-sm focus:border-[#0A2540] focus:ring-[#0A2540] transition-colors">
+                            <label class="block text-sm font-semibold text-[#0A2540] mb-1.5">Performance Order</label>
+                            <select name="sort_order"
+                                    class="w-full rounded-lg border-gray-300 text-sm focus:border-[#0A2540] focus:ring-[#0A2540] transition-colors">
+                                @foreach([1, 2, 3] as $order)
+                                    <option value="{{ $order }}" @selected(old('sort_order', $tariff->sort_order ?? 1) == $order)>{{ $order }}</option>
+                                @endforeach
+                            </select>
                             @error('sort_order') <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p> @enderror
                         </div>
                     </div>
@@ -98,7 +102,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                             </svg>
-                            {{ $isEdit && $tariff->hasPdf() ? 'Ganti File PDF' : 'File PDF' }}
+                            {{ $isEdit && $tariff->hasPdf() ? 'Change PDF File' : 'PDF File' }}
                         </label>
 
                         @if($isEdit && $tariff->hasPdf())
@@ -111,7 +115,7 @@
                                     <a href="{{ $tariff->pdfUrl() }}" target="_blank" class="text-[#0A2540] font-semibold hover:text-red-600 hover:underline transition-colors">
                                         {{ basename($tariff->pdf_path) }}
                                     </a>
-                                    <span class="text-gray-400">— kosongkan jika tidak ingin mengganti.</span>
+                                    <span class="text-gray-400">Leave blank if you don't want to change it.</span>
                                 </p>
                             </div>
                         @endif
@@ -122,7 +126,7 @@
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
-                            Format PDF, maksimal 20 MB.
+                            PDF file, max 10 MB.
                         </p>
                         @error('pdf') <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p> @enderror
 
@@ -132,8 +136,8 @@
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                 </svg>
-                                <span class="font-semibold">Hapus file PDF saja</span>
-                                <span class="text-red-500">(kartu tampil sebagai "Unavailable")</span>
+                                <span class="font-semibold">Delete PDF</span>
+                                <span class="text-red-500">Unavailable</span>
                             </label>
                         @endif
                     </div>
@@ -143,8 +147,8 @@
                         <input type="checkbox" name="is_active" value="1" @checked(old('is_active', $tariff->is_active ?? true))
                                class="rounded border-gray-300 text-[#0A2540] focus:ring-[#0A2540] w-4 h-4 flex-shrink-0">
                         <div>
-                            <div class="text-sm font-semibold text-[#0A2540]">Tampilkan di halaman publik</div>
-                            <div class="text-xs text-gray-500">Jika dinonaktifkan, tarif ini tidak akan muncul di website</div>
+                            <div class="text-sm font-semibold text-[#0A2540]">Show in Public</div>
+                            <div class="text-xs text-gray-500">If disabled, this tariff will not appear on the website</div>
                         </div>
                     </label>
                 </div>
@@ -163,7 +167,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
-                        {{ $isEdit ? 'Simpan Perubahan' : 'Simpan Tarif' }}
+                        {{ $isEdit ? 'Save Changes' : 'Save Tariff' }}
                     </button>
                 </div>
             </form>
