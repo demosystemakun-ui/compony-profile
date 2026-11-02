@@ -12,8 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Percaya pada semua proxy (penting untuk platform seperti Render / Heroku agar HTTPS terdeteksi)
         $middleware->trustProxies(at: '*');
         
+        // Daftarkan alias middleware kustom Anda
         $middleware->alias([
             'super_admin' => \App\Http\Middleware\SuperAdminMiddleware::class,
         ]);
@@ -22,6 +24,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             SecurityHeaders::class,
         ]);
+        
+        // Atau jika ingin diterapkan secara global ke seluruh request (web & api):
+        // $middleware->append(SecurityHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
