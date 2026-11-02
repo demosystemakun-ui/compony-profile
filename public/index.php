@@ -1,5 +1,8 @@
 <?php
 
+// Mematikan expose_php secara paksa (menghilangkan X-Powered-By header)
+ini_set('expose_php', '0');
+
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 
