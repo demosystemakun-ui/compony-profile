@@ -3,7 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Request;
+use App\Http\Middleware\SecurityHeaders;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -18,24 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'super_admin' => \App\Http\Middleware\SuperAdminMiddleware::class,
         ]);
 
-        // Menambahkan Security Headers secara global untuk mengatasi isu Hardening Improvements
-        $middleware->append(function (Request $request, $next) {
-            $response = $next($request);
-
-            // Mencegah ClickJacking
-            $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
-            
-            // Mencegah Content Type Sniffing
-            $response->headers->set('X-Content-Type-Options', 'nosniff');
-            
-            // Memaksa HSTS (Strict Transport Security)
-            $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-            
-            // Proteksi XSS tambahan
-            $response->headers->set('X-XSS-Protection', '1; mode=block');
-
-            return $response;
-        });
+        // Menambahkan Security Headers secara global ke dalam grup web
+        $middleware->web(append: [
+            SecurityHeaders::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
