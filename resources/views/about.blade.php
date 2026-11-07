@@ -1,531 +1,378 @@
 @extends('layouts.app')
 
-@section('title', 'About PICT — PT Patimban International Car Terminal')
+@section('title', 'About PICT | PT Patimban International Car Terminal')
 
 @push('styles')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
 <style>
-    /* ═══ GLOBAL FONT ═══ */
-    body, * {
-        font-family: 'Century Gothic', 'CenturyGothic', 'Poppins', sans-serif !important;
+    /*
+      Scoped to this page on purpose: a global `*` font rule with !important
+      would override icons, form controls and every other component in the app.
+    */
+    .pict-about {
+        --pict-red: #ec2029;
+        font-family: 'Century Gothic', 'CenturyGothic', 'Poppins', system-ui, sans-serif;
+        color: #0f172a;
     }
 
-    /* ═══ HERO BACKGROUND ═══ */
-    .hero-bg-about {
-        background-image:
-            linear-gradient(rgba(15, 23, 42, 0.78), rgba(15, 23, 42, 0.65)),
-            url('{{ asset("assets/images/background.jpeg") }}');
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-    }
-
-    /* ═══ STAT CARD ═══ */
-    .stat-card {
-        transition: transform .3s cubic-bezier(0.4, 0, 0.2, 1),
-                    border-color .3s ease,
-                    box-shadow .3s ease;
-    }
-    .stat-card:hover {
-        transform: translateY(-4px);
-        border-color: #ec2029;
-        box-shadow: 0 16px 32px -8px rgba(15, 23, 42, 0.15);
-    }
-    .stat-card .stat-icon {
-        transition: transform .3s ease, background-color .3s ease;
-    }
-    .stat-card:hover .stat-icon {
-        transform: scale(1.08);
-    }
-
-    /* ═══ PIE CHART INTERACTION ═══ */
-    .chart-container {
-        transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .pie-segment {
-        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-                    filter 0.35s ease,
-                    opacity 0.35s ease;
-        transform-origin: center;
+    .pict-about a[href] {
         cursor: pointer;
     }
 
-    /* ═══ SHAREHOLDER CARD ═══ */
-    .shareholder-card {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-    }
-    .shareholder-card::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%) scaleY(0);
-        width: 3px;
-        height: 60%;
-        background: currentColor;
-        border-radius: 0 4px 4px 0;
-        transition: transform 0.3s ease;
-    }
-    .shareholder-card:hover::before {
-        transform: translateY(-50%) scaleY(1);
+    .pict-about a:focus-visible,
+    .pict-about button:focus-visible {
+        outline: 2px solid #0f172a;
+        outline-offset: 3px;
     }
 
-    /* ═══ TIMELINE DOT PULSE ═══ */
-    .timeline-dot {
-        position: relative;
+    .pict-about .on-red:focus-visible {
+        outline-color: #ffffff;
     }
-    .timeline-dot::after {
-        content: '';
-        position: absolute;
-        inset: -4px;
-        border-radius: 50%;
-        background: rgba(236, 32, 41, 0.3);
-        opacity: 0;
-        animation: pulse-ring 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+    /* Chart: colour encodes share size (darkest = largest), red marks the active row. */
+    .pict-about .pie-segment {
+        transition: stroke 0.2s ease, stroke-width 0.2s ease, opacity 0.2s ease;
     }
-    @keyframes pulse-ring {
-        0% { transform: scale(0.9); opacity: 0.7; }
-        80%, 100% { transform: scale(1.6); opacity: 0; }
+
+    .pict-about .pie-segment.is-active {
+        stroke: var(--pict-red);
+        stroke-width: 7;
+    }
+
+    .pict-about #ownershipChart.has-active .pie-segment:not(.is-active) {
+        opacity: 0.25;
+    }
+
+    /* Shareholder rows: neutral until pointed at or focused, so the page keeps one accent. */
+    .pict-about .shareholder-row {
+        transition: background-color 0.2s ease;
+    }
+
+    .pict-about .shareholder-row:hover,
+    .pict-about .shareholder-row:focus-visible {
+        background-color: #f8fafc;
+    }
+
+    .pict-about .shareholder-logo {
+        filter: grayscale(1);
+        opacity: 0.75;
+        transition: filter 0.2s ease, opacity 0.2s ease;
+    }
+
+    .pict-about .shareholder-row:hover .shareholder-logo,
+    .pict-about .shareholder-row:focus-visible .shareholder-logo {
+        filter: grayscale(0);
+        opacity: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .pict-about .pie-segment,
+        .pict-about .shareholder-row,
+        .pict-about .shareholder-logo {
+            transition: none;
+        }
     }
 </style>
 @endpush
 
 @section('content')
+<div class="pict-about">
 
-{{-- ═══════════════════════════════════════════════════════════════
-     1. HERO SECTION
-═══════════════════════════════════════════════════════════════ --}}
-<section class="hero-bg-about relative flex items-center min-h-[520px] px-6 sm:px-12 md:px-16 pt-32 pb-16 border-b border-slate-800 overflow-hidden">
-    {{-- Decorative grid overlay --}}
-    <div class="pointer-events-none absolute inset-0 opacity-[0.04]">
-        <svg class="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <defs>
-                <pattern id="grid-about" width="8" height="8" patternUnits="userSpaceOnUse">
-                    <path d="M 8 0 L 0 0 0 8" fill="none" stroke="white" stroke-width="0.4"/>
-                </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid-about)"/>
-        </svg>
-    </div>
-    {{-- Accent glow --}}
-    <div class="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full bg-[#ec2029]/15 blur-3xl"></div>
+    {{-- 1. Hero --}}
+    <section class="relative isolate flex min-h-[560px] items-end overflow-hidden bg-[#0f172a] px-6 pb-16 pt-36 sm:px-10 lg:px-16">
+        <img src="{{ asset('assets/images/background.jpeg') }}"
+             alt=""
+             width="1920"
+             height="1280"
+             fetchpriority="high"
+             decoding="async"
+             class="absolute inset-0 -z-10 h-full w-full object-cover">
+        <div class="absolute inset-0 -z-10 bg-[#0f172a]/85"></div>
 
-    <div class="relative max-w-5xl" data-aos="fade-down">
-      
+        <div class="mx-auto w-full max-w-6xl">
+            <p class="text-sm font-semibold text-slate-200">Pusakanagara, Subang, West Java</p>
 
-        <h1 class="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] max-w-3xl">
-            A Modern Vehicle Terminal at the Heart of
-            <span class="text-[#ec2029]">Indonesia's</span> Automotive Industry
-        </h1>
+            <h1 class="mt-4 max-w-3xl text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
+                The vehicle terminal at
+                <span class="underline decoration-[#ec2029] decoration-4 underline-offset-8">Patimban Port</span>
+            </h1>
 
-        <p class="mt-6 text-slate-300 text-sm sm:text-base max-w-2xl leading-relaxed">
-            Strategic gateway for Indonesia's automotive logistics — operated by a consortium of Japan's leading enterprises.
-        </p>
-    </div>
-</section>
+            <p class="mt-7 max-w-xl text-base leading-relaxed text-slate-200">
+                PT Patimban International Car Terminal (PICT) has operated the terminal since December 2021, handling vehicle imports and exports for Indonesia's automotive industry.
+            </p>
+        </div>
+    </section>
 
-{{-- ═══════════════════════════════════════════════════════════════
-     2. COMPANY PROFILE
-═══════════════════════════════════════════════════════════════ --}}
-<section class="max-w-7xl mx-auto px-6 py-20 bg-white text-slate-800">
-    <div class="grid lg:grid-cols-12 gap-14 items-start">
-        {{-- Left: Narrative --}}
-        <div class="lg:col-span-6 space-y-6" data-aos="fade-right">
-            <div>
-                <span class="text-[#ec2029] font-bold tracking-[0.2em] text-xs uppercase block mb-2">
-                    Company Profile
-                </span>
-                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                    Who We Are
-                </h2>
-                <div class="mt-4 h-1 w-16 bg-[#ec2029] rounded-full"></div>
+    {{-- 2. Company profile --}}
+    <section class="border-t border-slate-200 bg-white">
+        <div class="mx-auto grid max-w-6xl gap-12 px-6 py-16 sm:px-8 sm:py-20 lg:grid-cols-12 lg:gap-16 lg:py-24">
+            <div class="lg:col-span-5">
+                <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">Who we are</h2>
+
+                {{-- Figures provided with this page. Confirm them against PICT's latest official report before publishing. --}}
+                @php
+                    $facts = [
+                        ['label' => 'Handling capacity', 'value' => '200,000', 'unit' => 'units/year'],
+                        ['label' => 'Planned capacity', 'value' => '800,000', 'unit' => 'units/year'],
+                        ['label' => 'Berth length', 'value' => '300', 'unit' => 'metres'],
+                        ['label' => 'Distance from Jakarta', 'value' => '120', 'unit' => 'km'],
+                    ];
+                @endphp
+
+                <dl class="mt-10 border-t border-slate-200">
+                    @foreach($facts as $fact)
+                        <div class="flex items-baseline justify-between gap-6 border-b border-slate-200 py-4">
+                            <dt class="text-sm font-medium text-slate-500">{{ $fact['label'] }}</dt>
+                            <dd class="text-right text-lg font-bold tabular-nums text-slate-900">
+                                {{ $fact['value'] }}
+                                <span class="text-xs font-medium text-slate-500">{{ $fact['unit'] }}</span>
+                            </dd>
+                        </div>
+                    @endforeach
+                </dl>
             </div>
 
-            <p class="text-slate-600 leading-relaxed text-sm">
-                PT Patimban International Car Terminal (PICT) is a vehicle terminal operator located at Patimban Port, Pusakanagara, Subang Regency, West Java approximately 120 kilometers east of central Jakarta. The company was established in November 2021 by the Toyota Tsusho Group and officially commenced operations in December 2021.
-            </p>
-            <p class="text-slate-600 leading-relaxed text-sm">
-                The development of Patimban Port is a National Strategic Project that has been implemented in phases since 2018 at the initiative of the Government of Indonesia, with financial support provided through an Official Development Assistance (ODA) scheme. After being temporarily managed by PT Pelabuhan Indonesia (Pelindo), responsibility for the vehicle terminal was officially transferred to PICT, a company fully capitalized by a consortium of Japanese enterprises.
-            </p>
-            <p class="text-slate-600 leading-relaxed text-sm">
-                PICT's current shareholders comprise Toyota Tsusho Corporation Group (34%), Toyofuji Shipping Co., Ltd. (26%), Nippon Yusen Kabushiki Kaisha NYK Line (25%), and Kamigumi Co., Ltd. (15%), making PICT a collaboration among leading Japanese companies in the automotive logistics and shipping industries.
-            </p>
+            <div class="space-y-5 text-[15px] leading-7 text-slate-600 lg:col-span-7 lg:pt-2">
+                <p>
+                    PT Patimban International Car Terminal (PICT) is a vehicle terminal operator at Patimban Port, Pusakanagara, Subang Regency, West Java, about 120 kilometres east of central Jakarta. The company was established in November 2021 by the Toyota Tsusho Group and began operating the terminal in December 2021.
+                </p>
+                <p>
+                    Patimban Port is a National Strategic Project of the Government of Indonesia, built in phases since 2018 with support from an Official Development Assistance loan. PT Pelabuhan Indonesia (Pelindo) managed the vehicle terminal temporarily until responsibility was transferred to PICT, a company capitalised by a consortium of Japanese enterprises.
+                </p>
+            </div>
         </div>
+    </section>
 
-        {{-- Right: Stat Cards --}}
-        <div class="lg:col-span-6 space-y-4" data-aos="fade-left">
-            @php
-                $stats = [
-                    [
-                        'label' => 'Current Handling Capacity',
-                        'value' => '200,000',
-                        'unit'  => 'units/year',
-                        'color' => 'red',
-                        'icon'  => 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
-                    ],
-                    [
-                        'label' => 'Capacity Expansion Target',
-                        'value' => '800,000',
-                        'unit'  => 'units/year',
-                        'color' => 'blue',
-                        'icon'  => 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
-                    ],
-                    [
-                        'label' => 'Vehicle Terminal Berth Length',
-                        'value' => '300',
-                        'unit'  => 'meters',
-                        'color' => 'emerald',
-                        'icon'  => 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
-                    ],
-                    [
-                        'label' => 'Distance from Central Jakarta',
-                        'value' => '±120',
-                        'unit'  => 'km',
-                        'color' => 'amber',
-                        'icon'  => 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z',
-                    ],
-                ];
+    {{-- 3. History --}}
+    <section class="border-t border-slate-200 bg-slate-50">
+        <div class="mx-auto max-w-6xl px-6 py-16 sm:px-8 sm:py-20 lg:py-24">
+            <div class="grid gap-6 lg:grid-cols-12 lg:items-end">
+                <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:col-span-7">History</h2>
+                <p class="text-[15px] leading-7 text-slate-600 lg:col-span-5">
+                    Patimban Port is a National Strategic Project, built in phases since 2018. PICT has run the vehicle terminal since operations began in December 2021.
+                </p>
+            </div>
 
-                $colorMap = [
-                    'red'     => ['bg' => 'bg-[#ec2029]/10',   'text' => 'text-[#ec2029]'],
-                    'blue'    => ['bg' => 'bg-blue-600/10',    'text' => 'text-blue-600'],
-                    'emerald' => ['bg' => 'bg-emerald-600/10', 'text' => 'text-emerald-600'],
-                    'amber'   => ['bg' => 'bg-amber-600/10',   'text' => 'text-amber-600'],
-                ];
-            @endphp
-
-            @foreach($stats as $i => $s)
-                @php $c = $colorMap[$s['color']]; @endphp
-                <div class="stat-card bg-slate-50 border border-slate-200 rounded-xl p-6 flex items-center justify-between shadow-sm"
-                     data-aos="fade-left" data-aos-delay="{{ 100 + ($i * 100) }}">
-                    <div>
-                        <p class="text-slate-500 text-xs uppercase tracking-wider font-semibold">{{ $s['label'] }}</p>
-                        <p class="text-2xl font-extrabold text-slate-900 tracking-tight mt-1.5">
-                            {{ $s['value'] }}
-                            <span class="text-sm font-medium text-slate-500">{{ $s['unit'] }}</span>
-                        </p>
-                    </div>
-                    <div class="stat-icon w-12 h-12 rounded-xl {{ $c['bg'] }} {{ $c['text'] }} flex items-center justify-center shrink-0">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="{{ $s['icon'] }}" />
-                        </svg>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    </div>
-</section>
-
-{{-- ═══════════════════════════════════════════════════════════════
-     3. TIMELINE / HISTORY
-═══════════════════════════════════════════════════════════════ --}}
-<section class="bg-slate-100 py-20 border-t border-slate-200 text-slate-800">
-    <div class="max-w-5xl mx-auto px-6">
-        <div class="text-center mb-14" data-aos="fade-up">
-            <span class="text-[#ec2029] font-bold tracking-[0.2em] text-xs uppercase block mb-2">Our Journey</span>
-            <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
-                PICT's Development History
-            </h2>
-            <div class="mt-4 h-1 w-16 bg-[#ec2029] rounded-full mx-auto"></div>
-        </div>
-
-        <div class="relative border-l-2 border-[#ec2029] ml-4 md:ml-0 space-y-12">
             @php
                 $timeline = [
                     [
                         'date'  => '2018',
-                        'title' => 'Construction of Patimban Port Begins',
-                        'desc'  => 'Construction of Patimban Port commenced in phases as a National Strategic Project at the initiative of the Government of Indonesia, supported by funding under an Official Development Assistance (ODA) loan agreement.',
+                        'title' => 'Construction of Patimban Port begins',
+                        'desc'  => 'Construction started in phases as a National Strategic Project of the Government of Indonesia, financed through an Official Development Assistance loan.',
                     ],
                     [
                         'date'  => 'November 2021',
-                        'title' => 'PT Patimban International Car Terminal Established',
-                        'desc'  => 'PICT was officially established by the Toyota Tsusho Group to manage the vehicle terminal at Patimban Port.',
+                        'title' => 'PICT established',
+                        'desc'  => 'PT Patimban International Car Terminal was established by the Toyota Tsusho Group to operate the port\'s vehicle terminal.',
                     ],
                     [
                         'date'  => 'December 2021',
-                        'title' => 'Operations Commence',
-                        'desc'  => 'PICT officially commenced vehicle terminal operations, replacing the temporary management previously provided by PT Pelabuhan Indonesia (Pelindo).',
+                        'title' => 'Terminal operations begin',
+                        'desc'  => 'PICT took over terminal operations from PT Pelabuhan Indonesia (Pelindo), which had managed the facility temporarily.',
                     ],
                     [
-                        'date'  => 'June 30, 2023',
-                        'title' => 'Shareholder Consortium Strengthened',
-                        'desc'  => 'Toyota Tsusho transferred part of its shareholding to Toyofuji Shipping, NYK Line, and Kamigumi Co., strengthening PICT\'s operational structure with the expertise of leading automotive terminal operators from Japan and around the world.',
+                        'date'  => '30 June 2023',
+                        'title' => 'Shareholding expanded',
+                        'desc'  => 'Toyota Tsusho transferred part of its stake to Toyofuji Shipping, NYK Line and Kamigumi, bringing three specialised shipping and terminal operators into the ownership structure.',
                     ],
                     [
-                        'date'  => 'Present Future',
-                        'title' => 'Capacity Expansion to 600,000 Units per Year',
-                        'desc'  => 'With a current handling capacity of 400,000 vehicles per year, PICT continues to expand its facilities to increase capacity to 600,000 units per year, in line with the comprehensive development of Patimban Port as Indonesia\'s leading automotive logistics gateway.',
+                        'date'  => 'Ongoing',
+                        'title' => 'Capacity expansion',
+                        'desc'  => 'PICT is expanding terminal facilities as later phases of Patimban Port are completed.',
                     ],
                 ];
             @endphp
 
-            @foreach($timeline as $i => $t)
-                <div class="relative pl-10 md:pl-14" data-aos="fade-up" data-aos-delay="{{ 100 + ($i * 100) }}">
-                    <span class="timeline-dot absolute -left-[9px] top-1 w-4 h-4 bg-[#ec2029] rounded-full border-4 border-slate-100 shadow"></span>
-                    <p class="text-[#ec2029] font-mono text-xs mb-1.5 font-bold tracking-wide">{{ $t['date'] }}</p>
-                    <h3 class="font-bold text-slate-900 text-lg mb-2 leading-snug">{{ $t['title'] }}</h3>
-                    <p class="text-slate-600 text-sm leading-relaxed">{{ $t['desc'] }}</p>
-                </div>
-            @endforeach
-        </div>
-    </div>
-</section>
-
-{{-- ═══════════════════════════════════════════════════════════════
-     4. SHAREHOLDERS: INTERACTIVE GRID WITH PIE CHART
-═══════════════════════════════════════════════════════════════ --}}
-<section class="max-w-7xl mx-auto px-6 py-24 bg-white text-slate-800 overflow-hidden">
-    <div class="text-center mb-16" data-aos="fade-up">
-        <span class="text-[#ec2029] font-bold tracking-[0.2em] text-xs uppercase block mb-2">Our Shareholders</span>
-        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
-            Shareholder Consortium Composition
-        </h2>
-        <div class="mt-4 h-1 w-16 bg-[#ec2029] rounded-full mx-auto"></div>
-        <p class="text-slate-500 max-w-2xl mx-auto mt-5 text-sm leading-relaxed">
-            PICT is powered by a strategic alliance of leading Japanese enterprises.
-            Hover over any shareholder card to inspect their segment on the chart.
-        </p>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center max-w-6xl mx-auto">
-
-        {{-- Left: Cards --}}
-        <div class="lg:col-span-4 flex flex-col gap-5">
-            @php
-                $leftCards = [
-                    [
-                        'name'   => 'Toyota Tsusho',
-                        'sub'    => 'General Trading',
-                        'pct'    => '34%',
-                        'logo'   => 'assets/images/logo-toyota.png',
-                        'url'    => 'https://www.toyota-tsusho.com/',
-                        'color'  => 'blue',
-                        'target' => 'toyota',
-                        'shift'  => 'right',
-                    ],
-                    [
-                        'name'   => 'NYK Line',
-                        'sub'    => 'Global Maritime',
-                        'pct'    => '25%',
-                        'logo'   => 'assets/images/nyk-logo.jpg',
-                        'url'    => 'https://www.nyk.com/english/',
-                        'color'  => 'emerald',
-                        'target' => 'nyk',
-                        'shift'  => 'right',
-                    ],
-                ];
-
-                $cardColors = [
-                    'blue'    => ['border' => 'hover:border-blue-500',       'text' => 'group-hover:text-blue-600',       'badge' => 'bg-blue-50 text-blue-700 border-blue-200'],
-                    'red'     => ['border' => 'hover:border-red-500',        'text' => 'group-hover:text-red-600',        'badge' => 'bg-red-50 text-red-700 border-red-200'],
-                    'emerald' => ['border' => 'hover:border-emerald-500',    'text' => 'group-hover:text-emerald-600',    'badge' => 'bg-emerald-50 text-emerald-700 border-emerald-200'],
-                    'amber'   => ['border' => 'hover:border-amber-500',      'text' => 'group-hover:text-amber-600',      'badge' => 'bg-amber-50 text-amber-700 border-amber-200'],
-                ];
-            @endphp
-
-            @foreach($leftCards as $i => $card)
-                @php $cc = $cardColors[$card['color']]; @endphp
-                <a href="{{ $card['url'] }}" target="_blank" rel="noopener noreferrer"
-                   class="shareholder-card group bg-white border border-slate-200 {{ $cc['border'] }} p-5 rounded-2xl shadow-sm hover:shadow-md flex items-center justify-between"
-                   data-target="{{ $card['target'] }}" data-shift="{{ $card['shift'] }}"
-                   data-aos="fade-right" data-aos-delay="{{ 100 + ($i * 100) }}">
-                    <div class="flex items-center gap-3.5">
-                        <div class="h-10 w-14 flex items-center justify-center shrink-0">
-                            <img src="{{ asset($card['logo']) }}" alt="{{ $card['name'] }}"
-                                 class="max-h-7 max-w-full object-contain opacity-85 group-hover:opacity-100 transition-opacity">
-                        </div>
+            <ol class="mt-12 border-t border-slate-300">
+                @foreach($timeline as $entry)
+                    <li class="grid gap-3 border-b border-slate-300 py-6 sm:grid-cols-[10rem_1fr] sm:gap-10">
+                        <p class="text-sm font-bold tabular-nums text-[#b91c1c]">{{ $entry['date'] }}</p>
                         <div>
-                            <h4 class="font-bold text-slate-900 text-xs {{ $cc['text'] }} transition-colors">
-                                {{ $card['name'] }}
-                            </h4>
-                            <p class="text-slate-500 text-[11px]">{{ $card['sub'] }}</p>
+                            <h3 class="text-base font-bold text-slate-900">{{ $entry['title'] }}</h3>
+                            <p class="mt-1.5 max-w-2xl text-[15px] leading-7 text-slate-600">{{ $entry['desc'] }}</p>
+                        </div>
+                    </li>
+                @endforeach
+            </ol>
+        </div>
+    </section>
+
+    {{-- 4. Shareholders --}}
+    <section class="border-t border-slate-200 bg-white">
+        <div class="mx-auto max-w-6xl px-6 py-16 sm:px-8 sm:py-20 lg:py-24">
+            <div class="grid gap-6 lg:grid-cols-12 lg:items-end">
+                <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:col-span-7">Shareholders</h2>
+                <p class="text-[15px] leading-7 text-slate-600 lg:col-span-5">
+                    Four Japanese companies own PICT. Highlight a row to see that company's share of the terminal.
+                </p>
+            </div>
+
+            <div class="mt-12 grid items-center gap-10 lg:grid-cols-12 lg:gap-16">
+                <div class="order-2 lg:order-1 lg:col-span-5">
+                    {{-- Decorative: every figure in the chart is also in the list, so the chart is hidden from assistive technology. --}}
+                    <div id="ownershipChart" class="relative mx-auto aspect-square w-full max-w-[280px]" aria-hidden="true">
+                        <svg viewBox="0 0 42 42" class="h-full w-full -rotate-90">
+                            <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#0f172a" stroke-width="5.5"
+                                    stroke-dasharray="34 66" stroke-dashoffset="0"
+                                    class="pie-segment" data-segment="toyota"></circle>
+                            <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#334155" stroke-width="5.5"
+                                    stroke-dasharray="26 74" stroke-dashoffset="-34"
+                                    class="pie-segment" data-segment="toyofuji"></circle>
+                            <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#64748b" stroke-width="5.5"
+                                    stroke-dasharray="25 75" stroke-dashoffset="-60"
+                                    class="pie-segment" data-segment="nyk"></circle>
+                            <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#94a3b8" stroke-width="5.5"
+                                    stroke-dasharray="15 85" stroke-dashoffset="-85"
+                                    class="pie-segment" data-segment="kamigumi"></circle>
+                        </svg>
+
+                        <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+                            <span id="chartLabel" class="text-xs font-semibold text-slate-500">Ownership</span>
+                            <span id="chartValue" class="mt-1 text-4xl font-extrabold tabular-nums tracking-tight text-slate-900">100%</span>
+                            <span id="chartNote" class="mt-1 text-xs text-slate-500">4 shareholders</span>
                         </div>
                     </div>
-                    <span class="px-2.5 py-1 rounded-full {{ $cc['badge'] }} font-extrabold text-xs border shrink-0">
-                        {{ $card['pct'] }}
-                    </span>
-                </a>
-            @endforeach
-        </div>
+                </div>
 
-        {{-- Center: Donut Chart --}}
-        <div class="lg:col-span-4 flex flex-col items-center justify-center py-4 chart-container" id="pieChartWrapper"
-             data-aos="zoom-in" data-aos-duration="900">
-            <div class="relative w-64 h-64 sm:w-72 sm:h-72 flex items-center justify-center">
-                <svg viewBox="0 0 42 42" class="w-full h-full transform -rotate-90 drop-shadow-sm">
-                    <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#2563eb" stroke-width="5.5"
-                            stroke-dasharray="34 66" stroke-dashoffset="0" class="pie-segment" data-id="toyota"></circle>
-                    <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#dc2626" stroke-width="5.5"
-                            stroke-dasharray="26 74" stroke-dashoffset="-34" class="pie-segment" data-id="toyofuji"></circle>
-                    <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#059669" stroke-width="5.5"
-                            stroke-dasharray="25 75" stroke-dashoffset="-60" class="pie-segment" data-id="nyk"></circle>
-                    <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#d97706" stroke-width="5.5"
-                            stroke-dasharray="15 85" stroke-dashoffset="-85" class="pie-segment" data-id="kamigumi"></circle>
-                </svg>
+                <div class="order-1 lg:order-2 lg:col-span-7">
+                    @php
+                        $shareholders = [
+                            [
+                                'id'     => 'toyota',
+                                'name'   => 'Toyota Tsusho Corporation',
+                                'sector' => 'General trading',
+                                'share'  => '34%',
+                                'logo'   => 'assets/images/logo-toyota.png',
+                                'url'    => 'https://www.toyota-tsusho.com/',
+                            ],
+                            [
+                                'id'     => 'toyofuji',
+                                'name'   => 'Toyofuji Shipping Co., Ltd.',
+                                'sector' => 'Marine transport',
+                                'share'  => '26%',
+                                'logo'   => 'assets/images/toyofuji-logo.jpg',
+                                'url'    => 'https://www.toyofuji.co.jp/en/english/company/company.html',
+                            ],
+                            [
+                                'id'     => 'nyk',
+                                'name'   => 'Nippon Yusen Kabushiki Kaisha (NYK Line)',
+                                'sector' => 'Global shipping',
+                                'share'  => '25%',
+                                'logo'   => 'assets/images/nyk-logo.jpg',
+                                'url'    => 'https://www.nyk.com/english/',
+                            ],
+                            [
+                                'id'     => 'kamigumi',
+                                'name'   => 'Kamigumi Co., Ltd.',
+                                'sector' => 'Port and warehousing',
+                                'share'  => '15%',
+                                'logo'   => 'assets/images/logo-kamigumi.png',
+                                'url'    => 'https://www.kamigumi.co.jp/english/',
+                            ],
+                        ];
+                    @endphp
 
-                <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-                    <span class="text-[11px] font-bold uppercase tracking-widest text-slate-400" id="chartLabelTop">Consortium</span>
-                    <span class="text-3xl font-extrabold text-slate-900 tracking-tight" id="chartValueMain">100%</span>
-                    <span class="text-[10px] text-slate-500 font-medium" id="chartLabelSub">Japanese Alliance</span>
+                    <ul id="shareholderList" class="border-t border-slate-200">
+                        @foreach($shareholders as $company)
+                            <li>
+                                <a href="{{ $company['url'] }}"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="shareholder-row flex items-center gap-4 border-b border-slate-200 px-1 py-4"
+                                   data-shareholder="{{ $company['id'] }}">
+                                    <span class="flex h-10 w-16 shrink-0 items-center justify-center">
+                                        <img src="{{ asset($company['logo']) }}"
+                                             alt=""
+                                             width="112"
+                                             height="32"
+                                             loading="lazy"
+                                             decoding="async"
+                                             class="shareholder-logo max-h-8 w-auto max-w-full object-contain">
+                                    </span>
+                                    <span class="min-w-0 flex-1">
+                                        <span class="block truncate text-sm font-bold text-slate-900">{{ $company['name'] }}</span>
+                                        <span class="block text-xs text-slate-500">{{ $company['sector'] }}</span>
+                                    </span>
+                                    <span class="shrink-0 text-lg font-extrabold tabular-nums text-slate-900">{{ $company['share'] }}</span>
+                                    <span class="sr-only">Opens in a new tab.</span>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
                 </div>
             </div>
         </div>
+    </section>
 
-        {{-- Right: Cards --}}
-        <div class="lg:col-span-4 flex flex-col gap-5">
-            @php
-                $rightCards = [
-                    [
-                        'name'   => 'Toyofuji Shipping',
-                        'sub'    => 'Marine Logistics',
-                        'pct'    => '26%',
-                        'logo'   => 'assets/images/toyofuji-logo.jpg',
-                        'url'    => 'https://www.toyofuji.co.jp/en/english/company/company.html',
-                        'color'  => 'red',
-                        'target' => 'toyofuji',
-                        'shift'  => 'left',
-                    ],
-                    [
-                        'name'   => 'Kamigumi Co.',
-                        'sub'    => 'Terminal & Warehousing',
-                        'pct'    => '15%',
-                        'logo'   => 'assets/images/logo-kamigumi.png',
-                        'url'    => 'https://www.kamigumi.co.jp/english/',
-                        'color'  => 'amber',
-                        'target' => 'kamigumi',
-                        'shift'  => 'left',
-                    ],
-                ];
-            @endphp
+    {{-- 5. Contact --}}
+    <section class="border-t border-[#991b1b] bg-[#b91c1c] text-white">
+        <div class="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-14 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:py-16">
+            <div>
+                <h2 class="text-2xl font-extrabold tracking-tight sm:text-3xl">Contact the terminal</h2>
+                <p class="mt-3 max-w-xl text-[15px] leading-7 text-red-100">
+                    Patimban Port, Pusakanagara, Subang Regency, West Java. For terminal services, shipping schedules or a site visit, contact the PICT team.
+                </p>
+            </div>
 
-            @foreach($rightCards as $i => $card)
-                @php $cc = $cardColors[$card['color']]; @endphp
-                <a href="{{ $card['url'] }}" target="_blank" rel="noopener noreferrer"
-                   class="shareholder-card group bg-white border border-slate-200 {{ $cc['border'] }} p-5 rounded-2xl shadow-sm hover:shadow-md flex items-center justify-between"
-                   data-target="{{ $card['target'] }}" data-shift="{{ $card['shift'] }}"
-                   data-aos="fade-left" data-aos-delay="{{ 100 + ($i * 100) }}">
-                    <div class="flex items-center gap-3.5">
-                        <div class="h-10 w-14 flex items-center justify-center shrink-0">
-                            <img src="{{ asset($card['logo']) }}" alt="{{ $card['name'] }}"
-                                 class="max-h-7 max-w-full object-contain opacity-85 group-hover:opacity-100 transition-opacity">
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-slate-900 text-xs {{ $cc['text'] }} transition-colors">
-                                {{ $card['name'] }}
-                            </h4>
-                            <p class="text-slate-500 text-[11px]">{{ $card['sub'] }}</p>
-                        </div>
-                    </div>
-                    <span class="px-2.5 py-1 rounded-full {{ $cc['badge'] }} font-extrabold text-xs border shrink-0">
-                        {{ $card['pct'] }}
-                    </span>
-                </a>
-            @endforeach
+            <a href="/contact"
+               class="on-red inline-flex shrink-0 items-center justify-center rounded-md bg-white px-6 py-3 text-sm font-bold text-[#b91c1c] transition-colors hover:bg-red-50">
+                Contact PICT
+            </a>
         </div>
-    </div>
-</section>
+    </section>
 
-{{-- ═══════════════════════════════════════════════════════════════
-     5. CTA STRIP
-═══════════════════════════════════════════════════════════════ --}}
-<section class="relative overflow-hidden bg-gradient-to-br from-[#ec2029] to-[#b91c1c] py-16 text-white">
-    {{-- Decorative pattern --}}
-    <div class="pointer-events-none absolute inset-0 opacity-[0.06]">
-        <svg class="h-full w-full" viewBox="0 0 400 200" preserveAspectRatio="none">
-            <path d="M0 200 L120 40 L240 200 Z" fill="white"></path>
-            <path d="M180 200 L320 20 L400 200 Z" fill="white"></path>
-        </svg>
-    </div>
-    <div class="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/10 blur-3xl"></div>
-
-    <div class="max-w-7xl mx-auto px-6 relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6" data-aos="fade-up">
-        <div>
-            <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight">
-                Would You Like to Learn More About Our Strategic Location?
-            </h2>
-            <p class="text-red-100 text-sm sm:text-base mt-2">
-                Patimban Port, Pusakanagara, Subang, West Java, Indonesia
-            </p>
-        </div>
-
-        <a href="/contact"
-           class="group inline-flex items-center gap-2 shrink-0 px-7 py-3.5 bg-[#26347a] text-white text-sm font-bold rounded-full border-2 border-[#26347a] hover:bg-transparent hover:border-white transition-all duration-300 shadow-lg hover:shadow-xl">
-            Contact Us
-            <svg class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-            </svg>
-        </a>
-    </div>
-</section>
-
+</div>
 @endsection
 
 @push('scripts')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    AOS.init({
-        duration: 900,
-        easing: 'ease-out-cubic',
-        once: true,
-        offset: 120
-    });
+    const chart = document.getElementById('ownershipChart');
+    const list = document.getElementById('shareholderList');
+    if (!chart || !list) return;
 
-    const cards         = document.querySelectorAll('.shareholder-card');
-    const chartWrapper  = document.getElementById('pieChartWrapper');
-    const segments      = document.querySelectorAll('.pie-segment');
-    const labelTop      = document.getElementById('chartLabelTop');
-    const valueMain     = document.getElementById('chartValueMain');
-    const labelSub      = document.getElementById('chartLabelSub');
+    const label = document.getElementById('chartLabel');
+    const value = document.getElementById('chartValue');
+    const note = document.getElementById('chartNote');
+    const rows = list.querySelectorAll('[data-shareholder]');
+    const segments = chart.querySelectorAll('.pie-segment');
 
-    const infoData = {
-        toyota:   { name: "Toyota Tsusho",     share: "34%" },
-        toyofuji: { name: "Toyofuji Shipping", share: "26%" },
-        nyk:      { name: "NYK Line",          share: "25%" },
-        kamigumi: { name: "Kamigumi Co.",      share: "15%" }
+    const shares = {
+        toyota:   { name: 'Toyota Tsusho', share: '34%' },
+        toyofuji: { name: 'Toyofuji Shipping', share: '26%' },
+        nyk:      { name: 'NYK Line', share: '25%' },
+        kamigumi: { name: 'Kamigumi', share: '15%' }
     };
 
-    cards.forEach(card => {
-        const targetId = card.getAttribute('data-target');
-        const shiftDir = card.getAttribute('data-shift');
+    function show(id) {
+        const info = shares[id];
+        if (!info) return;
 
-        card.addEventListener('mouseenter', () => {
-            // Shift chart in opposite direction
-            chartWrapper.style.transform = shiftDir === 'right'
-                ? 'translateX(28px) scale(1.05)'
-                : 'translateX(-28px) scale(1.05)';
-
-            // Update center label
-            if (infoData[targetId]) {
-                labelTop.textContent  = infoData[targetId].name;
-                valueMain.textContent = infoData[targetId].share;
-                labelSub.textContent  = "Shareholder";
-            }
-
-            // Highlight segment
-            segments.forEach(seg => {
-                const isTarget = seg.getAttribute('data-id') === targetId;
-                seg.style.transform = isTarget ? 'scale(1.08)' : 'scale(1)';
-                seg.style.filter    = isTarget ? 'brightness(1.2) drop-shadow(0 0 6px rgba(0,0,0,0.2))' : 'none';
-                seg.style.opacity   = isTarget ? '1' : '0.35';
-            });
+        chart.classList.add('has-active');
+        segments.forEach(segment => {
+            segment.classList.toggle('is-active', segment.dataset.segment === id);
         });
 
-        card.addEventListener('mouseleave', () => {
-            chartWrapper.style.transform = 'translateX(0) scale(1)';
+        label.textContent = info.name;
+        value.textContent = info.share;
+        note.textContent = 'of PICT';
+    }
 
-            labelTop.textContent  = "Consortium";
-            valueMain.textContent = "100%";
-            labelSub.textContent  = "Japanese Alliance";
+    function reset() {
+        chart.classList.remove('has-active');
+        segments.forEach(segment => segment.classList.remove('is-active'));
+        label.textContent = 'Ownership';
+        value.textContent = '100%';
+        note.textContent = '4 shareholders';
+    }
 
-            segments.forEach(seg => {
-                seg.style.opacity   = '1';
-                seg.style.transform = 'scale(1)';
-                seg.style.filter    = 'none';
-            });
-        });
+    rows.forEach(row => {
+        row.addEventListener('mouseenter', () => show(row.dataset.shareholder));
+        row.addEventListener('focus', () => show(row.dataset.shareholder));
+    });
+
+    list.addEventListener('mouseleave', reset);
+    list.addEventListener('focusout', event => {
+        if (!list.contains(event.relatedTarget)) reset();
     });
 });
 </script>
