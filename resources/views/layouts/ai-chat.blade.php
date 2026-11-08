@@ -1,196 +1,148 @@
-{{-- ═══════════════════════════════════════════════════════════════
-     GLOBAL FLOATING AI CHATBOT WIDGET (COLLAPSIBLE TO EDGE)
-══════════════════════════════════════════════════════════════ --}}
+{{-- Global assistant widget. Collapses to a tab at the left edge. --}}
 <div id="ai-chat-widget"
-     class="fixed left-0 bottom-24 z-50 flex items-center transition-transform duration-300 -translate-x-[calc(100%-24px)]"
+     class="chat-widget"
      data-minimized="true"
      role="complementary"
-     aria-label="PICT AI Assistant">
+     aria-label="PICT assistant">
 
-    {{-- ═══ CHAT BOX ═══ --}}
-    <div id="ai-chat-box"
-         class="w-[calc(100vw-2rem)] sm:w-96 max-w-sm bg-white border border-slate-200 rounded-r-2xl shadow-2xl flex flex-col overflow-hidden h-[500px]">
-
-        {{-- Header --}}
-        <div class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-                <div class="relative">
-                    <span class="block w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                    <span class="absolute inset-0 w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping opacity-75"></span>
-                </div>
-                <div>
-                    <h4 class="font-bold text-sm leading-tight">PICT AI Assistant</h4>
-                </div>
+    <div id="ai-chat-box" class="chat-widget__panel" inert aria-hidden="true">
+        <div class="chat-widget__head">
+            <div>
+                <h2>PICT assistant</h2>
+                <p>Terminal information</p>
             </div>
-            <button id="ai-chat-close"
-                    type="button"
-                    aria-label="Close chat"
-                    class="text-slate-400 hover:text-white transition-colors p-1 rounded hover:bg-white/10">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+            <button id="ai-chat-close" class="chat-widget__close" type="button" aria-label="Close assistant">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
         </div>
 
-        {{-- Messages --}}
         <div id="ai-chat-messages"
-             class="flex-1 p-4 overflow-y-auto space-y-3 text-xs bg-slate-50 scroll-smooth"
+             class="chat-widget__log"
              role="log"
-             aria-live="polite">
-            <div class="flex justify-start">
-                <div class="bg-white border border-slate-200 text-slate-800 p-3 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] leading-relaxed">
-                    Hello! How can I help you with terminal services or information about Patimban International Car Terminal? You can select a topic below or type your question.
+             aria-live="polite"
+             aria-label="Conversation">
+            <div class="chat-widget__msg">
+                <div class="chat-widget__bubble">
+                    Hello. Ask about terminal services, shipping routes, or how to reach the commercial team.
                 </div>
             </div>
 
-            {{-- Quick questions --}}
             @php
                 $quickQuestions = [
-                    'What are your main services?',
-                    'What is the annual capacity?',
-                    'How to book a berth?',
-                    'Contact commercial team',
+                    'What services do you handle?',
+                    'How do I request a berth?',
+                    'Where is the terminal?',
+                    'Contact the commercial team',
                 ];
             @endphp
-            <div id="suggested-questions" class="flex flex-wrap gap-1.5 pt-1">
-                @foreach($quickQuestions as $q)
-                    <button type="button"
-                            class="quick-question-btn bg-blue-50 hover:bg-blue-100 active:bg-blue-200 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-full text-[11px] font-medium transition cursor-pointer">
-                        {{ $q }}
-                    </button>
+
+            <div id="suggested-questions" class="chat-widget__suggestions">
+                @foreach ($quickQuestions as $question)
+                    <button class="chat-widget__suggestion" type="button">{{ $question }}</button>
                 @endforeach
             </div>
         </div>
 
-        {{-- Input --}}
-        <div class="p-3 bg-white border-t border-slate-200 flex gap-2">
-            <input type="text"
-                   id="ai-chat-input"
-                   placeholder="Type a message..."
-                   aria-label="Chat message"
-                   autocomplete="off"
-                   class="flex-1 px-3 py-2 border border-slate-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent bg-slate-50">
-            <button id="ai-chat-send"
-                    type="button"
-                    aria-label="Send message"
-                    class="bg-red-600 hover:bg-red-500 disabled:bg-slate-300 disabled:cursor-not-allowed text-white px-4 py-2 rounded-xl text-xs font-bold transition inline-flex items-center gap-1.5">
-                <span>Send</span>
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                </svg>
-            </button>
-        </div>
+        <form id="ai-chat-form" class="chat-widget__form">
+            <label class="sr-only" for="ai-chat-input">Message</label>
+            <input id="ai-chat-input"
+                   type="text"
+                   placeholder="Ask a question"
+                   autocomplete="off">
+            <button id="ai-chat-send" class="chat-widget__send" type="submit">Send</button>
+        </form>
     </div>
 
-    {{-- ═══ TOGGLE TAB ═══ --}}
     <button id="ai-chat-toggle"
+            class="chat-widget__toggle"
             type="button"
-            aria-label="Open AI Assistant"
-            aria-expanded="false"
-            class="relative -ml-3 rounded-r-full shadow-lg flex items-center justify-center transition-all bg-white border border-l-0 border-slate-200 w-12 h-14 hover:w-14 cursor-pointer group">
-        <div class="flex items-center">
-            <div class="w-9 h-9 rounded-full overflow-hidden border border-slate-200 flex-shrink-0">
-                <img src="{{ asset('assets/images/maskot-ai.png') }}"
-                     alt=""
-                     aria-hidden="true"
-                     class="w-full h-full object-cover">
-            </div>
-            <svg id="toggle-arrow"
-                 class="w-4 h-4 text-slate-600 group-hover:text-red-600 transition-transform duration-300 ml-0.5"
-                 fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-            </svg>
-        </div>
+            aria-label="Open assistant"
+            aria-controls="ai-chat-box"
+            aria-expanded="false">
+        <img src="{{ asset('assets/images/maskot-ai.png') }}"
+             alt=""
+             aria-hidden="true"
+             width="30"
+             height="30">
     </button>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    /* ═══════════════════════════════════════════════════════════════
-       ELEMENT REFERENCES
-    ═══════════════════════════════════════════════════════════════ */
-    const toggleBtn   = document.getElementById('ai-chat-toggle');
-    const closeBtn    = document.getElementById('ai-chat-close');
-    const chatWidget  = document.getElementById('ai-chat-widget');
-    const toggleArrow = document.getElementById('toggle-arrow');
-    const sendBtn     = document.getElementById('ai-chat-send');
-    const inputField  = document.getElementById('ai-chat-input');
-    const messagesEl  = document.getElementById('ai-chat-messages');
+    const widget = document.getElementById('ai-chat-widget');
+    const panel = document.getElementById('ai-chat-box');
+    const toggleBtn = document.getElementById('ai-chat-toggle');
+    const closeBtn = document.getElementById('ai-chat-close');
+    const form = document.getElementById('ai-chat-form');
+    const sendBtn = document.getElementById('ai-chat-send');
+    const inputField = document.getElementById('ai-chat-input');
+    const messagesEl = document.getElementById('ai-chat-messages');
 
-    if (!chatWidget) return; // guard
+    if (!widget || !form || !messagesEl) return;
 
-    /* ═══════════════════════════════════════════════════════════════
-       STATE
-    ═══════════════════════════════════════════════════════════════ */
-    const csrfToken   = document.querySelector('meta[name="csrf-token"]')?.content || '';
-    const MINIMIZED_CLASS = '-translate-x-[calc(100%-24px)]';
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
     const MAX_HISTORY = 20;
 
     let conversationHistory = [];
-    let messageCounter      = 0;
-    let isSending           = false;
+    let messageCounter = 0;
+    let isSending = false;
 
-    /* Simpan HTML awal untuk reset */
-    const initialMessagesHTML = messagesEl ? messagesEl.innerHTML : '';
+    const initialMessagesHTML = messagesEl.innerHTML;
 
-    /* ═══════════════════════════════════════════════════════════════
-       OPEN / CLOSE WIDGET
-    ═══════════════════════════════════════════════════════════════ */
     function setExpanded(expanded) {
+        widget.setAttribute('data-minimized', expanded ? 'false' : 'true');
+        toggleBtn?.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        toggleBtn?.setAttribute('aria-label', expanded ? 'Close assistant' : 'Open assistant');
+
+        if (panel) {
+            panel.inert = !expanded;
+            panel.setAttribute('aria-hidden', expanded ? 'false' : 'true');
+        }
+
         if (expanded) {
-            chatWidget.classList.remove(MINIMIZED_CLASS);
-            chatWidget.classList.add('translate-x-0');
-            chatWidget.setAttribute('data-minimized', 'false');
-            toggleArrow.style.transform = 'rotate(180deg)';
-            toggleBtn.setAttribute('aria-expanded', 'true');
-            toggleBtn.setAttribute('aria-label', 'Close AI Assistant');
-            setTimeout(() => inputField?.focus(), 300);
+            window.setTimeout(() => inputField?.focus(), 260);
         } else {
-            chatWidget.classList.remove('translate-x-0');
-            chatWidget.classList.add(MINIMIZED_CLASS);
-            chatWidget.setAttribute('data-minimized', 'true');
-            toggleArrow.style.transform = 'rotate(0deg)';
-            toggleBtn.setAttribute('aria-expanded', 'false');
-            toggleBtn.setAttribute('aria-label', 'Open AI Assistant');
-            setTimeout(resetChatState, 350);
+            window.setTimeout(resetChatState, 280);
+            toggleBtn?.focus();
         }
     }
 
     function toggleChatWidget() {
-        const isMinimized = chatWidget.getAttribute('data-minimized') === 'true';
-        setExpanded(isMinimized);
+        setExpanded(widget.getAttribute('data-minimized') === 'true');
     }
 
     function resetChatState() {
         conversationHistory = [];
         if (inputField) inputField.value = '';
-        if (messagesEl) messagesEl.innerHTML = initialMessagesHTML;
+        messagesEl.innerHTML = initialMessagesHTML;
         setSendingState(false);
     }
 
     toggleBtn?.addEventListener('click', toggleChatWidget);
-    closeBtn?.addEventListener('click', toggleChatWidget);
+    closeBtn?.addEventListener('click', () => setExpanded(false));
 
-    /* ═══════════════════════════════════════════════════════════════
-       QUICK QUESTIONS
-    ═══════════════════════════════════════════════════════════════ */
-    document.addEventListener('click', (e) => {
-        const btn = e.target.closest('.quick-question-btn');
-        if (!btn) return;
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && widget.getAttribute('data-minimized') === 'false') {
+            setExpanded(false);
+        }
+    });
 
-        if (inputField) inputField.value = btn.textContent.trim();
+    function hideQuickQuestions() {
+        const suggestions = document.getElementById('suggested-questions');
+        if (suggestions) suggestions.style.display = 'none';
+    }
+
+    messagesEl.addEventListener('click', event => {
+        const button = event.target.closest('.chat-widget__suggestion');
+        if (!button || !inputField) return;
+
+        inputField.value = button.textContent.trim();
         hideQuickQuestions();
         handleSendMessage();
     });
 
-    function hideQuickQuestions() {
-        const el = document.getElementById('suggested-questions');
-        if (el) el.style.display = 'none';
-    }
-
-    /* ═══════════════════════════════════════════════════════════════
-       SEND / RECEIVE
-    ═══════════════════════════════════════════════════════════════ */
     function setSendingState(sending) {
         isSending = sending;
         if (sendBtn) sendBtn.disabled = sending;
@@ -209,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
         scrollToBottom();
 
         setSendingState(true);
-        const loadingId = appendMessage('Typing…', 'bot', { isLoading: true });
+        const loadingId = appendMessage('Thinking...', 'bot', { isLoading: true });
 
         try {
             const response = await fetch('/api/chat', {
@@ -236,13 +188,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     conversationHistory = conversationHistory.slice(-MAX_HISTORY);
                 }
             } else if (data.error) {
-                appendMessage('AI Error: ' + data.error, 'bot');
+                appendMessage('The assistant could not answer that question. Please try again or write to info@pict.co.id.', 'bot');
             } else {
-                appendMessage('Sorry, there was an error in the server response.', 'bot');
+                appendMessage('The assistant returned an empty response. Please try again.', 'bot');
             }
-        } catch (err) {
+        } catch (error) {
             document.getElementById(loadingId)?.remove();
-            appendMessage('Failed to connect to the server. Please check your connection.', 'bot');
+            appendMessage('The assistant is unreachable right now. Please try again or write to info@pict.co.id.', 'bot');
         } finally {
             setSendingState(false);
             scrollToBottom();
@@ -250,52 +202,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    sendBtn?.addEventListener('click', handleSendMessage);
-    inputField?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleSendMessage();
+    form.addEventListener('submit', event => {
+        event.preventDefault();
+        handleSendMessage();
     });
 
     function scrollToBottom() {
-        if (messagesEl) messagesEl.scrollTop = messagesEl.scrollHeight;
+        messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
-    /* ═══════════════════════════════════════════════════════════════
-       MESSAGE RENDERING
-    ═══════════════════════════════════════════════════════════════ */
-    function escapeHtml(str) {
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
+    function escapeHtml(value) {
+        const element = document.createElement('div');
+        element.textContent = value;
+        return element.innerHTML;
     }
 
     function linkifyContactEmail(safeHtml) {
-        const emailRegex = /info@pict\.co\.id/gi;
         return safeHtml.replace(
-            emailRegex,
-            '<a href="/contact" class="underline font-semibold text-red-600 hover:text-red-700">info@pict.co.id</a>'
+            /info@pict\.co\.id/gi,
+            '<a href="/contact">info@pict.co.id</a>'
         );
     }
 
     function appendMessage(text, sender, options = {}) {
         const { isLoading = false } = options;
-        const container = document.getElementById('ai-chat-messages');
-        if (!container) return '';
 
         messageCounter++;
         const uniqueId = `msg-${Date.now()}-${messageCounter}-${Math.random().toString(36).slice(2, 7)}`;
 
-        const msgDiv = document.createElement('div');
-        msgDiv.id = uniqueId;
-        msgDiv.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'} animate-[fadeInUp_0.25s_ease-out]`;
+        const message = document.createElement('div');
+        message.id = uniqueId;
+        message.className = 'chat-widget__msg' + (sender === 'user' ? ' chat-widget__msg--user' : '');
 
         const bubble = document.createElement('div');
-        bubble.className = sender === 'user'
-            ? 'bg-red-600 text-white p-3 rounded-2xl rounded-tr-none shadow-sm max-w-[85%] leading-relaxed'
-            : 'bg-white border border-slate-200 text-slate-800 p-3 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] leading-relaxed';
-
-        if (isLoading) {
-            bubble.classList.add('italic', 'text-slate-400');
-        }
+        bubble.className = 'chat-widget__bubble' + (isLoading ? ' is-loading' : '');
 
         if (sender === 'bot' && !isLoading) {
             const safe = escapeHtml(text);
@@ -304,18 +244,9 @@ document.addEventListener('DOMContentLoaded', () => {
             bubble.textContent = text;
         }
 
-        msgDiv.appendChild(bubble);
-        container.appendChild(msgDiv);
+        message.appendChild(bubble);
+        messagesEl.appendChild(message);
         return uniqueId;
     }
 });
 </script>
-
-@push('styles')
-<style>
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(6px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-</style>
-@endpush
