@@ -1,550 +1,855 @@
 @extends('layouts.app')
 
-@section('title', 'Operations | PT Patimban International Car Terminal')
-@section('meta_description', 'How PICT moves vehicles through Patimban Port, from vessel arrival and discharge to yard staging, inspection, and gate release.')
+@section('title', 'Operations — PT Patimban International Car Terminal')
+
+@push('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<style>
+    /* ═══ DESIGN SYSTEM — PICT TERMINAL DOSSIER ═══ */
+    :root {
+        --color-navy:   #0A2540;
+        --color-steel:  #1D4E74;
+        --color-signal: #EC2029;
+        --color-paper:  #F5F3EE;
+        --color-ink:    #16232E;
+        --color-muted:  #5B6672;
+        --color-line:   #D8D4C8;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--color-paper);
+        color: var(--color-ink);
+        overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, h5, h6, .font-heading {
+        font-family: 'Manrope', sans-serif;
+    }
+
+    /* ═══ INDEX LABEL (konsisten di semua section) ═══ */
+    .index-label {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .index-label .num {
+        font-family: 'Manrope', sans-serif;
+        font-weight: 700;
+        color: var(--color-signal);
+        font-size: 0.85rem;
+    }
+    .index-label .rule {
+        height: 1px;
+        width: 2rem;
+        background: var(--color-line);
+        flex-shrink: 0;
+    }
+    .index-label .lbl {
+        color: var(--color-muted);
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+    .index-label.on-dark .rule { background: rgba(255,255,255,0.25); }
+    .index-label.on-dark .lbl  { color: rgba(255,255,255,0.6); }
+
+    /* ═══ UTILITIES ═══ */
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .grid-texture {
+        background-image:
+            linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+        background-size: 48px 48px;
+    }
+
+    /* ═══ HERO SLIDESHOW ═══ */
+    .hero-slide {
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        background-position: center;
+        opacity: 0;
+        transition: opacity 1.2s ease-in-out;
+    }
+    .hero-slide.active { opacity: 1; }
+
+    /* ═══ FLOW STEPS ═══ */
+    .flow-btn.active .node-indicator {
+        background-color: var(--color-signal);
+        border-color: var(--color-signal);
+        color: white;
+        box-shadow: 0 0 0 4px rgba(236, 32, 41, 0.2);
+    }
+    .flow-btn.active h3 { color: var(--color-signal); }
+    .flow-btn.active .arrow-indicator {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* ═══ FADE CONTENT ═══ */
+    .fade-content { animation: fadeInData 0.4s ease-out forwards; }
+    @keyframes fadeInData {
+        0%   { opacity: 0; transform: translateY(10px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ═══ SCROLLBAR ═══ */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--color-paper); }
+    ::-webkit-scrollbar-thumb { background: #c3bda9; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #a89f84; }
+</style>
+@endpush
 
 @section('content')
 
-@include('partials.page-header', [
-    'index' => '01',
-    'eyebrow' => 'Operations',
-    'title' => 'A vehicle terminal built around one sequence.',
-    'lede' => 'Every unit follows the same path through Patimban Port: arrive by vessel, discharge, move to the yard, pass inspection, and leave through the gate.',
-    'image' => 'assets/images/vessel-1.jpeg',
-    'alt' => 'Vehicle carrier at Patimban Port',
-    'caption' => 'Vehicle carrier at the terminal berth. Photo: PICT.',
-])
+{{-- ═══════════════════════════════════════════════════════════════
+     1. HERO
+═══════════════════════════════════════════════════════════════ --}}
+<section class="relative min-h-[85vh] w-full flex flex-col justify-between overflow-hidden bg-slate-900 pt-28 pb-0">
+    <div id="hero-slideshow"
+         data-images='{{ json_encode([
+             secure_asset("assets/images/vessel-1.jpeg"),
+             secure_asset("assets/images/patimban-yard-2.jpeg"),
+             secure_asset("assets/images/vessel-5.jpeg"),
+             secure_asset("assets/images/car-4.jpeg")
+         ]) }}'
+         class="absolute inset-0 z-0"></div>
 
-<section class="facts" aria-label="Terminal facts">
-    <div class="shell">
-        <dl class="facts__grid">
-            <div class="facts__item">
-                <dt>Ro-Ro berth</dt>
-                <dd>300 <span>m</span></dd>
-            </div>
-            <div class="facts__item">
-                <dt>Water depth</dt>
-                <dd>-14.0 <span>m</span></dd>
-            </div>
-            <div class="facts__item">
-                <dt>Distance from Jakarta</dt>
-                <dd>&plusmn;120 <span>km</span></dd>
-            </div>
-            <div class="facts__item">
-                <dt>Terminal operations</dt>
-                <dd>Dec <span>2021</span></dd>
-            </div>
-        </dl>
+    <div class="absolute inset-0 bg-gradient-to-b from-slate-950/75 via-slate-950/45 to-slate-950/85 z-[1] pointer-events-none"></div>
+
+    <div class="relative max-w-7xl mx-auto px-5 sm:px-6 z-10 w-full my-auto py-8">
+        <div class="max-w-3xl" data-aos="fade-up" data-aos-duration="900">
+          
+            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight font-heading leading-[1.1] mb-4 sm:mb-6">
+                A Ro-Ro terminal built to move vehicles, not just words.
+            </h1>
+            <p class="text-sm sm:text-lg text-slate-200 font-light leading-relaxed max-w-2xl">
+                From vessel arrival to gate-out, every unit that crosses our berth is tracked, inspected, and handled to a zero-scratch standard.
+            </p>
+        </div>
     </div>
-</section>
 
-<section class="section section--tight weather on-dark">
-    <div class="shell">
-        <div class="weather__head">
-            <div>
-                <p class="index"><b>02</b><span class="index-rule" aria-hidden="true"></span>Marine conditions</p>
-                <h2 class="display-m mt-3">Patimban Port weather.</h2>
-            </div>
-            <p class="weather__clock" id="live-clock">Loading local time</p>
-        </div>
-
-        <div class="weather__current">
-            <div class="weather__stat">
-                <span>Temperature</span>
-                <strong id="weather-temp">--</strong>
-            </div>
-            <div class="weather__stat">
-                <span>Wind speed</span>
-                <strong id="weather-wind">--</strong>
-            </div>
-            <div class="weather__stat">
-                <span>Humidity</span>
-                <strong id="weather-humidity">--</strong>
-            </div>
-            <div class="weather__stat">
-                <span>Ro-Ro berth</span>
-                <strong>300 m</strong>
-            </div>
-        </div>
-
-        <p class="weather__status" id="weather-status">Current conditions are read from Open-Meteo. The forecast below covers the next seven days.</p>
-
-        <div class="weather__forecast" id="weather-forecast" aria-live="polite" aria-busy="true">
-            <div class="weather__day">
-                <strong>Forecast</strong>
-                <span>Loading weather data.</span>
-            </div>
+    <div class="relative max-w-7xl mx-auto px-5 sm:px-6 w-full z-10 border-t border-white/15">
+        <div class="grid grid-cols-2 sm:grid-cols-4">
+            @php
+                $credentials = ['Smart Terminal', 'ISO Standards', 'Zero Scratch Policy', 'Real-Time Monitoring'];
+            @endphp
+            @foreach($credentials as $i => $cred)
+                <div class="flex items-center gap-2 py-4 px-2 sm:px-6 {{ $i > 0 ? 'border-l border-white/15' : '' }}">
+                    <svg viewBox="0 0 16 16" class="w-3.5 h-3.5 text-white/70 flex-shrink-0" aria-hidden="true">
+                        <path d="M2 8.5L6 12L14 3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="text-xs sm:text-sm font-medium text-white/90">{{ $cred }}</span>
+                </div>
+            @endforeach
         </div>
     </div>
 </section>
 
-<section class="section section--paper">
-    <div class="shell">
-        <div class="section-head">
+{{-- ═══════════════════════════════════════════════════════════════
+     2. TERMINAL AT A GLANCE
+═══════════════════════════════════════════════════════════════ --}}
+<section class="relative z-20 bg-white border-b border-[var(--color-line)]">
+    <div class="max-w-7xl mx-auto px-5 sm:px-6">
+        @php
+            $glanceStats = [
+                ['value' => '218', 'label' => 'Thousand units, annual capacity',   'color' => 'navy',   'counter' => true],
+                ['value' => '300', 'label' => 'Metres of Ro-Ro berth',              'color' => 'navy',   'counter' => true],
+                ['value' => '24/7','label' => 'Continuous operations',              'color' => 'navy',   'counter' => false],
+                ['value' => 'Zero','label' => 'Scratch tolerance policy',           'color' => 'signal', 'counter' => false],
+            ];
+        @endphp
+
+        <div class="grid grid-cols-2 lg:grid-cols-4">
+            @foreach($glanceStats as $i => $s)
+                <div class="py-8 {{ $i === 0 ? 'pr-4 lg:border-r' : '' }} {{ $i === 1 ? 'pl-4 lg:pl-8 lg:pr-6 lg:border-r' : '' }} {{ $i === 2 ? 'pr-4 pl-4 lg:pl-8 lg:border-r border-t lg:border-t-0' : '' }} {{ $i === 3 ? 'pl-4 lg:pl-8 border-t lg:border-t-0' : '' }} border-[var(--color-line)]">
+                    <div class="text-3xl sm:text-5xl font-extrabold font-heading tracking-tight mb-1
+                                {{ $s['color'] === 'signal' ? 'text-[#EC2029]' : 'text-[#0A2540]' }}
+                                {{ $s['counter'] ? 'counter' : '' }}"
+                         @if($s['counter']) data-target="{{ $s['value'] }}" @endif>
+                        {{ $s['counter'] ? '0' : $s['value'] }}
+                    </div>
+                    <div class="text-xs sm:text-sm text-[var(--color-muted)]">{{ $s['label'] }}</div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+{{-- ═══════════════════════════════════════════════════════════════
+     3. LIVE WEATHER & MARINE CONDITIONS
+═══════════════════════════════════════════════════════════════ --}}
+<section class="py-10 sm:py-16 bg-slate-900 text-white relative overflow-hidden">
+    <div class="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full bg-[#EC2029]/10 blur-3xl"></div>
+
+    <div class="max-w-7xl mx-auto px-5 sm:px-6 relative z-10">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 sm:mb-8 gap-4" data-aos="fade-up">
             <div>
-                <p class="index"><b>03</b><span class="index-rule" aria-hidden="true"></span>Why PICT</p>
-                <h2 class="display-l section-head__title">A berth, a road, and a documented handover.</h2>
+                <span class="text-[#EC2029] font-bold tracking-[0.2em] text-[11px] sm:text-xs uppercase block mb-2">
+                    Safety &amp; Operations
+                </span>
+                <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight font-heading">
+                    Patimban Port Marine &amp; Weather Conditions
+                </h2>
             </div>
-            <p class="section-head__aside">
-                The terminal is judged by what happens between the ship and the road. These are the three parts of that work.
+            <div class="flex items-center gap-2.5 bg-slate-800/80 px-3.5 py-2 rounded-xl border border-slate-700 text-xs text-slate-300">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span id="live-clock" class="font-mono font-medium text-slate-200">Loading time...</span>
+            </div>
+        </div>
+
+        @php
+            $weatherCards = [
+                ['id' => 'weather-temp',     'label' => 'Temperature',  'default' => '-- °C',    'sub' => 'Patimban Harbor Area',   'iconColor' => 'text-amber-400',   'icon' => 'M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z'],
+                ['id' => 'weather-wind',     'label' => 'Wind Speed',   'default' => '-- km/h',  'sub' => 'Safe for Berthing',      'iconColor' => 'text-sky-400',     'icon' => 'M14 5l7 7m0 0l-7 7m7-7H3'],
+                ['id' => 'weather-humidity', 'label' => 'Humidity',     'default' => '-- %',     'sub' => 'Atmospheric Moisture',   'iconColor' => 'text-blue-400',    'icon' => 'M19 14l-7 7m0 0l-7-7m7 7V3'],
+                ['id' => null,               'label' => 'Berth Status', 'default' => 'OPTIMAL',  'sub' => 'Normal Ro-Ro Condition', 'iconColor' => 'text-emerald-400', 'icon' => 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', 'isStatus' => true],
+            ];
+        @endphp
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8 sm:mb-10" data-aos="fade-up" data-aos-delay="100">
+            @foreach($weatherCards as $w)
+                <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-3.5 sm:p-6 backdrop-blur-md">
+                    <div class="flex items-center justify-between text-slate-400 mb-2 sm:mb-4">
+                        <span class="text-[11px] sm:text-sm font-semibold uppercase tracking-wider">{{ $w['label'] }}</span>
+                        <svg class="w-4 h-4 sm:w-6 sm:h-6 {{ $w['iconColor'] }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $w['icon'] }}"/>
+                        </svg>
+                    </div>
+                    <p @if($w['id']) id="{{ $w['id'] }}" @endif
+                       class="text-xl sm:text-3xl font-extrabold {{ !empty($w['isStatus']) ? 'text-lg sm:text-2xl text-emerald-400' : 'text-white' }}">
+                        {{ $w['default'] }}
+                    </p>
+                    <p class="text-slate-400 text-[10px] sm:text-xs mt-1">{{ $w['sub'] }}</p>
+                </div>
+            @endforeach
+        </div>
+
+        <h3 class="text-base sm:text-lg font-bold text-slate-200 tracking-tight font-heading mb-3">
+            7-Day Weather Forecast
+        </h3>
+        <div id="weather-forecast-container" class="flex items-stretch gap-3 overflow-x-auto pb-4 pt-1 snap-x hide-scrollbar">
+            <div class="text-center py-6 text-slate-400 text-xs w-full">Loading forecast data...</div>
+        </div>
+    </div>
+</section>
+
+{{-- ═══════════════════════════════════════════════════════════════
+     4. WHY PICT
+═══════════════════════════════════════════════════════════════ --}}
+<section class="py-14 sm:py-20 bg-white relative overflow-hidden">
+    <div class="max-w-7xl mx-auto px-5 sm:px-6 relative z-10">
+        <div class="max-w-2xl mb-10 sm:mb-14" data-aos="fade-up">
+            <div class="index-label mb-4">
+                <span class="rule"></span>
+                <span class="lbl">Why PICT</span>
+            </div>
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-[#0A2540] tracking-tight font-heading leading-tight">
+                Three things a shipping line checks before choosing a terminal
+            </h2>
+            <p class="mt-3 text-[var(--color-muted)] text-sm sm:text-base leading-relaxed">
+                Digital visibility, certified safety, and a location that shortens the distance between the factory and the ship.
             </p>
         </div>
 
-        <div class="numbered-grid">
-            <div class="numbered-grid__item">
-                <p class="numbered-grid__num">01</p>
-                <h3 class="numbered-grid__title">A berth built for vehicle carriers</h3>
-                <p class="numbered-grid__text">A 300 metre Ro-Ro berth with a water depth of -14.0 metres, inside the Patimban Port area.</p>
-            </div>
-            <div class="numbered-grid__item">
-                <p class="numbered-grid__num">02</p>
-                <h3 class="numbered-grid__title">A short road to Jakarta</h3>
-                <p class="numbered-grid__text">Patimban sits about 120 kilometres east of Jakarta, with road access toward the capital and the industrial corridors of West Java.</p>
-            </div>
-            <div class="numbered-grid__item">
-                <p class="numbered-grid__num">03</p>
-                <h3 class="numbered-grid__title">One sequence of custody</h3>
-                <p class="numbered-grid__text">Vehicles are checked at discharge, routed to a yard position, inspected again, and released through the gate.</p>
-            </div>
+        @php
+            $whyPict = [
+                [
+                    'img'   => 'smart-icon.png',
+                    'alt'   => 'Smart Terminal',
+                    'title' => 'Smart terminal technology',
+                    'desc'  => 'A Terminal Management System, automated gate controls, and RFID tracking give operators instant visibility of every vessel and yard position.',
+                ],
+                [
+                    'img'   => 'internet-icon.png',
+                    'alt'   => 'International Safety',
+                    'title' => 'International safety standard',
+                    'desc'  => 'We hold to the ISPS Code and relevant ISO certifications, with safety protocols that protect personnel and cargo on every shift.',
+                ],
+                [
+                    'img'   => 'ekskapator-icon.png',
+                    'alt'   => 'Efficient Logistics',
+                    'title' => 'Efficient automotive logistics',
+                    'desc'  => 'Positioned on the north coast of West Java, close to manufacturing hubs and on direct international shipping routes, cutting turnaround time.',
+                ],
+            ];
+        @endphp
+
+        <div class="grid grid-cols-1 md:grid-cols-3 border-t border-[var(--color-line)]">
+            @foreach($whyPict as $i => $item)
+                <div class="py-8 border-t md:border-t-0 border-[var(--color-line)] {{ $i === 0 ? 'md:pr-8 md:border-r' : '' }} {{ $i === 1 ? 'md:px-8 md:border-r' : '' }} {{ $i === 2 ? 'md:pl-8' : '' }}">
+                    <div class="w-16 h-16 mb-5 mx-auto flex items-center justify-center">
+                        <img src="{{ secure_asset('assets/images/' . $item['img']) }}" alt="{{ $item['alt'] }}" class="w-full h-full object-contain">
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-[#0A2540] mb-2 font-heading text-center">
+                        {{ $item['title'] }}
+                    </h3>
+                    <p class="text-[var(--color-muted)] text-xs sm:text-sm leading-relaxed text-center">
+                        {{ $item['desc'] }}
+                    </p>
+                </div>
+            @endforeach
         </div>
     </div>
 </section>
 
-<section class="section section--dim" id="operations-flow">
-    <div class="shell">
-        <div class="section-head">
-            <div>
-                <p class="index"><b>04</b><span class="index-rule" aria-hidden="true"></span>Operation flow</p>
-                <h2 class="display-l section-head__title">Seven stages, from ship to gate.</h2>
+{{-- ═══════════════════════════════════════════════════════════════
+     5. TERMINAL OPERATION FLOW
+═══════════════════════════════════════════════════════════════ --}}
+<section id="operations-flow" class="py-14 sm:py-20 bg-[var(--color-paper)] relative overflow-hidden border-t border-[var(--color-line)]">
+    <div class="max-w-7xl mx-auto px-5 sm:px-6">
+        <div class="max-w-2xl mb-10 sm:mb-14" data-aos="fade-up">
+            <div class="index-label mb-4">
+                <span class="rule"></span>
+                <span class="lbl">Operation Flow</span>
             </div>
-            <p class="section-head__aside">
-                Select a stage to see the equipment, safety control, and division responsible for it.
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-[#0A2540] tracking-tight font-heading leading-tight mt-2">
+                Seven stages, from ship arrival to gate-out
+            </h2>
+            <p class="mt-2.5 text-[var(--color-muted)] text-sm">
+                Select a stage below to explore its timing, equipment, safety standard, and assigned division.
             </p>
         </div>
 
         @php
             $steps = [
-                [
-                    'title' => 'Ship arrival',
-                    'equip' => 'Vessel traffic coordination',
-                    'safety' => 'Port clearance',
-                    'div' => 'Marine operations',
-                    'desc' => 'The vessel is guided into port limits and prepared for the berthing sequence.',
-                ],
-                [
-                    'title' => 'Berthing',
-                    'equip' => 'Tugboats and mooring lines',
-                    'safety' => 'Mooring safety',
-                    'div' => 'Harbour master team',
-                    'desc' => 'The carrier is secured alongside the terminal berth before discharge begins.',
-                ],
-                [
-                    'title' => 'Vehicle inspection',
-                    'equip' => 'Handheld scanners',
-                    'safety' => 'Zero-scratch protocol',
-                    'div' => 'Quality assurance',
-                    'desc' => 'Units are checked before discharge so their condition is recorded at the start of the handover.',
-                ],
-                [
-                    'title' => 'Ro-Ro discharge',
-                    'equip' => 'Ramps and lashing',
-                    'safety' => 'PPE and traffic control',
-                    'div' => 'Stevedoring',
-                    'desc' => 'Vehicles are driven from the vessel decks, down the ramp, and into the staging area.',
-                ],
-                [
-                    'title' => 'Yard staging',
-                    'equip' => 'Terminal management system',
-                    'safety' => 'Yard speed control',
-                    'div' => 'Yard control',
-                    'desc' => 'Each unit is routed to a yard position and recorded against its vessel and customer.',
-                ],
-                [
-                    'title' => 'Final inspection',
-                    'equip' => 'Cameras and check sheets',
-                    'safety' => 'Pre-delivery inspection',
-                    'div' => 'Inspection team',
-                    'desc' => 'The vehicle is checked again before release, including its identity, accessories, and condition.',
-                ],
-                [
-                    'title' => 'Gate release',
-                    'equip' => 'Car carriers and transporters',
-                    'safety' => 'Gate security check',
-                    'div' => 'Logistics and delivery',
-                    'desc' => 'The unit is loaded for onward transport and its documents are closed out at the gate.',
-                ],
+                ['title' => 'Ship Arrival',        'time' => '1–2 Hours Prior',   'equip' => 'Vessel Traffic Services (VTS)',   'safety' => 'ISPS Code Compliance',   'div' => 'Marine Operations',   'desc' => 'Coordination with maritime authorities to ensure safe entry into the port limits before docking procedures begin.'],
+                ['title' => 'Berthing',            'time' => '45–60 Minutes',     'equip' => 'Tugboats & Mooring Lines',        'safety' => 'Port Safety Clearance',  'div' => 'Harbor Master Team',  'desc' => 'Securing the vessel to the terminal dock using specialized tugs and heavy-duty mooring systems.'],
+                ['title' => 'Vehicle Inspection',  'time' => '10 Min / Unit',     'equip' => 'Digital Handheld Scanners',       'safety' => 'Zero-Scratch Protocol',  'div' => 'Quality Assurance',   'desc' => 'Pre-discharge visual and digital scanning of units to document condition and ensure zero damage.'],
+                ['title' => 'Ro-Ro Discharge',     'time' => '2–4 Hours Total',   'equip' => 'Hydraulic Ramps & Lashing',       'safety' => 'PPE & Traffic Control',  'div' => 'Stevedoring Division','desc' => 'Safe and systematic driving of vehicles from the vessel decks down the ramps into the initial staging area.'],
+                ['title' => 'Yard Management',     'time' => 'Immediate Staging', 'equip' => 'Automated Yard Locator (TMS)',    'safety' => 'Speed Limit 20 km/h',    'div' => 'Yard Control Center', 'desc' => 'Routing and parking units in designated zones utilizing our proprietary Terminal Management System.'],
+                ['title' => 'Quality Check',       'time' => 'Final Audit',       'equip' => 'High-Resolution Cameras',         'safety' => 'Pre-Delivery Inspection','div' => 'Inspection Team',    'desc' => 'Comprehensive post-discharge inspection to verify VIN numbers, accessories, and overall vehicle integrity.'],
+                ['title' => 'Distribution',        'time' => 'On-Demand Gate Out', 'equip' => 'Car Carriers / Transporters',    'safety' => 'Gate Security Check',    'div' => 'Logistics & Delivery','desc' => 'Loading units onto commercial transporters and finalizing documentation for domestic or international dispatch.'],
             ];
-
-            $firstStep = $steps[0];
         @endphp
 
-        <div class="flow">
-            <div class="flow__nav" role="tablist" aria-label="Terminal operation stages">
-                @foreach ($steps as $index => $step)
-                    <button class="flow__tab"
-                            type="button"
-                            role="tab"
-                            id="flow-tab-{{ $index }}"
-                            aria-controls="flow-panel"
-                            aria-selected="{{ $index === 0 ? 'true' : 'false' }}"
-                            tabindex="{{ $index === 0 ? '0' : '-1' }}"
+        {{-- Timeline Navigation --}}
+        <div class="relative z-10" data-aos="fade-up" data-aos-delay="100">
+            <div class="hidden md:block absolute top-[24px] left-[7%] right-[7%] h-[2px] bg-slate-200 -z-10"></div>
+            <div class="flex overflow-x-auto md:grid md:grid-cols-7 gap-3 md:gap-2 pb-4 md:pb-0 hide-scrollbar" id="flow-navigation">
+                @foreach($steps as $index => $step)
+                    <button type="button"
+                            onclick="activateFlowStep({{ $index }})"
+                            class="flow-btn group relative flex flex-col items-center min-w-[100px] md:min-w-0 text-center transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC2029] rounded-lg"
                             data-index="{{ $index }}">
-                        <span class="flow__num">0{{ $index + 1 }}</span>
-                        <span>{{ $step['title'] }}</span>
+                        <div class="node-indicator w-11 h-11 md:w-12 md:h-12 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-[#0A2540] font-bold text-xs md:text-sm shadow-sm transition-all duration-300 group-hover:border-[#EC2029] group-hover:text-[#EC2029] mb-2.5 relative z-10">
+                            0{{ $index + 1 }}
+                        </div>
+                        <h3 class="text-[#0A2540] font-bold text-xs leading-tight group-hover:text-[#EC2029] transition-colors h-8 flex items-start justify-center">
+                            {{ $step['title'] }}
+                        </h3>
+                        <div class="arrow-indicator opacity-0 transform -translate-y-2 transition-all duration-300 mt-1 text-[#EC2029]">
+                            <svg class="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                            </svg>
+                        </div>
                     </button>
                 @endforeach
             </div>
+        </div>
 
-            <div class="flow__panel" id="flow-panel" role="tabpanel" tabindex="0" aria-labelledby="flow-tab-0">
-                <p class="index"><b id="detail-number">01</b><span class="index-rule" aria-hidden="true"></span>Stage</p>
-                <h3 class="mt-3" id="detail-title">{{ $firstStep['title'] }}</h3>
-                <p id="detail-desc">{{ $firstStep['desc'] }}</p>
-
-                <dl class="flow__specs">
-                    <div>
-                        <dt>Equipment</dt>
-                        <dd id="detail-equip">{{ $firstStep['equip'] }}</dd>
+        {{-- Detail Panel --}}
+        <div class="mt-6 relative" data-aos="fade-up" data-aos-delay="200">
+            <div class="bg-white border border-[var(--color-line)] rounded-xl shadow-sm overflow-hidden">
+                <div class="p-4 sm:p-6 flex flex-col lg:flex-row gap-4 lg:gap-8 items-center">
+                    <div class="w-full lg:flex-1 border-b lg:border-b-0 lg:border-r border-slate-100 pb-4 lg:pb-0 lg:pr-6">
+                        <div class="flex items-center gap-3 lg:block">
+                            <span class="text-[#EC2029] font-extrabold text-3xl sm:text-4xl opacity-15 font-heading lg:mb-1" id="detail-number">01</span>
+                            <h3 class="text-lg sm:text-2xl font-bold text-[#0A2540] font-heading lg:mb-2" id="detail-title">Ship Arrival</h3>
+                        </div>
+                        <p class="text-[var(--color-muted)] text-xs sm:text-sm leading-relaxed mt-2 lg:mt-0" id="detail-desc">
+                            Coordination with maritime authorities to ensure safe entry into the port limits before docking procedures begin.
+                        </p>
                     </div>
-                    <div>
-                        <dt>Safety</dt>
-                        <dd id="detail-safety">{{ $firstStep['safety'] }}</dd>
-                    </div>
-                    <div>
-                        <dt>Division</dt>
-                        <dd id="detail-div">{{ $firstStep['div'] }}</dd>
-                    </div>
-                </dl>
-            </div>
-        </div>
-    </div>
-</section>
 
-<section class="section section--bright">
-    <div class="shell">
-        <div class="section-head">
-            <div>
-                <p class="index"><b>05</b><span class="index-rule" aria-hidden="true"></span>Terminal capability</p>
-                <h2 class="display-l section-head__title">Two sides of the same operation.</h2>
-            </div>
-            <p class="section-head__aside">
-                Vessel handling and yard work are run as one sequence, not as separate service counters.
-            </p>
-        </div>
-
-        <article class="split-row">
-            <figure class="split-row__media">
-                <img src="{{ asset('assets/images/vessel-5.jpeg') }}"
-                     alt="Vehicle carrier moored at Patimban Port"
-                     width="1600"
-                     height="1067"
-                     loading="lazy"
-                     decoding="async">
-            </figure>
-            <div class="split-row__body">
-                <p class="card__kicker">Marine</p>
-                <h3 class="split-row__title">Ro-Ro vessel handling</h3>
-                <p class="split-row__text">
-                    Vessel arrival, berthing, ramp operations, and discharge are coordinated by the terminal team with the carrier and the port authority.
-                </p>
-            </div>
-        </article>
-
-        <article class="split-row">
-            <figure class="split-row__media">
-                <img src="{{ asset('assets/images/patimban-yard-1.jpeg') }}"
-                     alt="Vehicle staging yard at Patimban Port"
-                     width="1280"
-                     height="720"
-                     loading="lazy"
-                     decoding="async">
-            </figure>
-            <div class="split-row__body">
-                <p class="card__kicker">Yard</p>
-                <h3 class="split-row__title">Staging and inspection</h3>
-                <p class="split-row__text">
-                    Discharged vehicles are positioned in the staging yard, checked against the vessel manifest, and held for inspection or release.
-                </p>
-            </div>
-        </article>
-    </div>
-</section>
-
-<section class="section section--paper">
-    <div class="shell">
-        <div class="section-head">
-            <div>
-                <p class="index"><b>06</b><span class="index-rule" aria-hidden="true"></span>Cargo</p>
-                <h2 class="display-l section-head__title">What the terminal handles.</h2>
-            </div>
-            <p class="section-head__aside">
-                The terminal is set up for vehicles and vehicle-related cargo moving through Patimban Port.
-            </p>
-        </div>
-
-        <div class="grid-2">
-            <div>
-                <h3 class="display-s">Vehicles</h3>
-                <dl class="rule-list mt-4">
-                    <li>
-                        <dt>Passenger vehicles</dt>
-                        <dd>Sedans, SUVs, MPVs, and electric vehicles handled under the terminal's inspection procedure.</dd>
-                    </li>
-                    <li>
-                        <dt>Commercial vehicles</dt>
-                        <dd>Trucks, buses, and chassis moved through the terminal on reinforced ramp routes.</dd>
-                    </li>
-                </dl>
-            </div>
-
-            <div>
-                <h3 class="display-s">Other cargo</h3>
-                <dl class="rule-list mt-4">
-                    <li>
-                        <dt>Heavy equipment</dt>
-                        <dd>Excavators, wheel loaders, and bulldozers for mining, construction, and agricultural projects.</dd>
-                    </li>
-                    <li>
-                        <dt>General cargo</dt>
-                        <dd>Non-vehicle shipments handled under the terminal's standard cargo procedure.</dd>
-                    </li>
-                </dl>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="section section--dim" id="gallery">
-    <div class="shell">
-        <div class="section-head">
-            <div>
-                <p class="index"><b>07</b><span class="index-rule" aria-hidden="true"></span>Visual record</p>
-                <h2 class="display-l section-head__title">Inside the terminal.</h2>
-            </div>
-            <p class="section-head__aside">
-                Photographs from the berth, the yard, and the gate. The gallery is maintained by the terminal team.
-            </p>
-        </div>
-
-        @if ($galleries->isNotEmpty())
-            <div class="gallery">
-                @foreach ($galleries as $item)
-                    <figure class="gallery-item{{ $loop->first ? ' gallery-item--wide' : '' }}">
-                        <img src="{{ $item->image_url }}"
-                             alt="{{ $item->title }}"
-                             loading="{{ $loop->first ? 'eager' : 'lazy' }}"
-                             decoding="async">
-                        <figcaption>
-                            <div class="gallery-item__meta">
-                                <h3 class="gallery-item__title">{{ $item->title }}</h3>
-                                @if ($item->tag)
-                                    <span class="gallery-item__tag">{{ $item->tag }}</span>
-                                @endif
+                    <div class="w-full lg:flex-1 grid grid-cols-2 gap-2.5 sm:gap-3">
+                        @foreach([
+                            ['label' => 'Est. Time',  'id' => 'detail-time',   'value' => '1–2 Hours Prior',       'class' => 'text-[#0A2540]'],
+                            ['label' => 'Equipment',  'id' => 'detail-equip',  'value' => 'Vessel Traffic Services','class' => 'text-[#0A2540]'],
+                            ['label' => 'Safety',     'id' => 'detail-safety', 'value' => 'ISPS Code Compliance',   'class' => 'text-[#EC2029]'],
+                            ['label' => 'Division',   'id' => 'detail-div',    'value' => 'Marine Operations',      'class' => 'text-[#0A2540]'],
+                        ] as $field)
+                            <div class="bg-slate-50 p-2.5 sm:p-3 rounded-lg border border-slate-100">
+                                <span class="block text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
+                                    {{ $field['label'] }}
+                                </span>
+                                <span class="block {{ $field['class'] }} text-xs sm:text-sm font-semibold truncate" id="{{ $field['id'] }}">
+                                    {{ $field['value'] }}
+                                </span>
                             </div>
-                            @if ($item->description)
-                                <p class="gallery-item__desc">{{ $item->description }}</p>
-                            @endif
-                            @if ($item->location || $item->date_info)
-                                <p class="small mt-2">{{ collect([$item->location, $item->date_info])->filter()->join(' / ') }}</p>
-                            @endif
-                        </figcaption>
-                    </figure>
-                @endforeach
+                        @endforeach
+                    </div>
+                </div>
             </div>
-        @else
-            <div class="empty-state">
-                <h3>Gallery in preparation</h3>
-                <p>Terminal photographs will be published here. In the meantime, the service pages describe what PICT handles.</p>
-                <p class="mt-4"><a class="link" href="{{ url('/services') }}">Read about terminal services</a></p>
-            </div>
-        @endif
+        </div>
     </div>
 </section>
 
-@include('partials.cta', [
-    'index' => '08',
-    'eyebrow' => 'Operations',
-    'title' => 'Plan a vehicle movement through Patimban.',
-    'copy' => 'Talk to the terminal team about vessel schedules, discharge requirements, yard capacity for your shipment, and gate release.',
-    'url' => '/contact',
-    'label' => 'Contact operations',
-    'secondaryUrl' => '/our-tariffs',
-    'secondaryLabel' => 'View tariffs',
-])
+{{-- ═══════════════════════════════════════════════════════════════
+     6. WORLD-CLASS SERVICES
+═══════════════════════════════════════════════════════════════ --}}
+<section class="py-14 sm:py-20 bg-white relative overflow-hidden border-t border-[var(--color-line)]">
+    <div class="max-w-7xl mx-auto px-5 sm:px-6">
+        <div class="max-w-2xl mb-10 sm:mb-14" data-aos="fade-up">
+            <div class="index-label mb-4">
+                <span class="rule"></span>
+                <span class="lbl">Services</span>
+            </div>
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-[#0A2540] tracking-tight font-heading leading-tight">
+                Two capabilities, one terminal
+            </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {{-- Ro-Ro Vessel Handling --}}
+            <div class="group relative h-80 sm:h-[380px] rounded-xl overflow-hidden bg-slate-900">
+                <div class="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-700"
+                     style="background-image: url('{{ secure_asset("assets/images/background.jpeg") }}')"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/35 to-transparent"></div>
+                <div class="absolute inset-0 p-6 sm:p-8 flex flex-col justify-end">
+                    <span class="text-[11px] font-medium text-white/60 mb-1">Maritime solutions</span>
+                    <h3 class="text-xl sm:text-2xl font-bold text-white mb-2 font-heading">Ro-Ro vessel handling</h3>
+                    <p class="text-slate-200 text-xs sm:text-sm max-w-md">
+                        Deep-water berth facilities and experienced mooring teams for a fast, safe vessel turnaround.
+                    </p>
+                </div>
+            </div>
+
+            {{-- Yard Management --}}
+            <div class="group relative h-80 sm:h-[380px] rounded-xl overflow-hidden bg-slate-900">
+                <div class="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-700"
+                     id="yard-slideshow"
+                     data-images="{{ json_encode([
+                         secure_asset('assets/images/patimban-yard-1.jpeg'),
+                         secure_asset('assets/images/car.jpeg'),
+                         secure_asset('assets/images/vessel-5.jpeg'),
+                         secure_asset('assets/images/car-4.jpeg')
+                     ]) }}"
+                     style="background-image: url('{{ secure_asset('assets/images/patimban-yard-1.jpeg') }}');"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/35 to-transparent"></div>
+                <div class="absolute inset-0 p-6 sm:p-8 flex flex-col justify-end">
+                    <span class="text-[11px] font-medium text-white/60 mb-1">Storage facility</span>
+                    <h3 class="text-xl sm:text-2xl font-bold text-white mb-2 font-heading">Advanced yard management</h3>
+                    <p class="text-slate-200 text-xs sm:text-sm max-w-md">
+                        High-capacity staging yards with automated tracking, surveillance, and weather protection.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{{-- ═══════════════════════════════════════════════════════════════
+     7. VEHICLE CARGO TYPES
+═══════════════════════════════════════════════════════════════ --}}
+<section class="py-14 sm:py-20 bg-[var(--color-paper)] relative overflow-hidden border-t border-[var(--color-line)]">
+    <div class="max-w-7xl mx-auto px-5 sm:px-6">
+        <div class="max-w-2xl mb-10 sm:mb-14" data-aos="fade-up">
+            <div class="index-label mb-4">
+                <span class="rule"></span>
+                <span class="lbl">Cargo specifications</span>
+            </div>
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-[#0A2540] tracking-tight font-heading leading-tight">
+                Handling protocols by vehicle class
+            </h2>
+        </div>
+
+        @php
+            $cargoTypes = [
+                ['img' => 'vehicle.png',      'alt' => 'Passenger Vehicle', 'title' => 'Passenger vehicle', 'desc' => 'Sedans, SUVs, MPVs, and electric vehicles handled under scratch-free procedures.', 'tag' => 'Light vehicle', 'tagColor' => 'text-[#EC2029]'],
+                ['img' => 'bus-truck.png',    'alt' => 'Bus & Truck',       'title' => 'Bus & truck',       'desc' => 'Heavy logistics trucks, industrial chassis, and transport vehicles with reinforced ramp pathways.', 'tag' => 'Commercial', 'tagColor' => 'text-[#1D4E74]'],
+                ['img' => 'ekskapator.png',   'alt' => 'Heavy Equipment',   'title' => 'Heavy equipment',   'desc' => 'Excavators, wheel loaders, and bulldozers destined for mining and agricultural projects.', 'tag' => 'Project cargo', 'tagColor' => 'text-[#EC2029]'],
+                ['img' => 'cargo.png',        'alt' => 'General Cargo',     'title' => 'General cargo',     'desc' => 'Static cargo and non-vehicle shipments managed under standard warehousing procedures.', 'tag' => 'General cargo', 'tagColor' => 'text-[#1D4E74]'],
+            ];
+        @endphp
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-[var(--color-line)] border border-[var(--color-line)]">
+            @foreach($cargoTypes as $item)
+                <div class="bg-white p-6 sm:p-8 hover:bg-slate-50/50 transition-colors">
+                    <div class="w-14 h-14 mb-5 flex items-center justify-center">
+                        <img src="{{ secure_asset('assets/images/' . $item['img']) }}" alt="{{ $item['alt'] }}" class="w-full h-full object-contain">
+                    </div>
+                    <h3 class="text-base sm:text-lg font-bold text-[#0A2540] mb-1.5 font-heading">{{ $item['title'] }}</h3>
+                    <p class="text-[var(--color-muted)] text-xs leading-relaxed mb-4">{{ $item['desc'] }}</p>
+                    <span class="text-[11px] font-semibold {{ $item['tagColor'] }} uppercase tracking-wider">{{ $item['tag'] }}</span>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+{{-- ═══════════════════════════════════════════════════════════════
+     8. OPERATION GALLERY (DATA DARI DATABASE)
+═══════════════════════════════════════════════════════════════ --}}
+<section id="gallery" class="py-12 sm:py-20 bg-white relative overflow-hidden border-t border-[var(--color-line)]">
+    <div class="max-w-7xl mx-auto px-5 sm:px-6">
+        <div class="flex items-end justify-between mb-8" data-aos="fade-up">
+            <div>
+                <div class="index-label mb-2">
+                    <span class="rule"></span>
+                    <span class="lbl">Visual record</span>
+                </div>
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-[#0A2540] tracking-tight font-heading">
+                    Inside the terminal
+                </h2>
+            </div>
+        </div>
+
+        <div id="news-gallery-slider"
+             class="flex items-stretch gap-4 sm:gap-6 overflow-x-auto pb-4 pt-1 snap-x hide-scrollbar"
+             data-aos="fade-up" data-aos-delay="100">
+            
+            @forelse($galleries as $index => $item)
+                <div class="gallery-card group relative bg-white border border-[var(--color-line)] rounded-2xl overflow-hidden min-w-[300px] sm:min-w-[360px] max-w-[360px] flex-shrink-0 snap-start flex flex-col shadow-sm hover:shadow-lg transition-all cursor-pointer p-3 bg-slate-50/50"
+                     onclick="pauseAutoSlideAndFocus({{ $index }})">
+                    
+                    {{-- Card Top Header --}}
+                    <div class="bg-white border border-[var(--color-line)] rounded-xl overflow-hidden shadow-sm flex flex-col h-full">
+                        <div class="bg-[#0A2540] px-4 py-2.5 flex items-center justify-between">
+                            <span class="text-white font-heading font-bold text-xs tracking-wider uppercase">PICT DOSSIER</span>
+                            <span class="bg-[#EC2029] text-white text-[10px] font-semibold px-2 py-0.5 rounded">{{ $item->tag }}</span>
+                        </div>
+
+                        {{-- Image Container --}}
+                        <div class="relative h-48 sm:h-52 overflow-hidden bg-slate-900">
+<img src="{{ $item->image_url }}">                                 alt="{{ $item->title }}"
+                                 class="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
+                        </div>
+
+                        {{-- Card Body --}}
+                        <div class="p-4 sm:p-5 flex flex-col justify-between flex-grow bg-white">
+                            <div>
+                                <h3 class="text-base sm:text-lg font-bold text-[#0A2540] font-heading mb-2 group-hover:text-[#EC2029] transition-colors line-clamp-1">
+                                    {{ $item->title }}
+                                </h3>
+                                <p class="text-[var(--color-muted)] text-xs leading-relaxed line-clamp-2 mb-4">
+                                    {{ $item->description }}
+                                </p>
+                            </div>
+
+                            {{-- Meta Info --}}
+                            <div class="space-y-2 pt-3 border-t border-slate-100 text-xs text-[var(--color-muted)]">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5 text-[#EC2029] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    <span class="font-medium text-slate-700">{{ $item->date_info }}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5 text-[#1D4E74] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                    <span class="truncate">{{ $item->location }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            @empty
+                <div class="w-full text-center py-10 text-slate-400">
+                    Belum ada data galeri. Silakan tambahkan melalui Admin Panel.
+                </div>
+            @endforelse
+
+        </div>
+    </div>
+</section>
+
+{{-- ═══════════════════════════════════════════════════════════════
+     9. CALL TO ACTION
+═══════════════════════════════════════════════════════════════ --}}
+<section id="contact" class="py-16 sm:py-24 relative overflow-hidden bg-[#0A2540]">
+    <div class="absolute inset-0 grid-texture opacity-40"></div>
+    <div class="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full bg-[#EC2029]/10 blur-3xl"></div>
+
+    <div class="max-w-4xl mx-auto px-5 sm:px-6 text-center relative z-10" data-aos="fade-up">
+        <div class="index-label justify-center mb-4 on-dark">
+            <span class="rule"></span>
+            <span class="lbl">Get in touch</span>
+        </div>
+        <h2 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight font-heading mb-4 leading-tight">
+            Ready to move your cargo through Patimban?
+        </h2>
+        <p class="text-slate-300 text-sm sm:text-base max-w-xl mx-auto mb-8">
+            Talk to our commercial and operations team about berth reservation, cargo handling, and long-term partnership.
+        </p>
+        <div class="flex flex-wrap items-center justify-center gap-3.5">
+            <a href="{{ url('/contact') }}"
+               class="inline-flex items-center gap-2 px-7 py-3 rounded-md bg-[#EC2029] text-white font-semibold tracking-wide text-xs sm:text-sm hover:bg-[#961c22] transition-colors group">
+                Contact us
+                <svg class="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+            </a>
+            <a href="{{ url('/services') }}"
+               class="px-7 py-3 rounded-md text-white font-semibold tracking-wide text-xs sm:text-sm border border-white/25 hover:border-white/50 transition-colors">
+                View services
+            </a>
+        </div>
+    </div>
+</section>
 
 @endsection
 
 @push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
 <script>
+/* ═══════════════════════════════════════════════════════════════
+   LIVE CLOCK
+═══════════════════════════════════════════════════════════════ */
+function updateRealTimeClock() {
+    const el = document.getElementById('live-clock');
+    if (!el) return;
+    const now = new Date();
+    el.innerText = now.toLocaleDateString('en-US', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short'
+    });
+}
+setInterval(updateRealTimeClock, 1000);
+updateRealTimeClock();
+
+/* ═══════════════════════════════════════════════════════════════
+   WEATHER — Open-Meteo
+═══════════════════════════════════════════════════════════════ */
+function fnGetWeatherDetails(code) {
+    if (code === 0)                     return { icon: '☀️', desc: 'Sunny' };
+    if ([1, 2, 3].includes(code))       return { icon: '⛅', desc: 'Partly Cloudy' };
+    if ([45, 48].includes(code))        return { icon: '🌫️', desc: 'Foggy' };
+    if ([51, 53, 55, 56, 57].includes(code)) return { icon: '🌧️', desc: 'Drizzle' };
+    if ([61, 63, 65, 66, 67].includes(code)) return { icon: '🌧️', desc: 'Rain' };
+    if ([71, 73, 75, 77].includes(code)) return { icon: '❄️', desc: 'Snow' };
+    if ([95, 96, 99].includes(code))    return { icon: '⛈️', desc: 'Thunderstorm' };
+    return { icon: '🌤️', desc: 'Fair' };
+}
+
+async function fetchPatimbanWeatherAll() {
+    try {
+        const res  = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-6.23&longitude=107.85&current=temperature_2m,relative_humidity_2m,wind_speed_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,wind_speed_10m_max&timezone=auto');
+        const data = await res.json();
+
+        if (data?.current) {
+            document.getElementById('weather-temp').innerText     = data.current.temperature_2m + ' °C';
+            document.getElementById('weather-wind').innerText     = data.current.wind_speed_10m + ' km/h';
+            document.getElementById('weather-humidity').innerText = data.current.relative_humidity_2m + ' %';
+        }
+
+        if (data?.daily) {
+            const container = document.getElementById('weather-forecast-container');
+            container.innerHTML = '';
+
+            data.daily.time.forEach((dateStr, index) => {
+                const dateObj       = new Date(dateStr);
+                const dayName       = index === 0 ? 'Today' : dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+                const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+                const maxTemp       = Math.round(data.daily.temperature_2m_max[index]);
+                const minTemp       = Math.round(data.daily.temperature_2m_min[index]);
+                const maxWind       = Math.round(data.daily.wind_speed_10m_max[index]);
+                const weather       = fnGetWeatherDetails(data.daily.weathercode[index]);
+
+                container.innerHTML += `
+                    <div class="bg-slate-800/70 border ${index === 0 ? 'border-[#EC2029] ring-2 ring-[#EC2029]/20' : 'border-slate-700/80'} rounded-2xl p-3.5 flex flex-col items-center justify-between text-center backdrop-blur-md min-w-[130px] sm:min-w-[150px] shrink-0 snap-start transition hover:border-slate-500">
+                        <div class="w-full pb-2.5 border-b border-slate-700/60">
+                            <p class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-300">${dayName}</p>
+                            <p class="text-[10px] text-slate-400 mt-0.5">${formattedDate}</p>
+                        </div>
+                        <div class="py-3">
+                            <span class="text-2xl sm:text-3xl block mb-1">${weather.icon}</span>
+                            <span class="text-[10px] sm:text-[11px] text-slate-300 font-medium block">${weather.desc}</span>
+                        </div>
+                        <div class="w-full space-y-1.5 pt-2 border-t border-slate-700/60 text-xs">
+                            <div class="bg-red-500/20 text-red-300 font-bold py-0.5 px-2 rounded text-[11px]">Max: ${maxTemp} °C</div>
+                            <div class="bg-amber-500/20 text-amber-300 font-bold py-0.5 px-2 rounded text-[11px]">Min: ${minTemp} °C</div>
+                            <div class="text-slate-400 text-[10px] pt-0.5 flex items-center justify-center gap-1">
+                                <svg class="w-3 h-3 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                <span>${maxWind} km/h</span>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        }
+    } catch (error) {
+        console.error('Failed to load weather data:', error);
+    }
+}
+fetchPatimbanWeatherAll();
+
+/* ═══════════════════════════════════════════════════════════════
+   OPERATION FLOW
+═══════════════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', function () {
-    'use strict';
+    const stepsData = @json($steps);
+    const buttons   = document.querySelectorAll('.flow-btn');
+    const elNum     = document.getElementById('detail-number');
+    const elTitle   = document.getElementById('detail-title');
+    const elDesc    = document.getElementById('detail-desc');
+    const elTime    = document.getElementById('detail-time');
+    const elEquip   = document.getElementById('detail-equip');
+    const elSafety  = document.getElementById('detail-safety');
+    const elDiv     = document.getElementById('detail-div');
 
-    /* Local time */
-    var clock = document.getElementById('live-clock');
+    window.activateFlowStep = function (index) {
+        buttons.forEach(btn => btn.classList.remove('active'));
+        const activeBtn = document.querySelector(`.flow-btn[data-index="${index}"]`);
+        if (activeBtn) activeBtn.classList.add('active');
 
-    function updateClock() {
-        if (!clock) return;
-        clock.textContent = new Intl.DateTimeFormat('en-GB', {
-            weekday: 'short',
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-            timeZone: 'Asia/Jakarta'
-        }).format(new Date()) + ' WIB';
+        const panel = elTitle.closest('.flex-col');
+        const grid  = elTime.closest('.grid');
+
+        panel.classList.remove('fade-content');
+        grid.classList.remove('fade-content');
+        void panel.offsetWidth;
+
+        const data = stepsData[index];
+        elNum.textContent    = '0' + (index + 1);
+        elTitle.textContent  = data.title;
+        elDesc.textContent   = data.desc;
+        elTime.textContent   = data.time;
+        elEquip.textContent  = data.equip;
+        elSafety.textContent = data.safety;
+        elDiv.textContent    = data.div;
+
+        panel.classList.add('fade-content');
+        grid.classList.add('fade-content');
+    };
+    activateFlowStep(0);
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   GALLERY AUTO-SLIDE
+═══════════════════════════════════════════════════════════════ */
+let galleryInterval = null;
+let resumeTimeout   = null;
+let isAutoSlideActive = true;
+
+function startAutoGallerySlide() {
+    const slider = document.getElementById('news-gallery-slider');
+    if (!slider) return;
+
+    galleryInterval = setInterval(() => {
+        if (!isAutoSlideActive) return;
+
+        const card = slider.querySelector('.gallery-card');
+        if (!card) return;
+
+        const cardWidth     = card.offsetWidth + 24;
+        const maxScrollLeft = slider.scrollWidth - slider.clientWidth;
+
+        if (slider.scrollLeft >= maxScrollLeft - 10) {
+            slider.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+            slider.scrollBy({ left: cardWidth, behavior: 'smooth' });
+        }
+    }, 3500);
+}
+
+function pauseAutoSlideAndFocus(index) {
+    isAutoSlideActive = false;
+    clearTimeout(resumeTimeout);
+
+    const slider = document.getElementById('news-gallery-slider');
+    const cards  = slider.querySelectorAll('.gallery-card');
+    if (cards[index]) {
+        cards[index].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     }
 
-    updateClock();
-    window.setInterval(updateClock, 30000);
+    resumeTimeout = setTimeout(() => { isAutoSlideActive = true; }, 7000);
+}
 
-    /* Weather */
-    var status = document.getElementById('weather-status');
-    var forecast = document.getElementById('weather-forecast');
+document.addEventListener('DOMContentLoaded', function () {
+    startAutoGallerySlide();
 
-    function conditionText(code) {
-        if (code === 0) return 'Clear';
-        if ([1, 2, 3].includes(code)) return 'Partly cloudy';
-        if ([45, 48].includes(code)) return 'Fog';
-        if ([51, 53, 55, 56, 57].includes(code)) return 'Drizzle';
-        if ([61, 63, 65, 66, 67].includes(code)) return 'Rain';
-        if ([71, 73, 75, 77].includes(code)) return 'Snow';
-        if ([95, 96, 99].includes(code)) return 'Thunderstorm';
-        return 'Fair';
+    const slider = document.getElementById('news-gallery-slider');
+    if (slider) {
+        ['mousedown', 'touchstart'].forEach(eventType => {
+            slider.addEventListener(eventType, () => {
+                isAutoSlideActive = false;
+                clearTimeout(resumeTimeout);
+                resumeTimeout = setTimeout(() => { isAutoSlideActive = true; }, 7000);
+            });
+        });
     }
+});
 
-    function setValue(id, value) {
-        var element = document.getElementById(id);
-        if (element) element.textContent = value;
-    }
+/* ═══════════════════════════════════════════════════════════════
+   AOS + HERO SLIDESHOW + YARD SLIDESHOW + COUNTERS
+═══════════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function () {
+    AOS.init({
+        duration: 800,
+        easing: 'ease-out-cubic',
+        once: true,
+        offset: 80
+    });
 
-    function renderForecast(days) {
-        if (!forecast) return;
-        forecast.textContent = '';
+    // Hero slideshow
+    const heroSlideshow = document.getElementById('hero-slideshow');
+    if (heroSlideshow) {
+        const images = JSON.parse(heroSlideshow.dataset.images);
+        let currentIndex = 0;
 
-        days.forEach(function (day, index) {
-            var item = document.createElement('div');
-            item.className = 'weather__day';
-
-            var label = document.createElement('strong');
-            label.textContent = index === 0 ? 'Today' : new Intl.DateTimeFormat('en-GB', { weekday: 'short' }).format(new Date(day.date + 'T12:00:00'));
-
-            var detail = document.createElement('span');
-            detail.textContent = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(new Date(day.date + 'T12:00:00'))
-                + '. ' + day.condition
-                + '. High ' + day.max + ' C, low ' + day.min + ' C. Wind ' + day.wind + ' km/h.';
-
-            item.appendChild(label);
-            item.appendChild(detail);
-            forecast.appendChild(item);
+        images.forEach((imgUrl, index) => {
+            const slide = document.createElement('div');
+            slide.className = `hero-slide ${index === 0 ? 'active' : ''}`;
+            slide.style.backgroundImage = `url('${imgUrl}')`;
+            heroSlideshow.appendChild(slide);
         });
 
-        forecast.setAttribute('aria-busy', 'false');
+        const slides = heroSlideshow.querySelectorAll('.hero-slide');
+        if (slides.length > 1) {
+            setInterval(() => {
+                slides[currentIndex].classList.remove('active');
+                currentIndex = (currentIndex + 1) % slides.length;
+                slides[currentIndex].classList.add('active');
+            }, 5000);
+        }
     }
 
-    fetch('https://api.open-meteo.com/v1/forecast?latitude=-6.23&longitude=107.85&current=temperature_2m,relative_humidity_2m,wind_speed_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,wind_speed_10m_max&timezone=auto', { cache: 'no-store' })
-        .then(function (response) {
-            if (!response.ok) throw new Error('Weather request failed');
-            return response.json();
-        })
-        .then(function (data) {
-            if (data.current) {
-                setValue('weather-temp', Math.round(data.current.temperature_2m) + ' C');
-                setValue('weather-wind', Math.round(data.current.wind_speed_10m) + ' km/h');
-                setValue('weather-humidity', Math.round(data.current.relative_humidity_2m) + '%');
+    // Yard slideshow
+    const yardSlideshow = document.getElementById('yard-slideshow');
+    if (yardSlideshow) {
+        const images = JSON.parse(yardSlideshow.dataset.images);
+        let currentImage = 0;
+        setInterval(() => {
+            currentImage = (currentImage + 1) % images.length;
+            yardSlideshow.style.backgroundImage = `url('${images[currentImage]}')`;
+        }, 4000);
+    }
+
+    // Counters
+    const counters = document.querySelectorAll('.counter');
+    const speed = 200;
+    counters.forEach(counter => {
+        const updateCount = () => {
+            const target = +counter.getAttribute('data-target');
+            const count  = +counter.innerText.replace(/,/g, '');
+            const inc    = target / speed;
+            if (count < target) {
+                counter.innerText = Math.ceil(count + inc).toLocaleString();
+                setTimeout(updateCount, 15);
+            } else {
+                counter.innerText = target.toLocaleString();
             }
-
-            if (data.daily && Array.isArray(data.daily.time)) {
-                renderForecast(data.daily.time.map(function (date, index) {
-                    return {
-                        date: date,
-                        condition: conditionText(data.daily.weathercode[index]),
-                        max: Math.round(data.daily.temperature_2m_max[index]),
-                        min: Math.round(data.daily.temperature_2m_min[index]),
-                        wind: Math.round(data.daily.wind_speed_10m_max[index])
-                    };
-                }));
-
-                if (status) {
-                    status.textContent = 'Current conditions and the seven-day forecast are supplied by Open-Meteo.';
+        };
+        const observer = new IntersectionObserver((entries, obs) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    updateCount();
+                    obs.unobserve(entry.target);
                 }
-            }
-        })
-        .catch(function () {
-            if (forecast) {
-                forecast.textContent = '';
-                var item = document.createElement('div');
-                item.className = 'weather__day';
-                var label = document.createElement('strong');
-                label.textContent = 'Forecast';
-                var detail = document.createElement('span');
-                detail.textContent = 'Weather data is unavailable right now. Please check again later.';
-                item.appendChild(label);
-                item.appendChild(detail);
-                forecast.appendChild(item);
-                forecast.setAttribute('aria-busy', 'false');
-            }
-
-            if (status) {
-                status.textContent = 'Weather data could not be loaded. The terminal fact sheet above does not depend on this feed.';
-            }
-        });
-
-    /* Operation flow tabs */
-    var steps = @json($steps);
-    var tabs = Array.prototype.slice.call(document.querySelectorAll('.flow__tab'));
-    var panel = document.getElementById('flow-panel');
-    var detailNumber = document.getElementById('detail-number');
-    var detailTitle = document.getElementById('detail-title');
-    var detailDesc = document.getElementById('detail-desc');
-    var detailEquip = document.getElementById('detail-equip');
-    var detailSafety = document.getElementById('detail-safety');
-    var detailDiv = document.getElementById('detail-div');
-
-    function activateStep(index, focusTab) {
-        var step = steps[index];
-        if (!step) return;
-
-        tabs.forEach(function (tab, tabIndex) {
-            var isActive = tabIndex === index;
-            tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
-            tab.setAttribute('tabindex', isActive ? '0' : '-1');
-        });
-
-        if (detailNumber) detailNumber.textContent = '0' + (index + 1);
-        if (detailTitle) detailTitle.textContent = step.title;
-        if (detailDesc) detailDesc.textContent = step.desc;
-        if (detailEquip) detailEquip.textContent = step.equip;
-        if (detailSafety) detailSafety.textContent = step.safety;
-        if (detailDiv) detailDiv.textContent = step.div;
-        if (panel) panel.setAttribute('aria-labelledby', 'flow-tab-' + index);
-
-        if (focusTab && tabs[index]) tabs[index].focus();
-    }
-
-    tabs.forEach(function (tab, index) {
-        tab.addEventListener('click', function () {
-            activateStep(index, false);
-        });
-
-        tab.addEventListener('keydown', function (event) {
-            var nextIndex = null;
-
-            if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
-                nextIndex = (index + 1) % tabs.length;
-            } else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
-                nextIndex = (index - 1 + tabs.length) % tabs.length;
-            } else if (event.key === 'Home') {
-                nextIndex = 0;
-            } else if (event.key === 'End') {
-                nextIndex = tabs.length - 1;
-            }
-
-            if (nextIndex !== null) {
-                event.preventDefault();
-                activateStep(nextIndex, true);
-            }
-        });
+            });
+        }, { threshold: 0.5 });
+        observer.observe(counter);
     });
 });
 </script>

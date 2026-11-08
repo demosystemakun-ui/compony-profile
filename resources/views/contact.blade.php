@@ -1,192 +1,318 @@
 @extends('layouts.app')
 
-@section('title', 'Contact | PT Patimban International Car Terminal')
-@section('meta_description', 'Contact PT Patimban International Car Terminal at Patimban Port, Pusakanagara, Subang Regency, West Java. Email info@pict.co.id.')
+@section('title', 'Contact Us — PT Patimban International Car Terminal')
+
+@push('styles')
+<style>
+    /* ═══ DESIGN SYSTEM — PICT CONTACT ═══ */
+    :root {
+        --color-navy:   #0A2540;
+        --color-signal: #EC2029;
+        --color-paper:  #F5F3EE;
+        --color-ink:    #16232E;
+        --color-muted:  #5B6672;
+        --color-line:   #D8D4C8;
+    }
+
+    /* ═══ HERO BACKGROUND ═══ */
+    .hero-bg-contact {
+        background-image:
+            linear-gradient(rgba(15, 23, 42, 0.78), rgba(15, 23, 42, 0.72)),
+            url('{{ asset("assets/images/patimban-yard-2.jpeg") }}');
+        background-size: cover;
+        background-position: center;
+    }
+
+    /* ═══ EYEBROW LABEL ═══ */
+    .eyebrow {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--color-signal);
+    }
+
+    /* ═══ FORM INPUT FOCUS ═══ */
+    .form-input {
+        transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+    }
+    .form-input:focus {
+        border-color: var(--color-signal);
+        box-shadow: 0 0 0 3px rgba(236, 32, 41, 0.12);
+        background-color: #FFFFFF;
+    }
+
+    /* ═══ INFO CARD HOVER ═══ */
+    .info-card {
+        transition: transform .3s cubic-bezier(0.4, 0, 0.2, 1),
+                    border-color .3s ease,
+                    box-shadow .3s ease;
+    }
+    .info-card:hover {
+        transform: translateY(-2px);
+        border-color: var(--color-signal);
+        box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.12);
+    }
+    .info-card .info-icon {
+        transition: transform .3s ease;
+    }
+    .info-card:hover .info-icon {
+        transform: scale(1.08);
+    }
+</style>
+@endpush
 
 @section('content')
 
-@include('partials.page-header', [
-    'index' => '01',
-    'eyebrow' => 'Contact',
-    'title' => 'Talk to the terminal team.',
-    'lede' => 'For terminal services, vessel schedules, tariffs, or a site visit, reach the PICT team at Patimban Port in Subang Regency, West Java.',
-    'image' => 'assets/images/patimban-yard-2.jpeg',
-    'alt' => 'Vehicle staging area at Patimban Port',
-    'caption' => 'Staging yard at Patimban Port. Photo: PICT.',
-])
+{{-- ═══════════════════════════════════════════════════════════════
+     1. HERO SECTION
+═══════════════════════════════════════════════════════════════ --}}
+<section class="hero-bg-contact relative flex items-center min-h-[480px] px-6 sm:px-12 md:px-16 pt-32 pb-16 overflow-hidden">
+    {{-- Decorative grid --}}
+    <div class="pointer-events-none absolute inset-0 opacity-[0.04]">
+        <svg class="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <defs>
+                <pattern id="grid-contact" width="8" height="8" patternUnits="userSpaceOnUse">
+                    <path d="M 8 0 L 0 0 0 8" fill="none" stroke="white" stroke-width="0.4"/>
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid-contact)"/>
+        </svg>
+    </div>
+    {{-- Accent glow --}}
+    <div class="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full bg-[#EC2029]/15 blur-3xl"></div>
 
-<section class="section section--paper">
-    <div class="shell">
-        <div class="narrative">
-            <aside class="narrative__aside">
-                <p class="index"><b>02</b><span class="index-rule" aria-hidden="true"></span>Contact details</p>
-                <h2 class="display-l mt-3">Where to find us.</h2>
-                <p class="body-copy mt-4">
-                    The terminal sits inside the Patimban Port area. Email is the most direct way to reach the commercial team.
-                </p>
+    <div class="relative max-w-4xl">
 
-                <dl class="rule-list mt-8">
-                    <li>
-                        <dt>Address</dt>
-                        <dd>
-                            Patimban Port, Pusakanagara,<br>
-                            Subang Regency, West Java,<br>
-                            Indonesia
-                        </dd>
-                    </li>
-                    <li>
-                        <dt>Email</dt>
-                        <dd><a class="link" href="mailto:info@pict.co.id">info@pict.co.id</a></dd>
-                    </li>
-                    <li>
-                        <dt>LinkedIn</dt>
-                        <dd>
-                            <a class="link" href="https://www.linkedin.com/company/patimban-international-car-terminal/posts/?feedView=all" target="_blank" rel="noopener noreferrer">Patimban International Car Terminal</a>
-                        </dd>
-                    </li>
-                    <li>
-                        <dt>Location</dt>
-                        <dd>
-                            <a class="link" href="https://www.google.com/maps/search/?api=1&amp;query=Pelabuhan+Patimban%2C+Subang%2C+Jawa+Barat" target="_blank" rel="noopener noreferrer">Open Patimban Port in Google Maps</a>
-                        </dd>
-                    </li>
-                </dl>
-            </aside>
+        <h1 class="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] max-w-3xl">
+            Get in Touch with PICT
+        </h1>
 
-            <div>
-                <p class="index"><b>03</b><span class="index-rule" aria-hidden="true"></span>Message</p>
-                <h2 class="display-l mt-3">Send a message.</h2>
-                <p class="body-copy mt-4">
-                    This form opens your email application with the message filled in. It does not store your details on this website.
-                </p>
-
-                <form id="contactForm" class="form-grid form-grid--two mt-8" novalidate>
-                    <label class="field" for="contact-name">
-                        <span class="field__label">Name <abbr title="required">*</abbr></span>
-                        <input type="text" id="contact-name" name="name" autocomplete="name" required>
-                    </label>
-
-                    <label class="field" for="contact-email">
-                        <span class="field__label">Email <abbr title="required">*</abbr></span>
-                        <input type="email" id="contact-email" name="email" autocomplete="email" required>
-                    </label>
-
-                    <label class="field" for="contact-subject">
-                        <span class="field__label">Subject</span>
-                        <input type="text" id="contact-subject" name="subject" autocomplete="off">
-                    </label>
-
-                    <label class="field" for="contact-message">
-                        <span class="field__label">Message <abbr title="required">*</abbr></span>
-                        <textarea id="contact-message" name="message" required></textarea>
-                    </label>
-
-                    <div class="field-hint">
-                        <p class="form-status" id="contactStatus" role="status" aria-live="polite"></p>
-                    </div>
-
-                    <div>
-                        <button class="btn btn--primary" type="submit">Open email draft</button>
-                        <noscript>
-                            <p class="field-hint">JavaScript is turned off. Please write directly to <a class="link" href="mailto:info@pict.co.id">info@pict.co.id</a>.</p>
-                        </noscript>
-                    </div>
-                </form>
-            </div>
-        </div>
+        <p class="text-slate-200 max-w-2xl mt-6 leading-relaxed text-sm sm:text-base lg:text-lg">
+            Reach out to our commercial and operational teams for inquiries regarding terminal services, berthing schedules, or logistics coordination.
+        </p>
     </div>
 </section>
 
-@include('partials.cta', [
-    'index' => '04',
-    'eyebrow' => 'Tariffs',
-    'title' => 'Need the current tariff schedule?',
-    'copy' => 'The tariff page lists the published document for each terminal service. For rates that are not listed, contact the commercial team.',
-    'url' => '/our-tariffs',
-    'label' => 'View terminal tariffs',
-    'secondaryUrl' => '/contact',
-    'secondaryLabel' => 'Email PICT',
-])
+{{-- ═══════════════════════════════════════════════════════════════
+     2. CONTACT INFO + FORM
+═══════════════════════════════════════════════════════════════ --}}
+<section class="max-w-7xl mx-auto px-6 py-20 bg-white text-slate-800">
+    <div class="grid lg:grid-cols-12 gap-14 items-start">
+
+        {{-- Contact Info --}}
+        <div class="lg:col-span-5 space-y-8">
+            <div>
+                <span class="eyebrow block mb-2">Get in Touch</span>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                    Contact Information
+                </h2>
+                <div class="mt-4 h-1 w-16 bg-[#EC2029] rounded-full"></div>
+                <p class="mt-5 text-slate-600 text-sm leading-relaxed">
+                    Our team is ready to assist you with any inquiries regarding PICT terminal operations and commercial partnerships.
+                </p>
+            </div>
+
+            <div class="space-y-4">
+                @php
+                    $infoItems = [
+                        [
+                            'title' => 'Address',
+                            'value' => 'Patimban Port, Pusakanagara, Subang Regency, West Java 41255, Indonesia',
+                            'color' => 'red',
+                            'icon'  => 'M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z',
+                        ],
+                        [
+                            'title' => 'Email',
+                            'value' => 'info@pict.co.id',
+                            'color' => 'emerald',
+                            'icon'  => 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
+                        ],
+                        [
+                            'title' => 'Phone / WhatsApp',
+                            'value' => 'Example 1234567890',
+                            'color' => 'blue',
+                            'icon'  => 'M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z',
+                        ],
+                    ];
+
+                    $colorMap = [
+                        'red'     => ['bg' => 'bg-red-600/10',    'text' => 'text-red-600'],
+                        'emerald' => ['bg' => 'bg-emerald-600/10', 'text' => 'text-emerald-600'],
+                        'blue'    => ['bg' => 'bg-blue-600/10',    'text' => 'text-blue-600'],
+                    ];
+                @endphp
+
+                @foreach($infoItems as $item)
+                    @php $c = $colorMap[$item['color']]; @endphp
+                    <div class="info-card flex items-start gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm">
+                        <div class="info-icon w-11 h-11 rounded-xl {{ $c['bg'] }} {{ $c['text'] }} flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                @foreach(explode(' M', $item['icon']) as $i => $path)
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="{{ $i === 0 ? $path : 'M' . $path }}"/>
+                                @endforeach
+                            </svg>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="font-bold text-slate-900 mb-1 text-sm">{{ $item['title'] }}</h3>
+                            <p class="text-slate-600 text-xs leading-relaxed">{{ $item['value'] }}</p>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- Contact Form --}}
+        <div class="lg:col-span-7 bg-slate-50 border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-red-600/10 text-red-600">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-lg font-extrabold text-slate-900 tracking-tight">Send Us a Message</h2>
+                    <p class="text-xs text-slate-500">Fill in the form and we will get back to you shortly.</p>
+                </div>
+            </div>
+
+            <form id="contactForm" class="space-y-5" novalidate>
+                <div class="grid sm:grid-cols-2 gap-5">
+                    <div>
+                        <label for="name" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                            Full Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="name" name="name" required
+                               placeholder="Your full name"
+                               class="form-input w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label for="email" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                            Email Address <span class="text-red-500">*</span>
+                        </label>
+                        <input type="email" id="email" name="email" required
+                               placeholder="you@company.com"
+                               class="form-input w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid sm:grid-cols-2 gap-5">
+                    <div>
+                        <label for="subject" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                            Subject
+                        </label>
+                        <input type="text" id="subject" name="subject"
+                               placeholder="Inquiry subject"
+                               class="form-input w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label for="whatsapp" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                            No. WhatsApp / Office <span class="text-red-500">*</span>
+                        </label>
+                        <input type="tel" id="whatsapp" name="whatsapp" required
+                               oninput="this.value = this.value.replace(/[^0-9+\-()\s]/g, '')"
+                               placeholder="(021) 8382910"
+                               class="form-input w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="message" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                        Message <span class="text-red-500">*</span>
+                    </label>
+                    <textarea id="message" name="message" rows="5" required
+                              placeholder="Tell us about your inquiry..."
+                              class="form-input w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none resize-none"></textarea>
+                </div>
+
+                {{-- reCAPTCHA --}}
+                <div class="pt-2">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                        Security Verification <span class="text-red-500">*</span>
+                    </label>
+                    <div class="g-recaptcha"
+                         data-sitekey="{{ config('services.recaptcha.site_key') ?: '6LfrWQEuAAAAAIasdfZ46CqUIJ1O426BFN_49O5Q' }}"
+                         data-callback="enableSubmitButton"></div>
+                </div>
+
+                {{-- Submit Button --}}
+                <button type="submit" id="submitBtn" disabled
+                        class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-slate-300 text-slate-500 font-bold py-3.5 px-6 text-xs uppercase tracking-wider transition cursor-not-allowed">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    Complete Verification to Send
+                </button>
+
+                <p class="text-[11px] text-slate-400 text-center leading-relaxed">
+                    By submitting this form, you agree to be contacted by PICT's commercial team regarding your inquiry.
+                </p>
+            </form>
+        </div>
+
+    </div>
+</section>
 
 @endsection
 
 @push('scripts')
+{{-- reCAPTCHA hanya dimuat di halaman ini --}}
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    'use strict';
+/* ═══════════════════════════════════════════════════════════════
+   reCAPTCHA CALLBACK — enable submit button
+═══════════════════════════════════════════════════════════════ */
+function enableSubmitButton() {
+    const btn = document.getElementById('submitBtn');
+    if (!btn) return;
 
-    var form = document.getElementById('contactForm');
-    if (!form) return;
+    btn.removeAttribute('disabled');
+    btn.classList.remove('bg-slate-300', 'text-slate-500', 'cursor-not-allowed');
+    btn.classList.add('bg-[#EC2029]', 'hover:bg-[#c41a22]', 'text-white', 'shadow-lg', 'shadow-red-600/20', 'cursor-pointer');
+    btn.innerHTML = `
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+        Send via Email App
+    `;
+}
 
-    var status = document.getElementById('contactStatus');
-    var name = document.getElementById('contact-name');
-    var email = document.getElementById('contact-email');
-    var subject = document.getElementById('contact-subject');
-    var message = document.getElementById('contact-message');
+/* ═══════════════════════════════════════════════════════════════
+   FORM SUBMIT HANDLER
+═══════════════════════════════════════════════════════════════ */
+document.getElementById('contactForm')?.addEventListener('submit', function (e) {
+    e.preventDefault();
 
-    function setStatus(text, state) {
-        if (!status) return;
-        status.textContent = text;
-        status.dataset.state = state || '';
+    if (typeof grecaptcha === 'undefined' || grecaptcha.getResponse().length === 0) {
+        alert('Please complete the security verification (reCAPTCHA) first.');
+        return;
     }
 
-    form.addEventListener('submit', function (event) {
-        event.preventDefault();
+    const name     = document.getElementById('name').value.trim();
+    const email    = document.getElementById('email').value.trim();
+    const whatsapp = document.getElementById('whatsapp').value.trim();
+    const subject  = document.getElementById('subject').value.trim() || 'Inquiry from Website';
+    const message  = document.getElementById('message').value.trim();
 
-        var errors = [];
+    if (!name || !email || !whatsapp || !message) {
+        alert('Mohon lengkapi semua field yang wajib diisi.');
+        return;
+    }
 
-        [name, email, message].forEach(function (field) {
-            if (field) field.removeAttribute('aria-invalid');
-        });
+    const targetEmail = "info@pict.co.id";
+    const bodyText = [
+        `Name: ${name}`,
+        `Email: ${email}`,
+        `Phone / WhatsApp: ${whatsapp}`,
+        ``,
+        `Message:`,
+        message
+    ].join('\r\n');
 
-        if (!name.value.trim()) {
-            errors.push('Please enter your name.');
-            name.setAttribute('aria-invalid', 'true');
-        }
-
-        if (!email.value.trim()) {
-            errors.push('Please enter your email address.');
-            email.setAttribute('aria-invalid', 'true');
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) {
-            errors.push('Please enter a valid email address.');
-            email.setAttribute('aria-invalid', 'true');
-        }
-
-        if (!message.value.trim()) {
-            errors.push('Please write a message.');
-            message.setAttribute('aria-invalid', 'true');
-        }
-
-        if (errors.length > 0) {
-            setStatus(errors.join(' '), 'error');
-            var firstInvalid = form.querySelector('[aria-invalid="true"]');
-            if (firstInvalid) firstInvalid.focus();
-            return;
-        }
-
-        var mailSubject = subject.value.trim() || 'Inquiry from the PICT website';
-        var body = [
-            'Name: ' + name.value.trim(),
-            'Email: ' + email.value.trim(),
-            '',
-            'Message:',
-            message.value.trim()
-        ].join('\r\n');
-
-        setStatus('Opening your email application.', 'ok');
-        window.location.href = 'mailto:info@pict.co.id?subject=' + encodeURIComponent(mailSubject) + '&body=' + encodeURIComponent(body);
-
-        window.setTimeout(function () {
-            setStatus('If your email application did not open, write to info@pict.co.id.', 'ok');
-        }, 1200);
-    });
-
-    [name, email, message].forEach(function (field) {
-        field?.addEventListener('input', function () {
-            field.removeAttribute('aria-invalid');
-            if (status && status.dataset.state === 'error') setStatus('', '');
-        });
-    });
+    window.location.href = `mailto:${targetEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
 });
 </script>
 @endpush
