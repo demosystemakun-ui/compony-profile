@@ -50,30 +50,35 @@
         transition: color 0.2s ease;
     }
 
-    /* ═══ SHRINK ON SCROLL (FIXED) ═══ */
+    /* ═══ SHRINK ON SCROLL (PENDEKATAN BARU: TRANSFORM & ABSOLUTE) ═══ */
     #navbarWrapper {
-        transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
+        transition: width 400ms cubic-bezier(0.4, 0, 0.2, 1), 
+                    border-radius 400ms ease,
+                    background-color 400ms ease,
+                    box-shadow 400ms ease,
+                    transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
+        width: 100%;
+        /* Gunakan animasi transform, bukan width/height */
         transform-origin: top center;
-        will-change: transform, max-width, padding, opacity;
     }
 
     #navbarWrapper.is-shrunk {
-        /* Menggunakan !important untuk menimpa max-w-6xl Tailwind */
-        max-width: 56px !important; 
+        /* Kunci lebar menjadi seukuran lingkaran logo saja */
+        width: 48px !important;
         padding-left: 0 !important;
         padding-right: 0 !important;
         cursor: pointer;
-        justify-content: center;
+        border-radius: 50% !important; /* Jadi bulat sempurna */
         background-color: rgba(255, 255, 255, 0.95);
         box-shadow: 0 10px 34px rgba(15, 23, 42, 0.15);
-        transform: translateY(4px);
     }
 
-    /* Sembunyikan nav & actions & teks dengan transisi halus */
+    /* Sembunyikan nav & actions & teks dengan menyusutkannya */
     #navContainer,
     #rightActions,
     #brandText {
-        transition: opacity 250ms ease, visibility 250ms ease;
+        transition: opacity 200ms ease, transform 200ms ease, width 200ms ease;
+        transform-origin: top center;
     }
 
     #navbarWrapper.is-shrunk #navContainer,
@@ -84,16 +89,18 @@
         pointer-events: none;
         width: 0 !important;
         margin: 0 !important;
+        padding: 0 !important;
         overflow: hidden;
+        transform: scaleY(0);
     }
 
-    /* Logo mengecil sedikit saat shrink agar pas di dalam lingkaran */
+    /* Logo di tengah */
     #brandLogo {
         transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     #navbarWrapper.is-shrunk #brandLogo {
-        transform: scale(0.85);
+        transform: scale(0.9);
     }
 
     /* Mobile menu ikut tertutup saat shrunk */
