@@ -50,51 +50,50 @@
         transition: color 0.2s ease;
     }
 
-    /* ═══ SHRINK ON SCROLL ═══ */
+    /* ═══ SHRINK ON SCROLL (FIXED) ═══ */
     #navbarWrapper {
-        transition: max-width 380ms cubic-bezier(0.4, 0, 0.2, 1),
-                    padding 380ms cubic-bezier(0.4, 0, 0.2, 1),
-                    background-color 380ms ease,
-                    box-shadow 380ms ease,
-                    border-color 380ms ease;
-        will-change: max-width, padding, background-color;
+        transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: top center;
+        will-change: transform, max-width, padding, opacity;
     }
 
     #navbarWrapper.is-shrunk {
-        max-width: 3.75rem;
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
+        /* Menggunakan !important untuk menimpa max-w-6xl Tailwind */
+        max-width: 56px !important; 
+        padding-left: 0 !important;
+        padding-right: 0 !important;
         cursor: pointer;
-        background-color: rgba(255, 255, 255, 0.95);
-        box-shadow: 0 10px 34px rgba(15, 23, 42, 0.14);
         justify-content: center;
+        background-color: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 10px 34px rgba(15, 23, 42, 0.15);
+        transform: translateY(4px);
     }
 
-    /* Sembunyikan nav & actions saat shrunk */
+    /* Sembunyikan nav & actions & teks dengan transisi halus */
+    #navContainer,
+    #rightActions,
+    #brandText {
+        transition: opacity 250ms ease, visibility 250ms ease;
+    }
+
     #navbarWrapper.is-shrunk #navContainer,
     #navbarWrapper.is-shrunk #rightActions,
     #navbarWrapper.is-shrunk #brandText {
         opacity: 0;
-        transform: scale(0.85);
+        visibility: hidden;
         pointer-events: none;
         width: 0 !important;
-        overflow: hidden;
         margin: 0 !important;
+        overflow: hidden;
     }
 
-    /* Logo sedikit membesar saat shrunk */
-    #navbarWrapper.is-shrunk #brandLogo {
-        transform: scale(1.15);
-    }
-
-    #navContainer,
-    #rightActions,
-    #brandText,
+    /* Logo mengecil sedikit saat shrink agar pas di dalam lingkaran */
     #brandLogo {
-        transition: opacity 250ms ease,
-                    transform 250ms ease,
-                    width 250ms ease,
-                    margin 250ms ease;
+        transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #navbarWrapper.is-shrunk #brandLogo {
+        transform: scale(0.85);
     }
 
     /* Mobile menu ikut tertutup saat shrunk */
@@ -130,13 +129,13 @@
         {{-- ═══ BRAND ═══ --}}
         <a href="{{ url('/') }}"
            id="brandLink"
-           class="flex items-center gap-2.5 shrink-0 group"
+           class="flex items-center gap-2.5 shrink-0 group h-9"
            aria-label="PICT Home">
             <img src="{{ asset('assets/images/pict.png') }}"
                  id="brandLogo"
                  alt="PICT Logo"
                  class="relative z-10 h-7 sm:h-8 w-auto object-contain transition-transform duration-300 group-hover:scale-105 shrink-0">
-            <span id="brandText" class="leading-tight hidden sm:block">
+            <span id="brandText" class="leading-tight hidden sm:block whitespace-nowrap">
                 <span class="text-slate-900 font-extrabold text-[13px] tracking-tight block">
                     Patimban International Car Terminal
                 </span>
@@ -165,7 +164,7 @@
         </nav>
 
         {{-- ═══ RIGHT ACTIONS ═══ --}}
-        <div id="rightActions" class="flex items-center gap-2 shrink-0">
+        <div id="rightActions" class="flex items-center gap-2 shrink-0 h-9">
 
             {{-- Mobile Menu Toggle --}}
             <button id="mobileMenuBtn"
@@ -376,7 +375,7 @@
             });
         }
 
-        // Klik wrapper (area logo) saat shrunk → expand
+        // Klik area wrapper saat shrunk → expand
         wrapper.addEventListener('click', function (e) {
             if (isShrunk && !e.target.closest('#brandLink')) {
                 expand();
@@ -391,7 +390,6 @@
             }
         });
 
-        // Simpan handler scroll di window supaya tidak double-bind
         if (!window.__pictNavScrollBound) {
             window.__pictNavScrollBound = true;
             window.addEventListener('scroll', () => {
