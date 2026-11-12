@@ -150,22 +150,93 @@
     .gallery-editorial {
         display: grid;
         grid-template-columns: 1fr;
-        gap: 1.5rem;
+        gap: 1.25rem;
     }
+
     @media (min-width: 768px) {
         .gallery-editorial {
             grid-template-columns: repeat(3, 1fr);
-            grid-auto-rows: 250px;
+            grid-auto-rows: 260px;
+            gap: 1.5rem;
         }
-        .gallery-editorial > *:first-child {
+
+        /* Layout asimetris — hanya jika item >= 4 */
+        .gallery-editorial:not(.is-sparse) > *:first-child {
             grid-column: span 2;
             grid-row: span 2;
         }
+
+        /* Fallback: item < 4 → kolom seragam, tidak ada bolong */
+        .gallery-editorial.is-sparse {
+            grid-template-columns: repeat(2, 1fr);
+            grid-auto-rows: 320px;
+        }
     }
+
     .gallery-editorial-item {
         position: relative;
         overflow: hidden;
         border-radius: 1rem;
+        isolation: isolate;
+    }
+
+    /* Accent border saat hover — pakai token existing, tidak ada warna baru */
+    .gallery-editorial-item::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        border: 2px solid transparent;
+        pointer-events: none;
+        transition: border-color 400ms cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 2;
+    }
+    .gallery-editorial-item:hover::after,
+    .gallery-editorial-item:focus-within::after {
+        border-color: rgba(236, 32, 41, 0.6); /* --color-signal @ 60% */
+    }
+
+    /* Hierarki tipografi: item utama (2×2) lebih besar */
+    .gallery-editorial:not(.is-sparse) .gallery-editorial-item:first-child h3 {
+        font-size: 1.5rem;
+        line-height: 1.25;
+    }
+    @media (min-width: 768px) {
+        .gallery-editorial:not(.is-sparse) .gallery-editorial-item:first-child h3 {
+            font-size: 1.75rem;
+        }
+    }
+
+    /* Metadata fade-in saat hover */
+    .gallery-editorial-meta {
+        opacity: 0;
+        transform: translateY(6px);
+        transition: opacity 300ms ease, transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .gallery-editorial-item:hover .gallery-editorial-meta,
+    .gallery-editorial-item:focus-within .gallery-editorial-meta {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Empty state card */
+    .gallery-empty-state {
+        border: 1px dashed var(--color-line, #cbd5e1);
+        border-radius: 1rem;
+        background: #ffffff;
+        padding: 3rem 1.5rem;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .gallery-editorial-item::after,
+        .gallery-editorial-meta {
+            transition: none;
+        }
     }
 </style>
 @endpush
@@ -306,23 +377,44 @@
             Direct documentation of vehicle loading and unloading activities, staging yard capacity, and high safety standards at PT Patimban International Car Terminal.
         </p>
 
-        <div class="gallery-editorial">
+        @php
+            $galleryCount = $terminalGallery->count();
+        @endphp
+        <div class="gallery-editorial {{ $galleryCount > 0 && $galleryCount < 4 ? 'is-sparse' : '' }}">
             @forelse($terminalGallery as $index => $item)
-                <article class="gallery-editorial-item group relative">
+                <article class="gallery-editorial-item group relative"
+                         data-aos="fade-up"
+                         data-aos-delay="{{ min($index * 80, 320) }}">
                     <img src="{{ $item->image_url }}"
                          alt="{{ $item->title }}"
-                         loading="lazy"
+                         loading="{{ $index === 0 ? 'eager' : 'lazy' }}"
+                         decoding="async"
+                         sizes="(min-width: 768px) 33vw, 100vw"
                          class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent opacity-90 flex flex-col justify-end p-6">
-                        <h3 class="text-xl font-bold text-white mb-2">{{ $item->title }}</h3>
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-transparent flex flex-col justify-end p-5 sm:p-6">
+                        {{-- Index number — editorial metadata --}}
+                        <div class="gallery-editorial-meta absolute top-5 right-5 text-[10px] font-bold tracking-[0.2em] text-white/70 uppercase">
+                            {{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }} / {{ str_pad($galleryCount, 2, '0', STR_PAD_LEFT) }}
+                        </div>
+
+                        {{-- Eyebrow accent — garis signal merah --}}
+                        <div class="w-8 h-[3px] bg-[#ec2029] mb-3 gallery-editorial-meta"></div>
+
+                        <h3 class="text-lg sm:text-xl font-bold text-white mb-2 leading-snug">
+                            {{ $item->title }}
+                        </h3>
                         <p class="text-slate-200 text-sm leading-relaxed line-clamp-2">
                             {{ $item->description }}
                         </p>
                     </div>
                 </article>
             @empty
-                <div class="col-span-full text-center py-12 text-slate-400 text-sm">
-                    Belum ada gambar galeri untuk halaman Home. Silakan tambahkan melalui Admin Panel.
+                <div class="col-span-full gallery-empty-state">
+                    <svg class="w-10 h-10 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                    </svg>
+                    <p class="text-sm font-semibold text-slate-600">Belum ada gambar galeri</p>
+                    <p class="text-xs text-slate-400 max-w-sm">Tambahkan melalui Admin Panel untuk menampilkan dokumentasi operasional terminal.</p>
                 </div>
             @endforelse
         </div>
