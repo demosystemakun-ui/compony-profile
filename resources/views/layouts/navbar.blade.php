@@ -50,35 +50,35 @@
         transition: color 0.2s ease;
     }
 
-    /* ═══ SHRINK ON SCROLL (PENDEKATAN BARU: TRANSFORM & ABSOLUTE) ═══ */
+    /* ═══ SHRINK ON SCROLL ═══ */
+    :root { --nav-h: 54px; }
+
     #navbarWrapper {
-        transition: width 400ms cubic-bezier(0.4, 0, 0.2, 1), 
-                    border-radius 400ms ease,
-                    background-color 400ms ease,
-                    box-shadow 400ms ease,
-                    transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
+        height: var(--nav-h);
         width: 100%;
-        /* Gunakan animasi transform, bukan width/height */
-        transform-origin: top center;
+        transition: width 400ms cubic-bezier(0.4, 0, 0.2, 1),
+                    padding 400ms ease,
+                    gap 400ms ease,
+                    background-color 400ms ease,
+                    box-shadow 400ms ease;
     }
 
     #navbarWrapper.is-shrunk {
-        /* Kunci lebar menjadi seukuran lingkaran logo saja */
-        width: 48px !important;
+        width: var(--nav-h) !important;   /* sama dengan tinggi → lingkaran */
         padding-left: 0 !important;
         padding-right: 0 !important;
+        gap: 0 !important;                /* hilangkan sisa gap-4 */
+        justify-content: center !important;
         cursor: pointer;
-        border-radius: 50% !important; /* Jadi bulat sempurna */
         background-color: rgba(255, 255, 255, 0.95);
         box-shadow: 0 10px 34px rgba(15, 23, 42, 0.15);
     }
 
-    /* Sembunyikan nav & actions & teks dengan menyusutkannya */
+    /* Elemen yang disembunyikan saat shrink */
     #navContainer,
     #rightActions,
     #brandText {
-        transition: opacity 200ms ease, transform 200ms ease, width 200ms ease;
-        transform-origin: top center;
+        transition: opacity 200ms ease, max-width 300ms ease;
     }
 
     #navbarWrapper.is-shrunk #navContainer,
@@ -88,19 +88,23 @@
         visibility: hidden;
         pointer-events: none;
         width: 0 !important;
+        min-width: 0 !important;
+        max-width: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
+        border-width: 0 !important;       /* border nav 1px ikut hilang */
         overflow: hidden;
-        transform: scaleY(0);
     }
 
-    /* Logo di tengah */
-    #brandLogo {
-        transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    /* Logo di tengah lingkaran */
+    #navbarWrapper.is-shrunk #brandLink {
+        gap: 0 !important;
+        justify-content: center;
     }
-
     #navbarWrapper.is-shrunk #brandLogo {
-        transform: scale(0.9);
+        height: 28px;
+        width: 28px;
+        object-fit: contain;
     }
 
     /* Mobile menu ikut tertutup saat shrunk */
@@ -331,12 +335,16 @@
     function setupShrinkOnScroll() {
         const wrapper   = document.getElementById('navbarWrapper');
         const brandLink = document.getElementById('brandLink');
-        if (!wrapper || wrapper.dataset.shrinkBound === '1') return;
+        if (!wrapper || !brandLink || wrapper.dataset.shrinkBound === '1') return;
         wrapper.dataset.shrinkBound = '1';
 
-        const SCROLL_THRESHOLD = 120;
-        let isShrunk    = false;
+        const SHRINK_AT       = 120;  // mulai shrink setelah scroll sejauh ini
+        const RESHRINK_DELTA  = 80;   // setelah di-expand manual, shrink lagi kalau scroll sejauh ini
+        let isShrunk     = false;
         let userExpanded = false;
+        let expandedAtY  = 0;
+
+        const getY = () => window.scrollY || document.documentElement.scrollTop;
 
         function applyShrink(shrunk) {
             if (isShrunk === shrunk) return;
@@ -352,41 +360,47 @@
                 wrapper.removeAttribute('role');
                 wrapper.removeAttribute('tabindex');
                 wrapper.removeAttribute('aria-label');
+                // hitung ulang posisi pill setelah transisi lebar selesai
+                setTimeout(() => {
+                    if (typeof window.__pictNavMoveTo === 'function' && activeTab) {
+                        window.__pictNavMoveTo(activeTab, true);
+                    }
+                }, 420);
             }
         }
 
         function onScroll() {
-            const y = window.scrollY || document.documentElement.scrollTop;
-            if (y > SCROLL_THRESHOLD) {
-                if (!userExpanded) applyShrink(true);
-            } else {
+            const y = getY();
+
+            if (y <= SHRINK_AT) {
                 userExpanded = false;
                 applyShrink(false);
+                return;
+            }
+
+            if (userExpanded) {
+                // sudah di-expand manual → shrink lagi kalau user scroll lagi cukup jauh
+                if (Math.abs(y - expandedAtY) > RESHRINK_DELTA) {
+                    userExpanded = false;
+                    applyShrink(true);
+                }
+            } else {
+                applyShrink(true);
             }
         }
 
         function expand() {
             if (!isShrunk) return;
             userExpanded = true;
+            expandedAtY  = getY();
             applyShrink(false);
         }
 
-        // Klik logo saat shrunk → expand
-        if (brandLink.dataset.shrinkBound !== '1') {
-            brandLink.dataset.shrinkBound = '1';
-            brandLink.addEventListener('click', function (e) {
-                if (isShrunk) {
-                    e.preventDefault();
-                    expand();
-                }
-            });
-        }
-
-        // Klik area wrapper saat shrunk → expand
+        // Klik logo / area wrapper saat shrunk → expand (jangan pindah halaman)
         wrapper.addEventListener('click', function (e) {
-            if (isShrunk && !e.target.closest('#brandLink')) {
-                expand();
-            }
+            if (!isShrunk) return;
+            e.preventDefault();
+            expand();
         });
 
         // Keyboard accessibility
