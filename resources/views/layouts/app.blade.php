@@ -77,7 +77,7 @@
             footer .grid { row-gap: 1.25rem !important; }
         }
 
-        /* ═══ NAVBAR (dipindah dari navbar.blade.php) ═══ */
+        /* ═══ NAVBAR ═══ */
         #mobileMenu, #mobileMenu *,
         header, header * {
             font-family: 'Century Gothic', 'CenturyGothic', 'Poppins', sans-serif !important;
@@ -96,12 +96,72 @@
             will-change: left, top, width, height;
         }
         .nav-tab { transition: color 0.2s ease; }
-        
-        /* PERBAIKAN: Hapus transition header lama yang bikin tabrakan */
-        /* header { transition: transform 0.3s ease; } */
+
+        /* ═══ NAVBAR: SHRINK ON SCROLL ═══ */
+        :root { --nav-h: 54px; }
+
+        #navbarWrapper {
+            height: var(--nav-h);
+            width: 100%;
+            transition: width 400ms cubic-bezier(0.4, 0, 0.2, 1),
+                        padding 400ms ease,
+                        gap 400ms ease,
+                        background-color 400ms ease,
+                        box-shadow 400ms ease;
+        }
+
+        #navbarWrapper.is-shrunk {
+            width: var(--nav-h) !important;   /* sama dengan tinggi → lingkaran */
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            gap: 0 !important;
+            justify-content: center !important;
+            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 10px 34px rgba(15, 23, 42, 0.15);
+        }
+
+        #navContainer,
+        #rightActions,
+        #brandText {
+            transition: opacity 200ms ease, max-width 300ms ease;
+        }
+
+        #navbarWrapper.is-shrunk #navContainer,
+        #navbarWrapper.is-shrunk #rightActions,
+        #navbarWrapper.is-shrunk #brandText {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            width: 0 !important;
+            min-width: 0 !important;
+            max-width: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border-width: 0 !important;
+            overflow: hidden;
+        }
+
+        #navbarWrapper.is-shrunk #brandLink {
+            gap: 0 !important;
+            justify-content: center;
+        }
+        #navbarWrapper.is-shrunk #brandLogo {
+            height: 28px;
+            width: 28px;
+            object-fit: contain;
+        }
+
+        #navbarWrapper.is-shrunk ~ #mobileMenu {
+            opacity: 0;
+            pointer-events: none;
+        }
 
         @media (prefers-reduced-motion: reduce) {
-            #mobileMenu, #navSlider, .nav-tab { transition: none !important; }
+            #mobileMenu, #navSlider, .nav-tab,
+            #navbarWrapper, #navContainer, #rightActions, #brandText, #brandLogo {
+                transition: none !important;
+            }
         }
 
         /* ═══ PAGE TRANSITIONS (Swup) ═══ */
@@ -169,7 +229,7 @@
     <div id="scamWarningModal" class="fixed inset-0 z-[9999] hidden bg-gray-900/75 backdrop-blur-sm" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <!-- Static wrapper centered on screen -->
         <div class="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto">
-            
+
             <!-- Modal panel -->
             <div class="relative w-full max-w-lg rounded-2xl bg-white text-left shadow-2xl border border-gray-100 overflow-hidden transform transition-all">
                 <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
@@ -180,7 +240,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                             </svg>
                         </div>
-                        
+
                         <!-- Text Content (English) -->
                         <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
                             <h3 class="text-xl font-bold leading-6 text-gray-900" id="modal-title">
@@ -203,7 +263,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Action Button -->
                 <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 border-t border-gray-100">
                     <button type="button" id="closeModalBtn" class="inline-flex w-full justify-center rounded-lg border border-transparent bg-[#26347a] px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:ring-offset-2 sm:ml-3 sm:w-auto transition-colors">
@@ -219,19 +279,19 @@
         document.addEventListener('DOMContentLoaded', function() {
             const modal = document.getElementById('scamWarningModal');
             const closeBtn = document.getElementById('closeModalBtn');
-            
+
             if (!modal || !closeBtn) return;
-            
+
             const lastSeen = localStorage.getItem('pict_scam_warning_last_seen');
             const now = new Date().getTime();
             const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
-            
+
             if (!lastSeen || (now - parseInt(lastSeen)) > sevenDaysInMs) {
                 setTimeout(() => {
                     modal.classList.remove('hidden');
                     // Lock body scroll
                     document.body.style.overflow = 'hidden';
-                }, 1000); 
+                }, 1000);
             }
 
             closeBtn.addEventListener('click', function() {
@@ -271,15 +331,6 @@
                 offset: 120
             });
             AOS.refreshHard();
-        }
-
-        /* ═══════════════════════════════════════════════════════════════
-           PERBAIKAN: LOGIKA NAVBAR HIDE/SHOW DIHAPUS TOTAL
-           (Karena navbar sudah pakai efek "Shrink on Scroll" dari file navbar)
-        ═══════════════════════════════════════════════════════════════ */
-        function initNavbarScroll() {
-            // Fungsi ini sengaja dikosongkan agar tidak menabrak efek shrink
-            // yang ada di layouts.navbar
         }
 
         /* ═══════════════════════════════════════════════════════════════
@@ -326,7 +377,6 @@
                 window.scrollTo({ top: 0, behavior: 'instant' });
                 updateBackToTop();
                 initAOS();
-                // initNavbarScroll(); <- Dihapus karena sudah tidak dipakai
             });
         }
 
