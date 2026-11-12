@@ -50,10 +50,68 @@
         transition: color 0.2s ease;
     }
 
+    /* ═══ SHRINK ON SCROLL ═══ */
+    #navbarWrapper {
+        transition: max-width 380ms cubic-bezier(0.4, 0, 0.2, 1),
+                    padding 380ms cubic-bezier(0.4, 0, 0.2, 1),
+                    background-color 380ms ease,
+                    box-shadow 380ms ease,
+                    border-color 380ms ease;
+        will-change: max-width, padding, background-color;
+    }
+
+    #navbarWrapper.is-shrunk {
+        max-width: 3.75rem;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+        cursor: pointer;
+        background-color: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 10px 34px rgba(15, 23, 42, 0.14);
+        justify-content: center;
+    }
+
+    /* Sembunyikan nav & actions saat shrunk */
+    #navbarWrapper.is-shrunk #navContainer,
+    #navbarWrapper.is-shrunk #rightActions,
+    #navbarWrapper.is-shrunk #brandText {
+        opacity: 0;
+        transform: scale(0.85);
+        pointer-events: none;
+        width: 0 !important;
+        overflow: hidden;
+        margin: 0 !important;
+    }
+
+    /* Logo sedikit membesar saat shrunk */
+    #navbarWrapper.is-shrunk #brandLogo {
+        transform: scale(1.15);
+    }
+
+    #navContainer,
+    #rightActions,
+    #brandText,
+    #brandLogo {
+        transition: opacity 250ms ease,
+                    transform 250ms ease,
+                    width 250ms ease,
+                    margin 250ms ease;
+    }
+
+    /* Mobile menu ikut tertutup saat shrunk */
+    #navbarWrapper.is-shrunk ~ #mobileMenu {
+        opacity: 0;
+        pointer-events: none;
+    }
+
     @media (prefers-reduced-motion: reduce) {
         #mobileMenu,
         #navSlider,
-        .nav-tab {
+        .nav-tab,
+        #navbarWrapper,
+        #navContainer,
+        #rightActions,
+        #brandText,
+        #brandLogo {
             transition: none !important;
         }
     }
@@ -61,19 +119,24 @@
 @endpush
 
 {{-- ═══════════════════════════════════════════════════════════════
-     FLOATING COMPACT NAVBAR (LIGHT THEME)
+     FLOATING COMPACT NAVBAR (LIGHT THEME) — SHRINK ON SCROLL
 ══════════════════════════════════════════════════════════════ --}}
 <header class="fixed top-0 inset-x-0 z-50 px-4 pointer-events-none"
         style="padding-top: max(0.75rem, env(safe-area-inset-top));">
 
-    <div class="max-w-6xl mx-auto flex items-center justify-between pointer-events-auto bg-white/90 backdrop-blur-xl border border-slate-200/90 rounded-full px-4 sm:px-5 py-2 shadow-xl shadow-slate-900/5 gap-4 relative z-50">
+    <div id="navbarWrapper"
+         class="max-w-6xl mx-auto flex items-center justify-between pointer-events-auto bg-white/90 backdrop-blur-xl border border-slate-200/90 rounded-full px-4 sm:px-5 py-2 shadow-xl shadow-slate-900/5 gap-4 relative z-50">
 
         {{-- ═══ BRAND ═══ --}}
-        <a href="{{ url('/') }}" class="flex items-center gap-2.5 shrink-0 group" aria-label="PICT Home">
+        <a href="{{ url('/') }}"
+           id="brandLink"
+           class="flex items-center gap-2.5 shrink-0 group"
+           aria-label="PICT Home">
             <img src="{{ asset('assets/images/pict.png') }}"
+                 id="brandLogo"
                  alt="PICT Logo"
                  class="relative z-10 h-7 sm:h-8 w-auto object-contain transition-transform duration-300 group-hover:scale-105 shrink-0">
-            <span class="leading-tight hidden sm:block">
+            <span id="brandText" class="leading-tight hidden sm:block">
                 <span class="text-slate-900 font-extrabold text-[13px] tracking-tight block">
                     Patimban International Car Terminal
                 </span>
@@ -102,7 +165,7 @@
         </nav>
 
         {{-- ═══ RIGHT ACTIONS ═══ --}}
-        <div class="flex items-center gap-2 shrink-0">
+        <div id="rightActions" class="flex items-center gap-2 shrink-0">
 
             {{-- Mobile Menu Toggle --}}
             <button id="mobileMenuBtn"
@@ -182,6 +245,7 @@
         document.getElementById('mobileMenuBtn')?.setAttribute('aria-expanded', 'false');
     }
 
+    /* ── Sliding Pill ─────────────────────────────────────────── */
     function setupSlidingPill() {
         const container = document.getElementById('navContainer');
         const slider    = document.getElementById('navSlider');
@@ -257,6 +321,89 @@
         }
     }
 
+    /* ── Shrink on Scroll ─────────────────────────────────────── */
+    function setupShrinkOnScroll() {
+        const wrapper   = document.getElementById('navbarWrapper');
+        const brandLink = document.getElementById('brandLink');
+        if (!wrapper || wrapper.dataset.shrinkBound === '1') return;
+        wrapper.dataset.shrinkBound = '1';
+
+        const SCROLL_THRESHOLD = 120;
+        let isShrunk    = false;
+        let userExpanded = false;
+
+        function applyShrink(shrunk) {
+            if (isShrunk === shrunk) return;
+            isShrunk = shrunk;
+            wrapper.classList.toggle('is-shrunk', shrunk);
+
+            if (shrunk) {
+                closeMobileMenu();
+                wrapper.setAttribute('role', 'button');
+                wrapper.setAttribute('tabindex', '0');
+                wrapper.setAttribute('aria-label', 'Expand navigation');
+            } else {
+                wrapper.removeAttribute('role');
+                wrapper.removeAttribute('tabindex');
+                wrapper.removeAttribute('aria-label');
+            }
+        }
+
+        function onScroll() {
+            const y = window.scrollY || document.documentElement.scrollTop;
+            if (y > SCROLL_THRESHOLD) {
+                if (!userExpanded) applyShrink(true);
+            } else {
+                userExpanded = false;
+                applyShrink(false);
+            }
+        }
+
+        function expand() {
+            if (!isShrunk) return;
+            userExpanded = true;
+            applyShrink(false);
+        }
+
+        // Klik logo saat shrunk → expand
+        if (brandLink.dataset.shrinkBound !== '1') {
+            brandLink.dataset.shrinkBound = '1';
+            brandLink.addEventListener('click', function (e) {
+                if (isShrunk) {
+                    e.preventDefault();
+                    expand();
+                }
+            });
+        }
+
+        // Klik wrapper (area logo) saat shrunk → expand
+        wrapper.addEventListener('click', function (e) {
+            if (isShrunk && !e.target.closest('#brandLink')) {
+                expand();
+            }
+        });
+
+        // Keyboard accessibility
+        wrapper.addEventListener('keydown', function (e) {
+            if (isShrunk && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                expand();
+            }
+        });
+
+        // Simpan handler scroll di window supaya tidak double-bind
+        if (!window.__pictNavScrollBound) {
+            window.__pictNavScrollBound = true;
+            window.addEventListener('scroll', () => {
+                if (typeof window.__pictNavOnScroll === 'function') window.__pictNavOnScroll();
+            }, { passive: true });
+        }
+        window.__pictNavOnScroll = onScroll;
+
+        onScroll(); // initial
+    }
+
+    /* ── Resize handler ───────────────────────────────────────── */
     let resizeTimer = null;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimer);
@@ -267,6 +414,7 @@
         }, 100);
     });
 
+    /* ── Mobile menu toggle ───────────────────────────────────── */
     document.addEventListener('click', (e) => {
         const menu = document.getElementById('mobileMenu');
         if (!menu) return;
@@ -291,8 +439,10 @@
         }
     });
 
+    /* ── Init ─────────────────────────────────────────────────── */
     function initNavbar() {
         setupSlidingPill();
+        setupShrinkOnScroll();
     }
     window.__pictNavInit = initNavbar;
 
@@ -302,6 +452,7 @@
         initNavbar();
     }
 
+    /* ── Swup binding ─────────────────────────────────────────── */
     function bindSwup() {
         if (window.__pictSwupBound) return true;
         if (window.swup && typeof window.swup.hooks?.on === 'function') {
