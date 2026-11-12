@@ -60,10 +60,11 @@
         #moreSheet { transition: none !important; }
     }
 
-    /* Di mobile: beri ruang untuk tab bar bawah */
+    /* Di mobile: beri ruang untuk tab bar bawah & header floating */
     @media (max-width: 1023px) {
         body {
             padding-bottom: calc(var(--tab-h) + 1.75rem + env(safe-area-inset-bottom, 0px));
+            padding-top: 80px; /* Jarak aman untuk header floating di mobile */
         }
         /* Tombol Back to Top naik di atas tab bar */
         #backToTop {
@@ -75,7 +76,6 @@
 
 {{-- ═══════════════════════════════════════════════════════════════
      DESKTOP NAVBAR (FLOATING) — SHRINK ON SCROLL
-     (Disembunyikan sepenuhnya di tampilan Mobile)
 ══════════════════════════════════════════════════════════════ --}}
 <header class="hidden lg:block fixed top-0 inset-x-0 z-50 px-4 pointer-events-none"
         style="padding-top: max(0.75rem, env(safe-area-inset-top));">
@@ -123,19 +123,23 @@
 </header>
 
 {{-- ═══════════════════════════════════════════════════════════════
-     MOBILE LOGO HEADER (STATIS)
-     Hanya menampilkan Logo tanpa menu dan tombol Login.
+     MOBILE LOGO HEADER (FLOATING & FIXED)
+     Melayang di tengah atas dengan ujung melengkung (rounded-full)
 ══════════════════════════════════════════════════════════════ --}}
-<div class="lg:hidden w-full bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-center"
-     style="padding-top: max(1rem, env(safe-area-inset-top));">
-    <a href="{{ url('/') }}" class="inline-flex items-center gap-2" aria-label="PICT Home">
-        <img src="{{ asset('assets/images/pict.png') }}"
-             alt="PICT Logo"
-             class="h-8 w-auto object-contain">
-        <span class="text-slate-900 font-extrabold text-sm tracking-tight">
-            Patimban International Car Terminal
-        </span>
-    </a>
+<div class="lg:hidden fixed top-0 inset-x-0 z-[45] px-4 pointer-events-none"
+     style="padding-top: max(0.75rem, env(safe-area-inset-top));">
+     
+    {{-- Menggunakan desain pill (rounded-full) persis seperti versi desktop --}}
+    <div class="max-w-md mx-auto bg-white/90 backdrop-blur-xl border border-slate-200/90 rounded-full px-5 py-2.5 shadow-xl shadow-slate-900/5 flex items-center justify-center pointer-events-auto">
+        <a href="{{ url('/') }}" class="inline-flex items-center gap-2" aria-label="PICT Home">
+            <img src="{{ asset('assets/images/pict.png') }}"
+                 alt="PICT Logo"
+                 class="h-7 w-auto object-contain">
+            <span class="text-slate-900 font-extrabold text-[13px] tracking-tight">
+                Patimban International Car Terminal
+            </span>
+        </a>
+    </div>
 </div>
 
 {{-- ═══════════════════════════════════════════════════════════════
