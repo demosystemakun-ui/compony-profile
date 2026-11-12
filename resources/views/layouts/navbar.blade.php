@@ -18,118 +18,66 @@
         if ($target === '') return $currentPath === '';
         return request()->is($target . '*');
     };
+
+    /* ─── Bottom tab bar (mobile) ───
+       Tab utama (maks 4) + tombol "More" untuk sisanya.
+       Ubah isi array ini kalau mau tab yang lain. */
+    $bottomTabs = ['home', 'our-tariffs', 'operations', 'news'];
+    $moreKeys   = ['about', 'services', 'sustainability', 'contact'];
+
+    $isMoreActive = collect($moreKeys)->contains(fn ($k) => $isLinkActive($navLinks[$k]['url']));
+
+    /* Icon (Heroicons outline, path "d") */
+    $icons = [
+        'home'           => 'M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25',
+        'our-tariffs'    => 'M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z M6 6h.008v.008H6V6z',
+        'operations'     => 'M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12',
+        'news'           => 'M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z',
+        'more'           => 'M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z',
+        'about'          => 'M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z',
+        'services'       => 'M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z',
+        'sustainability' => 'M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418',
+        'contact'        => 'M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75',
+        'login'          => 'M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1',
+    ];
 @endphp
 
-@push('styles')
+{{-- ═══════════════════════════════════════════════════════════════
+     STYLES (inline supaya tidak bergantung pada @stack('styles'))
+══════════════════════════════════════════════════════════════ --}}
 <style>
-    /* ═══ NAVBAR FONT ═══ */
-    #mobileMenu, #mobileMenu *,
-    header, header * {
-        font-family: 'Century Gothic', 'CenturyGothic', 'Poppins', sans-serif !important;
-    }
+    :root { --tab-h: 64px; }
 
-    /* ═══ MOBILE MENU TRANSITION ═══ */
-    #mobileMenu {
+    /* "More" sheet (mobile) */
+    #moreSheet {
         transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        transform-origin: top center;
+        transform-origin: bottom center;
     }
-    #mobileMenu.is-closed {
+    #moreSheet.is-closed {
         opacity: 0;
-        transform: scaleY(0.95) translateY(-10px);
-        pointer-events: none;
-    }
-
-    /* ═══ SLIDING PILL ═══ */
-    #navSlider {
-        transition: all 280ms cubic-bezier(0.25, 1, 0.5, 1);
-        will-change: left, top, width, height;
-    }
-
-    /* ═══ NAV LINK BASE ═══ */
-    .nav-tab {
-        transition: color 0.2s ease;
-    }
-
-    /* ═══ SHRINK ON SCROLL ═══ */
-    :root { --nav-h: 54px; }
-
-    #navbarWrapper {
-        height: var(--nav-h);
-        width: 100%;
-        transition: width 400ms cubic-bezier(0.4, 0, 0.2, 1),
-                    padding 400ms ease,
-                    gap 400ms ease,
-                    background-color 400ms ease,
-                    box-shadow 400ms ease;
-    }
-
-    #navbarWrapper.is-shrunk {
-        width: var(--nav-h) !important;   /* sama dengan tinggi → lingkaran */
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-        gap: 0 !important;                /* hilangkan sisa gap-4 */
-        justify-content: center !important;
-        cursor: pointer;
-        background-color: rgba(255, 255, 255, 0.95);
-        box-shadow: 0 10px 34px rgba(15, 23, 42, 0.15);
-    }
-
-    /* Elemen yang disembunyikan saat shrink */
-    #navContainer,
-    #rightActions,
-    #brandText {
-        transition: opacity 200ms ease, max-width 300ms ease;
-    }
-
-    #navbarWrapper.is-shrunk #navContainer,
-    #navbarWrapper.is-shrunk #rightActions,
-    #navbarWrapper.is-shrunk #brandText {
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-        width: 0 !important;
-        min-width: 0 !important;
-        max-width: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        border-width: 0 !important;       /* border nav 1px ikut hilang */
-        overflow: hidden;
-    }
-
-    /* Logo di tengah lingkaran */
-    #navbarWrapper.is-shrunk #brandLink {
-        gap: 0 !important;
-        justify-content: center;
-    }
-    #navbarWrapper.is-shrunk #brandLogo {
-        height: 28px;
-        width: 28px;
-        object-fit: contain;
-    }
-
-    /* Mobile menu ikut tertutup saat shrunk */
-    #navbarWrapper.is-shrunk ~ #mobileMenu {
-        opacity: 0;
+        transform: scale(0.96) translateY(12px);
         pointer-events: none;
     }
 
     @media (prefers-reduced-motion: reduce) {
-        #mobileMenu,
-        #navSlider,
-        .nav-tab,
-        #navbarWrapper,
-        #navContainer,
-        #rightActions,
-        #brandText,
-        #brandLogo {
-            transition: none !important;
+        #moreSheet { transition: none !important; }
+    }
+
+    /* Di mobile: beri ruang untuk tab bar bawah */
+    @media (max-width: 1023px) {
+        body {
+            padding-bottom: calc(var(--tab-h) + 1.75rem + env(safe-area-inset-bottom, 0px));
+        }
+        /* Tombol Back to Top naik di atas tab bar */
+        #backToTop {
+            bottom: calc(var(--tab-h) + 2rem + env(safe-area-inset-bottom, 0px)) !important;
+            margin-bottom: 0 !important;
         }
     }
 </style>
-@endpush
 
 {{-- ═══════════════════════════════════════════════════════════════
-     FLOATING COMPACT NAVBAR (LIGHT THEME) — SHRINK ON SCROLL
+     FLOATING COMPACT NAVBAR (TOP) — SHRINK ON SCROLL
 ══════════════════════════════════════════════════════════════ --}}
 <header class="fixed top-0 inset-x-0 z-50 px-4 pointer-events-none"
         style="padding-top: max(0.75rem, env(safe-area-inset-top));">
@@ -174,65 +122,90 @@
             </div>
         </nav>
 
-        {{-- ═══ RIGHT ACTIONS ═══ --}}
-        <div id="rightActions" class="flex items-center gap-2 shrink-0 h-9">
-
-            {{-- Mobile Menu Toggle --}}
-            <button id="mobileMenuBtn"
-                    type="button"
-                    aria-label="Toggle navigation menu"
-                    aria-expanded="false"
-                    aria-controls="mobileMenu"
-                    class="relative z-50 flex lg:hidden w-9 h-9 rounded-full items-center justify-center text-slate-700 hover:text-slate-900 bg-slate-100 border border-slate-200 active:scale-90 transition shrink-0 cursor-pointer">
-                <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/>
-                </svg>
-            </button>
-        </div>
-    </div>
-
-    {{-- ═══ MOBILE MENU ═══ --}}
-    <div id="mobileMenu"
-         class="lg:hidden mt-3 pointer-events-auto max-w-xs mx-auto is-closed relative z-50">
-        <div class="bg-white/95 backdrop-blur-2xl border border-slate-200 rounded-3xl p-4 shadow-2xl shadow-slate-900/10 space-y-2">
-
-            {{-- PICTOS Login (Mobile) --}}
+        {{-- ═══ RIGHT ACTIONS (mobile: tombol PICTOS Login) ═══ --}}
+        <div id="rightActions" class="flex lg:hidden items-center gap-2 shrink-0 h-9">
             <a href="https://patimbancarterminal.com/login"
                target="_blank"
                rel="noopener noreferrer"
-               class="flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold bg-[#0A2540] text-white shadow-sm mb-2">
-                <span class="flex items-center gap-2">
-                    <svg class="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
-                    </svg>
-                    PICTOS Login
-                </span>
-                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+               aria-label="PICTOS Login"
+               class="flex items-center gap-1.5 h-9 px-3 rounded-full bg-[#0A2540] text-white text-[11px] font-bold active:scale-95 transition">
+                <svg class="w-3.5 h-3.5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icons['login'] }}"/>
                 </svg>
+                <span>Login</span>
             </a>
-
-            {{-- Nav Links --}}
-            <div class="border-t border-slate-100 pt-2 space-y-1">
-                @foreach($navLinks as $key => $link)
-                    @php $isCurrent = $isLinkActive($link['url']); @endphp
-                    <a href="{{ url($link['url']) }}"
-                       @if($key === 'contact') data-no-swup @endif
-                       @if($isCurrent) aria-current="page" @endif
-                       class="flex items-center justify-between px-4 py-2.5 rounded-2xl text-xs font-medium transition active:scale-95
-                              {{ $isCurrent
-                                 ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white font-bold shadow-md shadow-red-600/20'
-                                 : 'text-slate-700 bg-slate-50 hover:bg-slate-100' }}">
-                        <span>{{ $link['label'] }}</span>
-                        @if($isCurrent)
-                            <span class="w-1.5 h-1.5 rounded-full bg-white inline-block" aria-hidden="true"></span>
-                        @endif
-                    </a>
-                @endforeach
-            </div>
         </div>
     </div>
 </header>
+
+{{-- ═══════════════════════════════════════════════════════════════
+     MOBILE: "MORE" SHEET + BOTTOM TAB BAR
+══════════════════════════════════════════════════════════════ --}}
+<div id="moreSheet"
+     class="lg:hidden fixed inset-x-0 z-50 px-4 is-closed pointer-events-auto"
+     style="bottom: calc(max(0.75rem, env(safe-area-inset-bottom, 0px)) + var(--tab-h) + 0.5rem);">
+    <div class="max-w-md mx-auto bg-white/95 backdrop-blur-2xl border border-slate-200 rounded-3xl p-3 shadow-2xl shadow-slate-900/15">
+        <div class="grid grid-cols-2 gap-2">
+            @foreach($moreKeys as $key)
+                @php
+                    $link = $navLinks[$key];
+                    $isCurrent = $isLinkActive($link['url']);
+                @endphp
+                <a href="{{ url($link['url']) }}"
+                   @if($key === 'contact') data-no-swup @endif
+                   @if($isCurrent) aria-current="page" @endif
+                   class="flex items-center gap-2.5 px-3 py-3 rounded-2xl text-xs font-semibold transition active:scale-95
+                          {{ $isCurrent
+                             ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-red-600/20'
+                             : 'text-slate-700 bg-slate-50 hover:bg-slate-100' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="{{ $icons[$key] }}"/>
+                    </svg>
+                    <span>{{ $link['label'] }}</span>
+                </a>
+            @endforeach
+        </div>
+    </div>
+</div>
+
+<nav id="bottomTabBar"
+     class="lg:hidden fixed bottom-0 inset-x-0 z-50 px-3 pointer-events-none"
+     style="padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));"
+     aria-label="Mobile navigation">
+    <div class="pointer-events-auto max-w-md mx-auto grid grid-cols-5 gap-1 p-1.5 bg-white/90 backdrop-blur-xl border border-slate-200/90 rounded-3xl shadow-2xl shadow-slate-900/10"
+         style="height: var(--tab-h);">
+
+        @foreach($bottomTabs as $key)
+            @php
+                $link = $navLinks[$key];
+                $isCurrent = $isLinkActive($link['url']);
+            @endphp
+            <a href="{{ url($link['url']) }}"
+               @if($isCurrent) aria-current="page" @endif
+               class="flex flex-col items-center justify-center gap-0.5 rounded-2xl select-none transition active:scale-90
+                      {{ $isCurrent ? 'bg-red-50 text-red-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-800' }}">
+                <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" stroke-width="{{ $isCurrent ? '1.9' : '1.5' }}" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="{{ $icons[$key] }}"/>
+                </svg>
+                <span class="text-[10px] leading-none">{{ $link['label'] }}</span>
+            </a>
+        @endforeach
+
+        {{-- Tombol More --}}
+        <button id="moreBtn"
+                type="button"
+                aria-label="More menu"
+                aria-expanded="false"
+                aria-controls="moreSheet"
+                class="flex flex-col items-center justify-center gap-0.5 rounded-2xl select-none transition active:scale-90 cursor-pointer
+                       {{ $isMoreActive ? 'bg-red-50 text-red-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-800' }}">
+            <svg class="w-[22px] h-[22px] pointer-events-none" fill="none" stroke="currentColor" stroke-width="{{ $isMoreActive ? '1.9' : '1.5' }}" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="{{ $icons['more'] }}"/>
+            </svg>
+            <span class="text-[10px] leading-none pointer-events-none">More</span>
+        </button>
+    </div>
+</nav>
 
 {{-- ═══════════════════════════════════════════════════════════════
      NAVBAR BEHAVIOR SCRIPT
@@ -250,12 +223,12 @@
 
     let activeTab = null;
 
-    function closeMobileMenu() {
-        document.getElementById('mobileMenu')?.classList.add('is-closed');
-        document.getElementById('mobileMenuBtn')?.setAttribute('aria-expanded', 'false');
+    function closeMoreSheet() {
+        document.getElementById('moreSheet')?.classList.add('is-closed');
+        document.getElementById('moreBtn')?.setAttribute('aria-expanded', 'false');
     }
 
-    /* ── Sliding Pill ─────────────────────────────────────────── */
+    /* ── Sliding Pill (desktop) ───────────────────────────────── */
     function setupSlidingPill() {
         const container = document.getElementById('navContainer');
         const slider    = document.getElementById('navSlider');
@@ -352,7 +325,6 @@
             wrapper.classList.toggle('is-shrunk', shrunk);
 
             if (shrunk) {
-                closeMobileMenu();
                 wrapper.setAttribute('role', 'button');
                 wrapper.setAttribute('tabindex', '0');
                 wrapper.setAttribute('aria-label', 'Expand navigation');
@@ -379,7 +351,6 @@
             }
 
             if (userExpanded) {
-                // sudah di-expand manual → shrink lagi kalau user scroll lagi cukup jauh
                 if (Math.abs(y - expandedAtY) > RESHRINK_DELTA) {
                     userExpanded = false;
                     applyShrink(true);
@@ -433,28 +404,23 @@
         }, 100);
     });
 
-    /* ── Mobile menu toggle ───────────────────────────────────── */
+    /* ── "More" sheet toggle (mobile) ─────────────────────────── */
     document.addEventListener('click', (e) => {
-        const menu = document.getElementById('mobileMenu');
-        if (!menu) return;
+        const sheet = document.getElementById('moreSheet');
+        if (!sheet) return;
 
-        const btn = e.target.closest('#mobileMenuBtn');
+        const btn = e.target.closest('#moreBtn');
 
         if (btn) {
             e.preventDefault();
-            const isClosed = menu.classList.contains('is-closed');
-            if (isClosed) {
-                menu.classList.remove('is-closed');
-                btn.setAttribute('aria-expanded', 'true');
-            } else {
-                menu.classList.add('is-closed');
-                btn.setAttribute('aria-expanded', 'false');
-            }
+            const isClosed = sheet.classList.contains('is-closed');
+            sheet.classList.toggle('is-closed', !isClosed);
+            btn.setAttribute('aria-expanded', isClosed ? 'true' : 'false');
             return;
         }
 
-        if (e.target.closest('#mobileMenu a') || !menu.contains(e.target)) {
-            closeMobileMenu();
+        if (e.target.closest('#moreSheet a') || !sheet.contains(e.target)) {
+            closeMoreSheet();
         }
     });
 
@@ -477,7 +443,7 @@
         if (window.swup && typeof window.swup.hooks?.on === 'function') {
             window.__pictSwupBound = true;
             window.swup.hooks.on('page:view', () => {
-                closeMobileMenu();
+                closeMoreSheet();
                 setTimeout(initNavbar, 50);
             });
             return true;
