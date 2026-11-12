@@ -25,9 +25,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    {{-- ═══ TAILWIND ═══
-         CATATAN: CDN ini lambat (kompilasi di browser). Idealnya diganti
-         dengan CSS hasil build (lihat panduan). Sementara dipertahankan. --}}
+    {{-- ═══ TAILWIND ═══ --}}
     <script src="https://cdn.tailwindcss.com"></script>
 
     {{-- ═══ STYLESHEETS ═══ --}}
@@ -98,9 +96,12 @@
             will-change: left, top, width, height;
         }
         .nav-tab { transition: color 0.2s ease; }
-        header { transition: transform 0.3s ease; }
+        
+        /* PERBAIKAN: Hapus transition header lama yang bikin tabrakan */
+        /* header { transition: transform 0.3s ease; } */
+
         @media (prefers-reduced-motion: reduce) {
-            #mobileMenu, #navSlider, .nav-tab, header { transition: none !important; }
+            #mobileMenu, #navSlider, .nav-tab { transition: none !important; }
         }
 
         /* ═══ PAGE TRANSITIONS (Swup) ═══ */
@@ -139,7 +140,7 @@
         Skip to main content
     </a>
 
-    {{-- ═══ NAVBAR (menu mobile & pill dikelola oleh navbar.blade.php) ═══ --}}
+    {{-- ═══ NAVBAR ═══ --}}
     @include('layouts.navbar')
 
     {{-- ═══ MAIN CONTENT ═══ --}}
@@ -169,7 +170,7 @@
         <!-- Static wrapper centered on screen -->
         <div class="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto">
             
-            <!-- Modal panel: added overflow-hidden to fix the square corners issue -->
+            <!-- Modal panel -->
             <div class="relative w-full max-w-lg rounded-2xl bg-white text-left shadow-2xl border border-gray-100 overflow-hidden transform transition-all">
                 <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                     <div class="sm:flex sm:items-start">
@@ -273,33 +274,12 @@
         }
 
         /* ═══════════════════════════════════════════════════════════════
-           NAVBAR HIDE/SHOW ON SCROLL (target: <header>)
+           PERBAIKAN: LOGIKA NAVBAR HIDE/SHOW DIHAPUS TOTAL
+           (Karena navbar sudah pakai efek "Shrink on Scroll" dari file navbar)
         ═══════════════════════════════════════════════════════════════ */
         function initNavbarScroll() {
-            const header = document.querySelector('header');
-            if (!header) return;
-
-            let lastScrollTop = window.pageYOffset || 0;
-
-            /* Hapus listener lama supaya tidak menumpuk */
-            if (window._navbarScrollHandler) {
-                window.removeEventListener('scroll', window._navbarScrollHandler);
-            }
-
-            window._navbarScrollHandler = function () {
-                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                const menu = document.getElementById('mobileMenu');
-                const menuOpen = menu && !menu.classList.contains('is-closed');
-
-                if (scrollTop > lastScrollTop && scrollTop > 100 && !menuOpen) {
-                    header.style.transform = 'translateY(-130%)';   /* scroll turun → sembunyi */
-                } else if (scrollTop < lastScrollTop || scrollTop <= 100) {
-                    header.style.transform = 'translateY(0)';       /* scroll naik → tampil */
-                }
-                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-            };
-
-            window.addEventListener('scroll', window._navbarScrollHandler, { passive: true });
+            // Fungsi ini sengaja dikosongkan agar tidak menabrak efek shrink
+            // yang ada di layouts.navbar
         }
 
         /* ═══════════════════════════════════════════════════════════════
@@ -346,13 +326,12 @@
                 window.scrollTo({ top: 0, behavior: 'instant' });
                 updateBackToTop();
                 initAOS();
-                initNavbarScroll();
+                // initNavbarScroll(); <- Dihapus karena sudah tidak dipakai
             });
         }
 
         /* Load pertama */
         initAOS();
-        initNavbarScroll();
     })();
     </script>
 
