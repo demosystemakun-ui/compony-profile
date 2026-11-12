@@ -19,9 +19,7 @@
         return request()->is($target . '*');
     };
 
-    /* ─── Bottom tab bar (mobile) ───
-       Tab utama (maks 4) + tombol "More" untuk sisanya.
-       Ubah isi array ini kalau mau tab yang lain. */
+    /* ─── Bottom tab bar (mobile) ─── */
     $bottomTabs = ['home', 'our-tariffs', 'operations', 'news'];
     $moreKeys   = ['about', 'services', 'sustainability', 'contact'];
 
@@ -38,12 +36,11 @@
         'services'       => 'M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z',
         'sustainability' => 'M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418',
         'contact'        => 'M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75',
-        'login'          => 'M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1',
     ];
 @endphp
 
 {{-- ═══════════════════════════════════════════════════════════════
-     STYLES (inline supaya tidak bergantung pada @stack('styles'))
+     STYLES
 ══════════════════════════════════════════════════════════════ --}}
 <style>
     :root { --tab-h: 64px; }
@@ -77,9 +74,10 @@
 </style>
 
 {{-- ═══════════════════════════════════════════════════════════════
-     FLOATING COMPACT NAVBAR (TOP) — SHRINK ON SCROLL
+     DESKTOP NAVBAR (FLOATING) — SHRINK ON SCROLL
+     (Disembunyikan sepenuhnya di tampilan Mobile)
 ══════════════════════════════════════════════════════════════ --}}
-<header class="fixed top-0 inset-x-0 z-50 px-4 pointer-events-none"
+<header class="hidden lg:block fixed top-0 inset-x-0 z-50 px-4 pointer-events-none"
         style="padding-top: max(0.75rem, env(safe-area-inset-top));">
 
     <div id="navbarWrapper"
@@ -103,7 +101,7 @@
 
         {{-- ═══ DESKTOP NAV ═══ --}}
         <nav id="navContainer"
-             class="relative hidden lg:flex items-center p-1 rounded-full bg-slate-100/90 border border-slate-200/60"
+             class="relative flex items-center p-1 rounded-full bg-slate-100/90 border border-slate-200/60"
              aria-label="Primary navigation">
             <span id="navSlider" aria-hidden="true"
                   class="absolute rounded-full bg-gradient-to-r from-red-600 to-rose-600 shadow-md shadow-red-600/30 pointer-events-none opacity-0 z-0"></span>
@@ -121,22 +119,24 @@
                 @endforeach
             </div>
         </nav>
-
-        {{-- ═══ RIGHT ACTIONS (mobile: tombol PICTOS Login) ═══ --}}
-        <div id="rightActions" class="flex lg:hidden items-center gap-2 shrink-0 h-9">
-            <a href="https://patimbancarterminal.com/login"
-               target="_blank"
-               rel="noopener noreferrer"
-               aria-label="PICTOS Login"
-               class="flex items-center gap-1.5 h-9 px-3 rounded-full bg-[#0A2540] text-white text-[11px] font-bold active:scale-95 transition">
-                <svg class="w-3.5 h-3.5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icons['login'] }}"/>
-                </svg>
-                <span>Login</span>
-            </a>
-        </div>
     </div>
 </header>
+
+{{-- ═══════════════════════════════════════════════════════════════
+     MOBILE LOGO HEADER (STATIS)
+     Hanya menampilkan Logo tanpa menu dan tombol Login.
+══════════════════════════════════════════════════════════════ --}}
+<div class="lg:hidden w-full bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-center"
+     style="padding-top: max(1rem, env(safe-area-inset-top));">
+    <a href="{{ url('/') }}" class="inline-flex items-center gap-2" aria-label="PICT Home">
+        <img src="{{ asset('assets/images/pict.png') }}"
+             alt="PICT Logo"
+             class="h-8 w-auto object-contain">
+        <span class="text-slate-900 font-extrabold text-sm tracking-tight">
+            Patimban International Car Terminal
+        </span>
+    </a>
+</div>
 
 {{-- ═══════════════════════════════════════════════════════════════
      MOBILE: "MORE" SHEET + BOTTOM TAB BAR
@@ -304,15 +304,15 @@
         }
     }
 
-    /* ── Shrink on Scroll ─────────────────────────────────────── */
+    /* ── Shrink on Scroll (Desktop Only) ──────────────────────── */
     function setupShrinkOnScroll() {
         const wrapper   = document.getElementById('navbarWrapper');
         const brandLink = document.getElementById('brandLink');
         if (!wrapper || !brandLink || wrapper.dataset.shrinkBound === '1') return;
         wrapper.dataset.shrinkBound = '1';
 
-        const SHRINK_AT       = 120;  // mulai shrink setelah scroll sejauh ini
-        const RESHRINK_DELTA  = 80;   // setelah di-expand manual, shrink lagi kalau scroll sejauh ini
+        const SHRINK_AT       = 120; 
+        const RESHRINK_DELTA  = 80; 
         let isShrunk     = false;
         let userExpanded = false;
         let expandedAtY  = 0;
@@ -332,7 +332,6 @@
                 wrapper.removeAttribute('role');
                 wrapper.removeAttribute('tabindex');
                 wrapper.removeAttribute('aria-label');
-                // hitung ulang posisi pill setelah transisi lebar selesai
                 setTimeout(() => {
                     if (typeof window.__pictNavMoveTo === 'function' && activeTab) {
                         window.__pictNavMoveTo(activeTab, true);
@@ -342,6 +341,9 @@
         }
 
         function onScroll() {
+            // Jangan jalankan shrink jika di tampilan mobile
+            if (window.innerWidth < 1024) return;
+
             const y = getY();
 
             if (y <= SHRINK_AT) {
@@ -367,14 +369,12 @@
             applyShrink(false);
         }
 
-        // Klik logo / area wrapper saat shrunk → expand (jangan pindah halaman)
         wrapper.addEventListener('click', function (e) {
             if (!isShrunk) return;
             e.preventDefault();
             expand();
         });
 
-        // Keyboard accessibility
         wrapper.addEventListener('keydown', function (e) {
             if (isShrunk && (e.key === 'Enter' || e.key === ' ')) {
                 e.preventDefault();
@@ -390,7 +390,7 @@
         }
         window.__pictNavOnScroll = onScroll;
 
-        onScroll(); // initial
+        onScroll();
     }
 
     /* ── Resize handler ───────────────────────────────────────── */
