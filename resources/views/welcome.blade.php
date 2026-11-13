@@ -128,7 +128,6 @@
     }
     .leaflet-popup-content { margin: 12px 16px; }
 
-    /* ═══ CUSTOM TOOLTIP STYLE ═══ */
     .custom-tooltip {
         background: #ffffff;
         border: 1px solid #e2e8f0;
@@ -136,89 +135,136 @@
         box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
         padding: 4px 8px;
     }
-    .custom-tooltip::before {
-        display: none; /* Menghilangkan panah segitiga bawaan Leaflet */
-    }
+    .custom-tooltip::before { display: none; }
 
-    /* ═══ LEAFLET PULSE ANIMATION ═══ */
     @keyframes pulse {
         0%, 100% { transform: scale(1); opacity: 0.4; }
         50%      { transform: scale(1.5); opacity: 0; }
     }
 
-    /* ═══ GALLERY EDITORIAL ═══ */
-    .gallery-editorial {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 1.25rem;
-    }
-
-    @media (min-width: 768px) {
-        .gallery-editorial {
-            grid-template-columns: repeat(3, 1fr);
-            grid-auto-rows: 260px;
-            gap: 1.5rem;
-        }
-
-        /* Layout asimetris — hanya jika item >= 4 */
-        .gallery-editorial:not(.is-sparse) > *:first-child {
-            grid-column: span 2;
-            grid-row: span 2;
-        }
-
-        /* Fallback: item < 4 → kolom seragam, tidak ada bolong */
-        .gallery-editorial.is-sparse {
-            grid-template-columns: repeat(2, 1fr);
-            grid-auto-rows: 320px;
-        }
-    }
-
-    .gallery-editorial-item {
+    /* ═══ CASE STUDY / EDITORIAL GALLERY (Webflow Style) ═══ */
+    .hero-case-wrapper {
         position: relative;
+        display: flex;
+        gap: 1.5rem;
+        width: 100%;
+        padding: 1rem 0;
         overflow: hidden;
-        border-radius: 1rem;
-        isolation: isolate;
+        mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+        -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
     }
 
-    /* Accent border saat hover — pakai token existing, tidak ada warna baru */
-    .gallery-editorial-item::after {
-        content: "";
+    @media (max-width: 1023px) {
+        .hero-case-wrapper {
+            flex-direction: column;
+            overflow: visible;
+            mask-image: none;
+            -webkit-mask-image: none;
+        }
+    }
+
+    .hero-case-row {
+        display: flex;
+        gap: 1.5rem;
+        width: max-content;
+    }
+
+    /* Animasi geser */
+    .hero-case-row.is-one {
+        animation: slide-left 40s linear infinite;
+    }
+    .hero-case-row.is-two {
+        animation: slide-right 40s linear infinite;
+    }
+
+    /* Berhenti saat di-hover */
+    .hero-case-wrapper:hover .hero-case-row {
+        animation-play-state: paused;
+    }
+
+    @keyframes slide-left {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+    @keyframes slide-right {
+        0% { transform: translateX(-50%); }
+        100% { transform: translateX(0); }
+    }
+
+    /* Di mobile, matikan animasi dan jadikan scroll biasa */
+    @media (max-width: 1023px) {
+        .hero-case-row {
+            flex-direction: row;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding-bottom: 1rem;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+        }
+        .hero-case-row.is-one, .hero-case-row.is-two {
+            animation: none;
+        }
+    }
+
+    /* Desain Kartu */
+    .hero-case-item {
+        position: relative;
+        width: 280px;
+        height: 360px;
+        border-radius: 1.25rem;
+        overflow: hidden;
+        flex-shrink: 0;
+        scroll-snap-align: start;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    @media (min-width: 1024px) {
+        .hero-case-item { width: 320px; height: 400px; }
+    }
+
+    .hero-case-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .hero-case-item:hover img {
+        transform: scale(1.05);
+    }
+
+    .hero-case-gradient {
         position: absolute;
         inset: 0;
-        border-radius: inherit;
-        border: 2px solid transparent;
+        background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 60%);
         pointer-events: none;
-        transition: border-color 400ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .hero-case-content {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        color: white;
         z-index: 2;
     }
-    .gallery-editorial-item:hover::after,
-    .gallery-editorial-item:focus-within::after {
-        border-color: rgba(236, 32, 41, 0.6); /* --color-signal @ 60% */
-    }
 
-    /* Hierarki tipografi: item utama (2×2) lebih besar */
-    .gallery-editorial:not(.is-sparse) .gallery-editorial-item:first-child h3 {
-        font-size: 1.5rem;
-        line-height: 1.25;
+    .hero-case-tag {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-top: 0.5rem;
+        align-self: flex-start;
     }
-    @media (min-width: 768px) {
-        .gallery-editorial:not(.is-sparse) .gallery-editorial-item:first-child h3 {
-            font-size: 1.75rem;
-        }
-    }
-
-    /* Metadata fade-in saat hover */
-    .gallery-editorial-meta {
-        opacity: 0;
-        transform: translateY(6px);
-        transition: opacity 300ms ease, transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .gallery-editorial-item:hover .gallery-editorial-meta,
-    .gallery-editorial-item:focus-within .gallery-editorial-meta {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
+    
     /* Empty state card */
     .gallery-empty-state {
         border: 1px dashed var(--color-line, #cbd5e1);
@@ -233,9 +279,11 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .gallery-editorial-item::after,
-        .gallery-editorial-meta {
-            transition: none;
+        .hero-case-row.is-one, .hero-case-row.is-two {
+            animation: none !important;
+        }
+        .hero-case-item img {
+            transition: none !important;
         }
     }
 </style>
@@ -362,10 +410,10 @@
 </section>
 
 {{-- ═══════════════════════════════════════════════════════════════
-     4. TERMINAL GALLERY (EDITORIAL STYLE)
+     4. TERMINAL GALLERY (WEBFLOW MARQUEE STYLE)
 ═══════════════════════════════════════════════════════════════ --}}
 <section class="py-20 bg-slate-50 border-y border-slate-200 overflow-hidden" data-aos="fade-up">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 mb-8">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 pb-4 border-b border-slate-200 gap-4">
             <div>
                 <span class="eyebrow block mb-2">Terminal Gallery</span>
@@ -373,51 +421,68 @@
             </div>
         </div>
 
-        <p class="text-slate-600 text-sm max-w-xl mb-12">
+        <p class="text-slate-600 text-sm max-w-xl">
             Direct documentation of vehicle loading and unloading activities, staging yard capacity, and high safety standards at PT Patimban International Car Terminal.
         </p>
+    </div>
 
+    {{-- Container Full-Width untuk Efek Marquee --}}
+    <div class="w-full">
         @php
             $galleryCount = $terminalGallery->count();
+            
+            // Bagi data menjadi dua baris
+            $halfCount = ceil($galleryCount / 2);
+            $rowOne = $terminalGallery->slice(0, $halfCount);
+            $rowTwo = $terminalGallery->slice($halfCount);
+
+            // Fungsi helper untuk duplikasi data (agar animasi seamless tanpa putus)
+            $renderRow = function($items, $rowClass) {
+                if ($items->isEmpty()) return;
+                // Gandakan item agar infinite scroll tidak kosong
+                $duplicatedItems = $items->concat($items); 
+                echo '<div class="hero-case-row ' . $rowClass . '">';
+                foreach ($duplicatedItems as $index => $item) {
+                    // Gunakan index asli agar tidak bentrok
+                    $originalIndex = $index % $items->count(); 
+                    echo '<div class="hero-case-item">';
+                    echo '  <div class="hero-case-gradient"></div>';
+                    echo '  <img src="' . $item->image_url . '" alt="' . $item->title . '" loading="lazy">';
+                    echo '  <div class="hero-case-content">';
+                    echo '      <h3 class="text-lg font-bold leading-snug line-clamp-2">' . $item->title . '</h3>';
+                    echo '      <p class="text-xs text-gray-300 line-clamp-2">' . $item->description . '</p>';
+                    echo '      <div class="hero-case-tag bg-white/20 backdrop-blur-sm">Gallery</div>';
+                    echo '  </div>';
+                    echo '</div>';
+                }
+                echo '</div>';
+            };
         @endphp
-        <div class="gallery-editorial {{ $galleryCount > 0 && $galleryCount < 4 ? 'is-sparse' : '' }}">
-            @forelse($terminalGallery as $index => $item)
-                <article class="gallery-editorial-item group relative"
-                         data-aos="fade-up"
-                         data-aos-delay="{{ min($index * 80, 320) }}">
-                    <img src="{{ $item->image_url }}"
-                         alt="{{ $item->title }}"
-                         loading="{{ $index === 0 ? 'eager' : 'lazy' }}"
-                         decoding="async"
-                         sizes="(min-width: 768px) 33vw, 100vw"
-                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-transparent flex flex-col justify-end p-5 sm:p-6">
-                        {{-- Index number — editorial metadata --}}
-                        <div class="gallery-editorial-meta absolute top-5 right-5 text-[10px] font-bold tracking-[0.2em] text-white/70 uppercase">
-                            {{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }} / {{ str_pad($galleryCount, 2, '0', STR_PAD_LEFT) }}
-                        </div>
 
-                        {{-- Eyebrow accent — garis signal merah --}}
-                        <div class="w-8 h-[3px] bg-[#ec2029] mb-3 gallery-editorial-meta"></div>
-
-                        <h3 class="text-lg sm:text-xl font-bold text-white mb-2 leading-snug">
-                            {{ $item->title }}
-                        </h3>
-                        <p class="text-slate-200 text-sm leading-relaxed line-clamp-2">
-                            {{ $item->description }}
-                        </p>
-                    </div>
-                </article>
-            @empty
-                <div class="col-span-full gallery-empty-state">
+        @if($galleryCount > 0)
+            <div class="hero-case-wrapper">
+                {{-- Baris Kiri (Jalan ke Kiri) --}}
+                @php $renderRow($rowOne, 'is-one'); @endphp
+                
+                {{-- Baris Kanan (Jalan ke Kanan) --}}
+                @if($rowTwo->isNotEmpty())
+                    @php $renderRow($rowTwo, 'is-two'); @endphp
+                @else
+                    {{-- Jika foto hanya sedikit (misal 1-3), tetap isi baris kedua dengan baris pertama --}}
+                    @php $renderRow($rowOne, 'is-two'); @endphp
+                @endif
+            </div>
+        @else
+            <div class="max-w-3xl mx-auto px-4">
+                <div class="gallery-empty-state">
                     <svg class="w-10 h-10 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                     </svg>
                     <p class="text-sm font-semibold text-slate-600">Belum ada gambar galeri</p>
                     <p class="text-xs text-slate-400 max-w-sm">Tambahkan melalui Admin Panel untuk menampilkan dokumentasi operasional terminal.</p>
                 </div>
-            @endforelse
-        </div>
+            </div>
+        @endif
     </div>
 </section>
 
@@ -819,10 +884,9 @@ window.initHomeScripts = function() {
             `;
 
             const marker = L.marker([route.latitude, route.mapLng], { icon })
-                // .bindTooltip berfungsi untuk teks yang menempel permanen
                 .bindTooltip(tooltipContent, {
-                    permanent: true, // <-- DIUBAH JADI TRUE AGAR SEMUA TITIK MUNCUL TEKSNYA
-                    direction: isHub ? 'top' : 'right', // Posisi teks: di atas Hub, di samping negara lain
+                    permanent: true,
+                    direction: isHub ? 'top' : 'right',
                     offset: isHub ? [0, -15] : [10, 0],
                     opacity: 1,
                     className: 'custom-tooltip'
