@@ -145,41 +145,35 @@
     /* ═══ CASE STUDY / EDITORIAL GALLERY (Webflow Style) ═══ */
     .hero-case-wrapper {
         position: relative;
-        display: flex;
+        display: flex !important;
+        flex-direction: column !important;
         gap: 1.5rem;
         width: 100%;
-        padding: 1rem 0;
+        padding: 2.5rem 0;
         overflow: hidden;
-        mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
-        -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
-    }
-
-    @media (max-width: 1023px) {
-        .hero-case-wrapper {
-            flex-direction: column;
-            overflow: visible;
-            mask-image: none;
-            -webkit-mask-image: none;
-        }
+        mask-image: linear-gradient(to right, transparent, black 2%, black 98%, transparent);
+        -webkit-mask-image: linear-gradient(to right, transparent, black 2%, black 98%, transparent);
     }
 
     .hero-case-row {
-        display: flex;
+        display: flex !important;
+        flex-direction: row !important;
         gap: 1.5rem;
         width: max-content;
+        will-change: transform; 
     }
 
-    /* Animasi geser */
-    .hero-case-row.is-one {
-        animation: slide-left 40s linear infinite;
-    }
-    .hero-case-row.is-two {
-        animation: slide-right 40s linear infinite;
-    }
-
-    /* Berhenti saat di-hover */
-    .hero-case-wrapper:hover .hero-case-row {
-        animation-play-state: paused;
+    /* Animasi geser (Desktop) */
+    @media (min-width: 1024px) {
+        .hero-case-row.is-one {
+            animation: slide-left 40s linear infinite;
+        }
+        .hero-case-row.is-two {
+            animation: slide-right 40s linear infinite;
+        }
+        .hero-case-wrapper:hover .hero-case-row {
+            animation-play-state: paused;
+        }
     }
 
     @keyframes slide-left {
@@ -191,42 +185,58 @@
         100% { transform: translateX(0); }
     }
 
-    /* Di mobile, matikan animasi dan jadikan scroll biasa */
+    /* Pengaturan untuk Mobile */
     @media (max-width: 1023px) {
+        .hero-case-wrapper {
+            mask-image: none !important;
+            -webkit-mask-image: none !important;
+            padding: 1rem 0;
+        }
         .hero-case-row {
-            flex-direction: row;
-            overflow-x: auto;
+            width: 100%;
+            overflow-x: auto !important;
             scroll-snap-type: x mandatory;
             padding-bottom: 1rem;
             -webkit-overflow-scrolling: touch;
-            width: 100%;
+            scrollbar-width: none; 
         }
-        .hero-case-row.is-one, .hero-case-row.is-two {
-            animation: none;
+        .hero-case-row::-webkit-scrollbar {
+            display: none;
+        }
+        .hero-case-row.is-one, 
+        .hero-case-row.is-two {
+            animation: none !important;
         }
     }
 
     /* Desain Kartu */
     .hero-case-item {
         position: relative;
+        flex: 0 0 auto !important;
         width: 280px;
         height: 360px;
         border-radius: 1.25rem;
         overflow: hidden;
-        flex-shrink: 0;
         scroll-snap-align: start;
         box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        background-color: #e2e8f0;
     }
 
     @media (min-width: 1024px) {
-        .hero-case-item { width: 320px; height: 400px; }
+        .hero-case-item { 
+            width: 320px; 
+            height: 400px; 
+        }
     }
 
     .hero-case-item img {
+        position: absolute;
+        inset: 0;
         width: 100%;
         height: 100%;
         object-fit: cover;
         transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 0;
     }
 
     .hero-case-item:hover img {
@@ -238,6 +248,7 @@
         inset: 0;
         background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 60%);
         pointer-events: none;
+        z-index: 1;
     }
 
     .hero-case-content {
@@ -246,11 +257,30 @@
         left: 0;
         right: 0;
         padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
+        display: flex !important;
+        flex-direction: column !important;
         gap: 0.25rem;
         color: white;
         z-index: 2;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    /* Potong teks maksimal 2 baris */
+    .hero-case-content h3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        margin: 0;
+    }
+
+    .hero-case-content p {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        margin: 0;
     }
 
     .hero-case-tag {
