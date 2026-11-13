@@ -4,32 +4,44 @@
 
 @push('styles')
 <style>
-    /* ═══ STACKED CARDS (WEBFLOW CLAY STYLE) ═══ */
+    /* ═══ STACKED CARDS (OVERLAP EFFECT) ═══ */
     .news-stack-wrapper {
         position: relative;
         width: 100%;
-        /* Padding bawah ekstra untuk ruang scroll terakhir */
         padding-bottom: 10vh; 
     }
 
     .news-stack-card {
         position: sticky;
-        top: 10vh; /* Jarak dari atas layar saat nempel */
+        /* Memberikan jarak antar kartu bertumpuk. 
+           Setiap kartu akan menempel di posisi top yang sedikit berbeda */
+        top: 15vh; 
         width: 100%;
-        max-w: 1200px;
-        margin: 0 auto;
-        height: 80vh; /* Tinggi setiap kartu */
+        max-width: 1100px;
+        margin: 0 auto 2rem auto; /* Margin bawah agar saat scroll ada jarak */
+        height: 70vh; /* Tinggi setiap kartu */
         border-radius: 2rem;
-        background-color: #f8fafc;
-        box-shadow: 0 -10px 40px rgba(0,0,0,0.05);
+        
+        /* PENTING: Background solid agar bisa menutupi kartu di bawahnya */
+        background-color: #ffffff; 
+        box-shadow: 0 -20px 40px rgba(0,0,0,0.1), 0 10px 20px rgba(0,0,0,0.05);
+        border: 1px solid #e2e8f0;
+        
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        /* Animasi halus saat JS melakukan scaling */
-        transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+        transition: transform 0.1s ease-out;
         transform-origin: top center;
-        border: 1px solid #e2e8f0;
+        will-change: transform;
     }
+
+    /* Sedikit penyesuaian peringkat z-index */
+    .news-stack-card:nth-child(1) { z-index: 1; }
+    .news-stack-card:nth-child(2) { z-index: 2; }
+    .news-stack-card:nth-child(3) { z-index: 3; }
+    .news-stack-card:nth-child(4) { z-index: 4; }
+    .news-stack-card:nth-child(5) { z-index: 5; }
+    .news-stack-card:nth-child(6) { z-index: 6; }
 
     @media (min-width: 1024px) {
         .news-stack-card {
@@ -39,10 +51,6 @@
             gap: 4rem;
         }
     }
-
-    /* Variasi warna background tiap kartu (opsional) */
-    .news-stack-card:nth-child(odd) { background-color: #f8fafc; }
-    .news-stack-card:nth-child(even) { background-color: #f1f5f9; }
 
     /* -- KONTEN KIRI (TEKS) -- */
     .news-stack-content {
@@ -119,7 +127,6 @@
     .news-stack-btn:hover {
         background-color: #ec2029;
         transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(236, 32, 41, 0.2);
     }
 
     /* -- KONTEN KANAN (GAMBAR) -- */
@@ -136,7 +143,7 @@
     @media (max-width: 1023px) {
         .news-stack-image-wrapper {
             height: 300px;
-            order: -1; /* Gambar di atas teks untuk mobile */
+            order: -1;
             margin-bottom: 1.5rem;
             flex: none;
         }
@@ -148,7 +155,6 @@
         object-fit: cover;
     }
 
-    /* Fallback jika tidak ada gambar */
     .news-stack-no-image {
         width: 100%;
         height: 100%;
@@ -158,7 +164,6 @@
         background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
         color: #475569;
     }
-
 </style>
 @endpush
 
@@ -180,38 +185,30 @@
 </section>
 
 {{-- ============ STACKED CARDS CONTENT ============ --}}
-<section class="bg-white pt-10 pb-20 overflow-hidden">
+<section class="bg-slate-50 pt-16 pb-20 overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         @auth
-            <div class="flex justify-end mb-6">
+            <div class="flex justify-end mb-6 relative z-20">
                 <a href="{{ route('admin.news.index') }}"
                    class="inline-flex items-center gap-2 bg-[#0A2540] hover:bg-[#0A2540]/90 text-white text-sm font-semibold px-5 py-2.5 rounded-lg shadow-sm transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
                     Manage News
                 </a>
             </div>
         @endauth
 
         @if($newsList->count() > 0)
-            <div class="flex items-center justify-between mb-12 pb-4 border-b border-gray-200">
+            <div class="flex items-center justify-between mb-12 pb-4 border-b border-gray-200 relative z-20">
                 <p class="text-sm text-gray-500">
-                    Showing
-                    <span class="font-semibold text-[#0A2540]">{{ $newsList->firstItem() }}</span>–<span class="font-semibold text-[#0A2540]">{{ $newsList->lastItem() }}</span>
-                    of
-                    <span class="font-semibold text-[#0A2540]">{{ $newsList->total() }}</span>
-                    news
+                    Showing {{ $newsList->firstItem() }}–{{ $newsList->lastItem() }} of {{ $newsList->total() }} news
                 </p>
             </div>
 
             {{-- WRAPPER UNTUK EFEK STICKY --}}
             <div class="news-stack-wrapper">
                 @foreach($newsList as $index => $item)
-                    <article class="news-stack-card" style="top: calc(10vh + {{ $index * 2 }}rem);">
+                    {{-- Style top dinaikkan perlahan agar kartu terlihat menumpuk --}}
+                    <article class="news-stack-card" style="top: calc(10vh + {{ $index * 1.5 }}rem);">
                         {{-- Konten Teks --}}
                         <div class="news-stack-content">
                             @if(!empty($item->category))
@@ -259,11 +256,11 @@
                 @endforeach
             </div>
 
-            <div class="mt-14 flex justify-center relative z-10">
+            <div class="mt-14 flex justify-center relative z-20">
                 {{ $newsList->links() }}
             </div>
         @else
-            <div class="text-center py-20 bg-slate-50 rounded-2xl border border-gray-200 shadow-sm">
+            <div class="text-center py-20 bg-white rounded-2xl border border-gray-200 shadow-sm relative z-20">
                 <h3 class="text-lg font-bold text-gray-700">No News Found</h3>
                 <p class="text-sm text-gray-500 mt-1">New news will appear here.</p>
             </div>
@@ -280,44 +277,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const cards = document.querySelectorAll('.news-stack-card');
     
     function updateStack() {
-        // Hanya jalankan efek di Desktop (layar > 1024px)
+        // Hanya jalankan efek di Desktop
         if (window.innerWidth < 1024) {
             cards.forEach(card => {
                 card.style.transform = 'scale(1)';
-                card.style.opacity = '1';
             });
             return;
         }
 
         cards.forEach((card, index) => {
-            // Dapatkan posisi card relatif terhadap viewport
             const rect = card.getBoundingClientRect();
             const cardTop = rect.top;
             
-            // Jika card sedang menempel di atas (sticky), hitung seberapa jauh dia tertutup oleh card berikutnya
-            if (cardTop <= window.innerHeight * 0.1) { // 10vh adalah jarak sticky
-                // Hitung seberapa jauh user telah scroll melewati card ini
-                const scrollProgress = Math.max(0, window.innerHeight * 0.1 - cardTop);
+            // Jika kartu ini sedang tertutup oleh kartu di atasnya
+            if (cardTop <= (window.innerHeight * 0.15) + (index * 24)) { 
+                // Hitung seberapa jauh dia tertutup
+                const scrollProgress = Math.max(0, (window.innerHeight * 0.15) - cardTop);
                 
-                // Makin ke bawah, makin kecil ukurannya (efek tertutup)
-                // Batas minimal pengecilan adalah 0.9 (90% dari ukuran asli)
-                const scale = Math.max(0.9, 1 - (scrollProgress / window.innerHeight) * 0.5);
-                const opacity = Math.max(0.5, 1 - (scrollProgress / window.innerHeight) * 1.5);
+                // Efek mengecil (Scale) 
+                // Makin tertutup, makin kecil. Minimal 0.85 (85% dari ukuran asli)
+                const scale = Math.max(0.85, 1 - (scrollProgress / window.innerHeight) * 0.5);
                 
                 card.style.transform = `scale(${scale})`;
-                card.style.opacity = opacity;
             } else {
-                // Jika belum sticky, kembalikan ke ukuran normal
                 card.style.transform = 'scale(1)';
-                card.style.opacity = '1';
             }
         });
     }
 
-    // Panggil fungsi saat scroll
     window.addEventListener('scroll', updateStack, { passive: true });
-    
-    // Panggil sekali saat load
     updateStack();
 });
 </script>
