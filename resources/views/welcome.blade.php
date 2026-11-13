@@ -151,7 +151,6 @@
         width: 100%;
         padding: 2.5rem 0;
         overflow: hidden;
-        /* Mask dibuat lebih lebar agar tidak memotong gambar secara aneh */
         mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
         -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
     }
@@ -162,6 +161,7 @@
         gap: 1.5rem;
         width: max-content;
         will-change: transform;
+        /* Transisi halus */
         transition: transform 0.1s linear; 
     }
 
@@ -177,10 +177,10 @@
 
     @keyframes slide-left {
         0% { transform: translateX(0); }
-        100% { transform: translateX(-50%); }
+        100% { transform: translateX(-33.333%); } /* 3 set gambar */
     }
     @keyframes slide-right {
-        0% { transform: translateX(-50%); }
+        0% { transform: translateX(-33.333%); }
         100% { transform: translateX(0); }
     }
 
@@ -457,10 +457,9 @@
             $rowOne = $terminalGallery->slice(0, $halfCount);
             $rowTwo = $terminalGallery->slice($halfCount);
 
-            // Fungsi helper untuk duplikasi data
+            // Fungsi helper untuk duplikasi data (3x lipat) agar tidak ada ruang kosong
             $renderRow = function($items, $rowClass) {
                 if ($items->isEmpty()) return;
-                // Gandakan data 2x agar saat di-scroll parallax tidak muncul ruang kosong
                 $duplicatedItems = $items->concat($items)->concat($items); 
                 echo '<div class="hero-case-row ' . $rowClass . '">';
                 foreach ($duplicatedItems as $index => $item) {
@@ -746,7 +745,7 @@ window.initHomeScripts = function() {
     });
 
     /* ═══════════════════════════════════════════════════════════════
-       HYBRID GALLERY INTERACTION (FIXED)
+       HYBRID GALLERY INTERACTION (STRICT CLAMPED PARALLAX)
     ═══════════════════════════════════════════════════════════════ */
     const gallerySection = document.getElementById('gallerySection');
     const galleryScrollArea = document.getElementById('galleryScrollArea');
@@ -760,6 +759,7 @@ window.initHomeScripts = function() {
         if (rowOne) rowOne.classList.add('is-auto-animate');
         if (rowTwo) rowTwo.classList.add('is-auto-animate');
 
+        // Kursor masuk: Hentikan animasi otomatis & siapkan parallax
         galleryScrollArea.addEventListener('mouseenter', () => {
             isHovering = true;
             
@@ -786,6 +786,7 @@ window.initHomeScripts = function() {
             }
         });
 
+        // Kursor keluar: Kembalikan ke animasi otomatis
         galleryScrollArea.addEventListener('mouseleave', () => {
             isHovering = false;
             
@@ -801,17 +802,22 @@ window.initHomeScripts = function() {
             }
         });
 
+        // Logika Parallax (Murni dihitung dari posisi Scroll)
         function updateGalleryParallax() {
             if (window.innerWidth >= 1024 && isHovering) {
+                // Dapatkan posisi tengah layar (viewport)
+                const viewportCenter = window.innerHeight / 2;
                 const rect = gallerySection.getBoundingClientRect();
                 
-                // Hitung pergerakan berdasarkan seberapa jauh user scroll dari atas layar
-                // Dibagi 2 (0.5) agar kecepatannya proporsional
-                let translateX = (rect.top - window.innerHeight) * 0.5; 
+                // Berapa jarak section dari tengah layar?
+                const distanceFromCenter = (rect.top + rect.height / 2) - viewportCenter;
+                
+                // Kalikan dengan kecepatan parallax (misal 0.3)
+                let translateX = distanceFromCenter * 0.3;
 
-                // BATASAN (CLAMP): Agar gambar tidak tergeser terlalu jauh hingga muncul ruang kosong
-                // Maksimal geser ke kiri/kanan adalah 800px.
-                translateX = Math.max(-800, Math.min(800, translateX));
+                // CLAMP: Kunci pergerakan maksimal hanya 400px ke kiri/kanan
+                // Ini memastikan gambar tidak pernah melewati batas dan menyisakan ruang kosong
+                translateX = Math.max(-400, Math.min(400, translateX));
 
                 if (rowOne) rowOne.style.transform = `translateX(${translateX}px)`;
                 if (rowTwo) rowTwo.style.transform = `translateX(${-translateX}px)`;
