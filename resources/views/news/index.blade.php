@@ -4,155 +4,161 @@
 
 @push('styles')
 <style>
-    /* ═══ WEBFLOW STYLE NEWS LAYOUT ═══ */
-    .news-split-layout {
-        display: flex;
-        flex-direction: column;
-        gap: 4rem;
-        padding: 4rem 0;
-    }
-
-    @media (min-width: 1024px) {
-        .news-split-layout {
-            flex-direction: row;
-            gap: 6rem;
-            align-items: flex-start;
-        }
-    }
-
-    /* Kolom Kiri (Teks) */
-    .news-text-col {
-        flex: 1;
-        position: sticky;
-        top: 150px; /* Jarak dari atas layar saat di-scroll */
-        max-width: 600px;
-    }
-
-    /* Kolom Kanan (Gambar) */
-    .news-image-col {
-        flex: 1.2;
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
-    }
-
-    /* Kartu Gambar Webflow */
-    .news-image-card {
+    /* ═══ STACKED CARDS (WEBFLOW CLAY STYLE) ═══ */
+    .news-stack-wrapper {
         position: relative;
+        width: 100%;
+        /* Padding bawah ekstra untuk ruang scroll terakhir */
+        padding-bottom: 10vh; 
+    }
+
+    .news-stack-card {
+        position: sticky;
+        top: 10vh; /* Jarak dari atas layar saat nempel */
+        width: 100%;
+        max-w: 1200px;
+        margin: 0 auto;
+        height: 80vh; /* Tinggi setiap kartu */
         border-radius: 2rem;
+        background-color: #f8fafc;
+        box-shadow: 0 -10px 40px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
         overflow: hidden;
-        background-color: #e2e8f0;
-        box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.1);
-        aspect-ratio: 4/5; /* Rasio potret memanjang ke bawah */
-        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+        /* Animasi halus saat JS melakukan scaling */
+        transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+        transform-origin: top center;
+        border: 1px solid #e2e8f0;
     }
 
     @media (min-width: 1024px) {
-        .news-image-card {
-            aspect-ratio: 1/1; /* Kotak sempurna di desktop */
-            height: 600px;
+        .news-stack-card {
+            flex-direction: row;
+            align-items: center;
+            padding: 3rem;
+            gap: 4rem;
         }
     }
 
-    .news-image-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 30px 60px -15px rgba(15, 23, 42, 0.15);
-    }
+    /* Variasi warna background tiap kartu (opsional) */
+    .news-stack-card:nth-child(odd) { background-color: #f8fafc; }
+    .news-stack-card:nth-child(even) { background-color: #f1f5f9; }
 
-    .news-image-card img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .news-image-card:hover img {
-        transform: scale(1.05);
-    }
-
-    /* Gradient overlay di gambar */
-    .news-image-gradient {
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(to top, rgba(10, 37, 64, 0.9) 0%, rgba(10, 37, 64, 0) 50%);
-        pointer-events: none;
-    }
-
-    /* Teks di atas gambar (opsional, untuk judul) */
-    .news-image-content {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        padding: 2.5rem;
-        color: white;
-        z-index: 2;
-    }
-
-    /* List Berita di Kolom Kiri */
-    .news-list-item {
+    /* -- KONTEN KIRI (TEKS) -- */
+    .news-stack-content {
+        flex: 1;
         display: flex;
         flex-direction: column;
-        padding: 1.5rem 0;
-        border-bottom: 1px solid #e2e8f0;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        cursor: pointer;
+        justify-content: center;
+        padding: 2rem;
     }
 
-    .news-list-item:hover {
-        padding-left: 1rem;
-        border-bottom-color: #0A2540;
+    @media (min-width: 1024px) {
+        .news-stack-content {
+            padding: 0;
+            max-width: 500px;
+        }
     }
 
-    .news-list-item.active {
-        border-bottom-color: #0A2540;
-        padding-left: 1rem;
+    .news-stack-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(90deg, #ec2029 0%, #b91c1c 100%);
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.5rem 1.25rem;
+        border-radius: 9999px;
+        align-self: flex-start;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 10px rgba(236, 32, 41, 0.2);
     }
 
-    .news-list-item h3 {
-        font-size: 1.5rem;
-        font-weight: 700;
+    .news-stack-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        line-height: 1.1;
         color: #0f172a;
-        margin-bottom: 0.5rem;
-        transition: color 0.3s ease;
+        margin-bottom: 1.5rem;
+        letter-spacing: -0.02em;
     }
 
-    .news-list-item:hover h3,
-    .news-list-item.active h3 {
-        color: #ec2029;
+    @media (max-width: 768px) {
+        .news-stack-title { font-size: 2rem; }
     }
 
-    .news-list-item p {
-        color: #64748b;
-        font-size: 0.95rem;
+    .news-stack-excerpt {
+        font-size: 1.125rem;
         line-height: 1.6;
+        color: #475569;
+        margin-bottom: 2rem;
         display: -webkit-box;
-        -webkit-line-clamp: 2;
+        -webkit-line-clamp: 4;
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
 
-    .news-list-item time {
-        font-size: 0.75rem;
+    .news-stack-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background-color: #0f172a;
+        color: white;
+        font-size: 0.875rem;
         font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: #ec2029;
-        margin-bottom: 0.5rem;
+        padding: 1rem 2rem;
+        border-radius: 9999px;
+        text-decoration: none;
+        align-self: flex-start;
+        transition: all 0.3s ease;
     }
-    
-    /* Mobile: Matikan Sticky */
+
+    .news-stack-btn:hover {
+        background-color: #ec2029;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(236, 32, 41, 0.2);
+    }
+
+    /* -- KONTEN KANAN (GAMBAR) -- */
+    .news-stack-image-wrapper {
+        flex: 1.2;
+        width: 100%;
+        height: 100%;
+        border-radius: 1.5rem;
+        overflow: hidden;
+        position: relative;
+        background-color: #e2e8f0;
+    }
+
     @media (max-width: 1023px) {
-        .news-text-col {
-            position: relative;
-            top: 0;
-        }
-        .news-image-card {
-            aspect-ratio: 16/9;
-            height: auto;
+        .news-stack-image-wrapper {
+            height: 300px;
+            order: -1; /* Gambar di atas teks untuk mobile */
+            margin-bottom: 1.5rem;
+            flex: none;
         }
     }
+
+    .news-stack-image-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Fallback jika tidak ada gambar */
+    .news-stack-no-image {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+        color: #475569;
+    }
+
 </style>
 @endpush
 
@@ -173,9 +179,9 @@
     </div>
 </section>
 
-{{-- ============ CONTENT ============ --}}
-<section class="bg-white py-10 sm:py-16 overflow-hidden">
-    <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+{{-- ============ STACKED CARDS CONTENT ============ --}}
+<section class="bg-white pt-10 pb-20 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         @auth
             <div class="flex justify-end mb-6">
@@ -192,7 +198,7 @@
         @endauth
 
         @if($newsList->count() > 0)
-            <div class="flex items-center justify-between mb-8 pb-4 border-b border-gray-200">
+            <div class="flex items-center justify-between mb-12 pb-4 border-b border-gray-200">
                 <p class="text-sm text-gray-500">
                     Showing
                     <span class="font-semibold text-[#0A2540]">{{ $newsList->firstItem() }}</span>–<span class="font-semibold text-[#0A2540]">{{ $newsList->lastItem() }}</span>
@@ -202,52 +208,58 @@
                 </p>
             </div>
 
-            <div class="news-split-layout">
-                {{-- KOLOM KIRI: Daftar Teks Berita --}}
-                <div class="news-text-col">
-                    @foreach($newsList as $index => $item)
-                        <a href="{{ route('news.show', $item->slug) }}" 
-                           class="news-list-item {{ $index === 0 ? 'active' : '' }}"
-                           data-index="{{ $index }}">
+            {{-- WRAPPER UNTUK EFEK STICKY --}}
+            <div class="news-stack-wrapper">
+                @foreach($newsList as $index => $item)
+                    <article class="news-stack-card" style="top: calc(10vh + {{ $index * 2 }}rem);">
+                        {{-- Konten Teks --}}
+                        <div class="news-stack-content">
+                            @if(!empty($item->category))
+                                <div class="news-stack-tag">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                                    {{ $item->category }}
+                                </div>
+                            @endif
+
                             @if($item->published_at)
-                                <time datetime="{{ $item->published_at->toDateString() }}">
+                                <time datetime="{{ $item->published_at->toDateString() }}" class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">
                                     {{ $item->published_at->translatedFormat('d F Y') }}
                                 </time>
                             @endif
-                            <h3>{{ $item->title }}</h3>
-                            <p>{{ $item->excerpt }}</p>
-                        </a>
-                    @endforeach
-                </div>
 
-                {{-- KOLOM KANAN: Gambar Besar (Sticky) --}}
-                <div class="news-image-col">
-                    @foreach($newsList as $index => $item)
-                        <div class="news-image-card {{ $index === 0 ? 'block' : 'hidden' }}" data-image-index="{{ $index }}">
+                            <h2 class="news-stack-title">
+                                {{ $item->title }}
+                            </h2>
+                            
+                            <p class="news-stack-excerpt">
+                                {{ $item->excerpt }}
+                            </p>
+
+                            <a href="{{ route('news.show', $item->slug) }}" class="news-stack-btn">
+                                Read Full Article
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </a>
+                        </div>
+
+                        {{-- Konten Gambar --}}
+                        <div class="news-stack-image-wrapper">
                             @if($item->image_url)
-                                <img src="{{ $item->image_url }}" alt="{{ $item->title }}">
+                                <img src="{{ $item->image_url }}" alt="{{ $item->title }}" loading="{{ $index === 0 ? 'eager' : 'lazy' }}">
                             @else
-                                <div class="flex items-center justify-center h-full bg-slate-200 text-slate-400">
-                                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="news-stack-no-image">
+                                    <svg class="w-16 h-16 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
                                 </div>
                             @endif
-                            <div class="news-image-gradient"></div>
-                            <div class="news-image-content">
-                                @if(!empty($item->category))
-                                    <span class="inline-block bg-[#ec2029] text-white text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-3 shadow-sm">
-                                        {{ $item->category }}
-                                    </span>
-                                @endif
-                                <h4 class="text-2xl sm:text-3xl font-bold leading-tight line-clamp-2">{{ $item->title }}</h4>
-                            </div>
                         </div>
-                    @endforeach
-                </div>
+                    </article>
+                @endforeach
             </div>
 
-            <div class="mt-14 flex justify-center">
+            <div class="mt-14 flex justify-center relative z-10">
                 {{ $newsList->links() }}
             </div>
         @else
@@ -265,26 +277,48 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const listItems = document.querySelectorAll('.news-list-item');
-    const imageCards = document.querySelectorAll('.news-image-card');
+    const cards = document.querySelectorAll('.news-stack-card');
+    
+    function updateStack() {
+        // Hanya jalankan efek di Desktop (layar > 1024px)
+        if (window.innerWidth < 1024) {
+            cards.forEach(card => {
+                card.style.transform = 'scale(1)';
+                card.style.opacity = '1';
+            });
+            return;
+        }
 
-    // Fungsi untuk mengganti gambar saat kursor menyentuh judul
-    listItems.forEach(item => {
-        item.addEventListener('mouseenter', () => {
-            const index = item.getAttribute('data-index');
-
-            // Hapus kelas 'active' dari semua list
-            listItems.forEach(li => li.classList.remove('active'));
-            item.classList.add('active');
-
-            // Sembunyikan semua gambar, tampilkan yang dipilih
-            imageCards.forEach(card => card.classList.add('hidden'));
-            const activeCard = document.querySelector(`.news-image-card[data-image-index="${index}"]`);
-            if (activeCard) {
-                activeCard.classList.remove('hidden');
+        cards.forEach((card, index) => {
+            // Dapatkan posisi card relatif terhadap viewport
+            const rect = card.getBoundingClientRect();
+            const cardTop = rect.top;
+            
+            // Jika card sedang menempel di atas (sticky), hitung seberapa jauh dia tertutup oleh card berikutnya
+            if (cardTop <= window.innerHeight * 0.1) { // 10vh adalah jarak sticky
+                // Hitung seberapa jauh user telah scroll melewati card ini
+                const scrollProgress = Math.max(0, window.innerHeight * 0.1 - cardTop);
+                
+                // Makin ke bawah, makin kecil ukurannya (efek tertutup)
+                // Batas minimal pengecilan adalah 0.9 (90% dari ukuran asli)
+                const scale = Math.max(0.9, 1 - (scrollProgress / window.innerHeight) * 0.5);
+                const opacity = Math.max(0.5, 1 - (scrollProgress / window.innerHeight) * 1.5);
+                
+                card.style.transform = `scale(${scale})`;
+                card.style.opacity = opacity;
+            } else {
+                // Jika belum sticky, kembalikan ke ukuran normal
+                card.style.transform = 'scale(1)';
+                card.style.opacity = '1';
             }
         });
-    });
+    }
+
+    // Panggil fungsi saat scroll
+    window.addEventListener('scroll', updateStack, { passive: true });
+    
+    // Panggil sekali saat load
+    updateStack();
 });
 </script>
 @endpush
