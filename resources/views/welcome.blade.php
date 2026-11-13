@@ -160,10 +160,9 @@
         flex-direction: row !important;
         gap: 1.5rem;
         width: max-content;
-        will-change: transform; 
     }
 
-    /* Animasi geser (Desktop) */
+    /* Animasi geser otomatis (Desktop) */
     @media (min-width: 1024px) {
         .hero-case-row.is-one {
             animation: slide-left 40s linear infinite;
@@ -171,6 +170,7 @@
         .hero-case-row.is-two {
             animation: slide-right 40s linear infinite;
         }
+        /* Pause animasi otomatis saat kursor masuk, JS yang akan ambil alih */
         .hero-case-wrapper:hover .hero-case-row {
             animation-play-state: paused;
         }
@@ -440,7 +440,7 @@
 </section>
 
 {{-- ═══════════════════════════════════════════════════════════════
-     4. TERMINAL GALLERY (WEBFLOW MARQUEE STYLE)
+     4. TERMINAL GALLERY (WEBFLOW MARQUEE + SCROLL INTERACTION)
 ═══════════════════════════════════════════════════════════════ --}}
 <section class="py-20 bg-slate-50 border-y border-slate-200 overflow-hidden" data-aos="fade-up">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 mb-8">
@@ -471,7 +471,7 @@
                 if ($items->isEmpty()) return;
                 // Gandakan item agar infinite scroll tidak kosong
                 $duplicatedItems = $items->concat($items); 
-                echo '<div class="hero-case-row ' . $rowClass . '">';
+                echo '<div class="hero-case-row ' . $rowClass . '" data-row="' . $rowClass . '">';
                 foreach ($duplicatedItems as $index => $item) {
                     // Gunakan index asli agar tidak bentrok
                     $originalIndex = $index % $items->count(); 
@@ -490,7 +490,7 @@
         @endphp
 
         @if($galleryCount > 0)
-            <div class="hero-case-wrapper">
+            <div class="hero-case-wrapper" id="galleryScrollArea">
                 {{-- Baris Kiri (Jalan ke Kiri) --}}
                 @php $renderRow($rowOne, 'is-one'); @endphp
                 
@@ -757,6 +757,90 @@ window.initHomeScripts = function() {
         requestAnimationFrame(tick);
     });
 
+    /* ═══════════════════════════════════════════════════════════════
+       GALLERY SCROLL INTERACTION (Maju/Mundur via Mouse Wheel)
+    ═══════════════════════════════════════════════════════════════ */
+    const scrollArea = document.getElementById('galleryScrollArea');
+    if (scrollArea) {
+        const rowOne = scrollArea.querySelector('.is-one');
+        const rowTwo = scrollArea.querySelector('.is-two');
+        
+        // Kita gunakan requestAnimationFrame agar animasi scroll mulus (smooth)
+        let targetOffsetOne = 0;
+        let targetOffsetTwo = 0;
+        let currentOffsetOne = 0;
+        let currentOffsetTwo = 0;
+        let isHovering = false;
+
+        scrollArea.addEventListener('mouseenter', () => {
+            isHovering = true;
+            // Simpan posisi saat ini agar tidak loncat saat kursor masuk
+            if (rowOne) {
+                const style = window.getComputedStyle(rowOne);
+                const matrix = new WebKitCSSMatrix(style.transform);
+                currentOffsetOne = matrix.m41; 
+                targetOffsetOne = currentOffsetOne;
+            }
+            if (rowTwo) {
+                const style = window.getComputedStyle(rowTwo);
+                const matrix = new WebKitCSSMatrix(style.transform);
+                currentOffsetTwo = matrix.m41;
+                targetOffsetTwo = currentOffsetTwo;
+            }
+        });
+
+        scrollArea.addEventListener('mouseleave', () => {
+            isHovering = false;
+        });
+
+        // Menangkap putaran roda mouse
+        scrollArea.addEventListener('wheel', (e) => {
+            if (!isHovering) return;
+            e.preventDefault(); // Mencegah halaman ikut ter-scroll ke bawah
+
+            const scrollAmount = e.deltaY * 2; // Sensitivitas kecepatan geser
+
+            // Baris atas: Scroll ke bawah = gambar bergerak ke kiri
+            targetOffsetOne -= scrollAmount;
+            
+            // Baris bawah: Scroll ke bawah = gambar bergerak ke kanan
+            targetOffsetTwo += scrollAmount;
+
+        }, { passive: false });
+
+        // Animasi Loop untuk menggerakkan gambar
+        function animateGallery() {
+            if (isHovering) {
+                // Pergerakan halus menggunakan easing (interpolasi linear)
+                currentOffsetOne += (targetOffsetOne - currentOffsetOne) * 0.1;
+                currentOffsetTwo += (targetOffsetTwo - currentOffsetTwo) * 0.1;
+                
+                // Terapkan posisi baru (menggunakan inline transform agar menimpa CSS)
+                if (rowOne) rowOne.style.transform = `translateX(${currentOffsetOne}px)`;
+                if (rowTwo) rowTwo.style.transform = `translateX(${currentOffsetTwo}px)`;
+            } else {
+                // Jika kursor keluar, sinkronkan target dengan posisi saat ini
+                // agar saat animasi CSS dilanjutkan tidak melompat
+                if (rowOne) {
+                    const style = window.getComputedStyle(rowOne);
+                    const matrix = new WebKitCSSMatrix(style.transform);
+                    currentOffsetOne = matrix.m41;
+                    targetOffsetOne = currentOffsetOne;
+                    rowOne.style.transform = ''; // Hapus inline style agar CSS animasi berjalan lagi
+                }
+                if (rowTwo) {
+                    const style = window.getComputedStyle(rowTwo);
+                    const matrix = new WebKitCSSMatrix(style.transform);
+                    currentOffsetTwo = matrix.m41;
+                    targetOffsetTwo = currentOffsetTwo;
+                    rowTwo.style.transform = ''; // Hapus inline style agar CSS animasi berjalan lagi
+                }
+            }
+            requestAnimationFrame(animateGallery);
+        }
+        requestAnimationFrame(animateGallery);
+    }
+
     // Cegah inisialisasi ganda map saat pindah halaman
     if (window.myRouteMap) {
         window.myRouteMap.remove();
@@ -890,7 +974,6 @@ window.initHomeScripts = function() {
                 iconAnchor: [8, 8],
             });
 
-            // HTML Tampilan Tooltip (Teks menempel)
             const tooltipContent = `
                 <div style="font-family: 'Poppins', sans-serif; text-align: center;">
                     <div style="display:flex; align-items:center; justify-content:center; gap:6px;">
@@ -900,7 +983,6 @@ window.initHomeScripts = function() {
                 </div>
             `;
 
-            // HTML Tampilan Popup (Saat di klik)
             const popupContent = `
                 <div style="font-family: 'Poppins', sans-serif; min-width: 180px;">
                     <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
