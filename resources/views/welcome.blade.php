@@ -142,7 +142,7 @@
         50%      { transform: scale(1.5); opacity: 0; }
     }
 
-    /* ═══ CASE STUDY / EDITORIAL GALLERY (Webflow Style) ═══ */
+    /* ═══ CASE STUDY / EDITORIAL GALLERY ═══ */
     .hero-case-wrapper {
         position: relative;
         display: flex !important;
@@ -160,29 +160,9 @@
         flex-direction: row !important;
         gap: 1.5rem;
         width: max-content;
-    }
-
-    /* Animasi geser otomatis (Desktop) */
-    @media (min-width: 1024px) {
-        .hero-case-row.is-one {
-            animation: slide-left 40s linear infinite;
-        }
-        .hero-case-row.is-two {
-            animation: slide-right 40s linear infinite;
-        }
-        /* Pause animasi otomatis saat kursor masuk, JS yang akan ambil alih */
-        .hero-case-wrapper:hover .hero-case-row {
-            animation-play-state: paused;
-        }
-    }
-
-    @keyframes slide-left {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(-50%); }
-    }
-    @keyframes slide-right {
-        0% { transform: translateX(-50%); }
-        100% { transform: translateX(0); }
+        /* Kita gunakan transition agar pergerakan akibat scroll terasa halus */
+        transition: transform 0.15s ease-out;
+        will-change: transform;
     }
 
     /* Pengaturan untuk Mobile */
@@ -199,13 +179,10 @@
             padding-bottom: 1rem;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none; 
+            transition: none; /* Matikan transisi JS di mobile */
         }
         .hero-case-row::-webkit-scrollbar {
             display: none;
-        }
-        .hero-case-row.is-one, 
-        .hero-case-row.is-two {
-            animation: none !important;
         }
     }
 
@@ -306,15 +283,6 @@
         flex-direction: column;
         align-items: center;
         gap: 0.75rem;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .hero-case-row.is-one, .hero-case-row.is-two {
-            animation: none !important;
-        }
-        .hero-case-item img {
-            transition: none !important;
-        }
     }
 </style>
 @endpush
@@ -440,9 +408,9 @@
 </section>
 
 {{-- ═══════════════════════════════════════════════════════════════
-     4. TERMINAL GALLERY (WEBFLOW MARQUEE + SCROLL INTERACTION)
+     4. TERMINAL GALLERY (PARALLAX SCROLL EFFECT)
 ═══════════════════════════════════════════════════════════════ --}}
-<section class="py-20 bg-slate-50 border-y border-slate-200 overflow-hidden" data-aos="fade-up">
+<section id="gallerySection" class="py-20 bg-slate-50 border-y border-slate-200 overflow-hidden" data-aos="fade-up">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 mb-8">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 pb-4 border-b border-slate-200 gap-4">
             <div>
@@ -471,10 +439,8 @@
                 if ($items->isEmpty()) return;
                 // Gandakan item agar infinite scroll tidak kosong
                 $duplicatedItems = $items->concat($items); 
-                echo '<div class="hero-case-row ' . $rowClass . '" data-row="' . $rowClass . '">';
+                echo '<div class="hero-case-row ' . $rowClass . '">';
                 foreach ($duplicatedItems as $index => $item) {
-                    // Gunakan index asli agar tidak bentrok
-                    $originalIndex = $index % $items->count(); 
                     echo '<div class="hero-case-item">';
                     echo '  <div class="hero-case-gradient"></div>';
                     echo '  <img src="' . $item->image_url . '" alt="' . $item->title . '" loading="lazy">';
@@ -491,14 +457,13 @@
 
         @if($galleryCount > 0)
             <div class="hero-case-wrapper" id="galleryScrollArea">
-                {{-- Baris Kiri (Jalan ke Kiri) --}}
+                {{-- Baris Kiri (Akan digeser JS) --}}
                 @php $renderRow($rowOne, 'is-one'); @endphp
                 
-                {{-- Baris Kanan (Jalan ke Kanan) --}}
+                {{-- Baris Kanan (Akan digeser JS) --}}
                 @if($rowTwo->isNotEmpty())
                     @php $renderRow($rowTwo, 'is-two'); @endphp
                 @else
-                    {{-- Jika foto hanya sedikit (misal 1-3), tetap isi baris kedua dengan baris pertama --}}
                     @php $renderRow($rowOne, 'is-two'); @endphp
                 @endif
             </div>
@@ -758,87 +723,45 @@ window.initHomeScripts = function() {
     });
 
     /* ═══════════════════════════════════════════════════════════════
-       GALLERY SCROLL INTERACTION (Maju/Mundur via Mouse Wheel)
+       GALLERY SCROLL INTERACTION (Parallax Effect)
+       Menggeser foto seiring dengan scroll halaman
     ═══════════════════════════════════════════════════════════════ */
-    const scrollArea = document.getElementById('galleryScrollArea');
-    if (scrollArea) {
-        const rowOne = scrollArea.querySelector('.is-one');
-        const rowTwo = scrollArea.querySelector('.is-two');
+    const gallerySection = document.getElementById('gallerySection');
+    const galleryScrollArea = document.getElementById('galleryScrollArea');
+    
+    if (gallerySection && galleryScrollArea) {
+        const rowOne = galleryScrollArea.querySelector('.is-one');
+        const rowTwo = galleryScrollArea.querySelector('.is-two');
         
-        // Kita gunakan requestAnimationFrame agar animasi scroll mulus (smooth)
-        let targetOffsetOne = 0;
-        let targetOffsetTwo = 0;
-        let currentOffsetOne = 0;
-        let currentOffsetTwo = 0;
         let isHovering = false;
 
-        scrollArea.addEventListener('mouseenter', () => {
-            isHovering = true;
-            // Simpan posisi saat ini agar tidak loncat saat kursor masuk
-            if (rowOne) {
-                const style = window.getComputedStyle(rowOne);
-                const matrix = new WebKitCSSMatrix(style.transform);
-                currentOffsetOne = matrix.m41; 
-                targetOffsetOne = currentOffsetOne;
-            }
-            if (rowTwo) {
-                const style = window.getComputedStyle(rowTwo);
-                const matrix = new WebKitCSSMatrix(style.transform);
-                currentOffsetTwo = matrix.m41;
-                targetOffsetTwo = currentOffsetTwo;
-            }
-        });
+        galleryScrollArea.addEventListener('mouseenter', () => { isHovering = true; });
+        galleryScrollArea.addEventListener('mouseleave', () => { isHovering = false; });
 
-        scrollArea.addEventListener('mouseleave', () => {
-            isHovering = false;
-        });
-
-        // Menangkap putaran roda mouse
-        scrollArea.addEventListener('wheel', (e) => {
-            if (!isHovering) return;
-            e.preventDefault(); // Mencegah halaman ikut ter-scroll ke bawah
-
-            const scrollAmount = e.deltaY * 2; // Sensitivitas kecepatan geser
-
-            // Baris atas: Scroll ke bawah = gambar bergerak ke kiri
-            targetOffsetOne -= scrollAmount;
-            
-            // Baris bawah: Scroll ke bawah = gambar bergerak ke kanan
-            targetOffsetTwo += scrollAmount;
-
-        }, { passive: false });
-
-        // Animasi Loop untuk menggerakkan gambar
-        function animateGallery() {
-            if (isHovering) {
-                // Pergerakan halus menggunakan easing (interpolasi linear)
-                currentOffsetOne += (targetOffsetOne - currentOffsetOne) * 0.1;
-                currentOffsetTwo += (targetOffsetTwo - currentOffsetTwo) * 0.1;
+        function updateGalleryParallax() {
+            // Hanya jalan di desktop dan saat kursor berada di area galeri
+            if (window.innerWidth >= 1024 && isHovering) {
+                // Dapatkan posisi section galeri relatif terhadap viewport
+                const rect = gallerySection.getBoundingClientRect();
                 
-                // Terapkan posisi baru (menggunakan inline transform agar menimpa CSS)
-                if (rowOne) rowOne.style.transform = `translateX(${currentOffsetOne}px)`;
-                if (rowTwo) rowTwo.style.transform = `translateX(${currentOffsetTwo}px)`;
-            } else {
-                // Jika kursor keluar, sinkronkan target dengan posisi saat ini
-                // agar saat animasi CSS dilanjutkan tidak melompat
-                if (rowOne) {
-                    const style = window.getComputedStyle(rowOne);
-                    const matrix = new WebKitCSSMatrix(style.transform);
-                    currentOffsetOne = matrix.m41;
-                    targetOffsetOne = currentOffsetOne;
-                    rowOne.style.transform = ''; // Hapus inline style agar CSS animasi berjalan lagi
-                }
-                if (rowTwo) {
-                    const style = window.getComputedStyle(rowTwo);
-                    const matrix = new WebKitCSSMatrix(style.transform);
-                    currentOffsetTwo = matrix.m41;
-                    targetOffsetTwo = currentOffsetTwo;
-                    rowTwo.style.transform = ''; // Hapus inline style agar CSS animasi berjalan lagi
-                }
+                // Hitung seberapa jauh user telah scroll melewati section ini
+                // (semakin negatif nilainya, semakin user scroll ke bawah)
+                const scrollOffset = rect.top - window.innerHeight; 
+                
+                // Geser baris pertama ke kiri, baris kedua ke kanan
+                // Kalikan dengan 0.5 agar pergerakannya tidak terlalu ekstrem
+                const translateX = scrollOffset * 0.5;
+
+                if (rowOne) rowOne.style.transform = `translateX(${translateX}px)`;
+                if (rowTwo) rowTwo.style.transform = `translateX(${-translateX}px)`;
             }
-            requestAnimationFrame(animateGallery);
         }
-        requestAnimationFrame(animateGallery);
+
+        // Pasang event listener global untuk scroll
+        window.addEventListener('scroll', updateGalleryParallax, { passive: true });
+        
+        // Panggil sekali saat inisialisasi
+        updateGalleryParallax();
     }
 
     // Cegah inisialisasi ganda map saat pindah halaman
