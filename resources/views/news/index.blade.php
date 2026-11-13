@@ -4,42 +4,63 @@
 
 @push('styles')
 <style>
-    /* ═══ STACKED CARDS (OVERLAPPING STICKY EFFECT) ═══ */
-    /* Section pembungkus utama */
+    /* ═══ STACKED CARDS (OVERLAP EFFECT - CLAY STYLE) ═══ */
     .news-scroll-section {
         background-color: #f8fafc;
         padding-top: 5rem;
-        padding-bottom: 5rem;
+        padding-bottom: 10rem;
     }
 
-    /* Kontainer untuk setiap kartu (ini yang menciptakan jarak scroll) */
-    .news-card-wrapper {
+    .news-stack-container {
         position: relative;
-        /* Tinggi wrapper menentukan seberapa lama gambar akan diam menutupi sebelum lanjut */
-        height: 120vh; 
-        margin-bottom: -10vh; /* Trik agar tidak ada celah kosong di akhir */
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
     }
 
-    /* Kartu visual */
-    .news-card {
+    .news-card-wrapper {
         position: sticky;
-        top: 15vh;
+        /* Kartu akan menempel 10% dari atas layar */
+        top: 15vh; 
         width: 100%;
-        max-width: 1100px;
-        margin: 0 auto;
-        height: 70vh;
+        height: 70vh; /* Tinggi kartu visual */
+        
+        /* KUNCI EFEK OVERLAP: Margin negatif sebesar tinggi kartu 
+           agar kartu berikutnya langsung berada di belakang kartu sebelumnya */
+        margin-bottom: -70vh; 
+        
+        /* Memberikan ruang kosong terakhir di paling bawah */
+        padding-bottom: 70vh; 
+        
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        
+        transform-origin: top center;
+        will-change: transform;
+    }
+
+    /* Menghapus padding bawah pada wrapper terakhir agar tidak ada ruang kosong ekstra */
+    .news-card-wrapper:last-child {
+        padding-bottom: 0;
+        margin-bottom: 0;
+    }
+
+    /* Desain Kartu Utama */
+    .news-card {
+        width: 100%;
+        height: 100%;
         border-radius: 2rem;
         background-color: #ffffff;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 -20px 40px rgba(0,0,0,0.1); /* Shadow ke atas agar terlihat menumpuk */
         border: 1px solid #e2e8f0;
         display: flex;
         flex-direction: column;
         overflow: hidden;
         
-        /* Efek transisi halus saat kartu baru datang */
-        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        transform-origin: top center;
-        will-change: transform;
+        /* Transisi halus jika ada penyesuaian */
+        transition: transform 0.1s ease-out;
     }
 
     @media (min-width: 1024px) {
@@ -184,9 +205,8 @@
 </section>
 
 {{-- ============ STACKED CARDS CONTENT ============ --}}
-<section class="news-scroll-section overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-
+<section class="news-scroll-section">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 mb-8">
         @auth
             <div class="flex justify-end mb-6 relative z-20">
                 <a href="{{ route('admin.news.index') }}"
@@ -197,77 +217,77 @@
         @endauth
 
         @if($newsList->count() > 0)
-            <div class="flex items-center justify-between mb-12 pb-4 border-b border-gray-200 relative z-20">
+            <div class="flex items-center justify-between pb-4 border-b border-gray-200 relative z-20">
                 <p class="text-sm text-gray-500">
                     Showing {{ $newsList->firstItem() }}–{{ $newsList->lastItem() }} of {{ $newsList->total() }} news
                 </p>
             </div>
-
-            {{-- WRAPPER UNTUK SETIAP KARTU --}}
-            <div class="relative">
-                @foreach($newsList as $index => $item)
-                    {{-- Setiap kartu dibungkus dalam container yang tinggi --}}
-                    <div class="news-card-wrapper" style="z-index: {{ $index + 10 }};">
-                        <article class="news-card">
-                            {{-- Konten Teks --}}
-                            <div class="news-card-content">
-                                @if(!empty($item->category))
-                                    <div class="news-card-tag">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                                        {{ $item->category }}
-                                    </div>
-                                @endif
-
-                                @if($item->published_at)
-                                    <time datetime="{{ $item->published_at->toDateString() }}" class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">
-                                        {{ $item->published_at->translatedFormat('d F Y') }}
-                                    </time>
-                                @endif
-
-                                <h2 class="news-card-title">
-                                    {{ $item->title }}
-                                </h2>
-                                
-                                <p class="news-card-excerpt">
-                                    {{ $item->excerpt }}
-                                </p>
-
-                                <a href="{{ route('news.show', $item->slug) }}" class="news-card-btn">
-                                    Read Full Article
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                    </svg>
-                                </a>
-                            </div>
-
-                            {{-- Konten Gambar --}}
-                            <div class="news-card-image">
-                                @if($item->image_url)
-                                    <img src="{{ $item->image_url }}" alt="{{ $item->title }}" loading="{{ $index === 0 ? 'eager' : 'lazy' }}">
-                                @else
-                                    <div class="news-card-no-image">
-                                        <svg class="w-16 h-16 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                    </div>
-                                @endif
-                            </div>
-                        </article>
-                    </div>
-                @endforeach
-            </div>
-
-            <div class="mt-14 flex justify-center relative z-20">
-                {{ $newsList->links() }}
-            </div>
-        @else
-            <div class="text-center py-20 bg-white rounded-2xl border border-gray-200 shadow-sm relative z-20">
-                <h3 class="text-lg font-bold text-gray-700">No News Found</h3>
-                <p class="text-sm text-gray-500 mt-1">New news will appear here.</p>
-            </div>
         @endif
-
     </div>
+
+    @if($newsList->count() > 0)
+        <div class="news-stack-container">
+            @foreach($newsList as $index => $item)
+                {{-- Setiap kartu memiliki wrapper sticky --}}
+                <div class="news-card-wrapper" style="z-index: {{ $index + 10 }};">
+                    <article class="news-card">
+                        {{-- Konten Teks --}}
+                        <div class="news-card-content">
+                            @if(!empty($item->category))
+                                <div class="news-card-tag">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                                    {{ $item->category }}
+                                </div>
+                            @endif
+
+                            @if($item->published_at)
+                                <time datetime="{{ $item->published_at->toDateString() }}" class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">
+                                    {{ $item->published_at->translatedFormat('d F Y') }}
+                                </time>
+                            @endif
+
+                            <h2 class="news-card-title">
+                                {{ $item->title }}
+                            </h2>
+                            
+                            <p class="news-card-excerpt">
+                                {{ $item->excerpt }}
+                            </p>
+
+                            <a href="{{ route('news.show', $item->slug) }}" class="news-card-btn">
+                                Read Full Article
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </a>
+                        </div>
+
+                        {{-- Konten Gambar --}}
+                        <div class="news-card-image">
+                            @if($item->image_url)
+                                <img src="{{ $item->image_url }}" alt="{{ $item->title }}" loading="{{ $index === 0 ? 'eager' : 'lazy' }}">
+                            @else
+                                <div class="news-card-no-image">
+                                    <svg class="w-16 h-16 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                            @endif
+                        </div>
+                    </article>
+                </div>
+            @endforeach
+        </div>
+
+        <div class="mt-14 flex justify-center relative z-20">
+            {{ $newsList->links() }}
+        </div>
+    @else
+        <div class="max-w-7xl mx-auto px-4 text-center py-20 bg-white rounded-2xl border border-gray-200 shadow-sm relative z-20">
+            <h3 class="text-lg font-bold text-gray-700">No News Found</h3>
+            <p class="text-sm text-gray-500 mt-1">New news will appear here.</p>
+        </div>
+    @endif
 </section>
 
 @endsection
@@ -275,17 +295,20 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    const cards = document.querySelectorAll('.news-card');
     const wrappers = document.querySelectorAll('.news-card-wrapper');
     
     function updateStack() {
-        // Hanya jalankan efek di Desktop (layar > 1024px)
+        // Hanya jalankan efek di Desktop
         if (window.innerWidth < 1024) {
-            wrappers.forEach(w => {
-                const card = w.querySelector('.news-card');
-                if(card) card.style.transform = 'scale(1)';
+            cards.forEach(card => {
+                card.style.transform = 'scale(1)';
+                card.style.opacity = '1';
             });
             return;
         }
+
+        const stickyTop = window.innerHeight * 0.15; // 15vh
 
         wrappers.forEach((wrapper, index) => {
             const card = wrapper.querySelector('.news-card');
@@ -293,34 +316,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const rect = wrapper.getBoundingClientRect();
             
-            // Posisi sticky kita (15vh dari atas)
-            const stickyTop = window.innerHeight * 0.15; 
-
-            // Jika kartu ini sudah menempel (tertutup oleh scroll)
+            // Jika wrapper sudah melewati batas sticky (sedang tertutup)
             if (rect.top <= stickyTop) {
-                // Hitung seberapa jauh user telah scroll melewati pembungkus
-                // Nilai maksimal adalah tinggi pembungkus dikurangi tinggi layar
-                const wrapperHeight = wrapper.offsetHeight;
+                // Hitung seberapa jauh user telah scroll melewati wrapper ini
+                // Gunakan tinggi layar sebagai patokan
                 const scrollDistance = stickyTop - rect.top;
-                const maxScroll = wrapperHeight - (window.innerHeight * 0.7); // 70vh tinggi kartu
+                const maxScroll = window.innerHeight * 0.7; 
 
-                // Persentase seberapa jauh kartu tertutup (0 sampai 1)
+                // Persentase 0.0 sampai 1.0
                 const progress = Math.min(1, Math.max(0, scrollDistance / maxScroll));
                 
-                // Efek: Kartu yang tertutup mengecil perlahan dan meredup
-                const scale = 1 - (progress * 0.15); // Menyusut maksimal 15%
-                const opacity = 1 - (progress * 0.6); // Meredup maksimal 60%
+                // Efek: Kartu yang tertutup mengecil dan meredup perlahan
+                const scale = 1 - (progress * 0.1); // Menyusut maksimal 10%
+                const opacity = 1 - (progress * 0.5); // Meredup maksimal 50%
                 
                 card.style.transform = `scale(${scale})`;
                 card.style.opacity = opacity;
             } else {
-                // Jika belum menempel, kembalikan ke ukuran normal
+                // Jika belum menempel, kembalikan normal
                 card.style.transform = 'scale(1)';
                 card.style.opacity = '1';
             }
         });
     }
 
+    // Jalankan saat scroll dan saat load
     window.addEventListener('scroll', updateStack, { passive: true });
     updateStack();
 });
