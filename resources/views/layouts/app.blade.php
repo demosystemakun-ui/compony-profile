@@ -164,11 +164,11 @@
             }
         }
 
-        /* ═══ PAGE TRANSITIONS (Swup) ═══ */
+        /* ═══ PAGE TRANSITIONS (Swup) ═══
+           CATATAN: will-change dihapus supaya position: sticky di dalam <main> tetap jalan */
         .transition-slide {
             transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1),
                         opacity 0.3s ease;
-            will-change: transform, opacity;
         }
         html.is-animating .transition-slide {
             opacity: 0;
@@ -203,8 +203,9 @@
     {{-- ═══ NAVBAR ═══ --}}
     @include('layouts.navbar')
 
-    {{-- ═══ MAIN CONTENT ═══ --}}
-    <main id="swup" class="transition-slide flex-grow w-full overflow-hidden pt-0" role="main">
+    {{-- ═══ MAIN CONTENT ═══
+         overflow-x-clip (bukan overflow-hidden) supaya position: sticky tidak mati --}}
+    <main id="swup" class="transition-slide flex-grow w-full overflow-x-clip pt-0" role="main">
         @yield('content')
     </main>
 
