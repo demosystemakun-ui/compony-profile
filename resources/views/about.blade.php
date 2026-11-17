@@ -165,10 +165,6 @@
         <div class="hero-grain absolute inset-0 -z-10" aria-hidden="true"></div>
 
         <div class="mx-auto flex min-h-[620px] max-w-6xl flex-col justify-end px-6 pb-32 pt-40 sm:px-8 lg:min-h-[700px] lg:pb-40">
-            <p class="inline-flex items-center gap-2 text-sm font-semibold text-slate-300">
-                <span class="h-1.5 w-1.5 rounded-full bg-[#ec2029]"></span>
-                Pusakanagara, Subang, West Java
-            </p>
 
             <h1 class="mt-6 max-w-3xl text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
                 The vehicle terminal at
