@@ -5,50 +5,148 @@
 @push('styles')
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-    /* Scoped to this page so icons, form controls and other components are untouched. */
     .pict-about {
-        --red: #ec2029;
-        --red-deep: #c4161c;
-        --asphalt: #1c2025;
-        --concrete: #eceeef;
-        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-        color: var(--asphalt);
+        --pict-red: #ec2029;
+        --pict-red-deep: #b91c1c;
+        --pict-navy: #0c1c36;
+        font-family: 'Plus Jakarta Sans', 'Century Gothic', system-ui, sans-serif;
+        color: #0f172a;
         -webkit-font-smoothing: antialiased;
     }
-    .pict-about .display {
-        font-family: 'Bricolage Grotesque', 'Plus Jakarta Sans', system-ui, sans-serif;
-        letter-spacing: -0.02em;
+
+    .pict-about a:focus-visible,
+    .pict-about button:focus-visible {
+        outline: 2px solid var(--pict-navy);
+        outline-offset: 3px;
+        border-radius: 4px;
     }
 
-    .pict-about a:focus-visible { outline: 2px solid var(--asphalt); outline-offset: 3px; }
-    .pict-about .on-dark:focus-visible { outline-color: #fff; }
+    .pict-about .on-dark:focus-visible { outline-color: #ffffff; }
 
-    /* The one slightly tilted thing on the page: a sign board stuck on the hero photo. */
-    .pict-about .sign-board { transform: rotate(-2.5deg); }
-
-    /* Ownership bar */
-    .pict-about .own-seg {
-        transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+    /* Hero: quay line + subtle grain */
+    .pict-about .quay-line {
+        height: 6px;
+        background: repeating-linear-gradient(90deg, var(--pict-red) 0 56px, transparent 56px 64px);
     }
-    .pict-about #ownBar.has-active .own-seg:not(.is-active) { opacity: 0.35; }
-    .pict-about .own-seg.is-active { background-color: var(--red) !important; color: #fff !important; }
+    .pict-about .hero-grain {
+        background-image: radial-gradient(rgba(255,255,255,.08) 1px, transparent 1px);
+        background-size: 3px 3px;
+        mix-blend-mode: overlay;
+    }
 
-    .pict-about .own-row { transition: background-color 0.2s ease; }
-    .pict-about .own-row:hover,
-    .pict-about .own-row:focus-visible,
-    .pict-about .own-row.is-active { background-color: #fff; }
+    /* Stat cards: hover lift */
+    .pict-about .stat-card {
+        transition: transform .25s ease, box-shadow .25s ease, background-color .25s ease;
+    }
+    .pict-about .stat-card:hover {
+        transform: translateY(-2px);
+        background-color: #fafbfc;
+    }
 
-    .pict-about .own-logo { filter: grayscale(1); opacity: .7; transition: filter .2s ease, opacity .2s ease; }
-    .pict-about .own-row:hover .own-logo,
-    .pict-about .own-row:focus-visible .own-logo,
-    .pict-about .own-row.is-active .own-logo { filter: none; opacity: 1; }
+    /* Capacity bar with animated fill */
+    .pict-about .capacity-track { background: #e2e8f0; }
+    .pict-about .capacity-fill {
+        background: linear-gradient(90deg, var(--pict-red), #f43f5e);
+        transform-origin: left;
+        animation: capacityGrow 1.2s cubic-bezier(.22,1,.36,1) both;
+    }
+    @keyframes capacityGrow {
+        from { transform: scaleX(0); }
+        to   { transform: scaleX(1); }
+    }
+
+    /* Timeline */
+    .pict-about .timeline { position: relative; }
+    .pict-about .timeline::before {
+        content: '';
+        position: absolute;
+        left: 7px; top: 8px; bottom: 8px;
+        width: 2px;
+        background: linear-gradient(to bottom, #cbd5e1, #e2e8f0 80%, transparent);
+    }
+    .pict-about .timeline-dot {
+        position: absolute;
+        left: 0; top: 6px;
+        width: 16px; height: 16px;
+        border-radius: 9999px;
+        background: var(--pict-navy);
+        box-shadow: 0 0 0 4px #f8fafc;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .pict-about .timeline li:hover .timeline-dot {
+        transform: scale(1.15);
+        box-shadow: 0 0 0 4px #f8fafc, 0 0 0 8px rgba(236,32,41,.12);
+    }
+    .pict-about .timeline-dot.is-open {
+        background: #f8fafc;
+        border: 2px solid var(--pict-red);
+        animation: pulseDot 2.4s ease-in-out infinite;
+    }
+    @keyframes pulseDot {
+        0%, 100% { box-shadow: 0 0 0 4px #f8fafc, 0 0 0 8px rgba(236,32,41,.18); }
+        50%      { box-shadow: 0 0 0 4px #f8fafc, 0 0 0 10px rgba(236,32,41,.06); }
+    }
+
+    /* Ownership chart */
+    .pict-about .pie-segment {
+        transition: stroke-width .25s ease, opacity .25s ease;
+        cursor: pointer;
+    }
+    .pict-about .pie-segment.is-active { stroke-width: 8; }
+    .pict-about #ownershipChart.has-active .pie-segment:not(.is-active) { opacity: .22; }
+
+    /* Shareholder rows */
+    .pict-about .shareholder-row {
+        position: relative;
+        transition: background-color .2s ease, transform .2s ease;
+        border-radius: 10px;
+    }
+    .pict-about .shareholder-row:hover,
+    .pict-about .shareholder-row:focus-visible,
+    .pict-about .shareholder-row.is-active { background-color: #f1f5f9; }
+
+    .pict-about .shareholder-logo {
+        filter: grayscale(1);
+        opacity: .7;
+        transition: filter .25s ease, opacity .25s ease, transform .25s ease;
+    }
+    .pict-about .shareholder-row:hover .shareholder-logo,
+    .pict-about .shareholder-row:focus-visible .shareholder-logo,
+    .pict-about .shareholder-row.is-active .shareholder-logo {
+        filter: grayscale(0);
+        opacity: 1;
+        transform: scale(1.04);
+    }
+
+    .pict-about .share-bar { height: 4px; background: #e2e8f0; overflow: hidden; }
+    .pict-about .share-bar > span {
+        display: block; height: 100%;
+        transition: width .6s cubic-bezier(.22,1,.36,1);
+    }
+
+    /* Section heading accent */
+    .pict-about .heading-accent {
+        position: relative;
+        padding-left: 1rem;
+    }
+    .pict-about .heading-accent::before {
+        content: '';
+        position: absolute;
+        left: 0; top: .35em; bottom: .35em;
+        width: 4px;
+        border-radius: 2px;
+        background: var(--pict-red);
+    }
 
     @media (prefers-reduced-motion: reduce) {
-        .pict-about .own-seg,
-        .pict-about .own-row,
-        .pict-about .own-logo { transition: none; }
+        .pict-about .pie-segment,
+        .pict-about .shareholder-row,
+        .pict-about .shareholder-logo,
+        .pict-about .timeline-dot,
+        .pict-about .capacity-fill,
+        .pict-about .stat-card { transition: none; animation: none; }
     }
 </style>
 @endpush
@@ -56,131 +154,124 @@
 @section('content')
 <div class="pict-about">
 
-    {{-- 1. Hero: say what we do, then give the visitor something to do --}}
-    <section class="bg-[#1c2025] text-white lg:grid lg:grid-cols-[1.15fr_1fr]">
-        <div class="px-6 pb-16 pt-36 sm:px-10 lg:py-44 lg:pl-16 lg:pr-14">
-            <h1 class="display max-w-2xl text-5xl font-extrabold leading-[1.02] sm:text-6xl xl:text-7xl">
-                A terminal built for one thing: cars.
+    {{-- 1. Hero --}}
+    <section class="relative isolate overflow-hidden bg-[#0c1c36]">
+        <img src="{{ asset('assets/images/background.jpeg') }}"
+             alt=""
+             width="1920" height="1280"
+             fetchpriority="high" decoding="async"
+             class="absolute inset-0 -z-10 h-full w-full object-cover">
+        <div class="absolute inset-0 -z-10 bg-gradient-to-t from-[#0c1c36] via-[#0c1c36]/85 to-[#0c1c36]/55"></div>
+        <div class="hero-grain absolute inset-0 -z-10" aria-hidden="true"></div>
+
+        <div class="mx-auto flex min-h-[620px] max-w-6xl flex-col justify-end px-6 pb-32 pt-40 sm:px-8 lg:min-h-[700px] lg:pb-40">
+            <p class="inline-flex items-center gap-2 text-sm font-semibold text-slate-300">
+                <span class="h-1.5 w-1.5 rounded-full bg-[#ec2029]"></span>
+                Pusakanagara, Subang, West Java
+            </p>
+
+            <h1 class="mt-6 max-w-3xl text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
+                The vehicle terminal at
+                <span class="bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">Patimban Port</span>
             </h1>
 
-            <p class="mt-8 max-w-lg text-lg leading-8 text-slate-300">
-                PT Patimban International Car Terminal (PICT) runs the vehicle terminal at Patimban Port in Subang, West Java, 120 km east of Jakarta. Since December 2021 we have handled vehicle imports and exports for Indonesia's automotive industry.
-            </p>
-
-            <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
-                <a href="/contact"
-                   class="on-dark inline-flex items-center rounded-md bg-[#ec2029] px-6 py-3.5 text-sm font-bold text-white transition-colors hover:bg-[#d41a22]">
-                    Talk to the PICT team
-                </a>
-                <a href="#owners"
-                   class="on-dark text-sm font-semibold text-white underline decoration-white/40 underline-offset-4 transition-colors hover:decoration-white">
-                    See who owns PICT
-                </a>
-            </div>
-        </div>
-
-        <div class="relative min-h-[340px] lg:min-h-0">
-            <img src="{{ asset('assets/images/background.jpeg') }}"
-                 alt="Vehicles at the Patimban Port vehicle terminal"
-                 width="1920"
-                 height="1280"
-                 fetchpriority="high"
-                 decoding="async"
-                 class="absolute inset-0 h-full w-full object-cover">
-
-            <p class="sign-board display absolute bottom-8 left-6 max-w-[15rem] bg-[#ec2029] px-5 py-3 text-lg font-bold leading-tight text-white shadow-lg lg:-left-10 lg:bottom-14">
-                Operating since December 2021
+            <p class="mt-6 max-w-xl text-base leading-relaxed text-slate-200/90">
+                PT Patimban International Car Terminal (PICT) has operated the terminal since December 2021, handling vehicle imports and exports for Indonesia's automotive industry.
             </p>
         </div>
+
+        <div class="quay-line absolute inset-x-0 bottom-0" aria-hidden="true"></div>
     </section>
 
-    {{-- 2. Capacity: the numbers as a sentence, plus the page's one memorable visual --}}
-    {{-- Figures provided with this page. Confirm them against PICT's latest official report before publishing. --}}
-    <section class="bg-[#eceeef]">
-        <div class="mx-auto max-w-6xl px-6 py-20 sm:px-8 lg:py-28">
-            <h2 class="display max-w-4xl text-3xl font-semibold leading-snug sm:text-4xl lg:text-[2.75rem] lg:leading-[1.2]">
-                Today the terminal is set up for <strong class="font-extrabold">200,000</strong> vehicles a year, from a <strong class="font-extrabold">300-metre</strong> berth, <strong class="font-extrabold">120 km</strong> from Jakarta. As later phases of the port open, the plan is <strong class="font-extrabold">800,000</strong>.
-            </h2>
+    {{-- 2. Key figures --}}
+    @php
+        $facts = [
+            ['label' => 'Handling capacity', 'value' => '200,000', 'unit' => 'units/year'],
+            ['label' => 'Planned capacity',  'value' => '800,000', 'unit' => 'units/year'],
+            ['label' => 'Berth length',      'value' => '300',     'unit' => 'metres'],
+            ['label' => 'From Jakarta',      'value' => '120',     'unit' => 'km'],
+        ];
+    @endphp
 
-            {{-- Eight parking bays: two filled (200,000 of 800,000). Text in the figure is also in the caption below. --}}
-            <figure class="mt-14">
-                <svg viewBox="0 0 800 130" class="block w-full rounded-lg bg-[#1c2025]" role="img"
-                     aria-label="Eight parking bays, two of them filled with cars, showing 200,000 units of capacity today out of 800,000 planned">
-                    <line x1="0" y1="14" x2="800" y2="14" stroke="#fff" stroke-width="3" opacity=".55"/>
-                    @for($i = 0; $i <= 8; $i++)
-                        <line x1="{{ $i * 100 }}" y1="14" x2="{{ $i * 100 }}" y2="130"
-                              stroke="#fff" stroke-width="3" {{ $i > 2 ? 'stroke-dasharray=10 8 opacity=.4' : 'opacity=.55' }}/>
-                    @endfor
-                    @for($i = 0; $i < 2; $i++)
-                        <g transform="translate({{ $i * 100 }} 0)">
-                            <rect x="20" y="34" width="60" height="86" rx="12" fill="#ec2029"/>
-                            <rect x="28" y="46" width="44" height="18" rx="4" fill="#1c2025" opacity=".55"/>
-                            <rect x="28" y="92" width="44" height="14" rx="4" fill="#1c2025" opacity=".35"/>
-                        </g>
-                    @endfor
-                </svg>
-                <figcaption class="mt-4 flex flex-wrap justify-between gap-x-6 gap-y-1 text-sm text-slate-600">
-                    <span><strong class="font-bold text-slate-900">200,000</strong> units a year today</span>
-                    <span><strong class="font-bold text-slate-900">800,000</strong> units a year planned</span>
-                </figcaption>
-            </figure>
-        </div>
+    <section class="relative z-10 -mt-20 px-6 sm:px-8 lg:-mt-24">
+        <dl class="mx-auto grid max-w-6xl grid-cols-2 overflow-hidden rounded-2xl bg-white shadow-xl shadow-slate-900/10 ring-1 ring-slate-200/70 lg:grid-cols-4">
+            @foreach($facts as $fact)
+                <div class="stat-card border-slate-200 p-6 sm:p-8 {{ $loop->odd ? 'border-r' : '' }} {{ $loop->index < 2 ? 'border-b lg:border-b-0' : '' }} {{ $loop->index < 3 ? 'lg:border-r' : 'lg:border-r-0' }}">
+                    <dd class="text-3xl font-extrabold tabular-nums tracking-tight text-slate-900 sm:text-4xl">
+                        {{ $fact['value'] }}
+                    </dd>
+                    <dd class="mt-1 text-xs font-medium text-slate-500">{{ $fact['unit'] }}</dd>
+                    <dt class="mt-4 text-sm font-semibold text-slate-700">{{ $fact['label'] }}</dt>
+                </div>
+            @endforeach
+        </dl>
     </section>
 
-    {{-- 3. What you get: plain claims, no cards --}}
+    {{-- 3. Company profile --}}
     <section class="bg-white">
-        <div class="mx-auto grid max-w-6xl gap-10 px-6 py-20 sm:px-8 lg:grid-cols-12 lg:gap-16 lg:py-28">
-            <h2 class="display text-3xl font-extrabold sm:text-4xl lg:col-span-4">What you get at Patimban</h2>
+        <div class="mx-auto grid max-w-6xl gap-12 px-6 py-20 sm:px-8 lg:grid-cols-12 lg:gap-16 lg:py-28">
+            <div class="lg:col-span-5">
+                <h2 class="heading-accent text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">Who we are</h2>
 
-            <div class="lg:col-span-8">
-                @php
-                    $reasons = [
-                        ['A car terminal, not a general port.', 'Vehicle imports and exports for Indonesia\'s automotive industry are what PICT does.'],
-                        ['Close to Jakarta.', 'The terminal sits in Pusakanagara, Subang Regency, about 120 km east of central Jakarta.'],
-                        ['Room to grow.', 'Capacity is planned to rise from 200,000 to 800,000 units a year as later phases of Patimban Port are completed.'],
-                        ['Owners who know shipping.', 'Toyota Tsusho, Toyofuji Shipping, NYK Line and Kamigumi, four Japanese companies in trading, shipping and port operations, own PICT.'],
-                    ];
-                @endphp
+                <div class="mt-10 rounded-xl border border-slate-200 bg-slate-50/60 p-5">
+                    <div class="flex items-baseline justify-between gap-4">
+                        <p class="text-sm font-semibold text-slate-900">Capacity today vs. planned</p>
+                        <p class="text-sm font-bold tabular-nums text-[#b91c1c]">25%</p>
+                    </div>
+                    <div class="capacity-track mt-3 h-3 overflow-hidden rounded-full"
+                         role="img"
+                         aria-label="Current handling capacity of 200,000 units per year is 25 percent of the planned 800,000 units per year">
+                        <div class="capacity-fill h-full rounded-full" style="width: 25%"></div>
+                    </div>
+                    <div class="mt-2 flex justify-between text-xs tabular-nums text-slate-500">
+                        <span>200,000 now</span>
+                        <span>800,000 planned</span>
+                    </div>
+                </div>
+            </div>
 
-                <ul class="divide-y divide-dashed divide-slate-300 border-y border-dashed border-slate-300">
-                    @foreach($reasons as [$title, $body])
-                        <li class="grid gap-2 py-7 sm:grid-cols-[minmax(0,15rem)_1fr] sm:gap-10">
-                            <h3 class="display text-xl font-bold leading-snug">{{ $title }}</h3>
-                            <p class="text-base leading-7 text-slate-600">{{ $body }}</p>
-                        </li>
-                    @endforeach
-                </ul>
+            <div class="space-y-5 text-base leading-8 text-slate-600 lg:col-span-7 lg:pt-2">
+                <p class="text-lg leading-8 text-slate-800">
+                    PT Patimban International Car Terminal (PICT) is a vehicle terminal operator at Patimban Port, Pusakanagara, Subang Regency, West Java, about 120 kilometres east of central Jakarta.
+                </p>
+                <p>
+                    The company was established in November 2021 by the Toyota Tsusho Group and began operating the terminal in December 2021.
+                </p>
+                <p>
+                    Patimban Port is a National Strategic Project of the Government of Indonesia, built in phases since 2018 with support from an Official Development Assistance loan. PT Pelabuhan Indonesia (Pelindo) managed the vehicle terminal temporarily until responsibility was transferred to PICT, a company capitalised by a consortium of Japanese enterprises.
+                </p>
             </div>
         </div>
     </section>
 
-    {{-- 4. History: a logbook --}}
-    <section class="bg-[#eceeef]">
-        <div class="mx-auto grid max-w-6xl gap-10 px-6 py-20 sm:px-8 lg:grid-cols-12 lg:gap-16 lg:py-28">
-            <div class="lg:col-span-4">
-                <h2 class="display text-3xl font-extrabold sm:text-4xl">How we got here</h2>
-                <p class="mt-4 max-w-xs text-base leading-7 text-slate-600">
-                    Patimban Port is a National Strategic Project of the Government of Indonesia. PICT came in to run its vehicle terminal.
+    {{-- 4. History --}}
+    <section class="bg-slate-50">
+        <div class="mx-auto max-w-6xl px-6 py-20 sm:px-8 lg:py-28">
+            <div class="grid gap-6 lg:grid-cols-12 lg:items-end">
+                <h2 class="heading-accent text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:col-span-7">History</h2>
+                <p class="text-base leading-7 text-slate-600 lg:col-span-5">
+                    Patimban Port is a National Strategic Project, built in phases since 2018. PICT has run the vehicle terminal since operations began in December 2021.
                 </p>
             </div>
 
             @php
-                $log = [
-                    ['2018', 'Port construction begins', 'Built in phases, financed through an Official Development Assistance loan.'],
-                    ['Nov 2021', 'PICT is established', 'The Toyota Tsusho Group sets up the company to operate the vehicle terminal.'],
-                    ['Dec 2021', 'Terminal opens for business', 'PICT takes over from PT Pelabuhan Indonesia (Pelindo), which had managed the facility temporarily.'],
-                    ['30 Jun 2023', 'Three new shareholders join', 'Toyota Tsusho transfers part of its stake to Toyofuji Shipping, NYK Line and Kamigumi.'],
-                    ['Now', 'Still expanding', 'Terminal facilities grow as later phases of the port are completed.'],
+                $timeline = [
+                    ['date' => '2018', 'title' => 'Construction of Patimban Port begins', 'desc' => 'Construction started in phases as a National Strategic Project of the Government of Indonesia, financed through an Official Development Assistance loan.'],
+                    ['date' => 'November 2021', 'title' => 'PICT established', 'desc' => 'PT Patimban International Car Terminal was established by the Toyota Tsusho Group to operate the port\'s vehicle terminal.'],
+                    ['date' => 'December 2021', 'title' => 'Terminal operations begin', 'desc' => 'PICT took over terminal operations from PT Pelabuhan Indonesia (Pelindo), which had managed the facility temporarily.'],
+                    ['date' => '30 June 2023', 'title' => 'Shareholding expanded', 'desc' => 'Toyota Tsusho transferred part of its stake to Toyofuji Shipping, NYK Line and Kamigumi, bringing three specialised shipping and terminal operators into the ownership structure.'],
+                    ['date' => 'Ongoing', 'title' => 'Capacity expansion', 'desc' => 'PICT is expanding terminal facilities as later phases of Patimban Port are completed.'],
                 ];
             @endphp
 
-            <ol class="divide-y divide-dashed divide-slate-400 border-y border-dashed border-slate-400 lg:col-span-8">
-                @foreach($log as [$date, $title, $desc])
-                    <li class="grid gap-1 py-6 sm:grid-cols-[8rem_1fr] sm:gap-8">
-                        <p class="display text-lg font-bold tabular-nums text-[#c4161c]">{{ $date }}</p>
+            <ol class="timeline mt-14 space-y-10">
+                @foreach($timeline as $entry)
+                    <li class="relative grid gap-2 pl-10 sm:grid-cols-[11rem_1fr] sm:gap-10">
+                        <span class="timeline-dot {{ $loop->last ? 'is-open' : '' }}" aria-hidden="true"></span>
+                        <p class="text-sm font-bold tabular-nums text-[#b91c1c] sm:pt-1">{{ $entry['date'] }}</p>
                         <div>
-                            <h3 class="text-base font-bold">{{ $title }}</h3>
-                            <p class="mt-1 max-w-xl text-base leading-7 text-slate-600">{{ $desc }}</p>
+                            <h3 class="text-lg font-bold text-slate-900">{{ $entry['title'] }}</h3>
+                            <p class="mt-1.5 max-w-2xl text-base leading-7 text-slate-600">{{ $entry['desc'] }}</p>
                         </div>
                     </li>
                 @endforeach
@@ -188,80 +279,105 @@
         </div>
     </section>
 
-    {{-- 5. Owners --}}
-    <section id="owners" class="scroll-mt-8 bg-white">
+    {{-- 5. Shareholders --}}
+    <section class="bg-white">
         <div class="mx-auto max-w-6xl px-6 py-20 sm:px-8 lg:py-28">
-            <h2 class="display text-3xl font-extrabold sm:text-4xl">Who owns PICT</h2>
-            <p class="mt-4 max-w-md text-base leading-7 text-slate-600">
-                Four Japanese companies, one terminal. Point at a name to see its share.
-            </p>
-
-            @php
-                $owners = [
-                    ['id' => 'toyota',   'name' => 'Toyota Tsusho Corporation',                      'sector' => 'General trading',      'share' => 34, 'bg' => '#1c2025', 'fg' => '#ffffff', 'logo' => 'assets/images/logo-toyota.png',    'url' => 'https://www.toyota-tsusho.com/'],
-                    ['id' => 'toyofuji', 'name' => 'Toyofuji Shipping Co., Ltd.',                    'sector' => 'Marine transport',     'share' => 26, 'bg' => '#4b5560', 'fg' => '#ffffff', 'logo' => 'assets/images/toyofuji-logo.jpg',  'url' => 'https://www.toyofuji.co.jp/en/english/company/company.html'],
-                    ['id' => 'nyk',      'name' => 'Nippon Yusen Kabushiki Kaisha (NYK Line)',       'sector' => 'Global shipping',      'share' => 25, 'bg' => '#9aa3ab', 'fg' => '#1c2025', 'logo' => 'assets/images/nyk-logo.jpg',       'url' => 'https://www.nyk.com/english/'],
-                    ['id' => 'kamigumi', 'name' => 'Kamigumi Co., Ltd.',                             'sector' => 'Port and warehousing', 'share' => 15, 'bg' => '#d3d8dc', 'fg' => '#1c2025', 'logo' => 'assets/images/logo-kamigumi.png', 'url' => 'https://www.kamigumi.co.jp/english/'],
-                ];
-            @endphp
-
-            {{-- Decorative: every figure is also in the list below, so the bar is hidden from assistive technology. --}}
-            <div id="ownBar" class="mt-12 flex gap-1.5" aria-hidden="true">
-                @foreach($owners as $o)
-                    <div class="own-seg display flex h-16 items-end rounded-md px-3 pb-2 text-xl font-extrabold tabular-nums sm:h-20 sm:px-4"
-                         style="width: {{ $o['share'] }}%; background: {{ $o['bg'] }}; color: {{ $o['fg'] }}"
-                         data-segment="{{ $o['id'] }}">
-                        {{ $o['share'] }}%
-                    </div>
-                @endforeach
+            <div class="grid gap-6 lg:grid-cols-12 lg:items-end">
+                <h2 class="heading-accent text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:col-span-7">Shareholders</h2>
+                <p class="text-base leading-7 text-slate-600 lg:col-span-5">
+                    Four Japanese companies own PICT. Point at a row to see that company's share of the terminal.
+                </p>
             </div>
 
-            <ul id="ownList" class="mt-8 border-t border-dashed border-slate-300">
-                @foreach($owners as $o)
-                    <li>
-                        <a href="{{ $o['url'] }}"
-                           target="_blank"
-                           rel="noopener noreferrer"
-                           class="own-row flex items-center gap-4 border-b border-dashed border-slate-300 px-2 py-4 sm:gap-6"
-                           data-owner="{{ $o['id'] }}">
-                            <span class="h-3 w-3 shrink-0 rounded-sm" style="background: {{ $o['bg'] }}" aria-hidden="true"></span>
-                            <span class="flex h-10 w-16 shrink-0 items-center justify-center">
-                                <img src="{{ asset($o['logo']) }}"
-                                     alt=""
-                                     width="112"
-                                     height="32"
-                                     loading="lazy"
-                                     decoding="async"
-                                     class="own-logo max-h-8 w-auto max-w-full object-contain">
-                            </span>
-                            <span class="min-w-0 flex-1">
-                                <span class="block truncate text-sm font-bold">{{ $o['name'] }}</span>
-                                <span class="block text-xs text-slate-500">{{ $o['sector'] }}</span>
-                            </span>
-                            <span class="display shrink-0 text-xl font-extrabold tabular-nums">{{ $o['share'] }}%</span>
-                            <span class="sr-only">Opens in a new tab.</span>
-                        </a>
-                    </li>
-                @endforeach
-            </ul>
+            @php
+                $shareholders = [
+                    ['id' => 'toyota',   'name' => 'Toyota Tsusho Corporation',                'sector' => 'General trading',      'share' => 34, 'color' => '#0c1c36', 'logo' => 'assets/images/logo-toyota.png',    'url' => 'https://www.toyota-tsusho.com/'],
+                    ['id' => 'toyofuji', 'name' => 'Toyofuji Shipping Co., Ltd.',              'sector' => 'Marine transport',    'share' => 26, 'color' => '#334e7a', 'logo' => 'assets/images/toyofuji-logo.jpg',  'url' => 'https://www.toyofuji.co.jp/en/english/company/company.html'],
+                    ['id' => 'nyk',      'name' => 'Nippon Yusen Kabushiki Kaisha (NYK Line)', 'sector' => 'Global shipping',     'share' => 25, 'color' => '#6f8fbd', 'logo' => 'assets/images/nyk-logo.jpg',       'url' => 'https://www.nyk.com/english/'],
+                    ['id' => 'kamigumi', 'name' => 'Kamigumi Co., Ltd.',                       'sector' => 'Port and warehousing', 'share' => 15, 'color' => '#b4c6df', 'logo' => 'assets/images/logo-kamigumi.png',  'url' => 'https://www.kamigumi.co.jp/english/'],
+                ];
+                $gap = 0.8;
+                $offset = 0;
+            @endphp
+
+            <div class="mt-14 grid items-center gap-12 lg:grid-cols-12 lg:gap-16">
+                <div class="order-2 lg:order-1 lg:col-span-5">
+                    <div id="ownershipChart" class="relative mx-auto aspect-square w-full max-w-[300px]" aria-hidden="true">
+                        <svg viewBox="0 0 42 42" class="h-full w-full -rotate-90">
+                            <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#e2e8f0" stroke-width="5.5"></circle>
+                            @foreach($shareholders as $company)
+                                <circle cx="21" cy="21" r="15.9155" fill="transparent"
+                                        stroke="{{ $company['color'] }}" stroke-width="5.5"
+                                        stroke-dasharray="{{ $company['share'] - $gap }} {{ 100 - $company['share'] + $gap }}"
+                                        stroke-dashoffset="{{ -$offset }}"
+                                        class="pie-segment" data-segment="{{ $company['id'] }}"></circle>
+                                @php $offset += $company['share']; @endphp
+                            @endforeach
+                        </svg>
+
+                        <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-10 text-center">
+                            <span id="chartLabel" class="text-xs font-semibold text-slate-500">Ownership</span>
+                            <span id="chartValue" class="mt-1 text-4xl font-extrabold tabular-nums tracking-tight text-slate-900">100%</span>
+                            <span id="chartNote" class="mt-1 text-xs text-slate-500">4 shareholders</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-1 lg:order-2 lg:col-span-7">
+                    <ul id="shareholderList" class="border-t border-slate-200">
+                        @foreach($shareholders as $company)
+                            <li>
+                                <a href="{{ $company['url'] }}"
+                                   target="_blank" rel="noopener noreferrer"
+                                   class="shareholder-row block border-b border-slate-200 px-2 py-5"
+                                   data-shareholder="{{ $company['id'] }}"
+                                   data-name="{{ $company['name'] }}"
+                                   data-share="{{ $company['share'] }}">
+                                    <span class="flex items-center gap-4">
+                                        <span class="flex h-10 w-16 shrink-0 items-center justify-center">
+                                            <img src="{{ asset($company['logo']) }}"
+                                                 alt="" width="112" height="32"
+                                                 loading="lazy" decoding="async"
+                                                 class="shareholder-logo max-h-8 w-auto max-w-full object-contain">
+                                        </span>
+                                        <span class="min-w-0 flex-1">
+                                            <span class="block truncate text-sm font-bold text-slate-900">{{ $company['name'] }}</span>
+                                            <span class="block text-xs text-slate-500">{{ $company['sector'] }}</span>
+                                        </span>
+                                        <span class="shrink-0 text-xl font-extrabold tabular-nums text-slate-900">{{ $company['share'] }}%</span>
+                                    </span>
+                                    <span class="share-bar mt-3 block rounded-full" aria-hidden="true">
+                                        <span class="rounded-full" style="width: {{ $company['share'] }}%; background: {{ $company['color'] }}"></span>
+                                    </span>
+                                    <span class="sr-only">Opens in a new tab.</span>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
         </div>
     </section>
 
-    {{-- 6. Contact: talk like a person --}}
-    <section class="bg-[#c4161c] text-white">
-        <div class="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-16 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:py-24">
+    {{-- 6. Contact --}}
+    <section class="relative overflow-hidden bg-[#b91c1c] text-white">
+        <div class="absolute inset-0 opacity-10" aria-hidden="true"
+             style="background-image: radial-gradient(rgba(255,255,255,.6) 1px, transparent 1px); background-size: 22px 22px;"></div>
+
+        <div class="relative mx-auto flex max-w-6xl flex-col gap-8 px-6 py-16 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:py-20">
             <div>
-                <h2 class="display max-w-2xl text-3xl font-extrabold leading-tight sm:text-4xl lg:text-5xl">
-                    Got vehicles to ship, or want to see the terminal?
-                </h2>
-                <p class="mt-4 max-w-xl text-base leading-7 text-red-100">
-                    Ask the PICT team about terminal services, shipping schedules or a site visit at Patimban Port, Pusakanagara, Subang Regency.
+                <h2 class="text-2xl font-extrabold tracking-tight sm:text-3xl">Contact the terminal</h2>
+                <p class="mt-3 max-w-xl text-base leading-7 text-red-100">
+                    Patimban Port, Pusakanagara, Subang Regency, West Java. For terminal services, shipping schedules or a site visit, contact the PICT team.
                 </p>
             </div>
 
             <a href="/contact"
-               class="on-dark inline-flex shrink-0 items-center justify-center rounded-md bg-white px-7 py-4 text-sm font-bold text-[#c4161c] transition-colors hover:bg-red-50">
-                Talk to the PICT team
+               class="on-dark inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-7 py-3.5 text-sm font-bold text-[#b91c1c] shadow-lg shadow-black/10 transition-all hover:bg-red-50 hover:shadow-xl hover:-translate-y-0.5">
+                Contact PICT
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd" />
+                </svg>
             </a>
         </div>
     </section>
@@ -272,37 +388,49 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const bar = document.getElementById('ownBar');
-    const list = document.getElementById('ownList');
-    if (!bar || !list) return;
+    const chart = document.getElementById('ownershipChart');
+    const list = document.getElementById('shareholderList');
+    if (!chart || !list) return;
 
-    const segments = bar.querySelectorAll('[data-segment]');
-    const rows = list.querySelectorAll('[data-owner]');
+    const label = document.getElementById('chartLabel');
+    const value = document.getElementById('chartValue');
+    const note = document.getElementById('chartNote');
+    const rows = list.querySelectorAll('[data-shareholder]');
+    const segments = chart.querySelectorAll('.pie-segment');
 
-    function show(id) {
-        bar.classList.add('has-active');
-        segments.forEach(s => s.classList.toggle('is-active', s.dataset.segment === id));
-        rows.forEach(r => r.classList.toggle('is-active', r.dataset.owner === id));
+    function show(row) {
+        const id = row.dataset.shareholder;
+        chart.classList.add('has-active');
+        segments.forEach(seg => seg.classList.toggle('is-active', seg.dataset.segment === id));
+        rows.forEach(r => r.classList.toggle('is-active', r === row));
+        label.textContent = row.dataset.name.replace(/\s*\(.*\)$/, '');
+        value.textContent = row.dataset.share + '%';
+        note.textContent = 'of PICT';
     }
 
     function reset() {
-        bar.classList.remove('has-active');
-        segments.forEach(s => s.classList.remove('is-active'));
+        chart.classList.remove('has-active');
+        segments.forEach(seg => seg.classList.remove('is-active'));
         rows.forEach(r => r.classList.remove('is-active'));
+        label.textContent = 'Ownership';
+        value.textContent = '100%';
+        note.textContent = '4 shareholders';
     }
 
     rows.forEach(row => {
-        row.addEventListener('pointerenter', () => show(row.dataset.owner));
-        row.addEventListener('focus', () => show(row.dataset.owner));
-    });
-    segments.forEach(seg => {
-        seg.addEventListener('pointerenter', () => show(seg.dataset.segment));
-        seg.addEventListener('pointerleave', reset);
+        row.addEventListener('pointerenter', () => show(row));
+        row.addEventListener('focus', () => show(row));
+        row.addEventListener('click', () => show(row));
     });
 
     list.addEventListener('pointerleave', reset);
     list.addEventListener('focusout', e => {
         if (!list.contains(e.relatedTarget)) reset();
+    });
+
+    // Touch: keep selection sticky until tapping elsewhere
+    document.addEventListener('pointerdown', e => {
+        if (!list.contains(e.target)) reset();
     });
 });
 </script>
