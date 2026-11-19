@@ -172,10 +172,6 @@
         <div class="blob -z-10 -left-20 bottom-24 h-60 w-60 bg-sky-300/20 blur-3xl" aria-hidden="true"></div>
 
         <div class="hero-in mx-auto flex min-h-[620px] max-w-6xl flex-col justify-end px-6 pb-40 pt-40 sm:px-8 lg:min-h-[700px] lg:pb-48">
-            <span class="inline-flex w-fit items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-semibold text-white ring-1 ring-white/25 backdrop-blur">
-                <span class="h-2 w-2 rounded-full bg-[#ec2029]"></span>
-                Patimban Port, Subang
-            </span>
 
             <h1 class="mt-6 max-w-3xl text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl">
                 The vehicle terminal at Patimban Port
