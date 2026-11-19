@@ -101,7 +101,7 @@
     }
     .hero-slide.active { opacity: 1; }
 
-    /* Kartu Angka */
+
     .stat-card {
         transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease;
         box-shadow: 0 18px 40px -18px rgba(10,37,64,.3);
