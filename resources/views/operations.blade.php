@@ -2,6 +2,19 @@
 
 @section('title', 'Operations — PT Patimban International Car Terminal')
 
+@php
+    // Memindahkan $steps ke paling atas agar bisa diakses oleh script JS di bawah
+    $steps = [
+        ['title' => 'Ship Arrival', 'time' => '1–2 Hours Prior', 'equip' => 'Vessel Traffic Services (VTS)', 'safety' => 'ISPS Code Compliance', 'div' => 'Marine Operations', 'desc' => 'Coordination with maritime authorities to ensure safe entry into the port limits before docking procedures begin.'],
+        ['title' => 'Berthing', 'time' => '45–60 Minutes', 'equip' => 'Tugboats & Mooring Lines', 'safety' => 'Port Safety Clearance', 'div' => 'Harbor Master Team', 'desc' => 'Securing the vessel to the terminal dock using specialized tugs and heavy-duty mooring systems.'],
+        ['title' => 'Vehicle Inspection', 'time' => '10 Min / Unit', 'equip' => 'Digital Handheld Scanners', 'safety' => 'Zero-Scratch Protocol', 'div' => 'Quality Assurance', 'desc' => 'Pre-discharge visual and digital scanning of units to document condition and ensure zero damage.'],
+        ['title' => 'Ro-Ro Discharge', 'time' => '2–4 Hours Total', 'equip' => 'Hydraulic Ramps & Lashing', 'safety' => 'PPE & Traffic Control', 'div' => 'Stevedoring Division', 'desc' => 'Safe and systematic driving of vehicles from the vessel decks down the ramps into the initial staging area.'],
+        ['title' => 'Yard Management', 'time' => 'Immediate Staging', 'equip' => 'Automated Yard Locator (TMS)', 'safety' => 'Speed Limit 20 km/h', 'div' => 'Yard Control Center', 'desc' => 'Routing and parking units in designated zones utilizing our proprietary Terminal Management System.'],
+        ['title' => 'Quality Check', 'time' => 'Final Audit', 'equip' => 'High-Resolution Cameras', 'safety' => 'Pre-Delivery Inspection', 'div' => 'Inspection Team', 'desc' => 'Comprehensive post-discharge inspection to verify VIN numbers, accessories, and overall vehicle integrity.'],
+        ['title' => 'Distribution', 'time' => 'On-Demand Gate Out', 'equip' => 'Car Carriers / Transporters', 'safety' => 'Gate Security Check', 'div' => 'Logistics & Delivery', 'desc' => 'Loading units onto commercial transporters and finalizing documentation for domestic or international dispatch.'],
+    ];
+@endphp
+
 @push('styles')
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,7 +40,7 @@
     h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Plus Jakarta Sans', 'Century Gothic', system-ui, sans-serif; }
 
     /* ═══ KUNCI LAYOUT (DIPERBAIKI) ═══ */
-    /* Hapus overflow-x:hidden pada section agar slider galeri bisa digeser */
+    /* Hapus overflow-x:hidden pada section agar slider bisa digeser */
     #swup, main, section {
         position: relative;
         width: 100%;
@@ -36,19 +49,18 @@
     
     /* Hanya paksa hidden pada elemen tertentu yang butuh */
     .prevent-overflow {
-        overflow-x: hidden !important;
+        overflow: hidden !important;
     }
 
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
     /* ═══ GELOMBANG (WAVE) DIPERBAIKI ═══ */
-    /* Kita kunci tingginya agar tidak melar menutupi section bawah */
+    /* Kunci tinggi agar tidak melar menutupi section di bawahnya */
     .divider {
         line-height: 0;
         width: 100%;
         overflow: hidden;
-        /* Menghilangkan margin negatif yang bikin tumpang tindih */
         margin-bottom: 0; 
     }
     .divider svg {
@@ -364,18 +376,6 @@
 
 {{-- 5. TERMINAL OPERATION FLOW --}}
 <section id="operations-flow" class="pt-6 pb-14 sm:pb-20 bg-[#eef5fb] relative">
-    @php
-        $steps = [
-            ['title' => 'Ship Arrival', 'time' => '1–2 Hours Prior', 'equip' => 'Vessel Traffic Services (VTS)', 'safety' => 'ISPS Code Compliance', 'div' => 'Marine Operations', 'desc' => 'Coordination with maritime authorities to ensure safe entry into the port limits before docking procedures begin.'],
-            ['title' => 'Berthing', 'time' => '45–60 Minutes', 'equip' => 'Tugboats & Mooring Lines', 'safety' => 'Port Safety Clearance', 'div' => 'Harbor Master Team', 'desc' => 'Securing the vessel to the terminal dock using specialized tugs and heavy-duty mooring systems.'],
-            ['title' => 'Vehicle Inspection', 'time' => '10 Min / Unit', 'equip' => 'Digital Handheld Scanners', 'safety' => 'Zero-Scratch Protocol', 'div' => 'Quality Assurance', 'desc' => 'Pre-discharge visual and digital scanning of units to document condition and ensure zero damage.'],
-            ['title' => 'Ro-Ro Discharge', 'time' => '2–4 Hours Total', 'equip' => 'Hydraulic Ramps & Lashing', 'safety' => 'PPE & Traffic Control', 'div' => 'Stevedoring Division', 'desc' => 'Safe and systematic driving of vehicles from the vessel decks down the ramps into the initial staging area.'],
-            ['title' => 'Yard Management', 'time' => 'Immediate Staging', 'equip' => 'Automated Yard Locator (TMS)', 'safety' => 'Speed Limit 20 km/h', 'div' => 'Yard Control Center', 'desc' => 'Routing and parking units in designated zones utilizing our proprietary Terminal Management System.'],
-            ['title' => 'Quality Check', 'time' => 'Final Audit', 'equip' => 'High-Resolution Cameras', 'safety' => 'Pre-Delivery Inspection', 'div' => 'Inspection Team', 'desc' => 'Comprehensive post-discharge inspection to verify VIN numbers, accessories, and overall vehicle integrity.'],
-            ['title' => 'Distribution', 'time' => 'On-Demand Gate Out', 'equip' => 'Car Carriers / Transporters', 'safety' => 'Gate Security Check', 'div' => 'Logistics & Delivery', 'desc' => 'Loading units onto commercial transporters and finalizing documentation for domestic or international dispatch.'],
-        ];
-    @endphp
-
     <div class="max-w-7xl mx-auto px-5 sm:px-6 relative">
         <div class="max-w-2xl mb-10 sm:mb-14">
             <h2 class="text-2xl sm:text-4xl font-extrabold text-[#0A2540] tracking-tight leading-tight">
@@ -652,9 +652,10 @@ fetchPatimbanWeatherAll();
 
 // 3. Interaksi Flow Step
 document.addEventListener('DOMContentLoaded', function () {
-    // Solusi error @json: Gunakan data dari window
-    const stepsData = @json($steps ?? []);
-    if (!stepsData.length) return;
+    // PERBAIKAN SYNTAX ERROR: Menggunakan json_encode murni tanpa @json
+    const stepsData = {!! json_encode($steps) !!};
+    
+    if (!stepsData || !stepsData.length) return;
 
     const buttons = document.querySelectorAll('.flow-btn');
     const elNum = document.getElementById('detail-number');
@@ -688,7 +689,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if(panel) panel.classList.add('fade-content');
         if(grid) grid.classList.add('fade-content');
     };
-    activateFlowStep(0);
+    window.activateFlowStep(0);
 });
 
 // 4. Auto Slide Galeri
@@ -714,9 +715,9 @@ function startAutoGallerySlide() {
 function pauseAutoSlideAndFocus(index) {
     isAutoSlideActive = false;
     clearTimeout(resumeTimeout);
-    // Tidak memaksa scroll, biarkan user menikmati tampilan
     resumeTimeout = setTimeout(() => { isAutoSlideActive = true; }, 7000);
 }
+window.pauseAutoSlideAndFocus = pauseAutoSlideAndFocus;
 
 document.addEventListener('DOMContentLoaded', function () {
     startAutoGallerySlide();
@@ -784,5 +785,3 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 @endpush
-
-<!-- jhdjshdjskd -->
