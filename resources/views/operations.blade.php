@@ -26,31 +26,32 @@
     }
     h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Plus Jakarta Sans', 'Century Gothic', system-ui, sans-serif; }
 
-    /* ═══ KUNCI LAYOUT AGAR TIDAK BOCOR KE FOOTER ═══ */
-    #swup {
+    /* ═══ KUNCI LAYOUT EKSTRA KETAT ═══ */
+    #swup, main, section {
         position: relative;
-        width: 100%;
-        max-width: 100vw;
+        width: 100% !important;
+        max-width: 100vw !important;
         overflow-x: hidden !important;
     }
 
-    section {
-        width: 100%;
-        max-width: 100vw;
-        overflow-x: hidden;
+    /* Pastikan gelombang tidak melebar */
+    .wave-wrap, .divider, .wave, .wave-track {
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow: hidden !important;
     }
 
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
     /* ═══ GELOMBANG ═══ */
-    .wave { display: block; width: 100%; height: 44px; fill: currentColor; }
+    .wave { display: block; height: 44px; fill: currentColor; }
     @media (min-width: 640px) { .wave { height: 76px; } }
     .wave.flip { transform: scaleX(-1); }
     .divider { line-height: 0; margin-bottom: -1px; }
 
-    .wave-wrap { position: absolute; inset-inline: 0; bottom: -1px; line-height: 0; overflow: hidden; color: var(--color-mist); z-index: 5; }
-    .wave-track { display: flex; width: 200%; }
+    .wave-wrap { position: absolute; inset-inline: 0; bottom: -1px; line-height: 0; color: var(--color-mist); z-index: 5; }
+    .wave-track { display: flex; }
     .wave-track svg { width: 50%; height: 56px; flex: none; }
     @media (min-width: 640px) { .wave-track svg { height: 100px; } }
     .wave-back  { position: absolute; inset-inline: 0; bottom: 0; opacity: .4; animation: drift 26s linear infinite; }
@@ -115,10 +116,11 @@
         100% { opacity: 1; transform: translateY(0); }
     }
 
+    /* Kunci Timeline */
     #flow-navigation {
-        width: 100%;
-        max-width: 100%;
-        overflow-x: auto;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
         -webkit-overflow-scrolling: touch;
     }
 
@@ -141,10 +143,11 @@
     }
     .cargo-card:hover { transform: translateY(-6px); box-shadow: 0 26px 46px -22px rgba(10,37,64,.45); }
 
+    /* Kunci Galeri */
     #news-gallery-slider {
-        width: 100%;
-        max-width: 100%;
-        overflow-x: auto;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
         -webkit-overflow-scrolling: touch;
     }
 
@@ -174,9 +177,7 @@
 
 @section('content')
 
-{{-- ═══════════════════════════════════════════════════════════════
-     1. HERO
-═══════════════════════════════════════════════════════════════ --}}
+{{-- 1. HERO --}}
 <section class="relative min-h-[88vh] w-full flex flex-col justify-between overflow-hidden bg-slate-900 pt-28 pb-0">
     <div id="hero-slideshow"
          data-images='{{ json_encode([
@@ -224,9 +225,7 @@
     </div>
 </section>
 
-{{-- ═══════════════════════════════════════════════════════════════
-     2. TERMINAL AT A GLANCE
-═══════════════════════════════════════════════════════════════ --}}
+{{-- 2. TERMINAL AT A GLANCE --}}
 <section class="relative z-20 bg-[#eef5fb] px-5 sm:px-6 pb-14 overflow-hidden">
     @php
         $glanceStats = [
@@ -256,9 +255,7 @@
     <svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 40 Q360 -10 720 40 T1440 40 V80 H0Z"/></svg>
 </div>
 
-{{-- ═══════════════════════════════════════════════════════════════
-     3. LIVE WEATHER & MARINE CONDITIONS
-═══════════════════════════════════════════════════════════════ --}}
+{{-- 3. LIVE WEATHER & MARINE CONDITIONS --}}
 <section class="pt-6 pb-10 sm:pb-16 bg-slate-900 text-white relative overflow-hidden">
     <div class="max-w-7xl mx-auto px-5 sm:px-6 relative z-10">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 sm:mb-8 gap-4">
@@ -318,9 +315,7 @@
     <svg class="wave flip" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 40 Q360 90 720 40 T1440 40 V80 H0Z"/></svg>
 </div>
 
-{{-- ═══════════════════════════════════════════════════════════════
-     4. WHY PICT
-═══════════════════════════════════════════════════════════════ --}}
+{{-- 4. WHY PICT --}}
 <section class="pt-6 pb-14 sm:pb-20 bg-white relative overflow-hidden">
     <div class="max-w-7xl mx-auto px-5 sm:px-6 relative z-10">
         <div class="max-w-2xl mb-10 sm:mb-14">
@@ -335,24 +330,9 @@
 
         @php
             $whyPict = [
-                [
-                    'img'   => 'smart-icon.png',
-                    'alt'   => 'Smart Terminal',
-                    'title' => 'Smart terminal technology',
-                    'desc'  => 'A Terminal Management System, automated gate controls, and RFID tracking give operators instant visibility of every vessel and yard position.',
-                ],
-                [
-                    'img'   => 'internet-icon.png',
-                    'alt'   => 'International Safety',
-                    'title' => 'International safety standard',
-                    'desc'  => 'We hold to the ISPS Code and relevant ISO certifications, with safety protocols that protect personnel and cargo on every shift.',
-                ],
-                [
-                    'img'   => 'ekskapator-icon.png',
-                    'alt'   => 'Efficient Logistics',
-                    'title' => 'Efficient automotive logistics',
-                    'desc'  => 'Positioned on the north coast of West Java, close to manufacturing hubs and on direct international shipping routes, cutting turnaround time.',
-                ],
+                ['img' => 'smart-icon.png', 'alt' => 'Smart Terminal', 'title' => 'Smart terminal technology', 'desc' => 'A Terminal Management System, automated gate controls, and RFID tracking give operators instant visibility of every vessel and yard position.'],
+                ['img' => 'internet-icon.png', 'alt' => 'International Safety', 'title' => 'International safety standard', 'desc' => 'We hold to the ISPS Code and relevant ISO certifications, with safety protocols that protect personnel and cargo on every shift.'],
+                ['img' => 'ekskapator-icon.png', 'alt' => 'Efficient Logistics', 'title' => 'Efficient automotive logistics', 'desc' => 'Positioned on the north coast of West Java, close to manufacturing hubs and on direct international shipping routes, cutting turnaround time.'],
             ];
         @endphp
 
@@ -374,9 +354,7 @@
     <svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 50 Q360 0 720 50 T1440 50 V80 H0Z"/></svg>
 </div>
 
-{{-- ═══════════════════════════════════════════════════════════════
-     5. TERMINAL OPERATION FLOW
-═══════════════════════════════════════════════════════════════ --}}
+{{-- 5. TERMINAL OPERATION FLOW --}}
 <section id="operations-flow" class="pt-6 pb-14 sm:pb-20 bg-[#eef5fb] relative overflow-hidden">
     <div class="max-w-7xl mx-auto px-5 sm:px-6 relative">
         <div class="max-w-2xl mb-10 sm:mb-14">
@@ -391,30 +369,24 @@
 
         @php
             $steps = [
-                ['title' => 'Ship Arrival',        'time' => '1–2 Hours Prior',   'equip' => 'Vessel Traffic Services (VTS)',   'safety' => 'ISPS Code Compliance',   'div' => 'Marine Operations',   'desc' => 'Coordination with maritime authorities to ensure safe entry into the port limits before docking procedures begin.'],
-                ['title' => 'Berthing',            'time' => '45–60 Minutes',     'equip' => 'Tugboats & Mooring Lines',        'safety' => 'Port Safety Clearance',  'div' => 'Harbor Master Team',  'desc' => 'Securing the vessel to the terminal dock using specialized tugs and heavy-duty mooring systems.'],
-                ['title' => 'Vehicle Inspection',  'time' => '10 Min / Unit',     'equip' => 'Digital Handheld Scanners',       'safety' => 'Zero-Scratch Protocol',  'div' => 'Quality Assurance',   'desc' => 'Pre-discharge visual and digital scanning of units to document condition and ensure zero damage.'],
-                ['title' => 'Ro-Ro Discharge',     'time' => '2–4 Hours Total',   'equip' => 'Hydraulic Ramps & Lashing',       'safety' => 'PPE & Traffic Control',  'div' => 'Stevedoring Division','desc' => 'Safe and systematic driving of vehicles from the vessel decks down the ramps into the initial staging area.'],
-                ['title' => 'Yard Management',     'time' => 'Immediate Staging', 'equip' => 'Automated Yard Locator (TMS)',    'safety' => 'Speed Limit 20 km/h',    'div' => 'Yard Control Center', 'desc' => 'Routing and parking units in designated zones utilizing our proprietary Terminal Management System.'],
-                ['title' => 'Quality Check',       'time' => 'Final Audit',       'equip' => 'High-Resolution Cameras',         'safety' => 'Pre-Delivery Inspection','div' => 'Inspection Team',    'desc' => 'Comprehensive post-discharge inspection to verify VIN numbers, accessories, and overall vehicle integrity.'],
-                ['title' => 'Distribution',        'time' => 'On-Demand Gate Out', 'equip' => 'Car Carriers / Transporters',    'safety' => 'Gate Security Check',    'div' => 'Logistics & Delivery','desc' => 'Loading units onto commercial transporters and finalizing documentation for domestic or international dispatch.'],
+                ['title' => 'Ship Arrival', 'time' => '1–2 Hours Prior', 'equip' => 'Vessel Traffic Services (VTS)', 'safety' => 'ISPS Code Compliance', 'div' => 'Marine Operations', 'desc' => 'Coordination with maritime authorities to ensure safe entry into the port limits before docking procedures begin.'],
+                ['title' => 'Berthing', 'time' => '45–60 Minutes', 'equip' => 'Tugboats & Mooring Lines', 'safety' => 'Port Safety Clearance', 'div' => 'Harbor Master Team', 'desc' => 'Securing the vessel to the terminal dock using specialized tugs and heavy-duty mooring systems.'],
+                ['title' => 'Vehicle Inspection', 'time' => '10 Min / Unit', 'equip' => 'Digital Handheld Scanners', 'safety' => 'Zero-Scratch Protocol', 'div' => 'Quality Assurance', 'desc' => 'Pre-discharge visual and digital scanning of units to document condition and ensure zero damage.'],
+                ['title' => 'Ro-Ro Discharge', 'time' => '2–4 Hours Total', 'equip' => 'Hydraulic Ramps & Lashing', 'safety' => 'PPE & Traffic Control', 'div' => 'Stevedoring Division', 'desc' => 'Safe and systematic driving of vehicles from the vessel decks down the ramps into the initial staging area.'],
+                ['title' => 'Yard Management', 'time' => 'Immediate Staging', 'equip' => 'Automated Yard Locator (TMS)', 'safety' => 'Speed Limit 20 km/h', 'div' => 'Yard Control Center', 'desc' => 'Routing and parking units in designated zones utilizing our proprietary Terminal Management System.'],
+                ['title' => 'Quality Check', 'time' => 'Final Audit', 'equip' => 'High-Resolution Cameras', 'safety' => 'Pre-Delivery Inspection', 'div' => 'Inspection Team', 'desc' => 'Comprehensive post-discharge inspection to verify VIN numbers, accessories, and overall vehicle integrity.'],
+                ['title' => 'Distribution', 'time' => 'On-Demand Gate Out', 'equip' => 'Car Carriers / Transporters', 'safety' => 'Gate Security Check', 'div' => 'Logistics & Delivery', 'desc' => 'Loading units onto commercial transporters and finalizing documentation for domestic or international dispatch.'],
             ];
         @endphp
 
-        {{-- Timeline Navigation --}}
         <div class="relative z-10">
-            {{-- Garis berkelok di belakang node (desktop) --}}
             <svg class="hidden md:block absolute inset-x-0 top-3 -z-10 h-10 w-full" viewBox="0 0 700 40" preserveAspectRatio="none" aria-hidden="true">
-                <path d="M50 12 C100 12 100 28 150 28 S200 12 250 12 S300 28 350 28 S400 12 450 12 S500 28 550 28 S600 12 650 12"
-                      fill="none" stroke="#b8c9dc" stroke-width="2.5" stroke-dasharray="6 7" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+                <path d="M50 12 C100 12 100 28 150 28 S200 12 250 12 S300 28 350 28 S400 12 450 12 S500 28 550 28 S600 12 650 12" fill="none" stroke="#b8c9dc" stroke-width="2.5" stroke-dasharray="6 7" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
             </svg>
 
             <div class="flex overflow-x-auto md:grid md:grid-cols-7 gap-3 md:gap-2 pb-4 md:pb-0 hide-scrollbar w-full max-w-full" id="flow-navigation">
                 @foreach($steps as $index => $step)
-                    <button type="button"
-                            onclick="activateFlowStep({{ $index }})"
-                            class="flow-btn group relative flex flex-col items-center min-w-[100px] md:min-w-0 text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC2029] rounded-2xl {{ $index % 2 === 1 ? 'md:mt-4' : '' }}"
-                            data-index="{{ $index }}">
+                    <button type="button" onclick="activateFlowStep({{ $index }})" class="flow-btn group relative flex flex-col items-center min-w-[100px] md:min-w-0 text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC2029] rounded-2xl {{ $index % 2 === 1 ? 'md:mt-4' : '' }}" data-index="{{ $index }}">
                         <div class="node-indicator w-11 h-11 md:w-12 md:h-12 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-[#0A2540] font-bold text-xs md:text-sm shadow-sm group-hover:border-[#EC2029] group-hover:text-[#EC2029] mb-2.5 relative z-10">
                             0{{ $index + 1 }}
                         </div>
@@ -431,7 +403,6 @@
             </div>
         </div>
 
-        {{-- Detail Panel --}}
         <div class="mt-8 relative">
             <div class="bg-white rounded-[2rem_2rem_2rem_0.75rem] shadow-[0_20px_44px_-24px_rgba(10,37,64,.4)] overflow-hidden">
                 <div class="p-5 sm:p-8 flex flex-col lg:flex-row gap-5 lg:gap-8 items-center">
@@ -447,16 +418,14 @@
 
                     <div class="w-full lg:flex-1 grid grid-cols-2 gap-3">
                         @foreach([
-                            ['label' => 'Est. time',  'id' => 'detail-time',   'value' => '1–2 Hours Prior',       'class' => 'text-[#0A2540]', 'bg' => 'bg-slate-50'],
-                            ['label' => 'Equipment',  'id' => 'detail-equip',  'value' => 'Vessel Traffic Services','class' => 'text-[#0A2540]', 'bg' => 'bg-sky-50'],
-                            ['label' => 'Safety',     'id' => 'detail-safety', 'value' => 'ISPS Code Compliance',   'class' => 'text-[#EC2029]', 'bg' => 'bg-red-50'],
-                            ['label' => 'Division',   'id' => 'detail-div',    'value' => 'Marine Operations',      'class' => 'text-[#0A2540]', 'bg' => 'bg-slate-50'],
+                            ['label' => 'Est. time', 'id' => 'detail-time', 'value' => '1–2 Hours Prior', 'class' => 'text-[#0A2540]', 'bg' => 'bg-slate-50'],
+                            ['label' => 'Equipment', 'id' => 'detail-equip', 'value' => 'Vessel Traffic Services', 'class' => 'text-[#0A2540]', 'bg' => 'bg-sky-50'],
+                            ['label' => 'Safety', 'id' => 'detail-safety', 'value' => 'ISPS Code Compliance', 'class' => 'text-[#EC2029]', 'bg' => 'bg-red-50'],
+                            ['label' => 'Division', 'id' => 'detail-div', 'value' => 'Marine Operations', 'class' => 'text-[#0A2540]', 'bg' => 'bg-slate-50'],
                         ] as $field)
                             <div class="{{ $field['bg'] }} px-4 py-3 rounded-2xl">
                                 <span class="block text-xs font-semibold text-slate-500 mb-0.5">{{ $field['label'] }}</span>
-                                <span class="block {{ $field['class'] }} text-xs sm:text-sm font-bold truncate" id="{{ $field['id'] }}">
-                                    {{ $field['value'] }}
-                                </span>
+                                <span class="block {{ $field['class'] }} text-xs sm:text-sm font-bold truncate" id="{{ $field['id'] }}">{{ $field['value'] }}</span>
                             </div>
                         @endforeach
                     </div>
@@ -470,9 +439,7 @@
     <svg class="wave flip" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 40 Q360 -10 720 40 T1440 40 V80 H0Z"/></svg>
 </div>
 
-{{-- ═══════════════════════════════════════════════════════════════
-     6. SERVICES
-═══════════════════════════════════════════════════════════════ --}}
+{{-- 6. SERVICES --}}
 <section class="pt-6 pb-16 sm:pb-24 bg-white relative overflow-hidden">
     <div class="max-w-7xl mx-auto px-5 sm:px-6">
         <div class="max-w-2xl mb-10 sm:mb-14">
@@ -483,38 +450,23 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-            {{-- Ro-Ro Vessel Handling --}}
             <div class="service-card shape-a group relative h-80 sm:h-[400px] overflow-hidden bg-slate-900 shadow-[0_24px_50px_-26px_rgba(10,37,64,.6)]">
-                <div class="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-700"
-                     style="background-image: url('{{ secure_asset("assets/images/background.jpeg") }}')"></div>
+                <div class="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-700" style="background-image: url('{{ secure_asset("assets/images/background.jpeg") }}')"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/35 to-transparent"></div>
                 <div class="absolute inset-0 p-7 sm:p-9 flex flex-col justify-end">
                     <span class="mb-3 inline-block w-fit rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white ring-1 ring-white/25 backdrop-blur">Maritime solutions</span>
                     <h3 class="text-xl sm:text-2xl font-bold text-white mb-2">Ro-Ro vessel handling</h3>
-                    <p class="text-slate-200 text-sm max-w-md">
-                        Deep-water berth facilities and experienced mooring teams for a fast, safe vessel turnaround.
-                    </p>
+                    <p class="text-slate-200 text-sm max-w-md">Deep-water berth facilities and experienced mooring teams for a fast, safe vessel turnaround.</p>
                 </div>
             </div>
 
-            {{-- Yard Management --}}
             <div class="service-card shape-b group relative h-80 sm:h-[400px] overflow-hidden bg-slate-900 shadow-[0_24px_50px_-26px_rgba(10,37,64,.6)]">
-                <div class="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-700"
-                     id="yard-slideshow"
-                     data-images="{{ json_encode([
-                         secure_asset('assets/images/patimban-yard-1.jpeg'),
-                         secure_asset('assets/images/car.jpeg'),
-                         secure_asset('assets/images/vessel-5.jpeg'),
-                         secure_asset('assets/images/car-4.jpeg')
-                     ]) }}"
-                     style="background-image: url('{{ secure_asset('assets/images/patimban-yard-1.jpeg') }}');"></div>
+                <div class="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-700" id="yard-slideshow" data-images="{{ json_encode([secure_asset('assets/images/patimban-yard-1.jpeg'), secure_asset('assets/images/car.jpeg'), secure_asset('assets/images/vessel-5.jpeg'), secure_asset('assets/images/car-4.jpeg')]) }}" style="background-image: url('{{ secure_asset('assets/images/patimban-yard-1.jpeg') }}');"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/35 to-transparent"></div>
                 <div class="absolute inset-0 p-7 sm:p-9 flex flex-col justify-end">
                     <span class="mb-3 inline-block w-fit rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white ring-1 ring-white/25 backdrop-blur">Storage facility</span>
                     <h3 class="text-xl sm:text-2xl font-bold text-white mb-2">Advanced yard management</h3>
-                    <p class="text-slate-200 text-sm max-w-md">
-                        High-capacity staging yards with automated tracking, surveillance, and weather protection.
-                    </p>
+                    <p class="text-slate-200 text-sm max-w-md">High-capacity staging yards with automated tracking, surveillance, and weather protection.</p>
                 </div>
             </div>
         </div>
@@ -525,9 +477,7 @@
     <svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 50 Q360 0 720 50 T1440 50 V80 H0Z"/></svg>
 </div>
 
-{{-- ═══════════════════════════════════════════════════════════════
-     7. VEHICLE CARGO TYPES
-═══════════════════════════════════════════════════════════════ --}}
+{{-- 7. VEHICLE CARGO TYPES --}}
 <section class="pt-6 pb-20 sm:pb-28 bg-[#eef5fb] relative overflow-hidden">
     <div class="max-w-7xl mx-auto px-5 sm:px-6 relative">
         <div class="max-w-2xl mb-10 sm:mb-14">
@@ -539,10 +489,10 @@
 
         @php
             $cargoTypes = [
-                ['img' => 'vehicle.png',      'alt' => 'Passenger Vehicle', 'title' => 'Passenger vehicle', 'desc' => 'Sedans, SUVs, MPVs, and electric vehicles handled under scratch-free procedures.', 'tag' => 'Light vehicle', 'tagClass' => 'bg-red-50 text-[#b91c1c]'],
-                ['img' => 'bus-truck.png',    'alt' => 'Bus & Truck',       'title' => 'Bus & truck',       'desc' => 'Heavy logistics trucks, industrial chassis, and transport vehicles with reinforced ramp pathways.', 'tag' => 'Commercial', 'tagClass' => 'bg-sky-50 text-[#1D4E74]'],
-                ['img' => 'ekskapator.png',   'alt' => 'Heavy Equipment',   'title' => 'Heavy equipment',   'desc' => 'Excavators, wheel loaders, and bulldozers destined for mining and agricultural projects.', 'tag' => 'Project cargo', 'tagClass' => 'bg-red-50 text-[#b91c1c]'],
-                ['img' => 'cargo.png',        'alt' => 'General Cargo',     'title' => 'General cargo',     'desc' => 'Static cargo and non-vehicle shipments managed under standard warehousing procedures.', 'tag' => 'General cargo', 'tagClass' => 'bg-sky-50 text-[#1D4E74]'],
+                ['img' => 'vehicle.png', 'alt' => 'Passenger Vehicle', 'title' => 'Passenger vehicle', 'desc' => 'Sedans, SUVs, MPVs, and electric vehicles handled under scratch-free procedures.', 'tag' => 'Light vehicle', 'tagClass' => 'bg-red-50 text-[#b91c1c]'],
+                ['img' => 'bus-truck.png', 'alt' => 'Bus & Truck', 'title' => 'Bus & truck', 'desc' => 'Heavy logistics trucks, industrial chassis, and transport vehicles with reinforced ramp pathways.', 'tag' => 'Commercial', 'tagClass' => 'bg-sky-50 text-[#1D4E74]'],
+                ['img' => 'ekskapator.png', 'alt' => 'Heavy Equipment', 'title' => 'Heavy equipment', 'desc' => 'Excavators, wheel loaders, and bulldozers destined for mining and agricultural projects.', 'tag' => 'Project cargo', 'tagClass' => 'bg-red-50 text-[#b91c1c]'],
+                ['img' => 'cargo.png', 'alt' => 'General Cargo', 'title' => 'General cargo', 'desc' => 'Static cargo and non-vehicle shipments managed under standard warehousing procedures.', 'tag' => 'General cargo', 'tagClass' => 'bg-sky-50 text-[#1D4E74]'],
             ];
         @endphp
 
@@ -565,9 +515,7 @@
     <svg class="wave flip" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 40 Q360 90 720 40 T1440 40 V80 H0Z"/></svg>
 </div>
 
-{{-- ═══════════════════════════════════════════════════════════════
-     8. OPERATION GALLERY (DATA DARI DATABASE)
-═══════════════════════════════════════════════════════════════ --}}
+{{-- 8. GALLERY --}}
 <section id="gallery" class="pt-6 pb-14 sm:pb-20 bg-white relative overflow-hidden">
     <div class="max-w-7xl mx-auto px-5 sm:px-6">
         <div class="mb-8">
@@ -577,55 +525,33 @@
             <span class="squiggle" aria-hidden="true"></span>
         </div>
 
-        <div id="news-gallery-slider"
-             class="flex items-stretch gap-4 sm:gap-6 overflow-x-auto px-1 pb-8 pt-3 snap-x hide-scrollbar w-full max-w-full">
-
+        <div id="news-gallery-slider" class="flex items-stretch gap-4 sm:gap-6 overflow-x-auto px-1 pb-8 pt-3 snap-x hide-scrollbar w-full max-w-full">
             @forelse($galleries as $index => $item)
-                <div class="gallery-card group relative bg-white ring-1 ring-slate-100 overflow-hidden min-w-[300px] sm:min-w-[360px] max-w-[360px] flex-shrink-0 snap-start flex flex-col cursor-pointer"
-                     onclick="pauseAutoSlideAndFocus({{ $index }})">
-
-                    {{-- Image --}}
+                <div class="gallery-card group relative bg-white ring-1 ring-slate-100 overflow-hidden min-w-[300px] sm:min-w-[360px] max-w-[360px] flex-shrink-0 snap-start flex flex-col cursor-pointer" onclick="pauseAutoSlideAndFocus({{ $index }})">
                     <div class="relative h-48 sm:h-56 overflow-hidden bg-slate-900">
-                        <img src="{{ $item->image_url }}"
-                             alt="{{ $item->title }}"
-                             class="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
+                        <img src="{{ $item->image_url }}" alt="{{ $item->title }}" class="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
                         <span class="absolute left-3 top-3 rounded-full bg-[#EC2029] px-3 py-1 text-xs font-semibold text-white shadow">{{ $item->tag }}</span>
                     </div>
-
-                    {{-- Body --}}
                     <div class="p-5 flex flex-col justify-between flex-grow">
                         <div>
-                            <h3 class="text-base sm:text-lg font-bold text-[#0A2540] mb-2 group-hover:text-[#EC2029] transition-colors line-clamp-1">
-                                {{ $item->title }}
-                            </h3>
-                            <p class="text-[var(--color-muted)] text-sm leading-relaxed line-clamp-2 mb-4">
-                                {{ $item->description }}
-                            </p>
+                            <h3 class="text-base sm:text-lg font-bold text-[#0A2540] mb-2 group-hover:text-[#EC2029] transition-colors line-clamp-1">{{ $item->title }}</h3>
+                            <p class="text-[var(--color-muted)] text-sm leading-relaxed line-clamp-2 mb-4">{{ $item->description }}</p>
                         </div>
-
                         <div class="space-y-2 pt-3 text-xs text-[var(--color-muted)]">
                             <div class="flex items-center gap-2">
-                                <svg class="w-3.5 h-3.5 text-[#EC2029] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                </svg>
+                                <svg class="w-3.5 h-3.5 text-[#EC2029] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                 <span class="font-medium text-slate-700">{{ $item->date_info }}</span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <svg class="w-3.5 h-3.5 text-[#1D4E74] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                </svg>
+                                <svg class="w-3.5 h-3.5 text-[#1D4E74] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                 <span class="truncate">{{ $item->location }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
             @empty
-                <div class="w-full text-center py-10 text-slate-400">
-                    Belum ada data galeri. Silakan tambahkan melalui Admin Panel.
-                </div>
+                <div class="w-full text-center py-10 text-slate-400">Belum ada data galeri. Silakan tambahkan melalui Admin Panel.</div>
             @endforelse
-
         </div>
     </div>
 </section>
@@ -634,9 +560,7 @@
     <svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 50 Q360 0 720 50 T1440 50 V80 H0Z"/></svg>
 </div>
 
-{{-- ═══════════════════════════════════════════════════════════════
-     9. CALL TO ACTION
-═══════════════════════════════════════════════════════════════ --}}
+{{-- 9. CALL TO ACTION --}}
 <section id="contact" class="pt-6 pb-16 sm:pb-24 relative overflow-hidden bg-[#0A2540]">
     <div class="max-w-4xl mx-auto px-5 sm:px-6 text-center relative z-10">
         <h2 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-4 leading-tight">
@@ -647,17 +571,11 @@
             Talk to our commercial and operations team about berth reservation, cargo handling, and long-term partnership.
         </p>
         <div class="flex flex-wrap items-center justify-center gap-3.5">
-            <a href="{{ url('/contact') }}"
-               class="btn-soft inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#EC2029] text-white font-semibold text-sm shadow-lg shadow-black/20 hover:bg-[#c71a22] group">
+            <a href="{{ url('/contact') }}" class="btn-soft inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#EC2029] text-white font-semibold text-sm shadow-lg shadow-black/20 hover:bg-[#c71a22] group">
                 Contact us
-                <svg class="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
+                <svg class="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
             </a>
-            <a href="{{ url('/services') }}"
-               class="btn-soft px-8 py-3.5 rounded-full text-white font-semibold text-sm bg-white/10 ring-1 ring-white/30 hover:bg-white/20">
-                View services
-            </a>
+            <a href="{{ url('/services') }}" class="btn-soft px-8 py-3.5 rounded-full text-white font-semibold text-sm bg-white/10 ring-1 ring-white/30 hover:bg-white/20">View services</a>
         </div>
     </div>
 </section>
@@ -666,147 +584,110 @@
 
 @push('scripts')
 <script>
-/* ═══════════════════════════════════════════════════════════════
-   LIVE CLOCK
-═══════════════════════════════════════════════════════════════ */
+/* SCRIPT SAMA SEPERTI SEBELUMNYA */
 function updateRealTimeClock() {
     const el = document.getElementById('live-clock');
     if (!el) return;
     const now = new Date();
-    el.innerText = now.toLocaleDateString('en-US', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-        hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short'
-    });
+    el.innerText = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' });
 }
 setInterval(updateRealTimeClock, 1000);
 updateRealTimeClock();
 
-/* ═══════════════════════════════════════════════════════════════
-   WEATHER — Open-Meteo
-═══════════════════════════════════════════════════════════════ */
 function fnGetWeatherDetails(code) {
-    if (code === 0)                     return { icon: '☀️', desc: 'Sunny' };
-    if ([1, 2, 3].includes(code))       return { icon: '⛅', desc: 'Partly Cloudy' };
-    if ([45, 48].includes(code))        return { icon: '🌫️', desc: 'Foggy' };
+    if (code === 0) return { icon: '☀️', desc: 'Sunny' };
+    if ([1, 2, 3].includes(code)) return { icon: '⛅', desc: 'Partly Cloudy' };
+    if ([45, 48].includes(code)) return { icon: '🌫️', desc: 'Foggy' };
     if ([51, 53, 55, 56, 57].includes(code)) return { icon: '🌧️', desc: 'Drizzle' };
     if ([61, 63, 65, 66, 67].includes(code)) return { icon: '🌧️', desc: 'Rain' };
     if ([71, 73, 75, 77].includes(code)) return { icon: '❄️', desc: 'Snow' };
-    if ([95, 96, 99].includes(code))    return { icon: '⛈️', desc: 'Thunderstorm' };
+    if ([95, 96, 99].includes(code)) return { icon: '⛈️', desc: 'Thunderstorm' };
     return { icon: '🌤️', desc: 'Fair' };
 }
 
 async function fetchPatimbanWeatherAll() {
     try {
-        const res  = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-6.23&longitude=107.85&current=temperature_2m,relative_humidity_2m,wind_speed_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,wind_speed_10m_max&timezone=auto');
+        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-6.23&longitude=107.85&current=temperature_2m,relative_humidity_2m,wind_speed_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,wind_speed_10m_max&timezone=auto');
         const data = await res.json();
-
         if (data?.current) {
-            document.getElementById('weather-temp').innerText     = data.current.temperature_2m + ' °C';
-            document.getElementById('weather-wind').innerText     = data.current.wind_speed_10m + ' km/h';
+            document.getElementById('weather-temp').innerText = data.current.temperature_2m + ' °C';
+            document.getElementById('weather-wind').innerText = data.current.wind_speed_10m + ' km/h';
             document.getElementById('weather-humidity').innerText = data.current.relative_humidity_2m + ' %';
         }
-
         if (data?.daily) {
             const container = document.getElementById('weather-forecast-container');
             container.innerHTML = '';
-
             data.daily.time.forEach((dateStr, index) => {
-                const dateObj       = new Date(dateStr);
-                const dayName       = index === 0 ? 'Today' : dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+                const dateObj = new Date(dateStr);
+                const dayName = index === 0 ? 'Today' : dateObj.toLocaleDateString('en-US', { weekday: 'short' });
                 const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
-                const maxTemp       = Math.round(data.daily.temperature_2m_max[index]);
-                const minTemp       = Math.round(data.daily.temperature_2m_min[index]);
-                const maxWind       = Math.round(data.daily.wind_speed_10m_max[index]);
-                const weather       = fnGetWeatherDetails(data.daily.weathercode[index]);
-
+                const maxTemp = Math.round(data.daily.temperature_2m_max[index]);
+                const minTemp = Math.round(data.daily.temperature_2m_min[index]);
+                const maxWind = Math.round(data.daily.wind_speed_10m_max[index]);
+                const weather = fnGetWeatherDetails(data.daily.weathercode[index]);
                 container.innerHTML += `
                     <div class="bg-slate-800/70 ${index === 0 ? 'ring-2 ring-[#EC2029]/70' : 'ring-1 ring-slate-700/80'} rounded-[1.75rem] p-4 flex flex-col items-center justify-between text-center backdrop-blur-md min-w-[130px] sm:min-w-[150px] shrink-0 snap-start transition hover:-translate-y-1 hover:ring-slate-500">
-                        <div class="w-full pb-2.5 border-b border-slate-700/60">
-                            <p class="text-xs font-bold text-slate-200">${dayName}</p>
-                            <p class="text-[11px] text-slate-400 mt-0.5">${formattedDate}</p>
-                        </div>
-                        <div class="py-3">
-                            <span class="text-2xl sm:text-3xl block mb-1">${weather.icon}</span>
-                            <span class="text-[11px] text-slate-300 font-medium block">${weather.desc}</span>
-                        </div>
+                        <div class="w-full pb-2.5 border-b border-slate-700/60"><p class="text-xs font-bold text-slate-200">${dayName}</p><p class="text-[11px] text-slate-400 mt-0.5">${formattedDate}</p></div>
+                        <div class="py-3"><span class="text-2xl sm:text-3xl block mb-1">${weather.icon}</span><span class="text-[11px] text-slate-300 font-medium block">${weather.desc}</span></div>
                         <div class="w-full space-y-1.5 pt-2 border-t border-slate-700/60 text-xs">
                             <div class="bg-red-500/20 text-red-300 font-bold py-1 px-2 rounded-full text-[11px]">Max: ${maxTemp} °C</div>
                             <div class="bg-amber-500/20 text-amber-300 font-bold py-1 px-2 rounded-full text-[11px]">Min: ${minTemp} °C</div>
-                            <div class="text-slate-400 text-[11px] pt-0.5 flex items-center justify-center gap-1">
-                                <svg class="w-3 h-3 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                                <span>${maxWind} km/h</span>
-                            </div>
+                            <div class="text-slate-400 text-[11px] pt-0.5 flex items-center justify-center gap-1"><svg class="w-3 h-3 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg><span>${maxWind} km/h</span></div>
                         </div>
                     </div>`;
             });
         }
-    } catch (error) {
-        console.error('Failed to load weather data:', error);
-    }
+    } catch (error) { console.error('Failed to load weather data:', error); }
 }
 fetchPatimbanWeatherAll();
 
-/* ═══════════════════════════════════════════════════════════════
-   OPERATION FLOW
-═══════════════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', function () {
     const stepsData = @json($steps);
-    const buttons   = document.querySelectorAll('.flow-btn');
-    const elNum     = document.getElementById('detail-number');
-    const elTitle   = document.getElementById('detail-title');
-    const elDesc    = document.getElementById('detail-desc');
-    const elTime    = document.getElementById('detail-time');
-    const elEquip   = document.getElementById('detail-equip');
-    const elSafety  = document.getElementById('detail-safety');
-    const elDiv     = document.getElementById('detail-div');
+    const buttons = document.querySelectorAll('.flow-btn');
+    const elNum = document.getElementById('detail-number');
+    const elTitle = document.getElementById('detail-title');
+    const elDesc = document.getElementById('detail-desc');
+    const elTime = document.getElementById('detail-time');
+    const elEquip = document.getElementById('detail-equip');
+    const elSafety = document.getElementById('detail-safety');
+    const elDiv = document.getElementById('detail-div');
 
     window.activateFlowStep = function (index) {
         buttons.forEach(btn => btn.classList.remove('active'));
         const activeBtn = document.querySelector(`.flow-btn[data-index="${index}"]`);
         if (activeBtn) activeBtn.classList.add('active');
-
         const panel = elTitle.closest('.flex-col');
-        const grid  = elTime.closest('.grid');
-
+        const grid = elTime.closest('.grid');
         panel.classList.remove('fade-content');
         grid.classList.remove('fade-content');
         void panel.offsetWidth;
-
         const data = stepsData[index];
-        elNum.textContent    = '0' + (index + 1);
-        elTitle.textContent  = data.title;
-        elDesc.textContent   = data.desc;
-        elTime.textContent   = data.time;
-        elEquip.textContent  = data.equip;
+        elNum.textContent = '0' + (index + 1);
+        elTitle.textContent = data.title;
+        elDesc.textContent = data.desc;
+        elTime.textContent = data.time;
+        elEquip.textContent = data.equip;
         elSafety.textContent = data.safety;
-        elDiv.textContent    = data.div;
-
+        elDiv.textContent = data.div;
         panel.classList.add('fade-content');
         grid.classList.add('fade-content');
     };
     activateFlowStep(0);
 });
 
-/* ═══════════════════════════════════════════════════════════════
-   GALLERY AUTO-SLIDE
-═══════════════════════════════════════════════════════════════ */
 let galleryInterval = null;
-let resumeTimeout   = null;
+let resumeTimeout = null;
 let isAutoSlideActive = true;
 
 function startAutoGallerySlide() {
     const slider = document.getElementById('news-gallery-slider');
     if (!slider) return;
-
     galleryInterval = setInterval(() => {
         if (!isAutoSlideActive) return;
-
         const card = slider.querySelector('.gallery-card');
         if (!card) return;
-
-        const cardWidth     = card.offsetWidth + 24;
+        const cardWidth = card.offsetWidth + 24;
         const maxScrollLeft = slider.scrollWidth - slider.clientWidth;
-
         if (slider.scrollLeft >= maxScrollLeft - 10) {
             slider.scrollTo({ left: 0, behavior: 'smooth' });
         } else {
@@ -818,19 +699,14 @@ function startAutoGallerySlide() {
 function pauseAutoSlideAndFocus(index) {
     isAutoSlideActive = false;
     clearTimeout(resumeTimeout);
-
     const slider = document.getElementById('news-gallery-slider');
-    const cards  = slider.querySelectorAll('.gallery-card');
-    if (cards[index]) {
-        cards[index].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-    }
-
+    const cards = slider.querySelectorAll('.gallery-card');
+    if (cards[index]) { cards[index].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }
     resumeTimeout = setTimeout(() => { isAutoSlideActive = true; }, 7000);
 }
 
 document.addEventListener('DOMContentLoaded', function () {
     startAutoGallerySlide();
-
     const slider = document.getElementById('news-gallery-slider');
     if (slider) {
         ['mousedown', 'touchstart'].forEach(eventType => {
@@ -843,23 +719,17 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-/* ═══════════════════════════════════════════════════════════════
-   HERO SLIDESHOW + YARD SLIDESHOW + COUNTERS
-═══════════════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', function () {
-    // Hero slideshow
     const heroSlideshow = document.getElementById('hero-slideshow');
     if (heroSlideshow) {
         const images = JSON.parse(heroSlideshow.dataset.images);
         let currentIndex = 0;
-
         images.forEach((imgUrl, index) => {
             const slide = document.createElement('div');
             slide.className = `hero-slide ${index === 0 ? 'active' : ''}`;
             slide.style.backgroundImage = `url('${imgUrl}')`;
             heroSlideshow.appendChild(slide);
         });
-
         const slides = heroSlideshow.querySelectorAll('.hero-slide');
         if (slides.length > 1) {
             setInterval(() => {
@@ -869,8 +739,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 5000);
         }
     }
-
-    // Yard slideshow
     const yardSlideshow = document.getElementById('yard-slideshow');
     if (yardSlideshow) {
         const images = JSON.parse(yardSlideshow.dataset.images);
@@ -880,15 +748,13 @@ document.addEventListener('DOMContentLoaded', function () {
             yardSlideshow.style.backgroundImage = `url('${images[currentImage]}')`;
         }, 4000);
     }
-
-    // Counters
     const counters = document.querySelectorAll('.counter');
     const speed = 200;
     counters.forEach(counter => {
         const updateCount = () => {
             const target = +counter.getAttribute('data-target');
-            const count  = +counter.innerText.replace(/,/g, '');
-            const inc    = target / speed;
+            const count = +counter.innerText.replace(/,/g, '');
+            const inc = target / speed;
             if (count < target) {
                 counter.innerText = Math.ceil(count + inc).toLocaleString();
                 setTimeout(updateCount, 15);
@@ -898,10 +764,7 @@ document.addEventListener('DOMContentLoaded', function () {
         };
         const observer = new IntersectionObserver((entries, obs) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    updateCount();
-                    obs.unobserve(entry.target);
-                }
+                if (entry.isIntersecting) { updateCount(); obs.unobserve(entry.target); }
             });
         }, { threshold: 0.5 });
         observer.observe(counter);
