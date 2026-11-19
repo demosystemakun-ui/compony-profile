@@ -4,7 +4,7 @@
 @section('title', 'Operations — PT Patimban International Car Terminal')
 
 @php
-    // Data dideklarasikan di atas agar aman dan tidak memicu ParseError
+  
     $steps = [
         ['title' => 'Ship Arrival', 'time' => '1–2 Hours Prior', 'equip' => 'Vessel Traffic Services (VTS)', 'safety' => 'ISPS Code Compliance', 'div' => 'Marine Operations', 'desc' => 'Coordination with maritime authorities to ensure safe entry into the port limits before docking procedures begin.'],
         ['title' => 'Berthing', 'time' => '45–60 Minutes', 'equip' => 'Tugboats & Mooring Lines', 'safety' => 'Port Safety Clearance', 'div' => 'Harbor Master Team', 'desc' => 'Securing the vessel to the terminal dock using specialized tugs and heavy-duty mooring systems.'],
@@ -437,6 +437,32 @@
                         @endforeach
                     </div>
                 </div>
+
+                 <div class="w-full lg:flex-1 border-b lg:border-b-0 lg:border-r border-slate-100 pb-5 lg:pb-0 lg:pr-8">
+                        <div class="flex items-center gap-3 lg:block">
+                            <span class="text-[#EC2029] font-extrabold text-3xl sm:text-4xl opacity-20 lg:mb-1" id="detail-number">02</span>
+                            <h3 class="text-lg sm:text-2xl font-bold text-[#0A2540] lg:mb-2" id="detail-title">Berthing</h3>
+                        </div>
+                        <p class="text-[var(--color-muted)] text-sm leading-relaxed mt-2 lg:mt-0" id="detail-desc">
+                            Coordination with maritime authorities to ensure safe entry into the port limits before docking procedures begin.
+                        </p>
+                    </div>
+
+                    <div class="w-full lg:flex-1 grid grid-cols-2 gap-3">
+                        @foreach([
+                            ['label' => 'Est. time', 'id' => 'detail-time', 'value' => '1–2 Hours Prior', 'class' => 'text-[#0A2540]', 'bg' => 'bg-slate-50'],
+                            ['label' => 'Equipment', 'id' => 'detail-equip', 'value' => 'Vessel Traffic Services', 'class' => 'text-[#0A2540]', 'bg' => 'bg-sky-50'],
+                            ['label' => 'Safety', 'id' => 'detail-safety', 'value' => 'ISPS Code Compliance', 'class' => 'text-[#EC2029]', 'bg' => 'bg-red-50'],
+                            ['label' => 'Division', 'id' => 'detail-div', 'value' => 'Marine Operations', 'class' => 'text-[#0A2540]', 'bg' => 'bg-slate-50'],
+                        ] as $field)
+                            <div class="{{ $field['bg'] }} px-4 py-3 rounded-2xl">
+                                <span class="block text-xs font-semibold text-slate-500 mb-0.5">{{ $field['label'] }}</span>
+                                <span class="block {{ $field['class'] }} text-xs sm:text-sm font-bold truncate" id="{{ $field['id'] }}">{{ $field['value'] }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

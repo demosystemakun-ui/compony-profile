@@ -62,7 +62,7 @@ ESCALATION RULE:
 
         if ($response->status() === 429) {
             return response()->json([
-                'error' => 'Sistem sedang sibuk, silakan coba lagi sebentar lagi atau hubungi kami di info@pict.co.id',
+                'error' => 'Our system is busy. Please try again shortly or contact us at info@pict.co.id.',
             ], 429);
         }
 
