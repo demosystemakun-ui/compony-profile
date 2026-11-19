@@ -3,7 +3,7 @@
 @section('title', 'Operations — PT Patimban International Car Terminal')
 
 @php
-    // Memindahkan $steps ke paling atas agar bisa diakses oleh script JS di bawah
+    // Tetap dideklarasikan di sini
     $steps = [
         ['title' => 'Ship Arrival', 'time' => '1–2 Hours Prior', 'equip' => 'Vessel Traffic Services (VTS)', 'safety' => 'ISPS Code Compliance', 'div' => 'Marine Operations', 'desc' => 'Coordination with maritime authorities to ensure safe entry into the port limits before docking procedures begin.'],
         ['title' => 'Berthing', 'time' => '45–60 Minutes', 'equip' => 'Tugboats & Mooring Lines', 'safety' => 'Port Safety Clearance', 'div' => 'Harbor Master Team', 'desc' => 'Securing the vessel to the terminal dock using specialized tugs and heavy-duty mooring systems.'],
@@ -40,23 +40,18 @@
     h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Plus Jakarta Sans', 'Century Gothic', system-ui, sans-serif; }
 
     /* ═══ KUNCI LAYOUT (DIPERBAIKI) ═══ */
-    /* Hapus overflow-x:hidden pada section agar slider bisa digeser */
     #swup, main, section {
         position: relative;
         width: 100%;
         max-width: 100vw;
     }
     
-    /* Hanya paksa hidden pada elemen tertentu yang butuh */
-    .prevent-overflow {
-        overflow: hidden !important;
-    }
+    .prevent-overflow { overflow: hidden !important; }
 
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
     /* ═══ GELOMBANG (WAVE) DIPERBAIKI ═══ */
-    /* Kunci tinggi agar tidak melar menutupi section di bawahnya */
     .divider {
         line-height: 0;
         width: 100%;
@@ -392,7 +387,11 @@
                 <path d="M50 12 C100 12 100 28 150 28 S200 12 250 12 S300 28 350 28 S400 12 450 12 S500 28 550 28 S600 12 650 12" fill="none" stroke="#b8c9dc" stroke-width="2.5" stroke-dasharray="6 7" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
             </svg>
 
-            <div class="flex overflow-x-auto md:grid md:grid-cols-7 gap-3 md:gap-2 pb-4 md:pb-0 hide-scrollbar w-full" id="flow-navigation">
+            <!-- PERBAIKAN: Tambahkan id="steps-data-container" -->
+            <div id="steps-data-container" 
+                 data-steps="{{ htmlspecialchars(json_encode($steps), ENT_QUOTES, 'UTF-8') }}"
+                 class="flex overflow-x-auto md:grid md:grid-cols-7 gap-3 md:gap-2 pb-4 md:pb-0 hide-scrollbar w-full" 
+                 id="flow-navigation">
                 @foreach($steps as $index => $step)
                     <button type="button" onclick="activateFlowStep({{ $index }})" class="flow-btn group relative flex flex-col items-center min-w-[100px] md:min-w-0 text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC2029] rounded-2xl {{ $index % 2 === 1 ? 'md:mt-4' : '' }}" data-index="{{ $index }}">
                         <div class="node-indicator w-11 h-11 md:w-12 md:h-12 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-[#0A2540] font-bold text-xs md:text-sm shadow-sm group-hover:border-[#EC2029] group-hover:text-[#EC2029] mb-2.5 relative z-10">
@@ -469,7 +468,7 @@
             </div>
 
             <div class="service-card shape-b group relative h-80 sm:h-[400px] overflow-hidden bg-slate-900 shadow-[0_24px_50px_-26px_rgba(10,37,64,.6)]">
-                <div class="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-700" id="yard-slideshow" data-images="{{ json_encode([secure_asset('assets/images/patimban-yard-1.jpeg'), secure_asset('assets/images/car.jpeg'), secure_asset('assets/images/vessel-5.jpeg'), secure_asset('assets/images/car-4.jpeg')]) }}" style="background-image: url('{{ secure_asset('assets/images/patimban-yard-1.jpeg') }}');"></div>
+                <div class="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-700" id="yard-slideshow" data-images="{{ htmlspecialchars(json_encode([secure_asset('assets/images/patimban-yard-1.jpeg'), secure_asset('assets/images/car.jpeg'), secure_asset('assets/images/vessel-5.jpeg'), secure_asset('assets/images/car-4.jpeg')]), ENT_QUOTES, 'UTF-8') }}" style="background-image: url('{{ secure_asset('assets/images/patimban-yard-1.jpeg') }}');"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/35 to-transparent"></div>
                 <div class="absolute inset-0 p-7 sm:p-9 flex flex-col justify-end">
                     <span class="mb-3 inline-block w-fit rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white ring-1 ring-white/25 backdrop-blur">Storage facility</span>
@@ -652,8 +651,12 @@ fetchPatimbanWeatherAll();
 
 // 3. Interaksi Flow Step
 document.addEventListener('DOMContentLoaded', function () {
-    // PERBAIKAN SYNTAX ERROR: Menggunakan json_encode murni tanpa @json
-    const stepsData = {!! json_encode($steps) !!};
+    // MEMBACA DARI ATRIBUT HTML (BEBAS SYNTAX ERROR)
+    const container = document.getElementById('steps-data-container');
+    let stepsData = [];
+    if (container && container.dataset.steps) {
+        stepsData = JSON.parse(container.dataset.steps);
+    }
     
     if (!stepsData || !stepsData.length) return;
 
