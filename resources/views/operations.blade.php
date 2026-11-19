@@ -26,39 +26,54 @@
     }
     h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Plus Jakarta Sans', 'Century Gothic', system-ui, sans-serif; }
 
-    /* ═══ KUNCI LAYOUT EKSTRA KETAT ═══ */
+    /* ═══ KUNCI LAYOUT (DIPERBAIKI) ═══ */
+    /* Hapus overflow-x:hidden pada section agar slider galeri bisa digeser */
     #swup, main, section {
         position: relative;
-        width: 100% !important;
-        max-width: 100vw !important;
-        overflow-x: hidden !important;
+        width: 100%;
+        max-width: 100vw;
     }
-
-    /* Pastikan gelombang tidak melebar */
-    .wave-wrap, .divider, .wave, .wave-track {
-        width: 100% !important;
-        max-width: 100vw !important;
-        overflow: hidden !important;
+    
+    /* Hanya paksa hidden pada elemen tertentu yang butuh */
+    .prevent-overflow {
+        overflow-x: hidden !important;
     }
 
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* ═══ GELOMBANG ═══ */
+    /* ═══ GELOMBANG (WAVE) DIPERBAIKI ═══ */
+    /* Kita kunci tingginya agar tidak melar menutupi section bawah */
+    .divider {
+        line-height: 0;
+        width: 100%;
+        overflow: hidden;
+        /* Menghilangkan margin negatif yang bikin tumpang tindih */
+        margin-bottom: 0; 
+    }
+    .divider svg {
+        display: block;
+        width: 100%;
+        height: 40px;
+        fill: currentColor;
+    }
+    @media (min-width: 640px) {
+        .divider svg { height: 70px; }
+    }
+
+    /* Wave Animasi Hero */
     .wave { display: block; height: 44px; fill: currentColor; }
     @media (min-width: 640px) { .wave { height: 76px; } }
     .wave.flip { transform: scaleX(-1); }
-    .divider { line-height: 0; margin-bottom: -1px; }
-
-    .wave-wrap { position: absolute; inset-inline: 0; bottom: -1px; line-height: 0; color: var(--color-mist); z-index: 5; }
-    .wave-track { display: flex; }
+    .wave-wrap { position: absolute; inset-inline: 0; bottom: -1px; line-height: 0; color: var(--color-mist); z-index: 5; pointer-events: none; }
+    .wave-track { display: flex; width: 200%; }
     .wave-track svg { width: 50%; height: 56px; flex: none; }
     @media (min-width: 640px) { .wave-track svg { height: 100px; } }
     .wave-back  { position: absolute; inset-inline: 0; bottom: 0; opacity: .4; animation: drift 26s linear infinite; }
     .wave-front { position: relative; animation: drift 38s linear infinite reverse; }
     @keyframes drift { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
-    /* Hero: masuk bertahap satu kali */
+    /* Hero */
     .hero-in > * { animation: heroIn .9s cubic-bezier(.22,1,.36,1) both; }
     .hero-in > :nth-child(2) { animation-delay: .12s; }
     .hero-in > :nth-child(3) { animation-delay: .24s; }
@@ -70,7 +85,7 @@
     }
     .squiggle.center { margin-inline: auto; }
 
-    /* ═══ HERO SLIDESHOW ═══ */
+    /* Hero Slideshow */
     .hero-slide {
         position: absolute; inset: 0;
         background-size: cover; background-position: center;
@@ -78,7 +93,7 @@
     }
     .hero-slide.active { opacity: 1; }
 
-    /* ═══ KARTU ANGKA ═══ */
+    /* Kartu Angka */
     .stat-card {
         transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease;
         box-shadow: 0 18px 40px -18px rgba(10,37,64,.3);
@@ -89,7 +104,7 @@
     .stat-card:nth-child(4) { border-radius: 1rem 2.25rem 2.25rem 2.25rem;    background: #e3eefb;          transform: translateY(10px) rotate(-1deg); }
     .stat-card:hover { transform: translateY(-6px) rotate(0deg); box-shadow: 0 26px 48px -18px rgba(10,37,64,.4); }
 
-    /* ═══ WHY PICT ═══ */
+    /* Why PICT */
     .why-icon { transition: transform .4s cubic-bezier(.34,1.56,.64,1); }
     .why-item:hover .why-icon { transform: scale(1.08) rotate(-4deg); }
     .why-item:nth-child(1) .why-icon { border-radius: 2rem 2rem .6rem 2rem;   background: var(--color-blush); }
@@ -97,7 +112,7 @@
     .why-item:nth-child(3) .why-icon { border-radius: .6rem 2rem 2rem 2rem;   background: #fff4e0; }
     @media (min-width: 768px) { .why-item:nth-child(2) { margin-top: 2.5rem; } }
 
-    /* ═══ FLOW STEPS ═══ */
+    /* Flow Steps */
     .flow-btn .node-indicator { transition: all .3s cubic-bezier(.34,1.56,.64,1); }
     .flow-btn:hover .node-indicator { transform: scale(1.1); }
     .flow-btn.active .node-indicator {
@@ -109,22 +124,21 @@
     }
     .flow-btn.active h3 { color: var(--color-signal); }
     .flow-btn.active .arrow-indicator { opacity: 1; transform: translateY(0); }
-
     .fade-content { animation: fadeInData 0.4s ease-out forwards; }
     @keyframes fadeInData {
         0%   { opacity: 0; transform: translateY(10px); }
         100% { opacity: 1; transform: translateY(0); }
     }
 
-    /* Kunci Timeline */
-    #flow-navigation {
+    /* Scroll Container */
+    #flow-navigation, #news-gallery-slider {
         width: 100% !important;
         max-width: 100% !important;
         overflow-x: auto !important;
         -webkit-overflow-scrolling: touch;
     }
 
-    /* ═══ LAYANAN & KARGO ═══ */
+    /* Layanan & Kargo */
     .service-card.shape-a { border-radius: 2.75rem 1rem 2.75rem 1rem; }
     .service-card.shape-b { border-radius: 1rem 2.75rem 1rem 2.75rem; }
     @media (min-width: 768px) { .service-card.shape-b { margin-top: 2rem; } }
@@ -143,14 +157,7 @@
     }
     .cargo-card:hover { transform: translateY(-6px); box-shadow: 0 26px 46px -22px rgba(10,37,64,.45); }
 
-    /* Kunci Galeri */
-    #news-gallery-slider {
-        width: 100% !important;
-        max-width: 100% !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch;
-    }
-
+    /* Galeri */
     .gallery-card {
         box-shadow: 0 16px 36px -22px rgba(10,37,64,.45);
         transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease;
@@ -159,11 +166,11 @@
     .gallery-card:nth-child(even) { border-radius: 2rem .75rem 2rem 2rem; }
     .gallery-card:hover { transform: translateY(-6px); box-shadow: 0 26px 46px -22px rgba(10,37,64,.5); }
 
-    /* ═══ TOMBOL ═══ */
+    /* Tombol */
     .btn-soft { transition: transform .3s cubic-bezier(.34,1.56,.64,1), background-color .2s ease, border-color .2s ease; }
     .btn-soft:hover { transform: translateY(-3px) scale(1.03); }
 
-    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: var(--color-mist); }
     ::-webkit-scrollbar-thumb { background: #b8c9dc; border-radius: 9999px; }
     ::-webkit-scrollbar-thumb:hover { background: #93abc6; }
@@ -178,19 +185,21 @@
 @section('content')
 
 {{-- 1. HERO --}}
-<section class="relative min-h-[88vh] w-full flex flex-col justify-between overflow-hidden bg-slate-900 pt-28 pb-0">
-    <div id="hero-slideshow"
-         data-images='{{ json_encode([
-             secure_asset("assets/images/vessel-1.jpeg"),
-             secure_asset("assets/images/patimban-yard-2.jpeg"),
-             secure_asset("assets/images/vessel-5.jpeg"),
-             secure_asset("assets/images/car-4.jpeg")
-         ]) }}'
-         class="absolute inset-0 z-0"></div>
+<section class="relative min-h-[75vh] sm:min-h-[88vh] w-full flex flex-col justify-between bg-slate-900 pt-28 pb-0 prevent-overflow">
+    <div id="hero-slideshow" class="absolute inset-0 z-0">
+        @foreach([
+            secure_asset("assets/images/vessel-1.jpeg"),
+            secure_asset("assets/images/patimban-yard-2.jpeg"),
+            secure_asset("assets/images/vessel-5.jpeg"),
+            secure_asset("assets/images/car-4.jpeg")
+        ] as $index => $img)
+            <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" style="background-image: url('{{ $img }}');"></div>
+        @endforeach
+    </div>
 
     <div class="absolute inset-0 bg-gradient-to-b from-slate-950/75 via-slate-950/45 to-slate-950/85 z-[1] pointer-events-none"></div>
 
-    <div class="hero-in relative max-w-7xl mx-auto px-5 sm:px-6 z-10 w-full my-auto pt-8 pb-40 sm:pb-48">
+    <div class="hero-in relative max-w-7xl mx-auto px-5 sm:px-6 z-10 w-full my-auto pt-8 pb-32 sm:pb-48">
         <h1 class="max-w-3xl text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.1] mb-4 sm:mb-6">
             A Ro-Ro terminal built to move vehicles, not just words.
         </h1>
@@ -226,7 +235,7 @@
 </section>
 
 {{-- 2. TERMINAL AT A GLANCE --}}
-<section class="relative z-20 bg-[#eef5fb] px-5 sm:px-6 pb-14 overflow-hidden">
+<section class="relative z-20 bg-[#eef5fb] px-5 sm:px-6 pb-14 pt-0">
     @php
         $glanceStats = [
             ['value' => '218', 'label' => 'Thousand units, annual capacity',   'color' => 'navy',   'counter' => true],
@@ -236,7 +245,7 @@
         ];
     @endphp
 
-    <div class="max-w-7xl mx-auto -mt-28 sm:-mt-32 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+    <div class="max-w-7xl mx-auto -mt-16 sm:-mt-32 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         @foreach($glanceStats as $s)
             <div class="stat-card p-5 sm:p-7">
                 <div class="text-3xl sm:text-5xl font-extrabold tracking-tight mb-1
@@ -251,12 +260,12 @@
     </div>
 </section>
 
-<div class="divider bg-[#eef5fb] text-[#0f172a] w-full overflow-hidden" aria-hidden="true">
-    <svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 40 Q360 -10 720 40 T1440 40 V80 H0Z"/></svg>
+<div class="divider bg-[#eef5fb] text-[#0f172a]">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 40 Q360 -10 720 40 T1440 40 V80 H0Z"/></svg>
 </div>
 
 {{-- 3. LIVE WEATHER & MARINE CONDITIONS --}}
-<section class="pt-6 pb-10 sm:pb-16 bg-slate-900 text-white relative overflow-hidden">
+<section class="pt-6 pb-10 sm:pb-16 bg-slate-900 text-white relative">
     <div class="max-w-7xl mx-auto px-5 sm:px-6 relative z-10">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 sm:mb-8 gap-4">
             <div>
@@ -278,7 +287,7 @@
                 ['id' => 'weather-temp',     'label' => 'Temperature',  'default' => '-- °C',    'sub' => 'Patimban Harbor Area',   'iconColor' => 'text-amber-400',   'icon' => 'M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z'],
                 ['id' => 'weather-wind',     'label' => 'Wind Speed',   'default' => '-- km/h',  'sub' => 'Safe for Berthing',      'iconColor' => 'text-sky-400',     'icon' => 'M14 5l7 7m0 0l-7 7m7-7H3'],
                 ['id' => 'weather-humidity', 'label' => 'Humidity',     'default' => '-- %',     'sub' => 'Atmospheric Moisture',   'iconColor' => 'text-blue-400',    'icon' => 'M19 14l-7 7m0 0l-7-7m7 7V3'],
-                ['id' => null,               'label' => 'Berth Status', 'default' => 'OPTIMAL',  'sub' => 'Normal Ro-Ro Condition', 'iconColor' => 'text-emerald-400', 'icon' => 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', 'isStatus' => true],
+                ['id' => 'berth-status',     'label' => 'Berth Status', 'default' => 'OPTIMAL',  'sub' => 'Normal Ro-Ro Condition', 'iconColor' => 'text-emerald-400', 'icon' => 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', 'isStatus' => true],
             ];
         @endphp
 
@@ -293,8 +302,7 @@
                             </svg>
                         </span>
                     </div>
-                    <p @if($w['id']) id="{{ $w['id'] }}" @endif
-                       class="text-xl sm:text-3xl font-extrabold {{ !empty($w['isStatus']) ? 'text-lg sm:text-2xl text-emerald-400' : 'text-white' }}">
+                    <p id="{{ $w['id'] }}" class="text-xl sm:text-3xl font-extrabold {{ !empty($w['isStatus']) ? 'text-lg sm:text-2xl text-emerald-400' : 'text-white' }}">
                         {{ $w['default'] }}
                     </p>
                     <p class="text-slate-400 text-[11px] sm:text-xs mt-1">{{ $w['sub'] }}</p>
@@ -311,12 +319,12 @@
     </div>
 </section>
 
-<div class="divider bg-[#0f172a] text-white w-full overflow-hidden" aria-hidden="true">
-    <svg class="wave flip" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 40 Q360 90 720 40 T1440 40 V80 H0Z"/></svg>
+<div class="divider bg-[#0f172a] text-white">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none" class="wave flip"><path d="M0 40 Q360 90 720 40 T1440 40 V80 H0Z"/></svg>
 </div>
 
 {{-- 4. WHY PICT --}}
-<section class="pt-6 pb-14 sm:pb-20 bg-white relative overflow-hidden">
+<section class="pt-6 pb-14 sm:pb-20 bg-white relative">
     <div class="max-w-7xl mx-auto px-5 sm:px-6 relative z-10">
         <div class="max-w-2xl mb-10 sm:mb-14">
             <h2 class="text-2xl sm:text-4xl font-extrabold text-[#0A2540] tracking-tight leading-tight">
@@ -339,7 +347,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
             @foreach($whyPict as $item)
                 <div class="why-item text-center">
-                    <div class="why-icon w-24 h-24 mb-6 mx-auto flex items-center justify-center p-5">
+                    <div class="why-icon w-24 h-24 mb-6 mx-auto flex items-center justify-center p-5 relative z-10">
                         <img src="{{ secure_asset('assets/images/' . $item['img']) }}" alt="{{ $item['alt'] }}" class="w-full h-full object-contain">
                     </div>
                     <h3 class="text-lg sm:text-xl font-bold text-[#0A2540] mb-2">{{ $item['title'] }}</h3>
@@ -350,12 +358,24 @@
     </div>
 </section>
 
-<div class="divider bg-white text-[#eef5fb] w-full overflow-hidden" aria-hidden="true">
-    <svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 50 Q360 0 720 50 T1440 50 V80 H0Z"/></svg>
+<div class="divider bg-white text-[#eef5fb]">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 50 Q360 0 720 50 T1440 50 V80 H0Z"/></svg>
 </div>
 
 {{-- 5. TERMINAL OPERATION FLOW --}}
-<section id="operations-flow" class="pt-6 pb-14 sm:pb-20 bg-[#eef5fb] relative overflow-hidden">
+<section id="operations-flow" class="pt-6 pb-14 sm:pb-20 bg-[#eef5fb] relative">
+    @php
+        $steps = [
+            ['title' => 'Ship Arrival', 'time' => '1–2 Hours Prior', 'equip' => 'Vessel Traffic Services (VTS)', 'safety' => 'ISPS Code Compliance', 'div' => 'Marine Operations', 'desc' => 'Coordination with maritime authorities to ensure safe entry into the port limits before docking procedures begin.'],
+            ['title' => 'Berthing', 'time' => '45–60 Minutes', 'equip' => 'Tugboats & Mooring Lines', 'safety' => 'Port Safety Clearance', 'div' => 'Harbor Master Team', 'desc' => 'Securing the vessel to the terminal dock using specialized tugs and heavy-duty mooring systems.'],
+            ['title' => 'Vehicle Inspection', 'time' => '10 Min / Unit', 'equip' => 'Digital Handheld Scanners', 'safety' => 'Zero-Scratch Protocol', 'div' => 'Quality Assurance', 'desc' => 'Pre-discharge visual and digital scanning of units to document condition and ensure zero damage.'],
+            ['title' => 'Ro-Ro Discharge', 'time' => '2–4 Hours Total', 'equip' => 'Hydraulic Ramps & Lashing', 'safety' => 'PPE & Traffic Control', 'div' => 'Stevedoring Division', 'desc' => 'Safe and systematic driving of vehicles from the vessel decks down the ramps into the initial staging area.'],
+            ['title' => 'Yard Management', 'time' => 'Immediate Staging', 'equip' => 'Automated Yard Locator (TMS)', 'safety' => 'Speed Limit 20 km/h', 'div' => 'Yard Control Center', 'desc' => 'Routing and parking units in designated zones utilizing our proprietary Terminal Management System.'],
+            ['title' => 'Quality Check', 'time' => 'Final Audit', 'equip' => 'High-Resolution Cameras', 'safety' => 'Pre-Delivery Inspection', 'div' => 'Inspection Team', 'desc' => 'Comprehensive post-discharge inspection to verify VIN numbers, accessories, and overall vehicle integrity.'],
+            ['title' => 'Distribution', 'time' => 'On-Demand Gate Out', 'equip' => 'Car Carriers / Transporters', 'safety' => 'Gate Security Check', 'div' => 'Logistics & Delivery', 'desc' => 'Loading units onto commercial transporters and finalizing documentation for domestic or international dispatch.'],
+        ];
+    @endphp
+
     <div class="max-w-7xl mx-auto px-5 sm:px-6 relative">
         <div class="max-w-2xl mb-10 sm:mb-14">
             <h2 class="text-2xl sm:text-4xl font-extrabold text-[#0A2540] tracking-tight leading-tight">
@@ -367,24 +387,12 @@
             </p>
         </div>
 
-        @php
-            $steps = [
-                ['title' => 'Ship Arrival', 'time' => '1–2 Hours Prior', 'equip' => 'Vessel Traffic Services (VTS)', 'safety' => 'ISPS Code Compliance', 'div' => 'Marine Operations', 'desc' => 'Coordination with maritime authorities to ensure safe entry into the port limits before docking procedures begin.'],
-                ['title' => 'Berthing', 'time' => '45–60 Minutes', 'equip' => 'Tugboats & Mooring Lines', 'safety' => 'Port Safety Clearance', 'div' => 'Harbor Master Team', 'desc' => 'Securing the vessel to the terminal dock using specialized tugs and heavy-duty mooring systems.'],
-                ['title' => 'Vehicle Inspection', 'time' => '10 Min / Unit', 'equip' => 'Digital Handheld Scanners', 'safety' => 'Zero-Scratch Protocol', 'div' => 'Quality Assurance', 'desc' => 'Pre-discharge visual and digital scanning of units to document condition and ensure zero damage.'],
-                ['title' => 'Ro-Ro Discharge', 'time' => '2–4 Hours Total', 'equip' => 'Hydraulic Ramps & Lashing', 'safety' => 'PPE & Traffic Control', 'div' => 'Stevedoring Division', 'desc' => 'Safe and systematic driving of vehicles from the vessel decks down the ramps into the initial staging area.'],
-                ['title' => 'Yard Management', 'time' => 'Immediate Staging', 'equip' => 'Automated Yard Locator (TMS)', 'safety' => 'Speed Limit 20 km/h', 'div' => 'Yard Control Center', 'desc' => 'Routing and parking units in designated zones utilizing our proprietary Terminal Management System.'],
-                ['title' => 'Quality Check', 'time' => 'Final Audit', 'equip' => 'High-Resolution Cameras', 'safety' => 'Pre-Delivery Inspection', 'div' => 'Inspection Team', 'desc' => 'Comprehensive post-discharge inspection to verify VIN numbers, accessories, and overall vehicle integrity.'],
-                ['title' => 'Distribution', 'time' => 'On-Demand Gate Out', 'equip' => 'Car Carriers / Transporters', 'safety' => 'Gate Security Check', 'div' => 'Logistics & Delivery', 'desc' => 'Loading units onto commercial transporters and finalizing documentation for domestic or international dispatch.'],
-            ];
-        @endphp
-
         <div class="relative z-10">
             <svg class="hidden md:block absolute inset-x-0 top-3 -z-10 h-10 w-full" viewBox="0 0 700 40" preserveAspectRatio="none" aria-hidden="true">
                 <path d="M50 12 C100 12 100 28 150 28 S200 12 250 12 S300 28 350 28 S400 12 450 12 S500 28 550 28 S600 12 650 12" fill="none" stroke="#b8c9dc" stroke-width="2.5" stroke-dasharray="6 7" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
             </svg>
 
-            <div class="flex overflow-x-auto md:grid md:grid-cols-7 gap-3 md:gap-2 pb-4 md:pb-0 hide-scrollbar w-full max-w-full" id="flow-navigation">
+            <div class="flex overflow-x-auto md:grid md:grid-cols-7 gap-3 md:gap-2 pb-4 md:pb-0 hide-scrollbar w-full" id="flow-navigation">
                 @foreach($steps as $index => $step)
                     <button type="button" onclick="activateFlowStep({{ $index }})" class="flow-btn group relative flex flex-col items-center min-w-[100px] md:min-w-0 text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC2029] rounded-2xl {{ $index % 2 === 1 ? 'md:mt-4' : '' }}" data-index="{{ $index }}">
                         <div class="node-indicator w-11 h-11 md:w-12 md:h-12 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-[#0A2540] font-bold text-xs md:text-sm shadow-sm group-hover:border-[#EC2029] group-hover:text-[#EC2029] mb-2.5 relative z-10">
@@ -435,12 +443,12 @@
     </div>
 </section>
 
-<div class="divider bg-[#eef5fb] text-white w-full overflow-hidden" aria-hidden="true">
-    <svg class="wave flip" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 40 Q360 -10 720 40 T1440 40 V80 H0Z"/></svg>
+<div class="divider bg-[#eef5fb] text-white">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none" class="wave flip"><path d="M0 40 Q360 -10 720 40 T1440 40 V80 H0Z"/></svg>
 </div>
 
 {{-- 6. SERVICES --}}
-<section class="pt-6 pb-16 sm:pb-24 bg-white relative overflow-hidden">
+<section class="pt-6 pb-16 sm:pb-24 bg-white relative">
     <div class="max-w-7xl mx-auto px-5 sm:px-6">
         <div class="max-w-2xl mb-10 sm:mb-14">
             <h2 class="text-2xl sm:text-4xl font-extrabold text-[#0A2540] tracking-tight leading-tight">
@@ -473,12 +481,12 @@
     </div>
 </section>
 
-<div class="divider bg-white text-[#eef5fb] w-full overflow-hidden" aria-hidden="true">
-    <svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 50 Q360 0 720 50 T1440 50 V80 H0Z"/></svg>
+<div class="divider bg-white text-[#eef5fb]">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 50 Q360 0 720 50 T1440 50 V80 H0Z"/></svg>
 </div>
 
 {{-- 7. VEHICLE CARGO TYPES --}}
-<section class="pt-6 pb-20 sm:pb-28 bg-[#eef5fb] relative overflow-hidden">
+<section class="pt-6 pb-20 sm:pb-28 bg-[#eef5fb] relative">
     <div class="max-w-7xl mx-auto px-5 sm:px-6 relative">
         <div class="max-w-2xl mb-10 sm:mb-14">
             <h2 class="text-2xl sm:text-4xl font-extrabold text-[#0A2540] tracking-tight leading-tight">
@@ -511,12 +519,12 @@
     </div>
 </section>
 
-<div class="divider bg-[#eef5fb] text-white w-full overflow-hidden" aria-hidden="true">
-    <svg class="wave flip" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 40 Q360 90 720 40 T1440 40 V80 H0Z"/></svg>
+<div class="divider bg-[#eef5fb] text-white">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none" class="wave flip"><path d="M0 40 Q360 90 720 40 T1440 40 V80 H0Z"/></svg>
 </div>
 
 {{-- 8. GALLERY --}}
-<section id="gallery" class="pt-6 pb-14 sm:pb-20 bg-white relative overflow-hidden">
+<section id="gallery" class="pt-6 pb-14 sm:pb-20 bg-white relative">
     <div class="max-w-7xl mx-auto px-5 sm:px-6">
         <div class="mb-8">
             <h2 class="text-2xl sm:text-4xl font-extrabold text-[#0A2540] tracking-tight">
@@ -556,12 +564,12 @@
     </div>
 </section>
 
-<div class="divider bg-white text-[#0A2540] w-full overflow-hidden" aria-hidden="true">
-    <svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 50 Q360 0 720 50 T1440 50 V80 H0Z"/></svg>
+<div class="divider bg-white text-[#0A2540]">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 50 Q360 0 720 50 T1440 50 V80 H0Z"/></svg>
 </div>
 
 {{-- 9. CALL TO ACTION --}}
-<section id="contact" class="pt-6 pb-16 sm:pb-24 relative overflow-hidden bg-[#0A2540]">
+<section id="contact" class="pt-6 pb-16 sm:pb-24 relative bg-[#0A2540]">
     <div class="max-w-4xl mx-auto px-5 sm:px-6 text-center relative z-10">
         <h2 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-4 leading-tight">
             Ready to move your cargo through Patimban?
@@ -584,7 +592,7 @@
 
 @push('scripts')
 <script>
-/* SCRIPT SAMA SEPERTI SEBELUMNYA */
+// 1. Jam Waktu Nyata
 function updateRealTimeClock() {
     const el = document.getElementById('live-clock');
     if (!el) return;
@@ -594,6 +602,7 @@ function updateRealTimeClock() {
 setInterval(updateRealTimeClock, 1000);
 updateRealTimeClock();
 
+// 2. Cuaca
 function fnGetWeatherDetails(code) {
     if (code === 0) return { icon: '☀️', desc: 'Sunny' };
     if ([1, 2, 3].includes(code)) return { icon: '⛅', desc: 'Partly Cloudy' };
@@ -641,8 +650,12 @@ async function fetchPatimbanWeatherAll() {
 }
 fetchPatimbanWeatherAll();
 
+// 3. Interaksi Flow Step
 document.addEventListener('DOMContentLoaded', function () {
-    const stepsData = @json($steps);
+    // Solusi error @json: Gunakan data dari window
+    const stepsData = @json($steps ?? []);
+    if (!stepsData.length) return;
+
     const buttons = document.querySelectorAll('.flow-btn');
     const elNum = document.getElementById('detail-number');
     const elTitle = document.getElementById('detail-title');
@@ -656,10 +669,12 @@ document.addEventListener('DOMContentLoaded', function () {
         buttons.forEach(btn => btn.classList.remove('active'));
         const activeBtn = document.querySelector(`.flow-btn[data-index="${index}"]`);
         if (activeBtn) activeBtn.classList.add('active');
+        
         const panel = elTitle.closest('.flex-col');
         const grid = elTime.closest('.grid');
-        panel.classList.remove('fade-content');
-        grid.classList.remove('fade-content');
+        if(panel) panel.classList.remove('fade-content');
+        if(grid) grid.classList.remove('fade-content');
+        
         void panel.offsetWidth;
         const data = stepsData[index];
         elNum.textContent = '0' + (index + 1);
@@ -669,12 +684,14 @@ document.addEventListener('DOMContentLoaded', function () {
         elEquip.textContent = data.equip;
         elSafety.textContent = data.safety;
         elDiv.textContent = data.div;
-        panel.classList.add('fade-content');
-        grid.classList.add('fade-content');
+        
+        if(panel) panel.classList.add('fade-content');
+        if(grid) grid.classList.add('fade-content');
     };
     activateFlowStep(0);
 });
 
+// 4. Auto Slide Galeri
 let galleryInterval = null;
 let resumeTimeout = null;
 let isAutoSlideActive = true;
@@ -688,20 +705,16 @@ function startAutoGallerySlide() {
         if (!card) return;
         const cardWidth = card.offsetWidth + 24;
         const maxScrollLeft = slider.scrollWidth - slider.clientWidth;
-        if (slider.scrollLeft >= maxScrollLeft - 10) {
-            slider.scrollTo({ left: 0, behavior: 'smooth' });
-        } else {
-            slider.scrollBy({ left: cardWidth, behavior: 'smooth' });
-        }
+        let next = slider.scrollLeft + cardWidth;
+        if (next > maxScrollLeft + 5) next = 0;
+        slider.scrollTo({ left: next, behavior: 'smooth' });
     }, 3500);
 }
 
 function pauseAutoSlideAndFocus(index) {
     isAutoSlideActive = false;
     clearTimeout(resumeTimeout);
-    const slider = document.getElementById('news-gallery-slider');
-    const cards = slider.querySelectorAll('.gallery-card');
-    if (cards[index]) { cards[index].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }
+    // Tidak memaksa scroll, biarkan user menikmati tampilan
     resumeTimeout = setTimeout(() => { isAutoSlideActive = true; }, 7000);
 }
 
@@ -719,18 +732,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
+// 5. Slideshows dan Counter
 document.addEventListener('DOMContentLoaded', function () {
+    // Hero Slideshow
     const heroSlideshow = document.getElementById('hero-slideshow');
     if (heroSlideshow) {
-        const images = JSON.parse(heroSlideshow.dataset.images);
-        let currentIndex = 0;
-        images.forEach((imgUrl, index) => {
-            const slide = document.createElement('div');
-            slide.className = `hero-slide ${index === 0 ? 'active' : ''}`;
-            slide.style.backgroundImage = `url('${imgUrl}')`;
-            heroSlideshow.appendChild(slide);
-        });
         const slides = heroSlideshow.querySelectorAll('.hero-slide');
+        let currentIndex = 0;
         if (slides.length > 1) {
             setInterval(() => {
                 slides[currentIndex].classList.remove('active');
@@ -739,6 +747,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 5000);
         }
     }
+    
+    // Yard Slideshow
     const yardSlideshow = document.getElementById('yard-slideshow');
     if (yardSlideshow) {
         const images = JSON.parse(yardSlideshow.dataset.images);
@@ -748,6 +758,8 @@ document.addEventListener('DOMContentLoaded', function () {
             yardSlideshow.style.backgroundImage = `url('${images[currentImage]}')`;
         }, 4000);
     }
+    
+    // Counter Animation
     const counters = document.querySelectorAll('.counter');
     const speed = 200;
     counters.forEach(counter => {
