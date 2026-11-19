@@ -18,11 +18,15 @@
         --color-line:   #dbe6f2;
     }
 
+    /* clip di html DAN body: mencegah layout viewport melebar di perangkat mobile/tablet,
+       sehingga navbar fixed tidak ikut tergeser / terpotong */
+    html { overflow-x: clip; max-width: 100%; }
     body {
         font-family: 'Plus Jakarta Sans', 'Century Gothic', system-ui, sans-serif;
         background-color: var(--color-mist);
         color: var(--color-ink);
-        overflow-x: hidden;
+        overflow-x: clip;
+        max-width: 100%;
         -webkit-font-smoothing: antialiased;
     }
     h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Plus Jakarta Sans', 'Century Gothic', system-ui, sans-serif; }
@@ -204,7 +208,7 @@
 {{-- ═══════════════════════════════════════════════════════════════
      2. TERMINAL AT A GLANCE
 ═══════════════════════════════════════════════════════════════ --}}
-<section class="relative z-20 bg-[#eef5fb] px-5 sm:px-6 pb-14">
+<section class="relative z-20 bg-[#eef5fb] px-5 sm:px-6 pb-14 overflow-x-clip">
     @php
         $glanceStats = [
             ['value' => '218', 'label' => 'Thousand units, annual capacity',   'color' => 'navy',   'counter' => true],
