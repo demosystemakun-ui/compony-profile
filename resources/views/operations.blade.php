@@ -43,8 +43,6 @@
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    .blob { position: absolute; border-radius: 9999px; pointer-events: none; }
-
     /* ═══ GELOMBANG ═══ */
     .wave { display: block; width: 100%; height: 44px; fill: currentColor; }
     @media (min-width: 640px) { .wave { height: 76px; } }
@@ -190,7 +188,6 @@
          class="absolute inset-0 z-0"></div>
 
     <div class="absolute inset-0 bg-gradient-to-b from-slate-950/75 via-slate-950/45 to-slate-950/85 z-[1] pointer-events-none"></div>
-    <div class="blob z-[1] -right-24 top-20 h-72 w-72 bg-[#EC2029]/20 blur-3xl"></div>
 
     <div class="hero-in relative max-w-7xl mx-auto px-5 sm:px-6 z-10 w-full my-auto pt-8 pb-40 sm:pb-48">
         <h1 class="max-w-3xl text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.1] mb-4 sm:mb-6">
@@ -263,9 +260,6 @@
      3. LIVE WEATHER & MARINE CONDITIONS
 ═══════════════════════════════════════════════════════════════ --}}
 <section class="pt-6 pb-10 sm:pb-16 bg-slate-900 text-white relative overflow-hidden">
-    <div class="blob -top-32 -right-32 h-96 w-96 bg-[#EC2029]/15 blur-3xl"></div>
-    <div class="blob bottom-0 -left-24 h-72 w-72 bg-sky-400/10 blur-3xl"></div>
-
     <div class="max-w-7xl mx-auto px-5 sm:px-6 relative z-10">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 sm:mb-8 gap-4">
             <div>
@@ -384,8 +378,6 @@
      5. TERMINAL OPERATION FLOW
 ═══════════════════════════════════════════════════════════════ --}}
 <section id="operations-flow" class="pt-6 pb-14 sm:pb-20 bg-[#eef5fb] relative overflow-hidden">
-    <div class="blob -left-24 top-32 h-72 w-72 bg-[#EC2029]/10 blur-2xl"></div>
-
     <div class="max-w-7xl mx-auto px-5 sm:px-6 relative">
         <div class="max-w-2xl mb-10 sm:mb-14">
             <h2 class="text-2xl sm:text-4xl font-extrabold text-[#0A2540] tracking-tight leading-tight">
@@ -537,8 +529,6 @@
      7. VEHICLE CARGO TYPES
 ═══════════════════════════════════════════════════════════════ --}}
 <section class="pt-6 pb-20 sm:pb-28 bg-[#eef5fb] relative overflow-hidden">
-    <div class="blob -right-24 top-20 h-72 w-72 bg-[#0A2540]/5 blur-2xl"></div>
-
     <div class="max-w-7xl mx-auto px-5 sm:px-6 relative">
         <div class="max-w-2xl mb-10 sm:mb-14">
             <h2 class="text-2xl sm:text-4xl font-extrabold text-[#0A2540] tracking-tight leading-tight">
@@ -648,9 +638,6 @@
      9. CALL TO ACTION
 ═══════════════════════════════════════════════════════════════ --}}
 <section id="contact" class="pt-6 pb-16 sm:pb-24 relative overflow-hidden bg-[#0A2540]">
-    <div class="blob -top-24 -right-24 h-96 w-96 bg-[#EC2029]/20 blur-3xl"></div>
-    <div class="blob -bottom-20 -left-16 h-72 w-72 bg-sky-400/15 blur-3xl"></div>
-
     <div class="max-w-4xl mx-auto px-5 sm:px-6 text-center relative z-10">
         <h2 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-4 leading-tight">
             Ready to move your cargo through Patimban?
