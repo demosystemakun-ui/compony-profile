@@ -1,9 +1,10 @@
+
 @extends('layouts.app')
 
 @section('title', 'Operations — PT Patimban International Car Terminal')
 
 @php
-    // Tetap dideklarasikan di sini
+    // Data dideklarasikan di atas agar aman dan tidak memicu ParseError
     $steps = [
         ['title' => 'Ship Arrival', 'time' => '1–2 Hours Prior', 'equip' => 'Vessel Traffic Services (VTS)', 'safety' => 'ISPS Code Compliance', 'div' => 'Marine Operations', 'desc' => 'Coordination with maritime authorities to ensure safe entry into the port limits before docking procedures begin.'],
         ['title' => 'Berthing', 'time' => '45–60 Minutes', 'equip' => 'Tugboats & Mooring Lines', 'safety' => 'Port Safety Clearance', 'div' => 'Harbor Master Team', 'desc' => 'Securing the vessel to the terminal dock using specialized tugs and heavy-duty mooring systems.'],
@@ -387,11 +388,10 @@
                 <path d="M50 12 C100 12 100 28 150 28 S200 12 250 12 S300 28 350 28 S400 12 450 12 S500 28 550 28 S600 12 650 12" fill="none" stroke="#b8c9dc" stroke-width="2.5" stroke-dasharray="6 7" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
             </svg>
 
-            <!-- PERBAIKAN: Tambahkan id="steps-data-container" -->
-            <div id="steps-data-container" 
+            <!-- Perbaikan: ID unik di sini untuk menyimpan data -->
+            <div id="flow-navigation" 
                  data-steps="{{ htmlspecialchars(json_encode($steps), ENT_QUOTES, 'UTF-8') }}"
-                 class="flex overflow-x-auto md:grid md:grid-cols-7 gap-3 md:gap-2 pb-4 md:pb-0 hide-scrollbar w-full" 
-                 id="flow-navigation">
+                 class="flex overflow-x-auto md:grid md:grid-cols-7 gap-3 md:gap-2 pb-4 md:pb-0 hide-scrollbar w-full">
                 @foreach($steps as $index => $step)
                     <button type="button" onclick="activateFlowStep({{ $index }})" class="flow-btn group relative flex flex-col items-center min-w-[100px] md:min-w-0 text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC2029] rounded-2xl {{ $index % 2 === 1 ? 'md:mt-4' : '' }}" data-index="{{ $index }}">
                         <div class="node-indicator w-11 h-11 md:w-12 md:h-12 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-[#0A2540] font-bold text-xs md:text-sm shadow-sm group-hover:border-[#EC2029] group-hover:text-[#EC2029] mb-2.5 relative z-10">
@@ -651,14 +651,16 @@ fetchPatimbanWeatherAll();
 
 // 3. Interaksi Flow Step
 document.addEventListener('DOMContentLoaded', function () {
-    // MEMBACA DARI ATRIBUT HTML (BEBAS SYNTAX ERROR)
-    const container = document.getElementById('steps-data-container');
+    const container = document.getElementById('flow-navigation');
+    if (!container || !container.dataset.steps) return;
+
     let stepsData = [];
-    if (container && container.dataset.steps) {
+    try {
         stepsData = JSON.parse(container.dataset.steps);
+    } catch (e) {
+        console.error('Gagal membaca JSON steps:', e);
+        return;
     }
-    
-    if (!stepsData || !stepsData.length) return;
 
     const buttons = document.querySelectorAll('.flow-btn');
     const elNum = document.getElementById('detail-number');
@@ -674,24 +676,29 @@ document.addEventListener('DOMContentLoaded', function () {
         const activeBtn = document.querySelector(`.flow-btn[data-index="${index}"]`);
         if (activeBtn) activeBtn.classList.add('active');
         
-        const panel = elTitle.closest('.flex-col');
-        const grid = elTime.closest('.grid');
-        if(panel) panel.classList.remove('fade-content');
-        if(grid) grid.classList.remove('fade-content');
-        
-        void panel.offsetWidth;
         const data = stepsData[index];
-        elNum.textContent = '0' + (index + 1);
-        elTitle.textContent = data.title;
-        elDesc.textContent = data.desc;
-        elTime.textContent = data.time;
-        elEquip.textContent = data.equip;
-        elSafety.textContent = data.safety;
-        elDiv.textContent = data.div;
+        if (!data) return;
+
+        const panel = elTitle ? elTitle.closest('.flex-col') : null;
+        const grid = elTime ? elTime.closest('.grid') : null;
         
-        if(panel) panel.classList.add('fade-content');
-        if(grid) grid.classList.add('fade-content');
+        if (panel) panel.classList.remove('fade-content');
+        if (grid) grid.classList.remove('fade-content');
+        
+        if (panel) void panel.offsetWidth;
+        
+        if (elNum) elNum.textContent = '0' + (index + 1);
+        if (elTitle) elTitle.textContent = data.title;
+        if (elDesc) elDesc.textContent = data.desc;
+        if (elTime) elTime.textContent = data.time;
+        if (elEquip) elEquip.textContent = data.equip;
+        if (elSafety) elSafety.textContent = data.safety;
+        if (elDiv) elDiv.textContent = data.div;
+        
+        if (panel) panel.classList.add('fade-content');
+        if (grid) grid.classList.add('fade-content');
     };
+    
     window.activateFlowStep(0);
 });
 
@@ -738,7 +745,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // 5. Slideshows dan Counter
 document.addEventListener('DOMContentLoaded', function () {
-    // Hero Slideshow
     const heroSlideshow = document.getElementById('hero-slideshow');
     if (heroSlideshow) {
         const slides = heroSlideshow.querySelectorAll('.hero-slide');
@@ -752,7 +758,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
     
-    // Yard Slideshow
     const yardSlideshow = document.getElementById('yard-slideshow');
     if (yardSlideshow) {
         const images = JSON.parse(yardSlideshow.dataset.images);
@@ -763,7 +768,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 4000);
     }
     
-    // Counter Animation
     const counters = document.querySelectorAll('.counter');
     const speed = 200;
     counters.forEach(counter => {
