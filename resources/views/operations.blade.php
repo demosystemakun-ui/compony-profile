@@ -18,18 +18,33 @@
         --color-line:   #dbe6f2;
     }
 
-    /* clip di html DAN body: mencegah layout viewport melebar di perangkat mobile/tablet,
-       sehingga navbar fixed tidak ikut tergeser / terpotong */
-    html { overflow-x: clip; max-width: 100%; }
+    /* ═══ PERBAIKAN LAYOUT UTAMA ═══ */
+    /* Mencegah horizontal scroll & layout terpotong di mobile/tablet */
+    html, body {
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: hidden !important; /* Ganti clip menjadi hidden untuk memaksa potong */
+    }
+
     body {
         font-family: 'Plus Jakarta Sans', 'Century Gothic', system-ui, sans-serif;
         background-color: var(--color-mist);
         color: var(--color-ink);
-        overflow-x: clip;
-        max-width: 100%;
         -webkit-font-smoothing: antialiased;
     }
     h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Plus Jakarta Sans', 'Century Gothic', system-ui, sans-serif; }
+
+    /* Pastikan semua section tidak melebar keluar */
+    section {
+        max-width: 100vw;
+        overflow-x: clip;
+    }
+
+    /* Cegah gambar atau teks panjang merusak layout */
+    img, svg {
+        max-width: 100%;
+        height: auto;
+    }
 
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -108,6 +123,14 @@
         100% { opacity: 1; transform: translateY(0); }
     }
 
+    /* ═══ PERBAIKAN TIMELINE FLOW ═══ */
+    #flow-navigation {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
     /* ═══ LAYANAN & KARGO ═══ */
     .service-card.shape-a { border-radius: 2.75rem 1rem 2.75rem 1rem; }
     .service-card.shape-b { border-radius: 1rem 2.75rem 1rem 2.75rem; }
@@ -127,7 +150,14 @@
     }
     .cargo-card:hover { transform: translateY(-6px); box-shadow: 0 26px 46px -22px rgba(10,37,64,.45); }
 
-    /* ═══ GALERI ═══ */
+    /* ═══ PERBAIKAN GALERI ═══ */
+    #news-gallery-slider {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
     .gallery-card {
         box-shadow: 0 16px 36px -22px rgba(10,37,64,.45);
         transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease;
@@ -395,7 +425,7 @@
                       fill="none" stroke="#b8c9dc" stroke-width="2.5" stroke-dasharray="6 7" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
             </svg>
 
-            <div class="flex overflow-x-auto md:grid md:grid-cols-7 gap-3 md:gap-2 pb-4 md:pb-0 hide-scrollbar" id="flow-navigation">
+            <div class="flex overflow-x-auto md:grid md:grid-cols-7 gap-3 md:gap-2 pb-4 md:pb-0 hide-scrollbar w-full max-w-full" id="flow-navigation">
                 @foreach($steps as $index => $step)
                     <button type="button"
                             onclick="activateFlowStep({{ $index }})"
@@ -566,7 +596,7 @@
         </div>
 
         <div id="news-gallery-slider"
-             class="flex items-stretch gap-4 sm:gap-6 overflow-x-auto px-1 pb-8 pt-3 snap-x hide-scrollbar">
+             class="flex items-stretch gap-4 sm:gap-6 overflow-x-auto px-1 pb-8 pt-3 snap-x hide-scrollbar w-full max-w-full">
 
             @forelse($galleries as $index => $item)
                 <div class="gallery-card group relative bg-white ring-1 ring-slate-100 overflow-hidden min-w-[300px] sm:min-w-[360px] max-w-[360px] flex-shrink-0 snap-start flex flex-col cursor-pointer"
