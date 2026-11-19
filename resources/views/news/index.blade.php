@@ -162,16 +162,6 @@
 
 {{-- ============ STACKED CARDS ============ --}}
 <section class="news-scroll-section">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 mb-8">
-        @auth
-            <div class="flex justify-end mb-6 relative z-20">
-                <a href="{{ route('admin.news.index') }}"
-                   class="inline-flex items-center gap-2 bg-[#0A2540] hover:bg-[#0A2540]/90 text-white text-sm font-semibold px-5 py-2.5 rounded-lg shadow-sm transition-colors">
-                    Manage News
-                </a>
-            </div>
-        @endauth
-    </div>
 
     @if($newsList->count() > 0)
         <div class="news-stack-container">
