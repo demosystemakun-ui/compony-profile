@@ -18,14 +18,6 @@
         --color-line:   #dbe6f2;
     }
 
-    /* ═══ PERBAIKAN LAYOUT UTAMA ═══ */
-    /* Mencegah horizontal scroll & layout terpotong di mobile/tablet */
-    html, body {
-        width: 100%;
-        max-width: 100vw;
-        overflow-x: hidden !important; /* Ganti clip menjadi hidden untuk memaksa potong */
-    }
-
     body {
         font-family: 'Plus Jakarta Sans', 'Century Gothic', system-ui, sans-serif;
         background-color: var(--color-mist);
@@ -34,16 +26,18 @@
     }
     h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Plus Jakarta Sans', 'Century Gothic', system-ui, sans-serif; }
 
-    /* Pastikan semua section tidak melebar keluar */
-    section {
+    /* ═══ KUNCI LAYOUT AGAR TIDAK BOCOR KE FOOTER ═══ */
+    #swup {
+        position: relative;
+        width: 100%;
         max-width: 100vw;
-        overflow-x: clip;
+        overflow-x: hidden !important;
     }
 
-    /* Cegah gambar atau teks panjang merusak layout */
-    img, svg {
-        max-width: 100%;
-        height: auto;
+    section {
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: hidden;
     }
 
     .hide-scrollbar::-webkit-scrollbar { display: none; }
@@ -123,7 +117,6 @@
         100% { opacity: 1; transform: translateY(0); }
     }
 
-    /* ═══ PERBAIKAN TIMELINE FLOW ═══ */
     #flow-navigation {
         width: 100%;
         max-width: 100%;
@@ -150,7 +143,6 @@
     }
     .cargo-card:hover { transform: translateY(-6px); box-shadow: 0 26px 46px -22px rgba(10,37,64,.45); }
 
-    /* ═══ PERBAIKAN GALERI ═══ */
     #news-gallery-slider {
         width: 100%;
         max-width: 100%;
@@ -238,7 +230,7 @@
 {{-- ═══════════════════════════════════════════════════════════════
      2. TERMINAL AT A GLANCE
 ═══════════════════════════════════════════════════════════════ --}}
-<section class="relative z-20 bg-[#eef5fb] px-5 sm:px-6 pb-14 overflow-x-clip">
+<section class="relative z-20 bg-[#eef5fb] px-5 sm:px-6 pb-14 overflow-hidden">
     @php
         $glanceStats = [
             ['value' => '218', 'label' => 'Thousand units, annual capacity',   'color' => 'navy',   'counter' => true],
@@ -263,7 +255,7 @@
     </div>
 </section>
 
-<div class="divider bg-[#eef5fb] text-[#0f172a]" aria-hidden="true">
+<div class="divider bg-[#eef5fb] text-[#0f172a] w-full overflow-hidden" aria-hidden="true">
     <svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 40 Q360 -10 720 40 T1440 40 V80 H0Z"/></svg>
 </div>
 
@@ -328,7 +320,7 @@
     </div>
 </section>
 
-<div class="divider bg-[#0f172a] text-white" aria-hidden="true">
+<div class="divider bg-[#0f172a] text-white w-full overflow-hidden" aria-hidden="true">
     <svg class="wave flip" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 40 Q360 90 720 40 T1440 40 V80 H0Z"/></svg>
 </div>
 
@@ -384,7 +376,7 @@
     </div>
 </section>
 
-<div class="divider bg-white text-[#eef5fb]" aria-hidden="true">
+<div class="divider bg-white text-[#eef5fb] w-full overflow-hidden" aria-hidden="true">
     <svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 50 Q360 0 720 50 T1440 50 V80 H0Z"/></svg>
 </div>
 
@@ -482,7 +474,7 @@
     </div>
 </section>
 
-<div class="divider bg-[#eef5fb] text-white" aria-hidden="true">
+<div class="divider bg-[#eef5fb] text-white w-full overflow-hidden" aria-hidden="true">
     <svg class="wave flip" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 40 Q360 -10 720 40 T1440 40 V80 H0Z"/></svg>
 </div>
 
@@ -537,7 +529,7 @@
     </div>
 </section>
 
-<div class="divider bg-white text-[#eef5fb]" aria-hidden="true">
+<div class="divider bg-white text-[#eef5fb] w-full overflow-hidden" aria-hidden="true">
     <svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 50 Q360 0 720 50 T1440 50 V80 H0Z"/></svg>
 </div>
 
@@ -579,7 +571,7 @@
     </div>
 </section>
 
-<div class="divider bg-[#eef5fb] text-white" aria-hidden="true">
+<div class="divider bg-[#eef5fb] text-white w-full overflow-hidden" aria-hidden="true">
     <svg class="wave flip" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 40 Q360 90 720 40 T1440 40 V80 H0Z"/></svg>
 </div>
 
@@ -648,7 +640,7 @@
     </div>
 </section>
 
-<div class="divider bg-white text-[#0A2540]" aria-hidden="true">
+<div class="divider bg-white text-[#0A2540] w-full overflow-hidden" aria-hidden="true">
     <svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 50 Q360 0 720 50 T1440 50 V80 H0Z"/></svg>
 </div>
 
