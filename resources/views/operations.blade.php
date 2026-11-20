@@ -57,9 +57,12 @@
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
     /* ═══ PEMISAH GELOMBANG ═══ */
-    .divider { line-height: 0; width: 100%; overflow: hidden; margin-bottom: 0; }
-    .divider svg { display: block; width: 100%; height: 40px; fill: currentColor; }
-    @media (min-width: 640px) { .divider svg { height: 70px; } }
+    /* Garis tipis di sambungan terjadi karena pembulatan piksel (layar dengan zoom/DPR pecahan).
+       Solusi: svg dipotong 2px di bawahnya, lalu section berikutnya menimpa 1px dari divider. */
+    .divider { line-height: 0; width: 100%; overflow: hidden; margin-bottom: -1px; }
+    .divider svg { display: block; width: 100%; height: 42px; margin-bottom: -2px; fill: currentColor; }
+    @media (min-width: 640px) { .divider svg { height: 72px; } }
+    .divider + section { position: relative; z-index: 1; }
     .wave.flip { transform: scaleX(-1); }
 
     /* Gelombang hero bergerak pelan */
