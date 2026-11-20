@@ -582,7 +582,7 @@
 
 @push('scripts')
 <script>
-/* Data dikirim sebagai JSON murni lewat @json (bukan lewat atribut data-*),
+/* Data dikirim sebagai JSON murni langsung di dalam skrip (bukan lewat atribut data-*),
    supaya tidak ter-escape dua kali dan JSON.parse tidak gagal. */
 (function () {
     const STEPS = @json($steps);
