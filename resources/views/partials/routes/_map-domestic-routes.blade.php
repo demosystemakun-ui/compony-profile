@@ -1,4 +1,4 @@
-{{-- ═══ DOMESTIC ROUTES + SHIP ANIMATIONS ═══ --}}
+<!-- {{-- ═══ DOMESTIC ROUTES + SHIP ANIMATIONS ═══ --}}
 
 {{-- Pontianak --}}
 <path class="route-hit" data-route="domestic" d="M268 416 Q 284 390 300 370" stroke="transparent" stroke-width="18" fill="none" pointer-events="stroke" />
@@ -30,4 +30,4 @@
 <g class="route-marker" data-route="domestic" fill="#0284c7">
     <use href="#shipIcon" />
     <animateMotion dur="3.8s" repeatCount="indefinite" rotate="auto"><mpath href="#rutePatBanjarmasin"/></animateMotion>
-</g>
+</g> -->

@@ -1,4 +1,4 @@
-{{-- ═══ DESTINATION & ORIGIN MARKERS ═══ --}}
+<!-- {{-- ═══ DESTINATION & ORIGIN MARKERS ═══ --}}
 
 {{-- Brunei marker --}}
 <g class="dest-marker" data-route="international" tabindex="0" role="button">
@@ -83,4 +83,4 @@
 
 <text x="150" y="446" fill="#1e293b" font-size="12" font-weight="800" letter-spacing="1">
     PATIMBAN PORT — SUBANG, WEST JAVA
-</text>
+</text> -->

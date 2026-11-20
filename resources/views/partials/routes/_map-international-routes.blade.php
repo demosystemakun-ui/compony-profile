@@ -1,4 +1,4 @@
-{{-- ═══ INTERNATIONAL ROUTES + SHIP ANIMATIONS ═══ --}}
+<!-- {{-- ═══ INTERNATIONAL ROUTES + SHIP ANIMATIONS ═══ --}}
 
 {{-- Port Klang / Laem Chabang --}}
 <path class="route-hit" data-route="international" d="M268 416 Q 200 280 140 165" stroke="transparent" stroke-width="18" fill="none" pointer-events="stroke" />
@@ -54,4 +54,4 @@
 <g class="route-marker" data-route="international" fill="#d97706">
     <use href="#shipIcon" />
     <animateMotion dur="5s" repeatCount="indefinite" rotate="auto"><mpath href="#ruteIntSingapore"/></animateMotion>
-</g>
+</g> -->

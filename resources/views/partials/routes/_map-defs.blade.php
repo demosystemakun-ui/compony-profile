@@ -1,4 +1,4 @@
-{{-- ═══ SVG DEFINITIONS: Gradients, Ship Icon, Flag Symbols ═══ --}}
+<!-- {{-- ═══ SVG DEFINITIONS: Gradients, Ship Icon, Flag Symbols ═══ --}}
 <defs>
     <linearGradient id="earthSeaGrad" x1="0" y1="0" x2="900" y2="460" gradientUnits="userSpaceOnUse">
         <stop offset="0%" stop-color="#e0f2fe" />
@@ -76,4 +76,4 @@
             <path d="M-6,2 C-6,-2 6,-2 6,2 C6,5 -6,5 -6,2 Z" fill="#cc0000"/>
         </g>
     </g>
-</defs>
+</defs> -->

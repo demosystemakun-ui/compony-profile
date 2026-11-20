@@ -1,4 +1,4 @@
-{{-- ═══ SEA BACKGROUND + GRID + LANDMASSES ═══ --}}
+<!-- {{-- ═══ SEA BACKGROUND + GRID + LANDMASSES ═══ --}}
 <rect x="0" y="0" width="900" height="460" rx="16" fill="url(#earthSeaGrad)" />
 
 {{-- Latitude / longitude grid --}}
@@ -61,4 +61,4 @@
     <text x="445" y="320" fill="#475569" font-size="10" font-weight="700" letter-spacing="1">Brunei</text>
     <text x="55"  y="250" fill="#475569" font-size="10" font-weight="700" letter-spacing="1">MALAYSIA</text>
     <text x="60"  y="290" fill="#475569" font-size="10" font-weight="700" letter-spacing="1">SINGAPURA</text>
-</g>
+</g> -->
