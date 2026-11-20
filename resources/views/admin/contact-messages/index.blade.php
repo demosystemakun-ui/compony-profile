@@ -123,4 +123,4 @@
         {{ $messages->links() }}
     </div>
 </div>
-@endsections
+@endsection
