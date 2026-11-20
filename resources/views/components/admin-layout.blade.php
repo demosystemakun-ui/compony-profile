@@ -15,14 +15,14 @@
         <script src="https://cdn.tailwindcss.com"></script>
     </head>
     <body class="font-sans antialiased bg-gray-100 text-gray-900">
-        
+
         <div class="flex h-screen overflow-hidden">
 
             {{-- ═══════════════════════════════════════════════════ --}}
             {{-- SIDEBAR --}}
             {{-- ═══════════════════════════════════════════════════ --}}
             <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-[#0A2540] text-white transform -translate-x-full lg:translate-x-0 lg:static lg:inset-0 transition-transform duration-300 ease-in-out flex flex-col">
-                
+
                 {{-- Logo --}}
                 <div class="flex items-center justify-center h-16 bg-[#081c30] border-b border-white/10 shrink-0">
                     <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
@@ -33,7 +33,7 @@
 
                 {{-- Navigation Links --}}
                 <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-                    
+
                     {{-- MENU UTAMA --}}
                     <x-sidebar-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" icon="dashboard">
                         {{ __('Dashboard') }}
@@ -51,10 +51,36 @@
                         {{ __('Gallery') }}
                     </x-sidebar-link>
 
-                    {{-- ⬇️ MENU BARU: SHIPPING ROUTES ⬇️ --}}
                     <x-sidebar-link :href="url('/pict-internal-admin-portal/shipping-routes')" :active="request()->is('pict-internal-admin-portal/shipping-routes*')" icon="route">
                         {{ __('Shipping Routes') }}
                     </x-sidebar-link>
+
+                    {{-- MENU BARU: CONTACT MESSAGES --}}
+                    @php
+                        try {
+                            $__unreadContact = \Illuminate\Support\Facades\Schema::hasTable('contact_messages')
+                                ? \App\Models\ContactMessage::where('is_read', false)->count()
+                                : 0;
+                        } catch (\Throwable $e) {
+                            $__unreadContact = 0;
+                        }
+                    @endphp
+                    <a href="{{ route('admin.contact-messages.index') }}"
+                       class="flex items-center justify-between gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
+                              {{ request()->routeIs('admin.contact-messages.*') ? 'bg-white/10 text-white' : 'text-gray-300 hover:bg-white/5 hover:text-white' }}">
+                        <span class="flex items-center gap-3">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            <span>{{ __('Contact Messages') }}</span>
+                        </span>
+                        @if($__unreadContact > 0)
+                            <span class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-600 text-white text-[10px] font-extrabold">
+                                {{ $__unreadContact > 99 ? '99+' : $__unreadContact }}
+                            </span>
+                        @endif
+                    </a>
 
                     {{-- ═══════════════════════════════════════════════════ --}}
                     {{-- MENU KHUSUS SUPER ADMIN --}}
@@ -93,7 +119,7 @@
 
                 {{-- TOP HEADER --}}
                 <header class="bg-white border-b border-gray-200 h-16 shrink-0 z-30 flex items-center justify-between px-4 sm:px-6 lg:px-8 shadow-sm">
-                    
+
                     {{-- LEFT: Hamburger (Mobile) + Page Title --}}
                     <div class="flex items-center gap-3">
                         <button id="sidebarToggle" class="lg:hidden p-2 rounded-md text-gray-500 hover:bg-gray-100 focus:outline-none">
@@ -106,9 +132,9 @@
 
                     {{-- RIGHT: User Profile Dropdown --}}
                     <div class="relative" id="profileDropdownContainer">
-                        <button type="button" id="profileDropdownBtn" 
+                        <button type="button" id="profileDropdownBtn"
                                 class="flex items-center gap-2.5 px-2 py-1.5 rounded-full hover:bg-gray-100 transition-colors focus:outline-none">
-                            
+
                             <div class="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-xs font-bold text-white shadow-sm">
                                 {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                             </div>
@@ -125,15 +151,15 @@
                             </svg>
                         </button>
 
-                        <div id="profileDropdownMenu" 
+                        <div id="profileDropdownMenu"
                              class="hidden absolute right-0 mt-2 w-56 rounded-xl shadow-lg py-1 bg-white ring-1 ring-black/5 border border-gray-100 z-50 overflow-hidden">
-                            
+
                             <div class="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
                                 <div class="text-sm font-semibold text-[#0A2540]">{{ Auth::user()->name }}</div>
                                 <div class="text-xs text-gray-500 truncate">{{ Auth::user()->email }}</div>
                             </div>
 
-                            <a href="{{ route('profile.edit') }}" 
+                            <a href="{{ route('profile.edit') }}"
                                class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                 <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
@@ -143,7 +169,7 @@
 
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button type="submit" 
+                                <button type="submit"
                                         class="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors text-left">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
