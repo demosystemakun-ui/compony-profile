@@ -12,6 +12,7 @@
 
     {{-- Menu Navigasi --}}
     <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+
         {{-- Dashboard --}}
         <a href="{{ route('dashboard') }}"
            class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors
@@ -45,7 +46,7 @@
             News
         </a>
 
-        {{-- Gallery (MENU BARU) --}}
+        {{-- Gallery --}}
         <a href="{{ url('/pict-internal-admin-portal/gallery') }}"
            class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors
                   {{ request()->is('pict-internal-admin-portal/gallery*') ? 'bg-white/10 text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
@@ -55,6 +56,28 @@
             </svg>
             Gallery
         </a>
+
+        {{-- ═══ CONTACT MESSAGES (MENU BARU) ═══ --}}
+        @php
+            $__unreadContact = \App\Models\ContactMessage::where('is_read', false)->count();
+        @endphp
+        <a href="{{ route('admin.contact-messages.index') }}"
+           class="flex items-center justify-between gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-colors
+                  {{ request()->routeIs('admin.contact-messages.*') ? 'bg-white/10 text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
+            <span class="flex items-center gap-3">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+                Contact Messages
+            </span>
+            @if($__unreadContact > 0)
+                <span class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-[#EC2029] text-white text-[10px] font-extrabold">
+                    {{ $__unreadContact > 99 ? '99+' : $__unreadContact }}
+                </span>
+            @endif
+        </a>
+
     </nav>
 
     {{-- User Info di Bawah --}}

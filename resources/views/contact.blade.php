@@ -177,7 +177,13 @@
                 </div>
             </div>
 
-            <form id="contactForm" class="space-y-5" novalidate>
+            {{-- Flash message (jika ada) --}}
+            <div id="formAlert" class="hidden mb-5 rounded-xl px-4 py-3 text-sm"></div>
+
+            <form id="contactForm" class="space-y-5" novalidate
+                  action="{{ route('contact.store') }}" method="POST">
+                @csrf
+
                 <div class="grid sm:grid-cols-2 gap-5">
                     <div>
                         <label for="name" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
@@ -276,20 +282,29 @@ function enableSubmitButton() {
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
         </svg>
-        Send via Email App
+        Send Message
     `;
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   FORM SUBMIT HANDLER
+   SUBMIT HANDLER — simpan ke DB, lalu buka aplikasi email user
 ═══════════════════════════════════════════════════════════════ */
-document.getElementById('contactForm')?.addEventListener('submit', function (e) {
+document.getElementById('contactForm')?.addEventListener('submit', async function (e) {
     e.preventDefault();
 
     if (typeof grecaptcha === 'undefined' || grecaptcha.getResponse().length === 0) {
         alert('Please complete the security verification (reCAPTCHA) first.');
         return;
     }
+
+    const form = this;
+    const btn  = document.getElementById('submitBtn');
+    const originalHtml = btn.innerHTML;
+    const alertBox = document.getElementById('formAlert');
+
+    // Reset alert
+    alertBox.className = 'hidden mb-5 rounded-xl px-4 py-3 text-sm';
+    alertBox.textContent = '';
 
     const name     = document.getElementById('name').value.trim();
     const email    = document.getElementById('email').value.trim();
@@ -302,17 +317,66 @@ document.getElementById('contactForm')?.addEventListener('submit', function (e) 
         return;
     }
 
-    const targetEmail = "info@pict.co.id";
-    const bodyText = [
-        `Name: ${name}`,
-        `Email: ${email}`,
-        `Phone / WhatsApp: ${whatsapp}`,
-        ``,
-        `Message:`,
-        message
-    ].join('\r\n');
+    const payload = {
+        name,
+        email,
+        whatsapp,
+        subject,
+        message,
+        'g-recaptcha-response': grecaptcha.getResponse(),
+    };
 
-    window.location.href = `mailto:${targetEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
+    // Loading state
+    btn.disabled = true;
+    btn.innerHTML = 'Sending...';
+
+    try {
+        const res = await fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value,
+            },
+            body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            throw new Error(data.message || 'Terjadi kesalahan saat mengirim pesan.');
+        }
+
+        // ── Pesan berhasil tersimpan di database (masuk dashboard admin) ──
+
+        // Tampilkan notifikasi sukses di halaman
+        alertBox.className = 'mb-5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 text-sm';
+        alertBox.textContent = data.message || 'Pesan Anda berhasil dikirim.';
+
+        // ── Buka aplikasi email user (pre-filled) ──
+        if (data.mailto) {
+            window.location.href = data.mailto;
+        }
+
+        // Reset form & reCAPTCHA
+        form.reset();
+        if (typeof grecaptcha !== 'undefined') grecaptcha.reset();
+
+        // Kembalikan tombol ke state terkunci
+        btn.disabled = true;
+        btn.className = 'w-full inline-flex items-center justify-center gap-2 rounded-xl bg-slate-300 text-slate-500 font-bold py-3.5 px-6 text-xs uppercase tracking-wider transition cursor-not-allowed';
+        btn.innerHTML = `
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            Complete Verification to Send
+        `;
+    } catch (err) {
+        alertBox.className = 'mb-5 rounded-xl bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm';
+        alertBox.textContent = err.message;
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+    }
 });
 </script>
 @endpush

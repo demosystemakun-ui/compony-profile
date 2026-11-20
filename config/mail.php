@@ -10,7 +10,7 @@ return [
     | This option controls the default mailer that is used to send all email
     | messages unless another mailer is explicitly specified when sending
     | the message. All additional mailers can be configured within the
-    | "mailers" array. Examples of each type of mailer are provided.
+    | "mailers" array. Examples of each type of mailer are provided below.
     |
     */
 
@@ -114,5 +114,17 @@ return [
         'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Notification Address
+    |--------------------------------------------------------------------------
+    |
+    | Alamat email yang menerima notifikasi internal dari aplikasi
+    | (contoh: pesan dari form Contact Us website).
+    |
+    */
+
+    'admin_address' => env('MAIL_ADMIN_ADDRESS', 'info@pict.co.id'),
 
 ];

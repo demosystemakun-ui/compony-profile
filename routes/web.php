@@ -11,6 +11,7 @@ use App\Http\Controllers\SuperAdmin\UserController;
 use App\Http\Controllers\SuperAdmin\ActivityLogController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\ContactController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,12 +31,11 @@ Route::get('/set-cookie', function () {
 |--------------------------------------------------------------------------
 */
 
-// ───── PAGES (dengan data gallery dari database) ─────
+// ───── PAGES ─────
 Route::get('/', [PageController::class, 'home'])->name('home');
 Route::get('/operations', [PageController::class, 'operations'])->name('operations');
 Route::get('/services', [PageController::class, 'services'])->name('services');
 
-// Halaman statis (tanpa data gallery)
 Route::view('/sustainability', 'sustainability')->name('sustainability');
 Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
@@ -58,6 +58,11 @@ Route::get('/media/gallery/{gallery}', [GalleryController::class, 'image'])->nam
 // AI Chat
 Route::post('/api/chat', [AiChatController::class, 'send'])->name('ai.chat');
 
+// ───── PUBLIC CONTACT FORM SUBMIT ─────
+Route::post('/contact', [ContactController::class, 'store'])
+    ->name('contact.store')
+    ->middleware('throttle:5,1');
+
 /*
 |--------------------------------------------------------------------------
 | Guest Routes (Login Portal Admin)
@@ -71,7 +76,7 @@ Route::prefix('pict-internal-admin-portal')->middleware('guest')->group(function
 
 /*
 |--------------------------------------------------------------------------
-| Authenticated Admin Routes (Semua Role: super_admin, admin, editor)
+| Authenticated Admin Routes
 |--------------------------------------------------------------------------
 */
 
@@ -86,9 +91,8 @@ Route::middleware(['auth'])->prefix('pict-internal-admin-portal')->group(functio
     Route::post('/news/store', [NewsController::class, 'store'])->name('news.store');
 
     Route::resource('shipping-routes', \App\Http\Controllers\Admin\ShippingRouteController::class)
-    ->except(['show', 'create', 'edit']);
-    
-    // Halaman detail versi admin (preview di dalam panel admin)
+        ->except(['show', 'create', 'edit']);
+
     Route::get('/news/{id}/detail', [NewsController::class, 'adminShow'])
         ->name('admin.news.show')
         ->where('id', '[0-9]+');
@@ -106,6 +110,12 @@ Route::middleware(['auth'])->prefix('pict-internal-admin-portal')->group(functio
     // ───── Gallery Management ─────
     Route::resource('gallery', GalleryController::class)->except(['show', 'create', 'edit']);
 
+    // ───── Contact Messages ─────
+    Route::get('/contact-messages', [ContactController::class, 'adminIndex'])->name('admin.contact-messages.index');
+    Route::get('/contact-messages/{contactMessage}', [ContactController::class, 'adminShow'])->name('admin.contact-messages.show');
+    Route::patch('/contact-messages/{contactMessage}/read', [ContactController::class, 'markRead'])->name('admin.contact-messages.read');
+    Route::delete('/contact-messages/{contactMessage}', [ContactController::class, 'destroy'])->name('admin.contact-messages.destroy');
+
     // ───── Profile & Password ─────
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -115,17 +125,14 @@ Route::middleware(['auth'])->prefix('pict-internal-admin-portal')->group(functio
 
 /*
 |--------------------------------------------------------------------------
-| Super Admin Routes (Hanya super_admin)
+| Super Admin Routes
 |--------------------------------------------------------------------------
 */
 
 Route::middleware(['auth', 'super_admin'])->prefix('pict-internal-admin-portal')->group(function () {
-
-    // Manajemen User
     Route::resource('users', UserController::class);
     Route::patch('users/{user}/role', [UserController::class, 'updateRole'])->name('users.update-role');
 
-    // Log Activity
     Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
     Route::delete('activity-logs/clear', [ActivityLogController::class, 'clear'])->name('activity-logs.clear');
 });
