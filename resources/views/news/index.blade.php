@@ -78,6 +78,16 @@
         margin-bottom: 1.5rem;
     }
 
+    .news-card-date {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 1rem;
+    }
+
     .news-card-title {
         font-size: 2.25rem;
         font-weight: 800;
@@ -129,19 +139,113 @@
         background-color: #e2e8f0;
     }
 
-    @media (max-width: 1023px) {
-        .news-card-image {
-            height: 250px;
-            order: -1;
-            flex: none;
-            border-radius: 0;
-        }
-    }
-
     .news-card-image img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       MOBILE & TABLET (< 1024px): kartu ringkas
+       Thumbnail di kiri, teks di kanan, satu kartu ≈ 130px,
+       jadi banyak berita terlihat sekaligus tanpa scroll panjang.
+       Desktop (≥ 1024px) sama sekali tidak terpengaruh.
+    ═══════════════════════════════════════════════════════════ */
+    @media (max-width: 1023px) {
+        .news-scroll-section {
+            padding-top: 1.5rem;
+            padding-bottom: 3rem;
+        }
+        .news-stack-container { padding: 0 0.875rem; }
+
+        .news-card-sticky {
+            flex-direction: row;
+            align-items: stretch;
+            margin-bottom: 0.75rem;
+            border-radius: 1.25rem;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+        }
+
+        /* Thumbnail */
+        .news-card-image {
+            order: -1;
+            flex: 0 0 6.75rem;
+            width: 6.75rem;
+            height: auto;
+            min-height: 7.5rem;
+            border-radius: 0;
+        }
+
+        /* Teks */
+        .news-card-content {
+            min-width: 0;
+            padding: 0.75rem 0.875rem;
+            justify-content: center;
+        }
+
+        .news-card-tag {
+            font-size: 0.625rem;
+            letter-spacing: 0.06em;
+            padding: 0.2rem 0.6rem;
+            gap: 0.3rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .news-card-date {
+            font-size: 0.6875rem;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.3rem;
+        }
+
+        .news-card-title {
+            font-size: 1.0625rem;
+            line-height: 1.3;
+            letter-spacing: -0.01em;
+            margin-bottom: 0.35rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Ringkasan disembunyikan di HP, supaya kartu tetap pendek */
+        .news-card-excerpt { display: none; }
+
+        /* Tombol jadi tautan kecil; seluruh kartu bisa diketuk */
+        .news-card-btn {
+            background: transparent;
+            color: #b91c1c;
+            padding: 0;
+            font-size: 0.8125rem;
+            gap: 0.25rem;
+            border-radius: 0;
+        }
+        .news-card-btn:hover {
+            background: transparent;
+            color: #ec2029;
+            transform: none;
+        }
+        .news-card-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+        }
+        .news-card-btn svg { width: 0.875rem; height: 0.875rem; }
+    }
+
+    /* Tablet kecil (640–1023px): thumbnail lebih lebar, ringkasan 2 baris */
+    @media (min-width: 640px) and (max-width: 1023px) {
+        .news-stack-container { padding: 0 1.5rem; }
+        .news-card-image { flex-basis: 11rem; width: 11rem; min-height: 10rem; }
+        .news-card-content { padding: 1rem 1.25rem; }
+        .news-card-title { font-size: 1.25rem; }
+        .news-card-excerpt {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            font-size: 0.9375rem;
+            line-height: 1.5;
+            margin-bottom: 0.5rem;
+        }
     }
 </style>
 @endpush
@@ -149,12 +253,12 @@
 @section('content')
 
 {{-- ============ HERO ============ --}}
-<section class="relative bg-[#0A2540] text-white pt-32 pb-16 sm:pt-40 sm:pb-24 overflow-hidden z-20">
+<section class="relative bg-[#0A2540] text-white pt-28 pb-10 sm:pt-40 sm:pb-24 overflow-hidden z-20">
     <div class="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 text-center md:text-left">
-        <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight max-w-3xl">
+        <h1 class="text-3xl sm:text-5xl md:text-6xl font-bold leading-tight max-w-3xl">
             News &amp; Announcements
         </h1>
-        <p class="mt-5 text-base sm:text-lg text-white/70 max-w-2xl leading-relaxed mx-auto md:mx-0">
+        <p class="mt-3 sm:mt-5 text-sm sm:text-lg text-white/70 max-w-2xl leading-relaxed mx-auto md:mx-0">
             Latest information about operations, services, and activities at Patimban International Car Terminal.
         </p>
     </div>
@@ -177,7 +281,7 @@
                         @endif
 
                         @if($item->published_at)
-                            <time datetime="{{ $item->published_at->toDateString() }}" class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">
+                            <time datetime="{{ $item->published_at->toDateString() }}" class="news-card-date">
                                 {{ $item->published_at->translatedFormat('d F Y') }}
                             </time>
                         @endif
@@ -187,7 +291,7 @@
 
                         <a href="{{ route('news.show', $item->slug) }}" class="news-card-btn">
                             Read Full Article
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                             </svg>
                         </a>
@@ -198,7 +302,7 @@
                             <img src="{{ $item->image_url }}" alt="{{ $item->title }}" loading="{{ $index === 0 ? 'eager' : 'lazy' }}">
                         @else
                             <div class="w-full h-full flex items-center justify-center bg-slate-200 text-slate-400">
-                                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                             </div>
@@ -209,7 +313,7 @@
             @endforeach
         </div>
 
-        <div class="mt-14 flex justify-center relative z-20">
+        <div class="mt-8 lg:mt-14 flex justify-center relative z-20 px-4">
             {{ $newsList->links() }}
         </div>
     @else
