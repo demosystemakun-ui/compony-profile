@@ -1,10 +1,8 @@
-
 @extends('layouts.app')
 
 @section('title', 'Operations — PT Patimban International Car Terminal')
 
 @php
-  
     $steps = [
         ['title' => 'Ship Arrival', 'time' => '1–2 Hours Prior', 'equip' => 'Vessel Traffic Services (VTS)', 'safety' => 'ISPS Code Compliance', 'div' => 'Marine Operations', 'desc' => 'Coordination with maritime authorities to ensure safe entry into the port limits before docking procedures begin.'],
         ['title' => 'Berthing', 'time' => '45–60 Minutes', 'equip' => 'Tugboats & Mooring Lines', 'safety' => 'Port Safety Clearance', 'div' => 'Harbor Master Team', 'desc' => 'Securing the vessel to the terminal dock using specialized tugs and heavy-duty mooring systems.'],
@@ -13,6 +11,13 @@
         ['title' => 'Yard Management', 'time' => 'Immediate Staging', 'equip' => 'Automated Yard Locator (TMS)', 'safety' => 'Speed Limit 20 km/h', 'div' => 'Yard Control Center', 'desc' => 'Routing and parking units in designated zones utilizing our proprietary Terminal Management System.'],
         ['title' => 'Quality Check', 'time' => 'Final Audit', 'equip' => 'High-Resolution Cameras', 'safety' => 'Pre-Delivery Inspection', 'div' => 'Inspection Team', 'desc' => 'Comprehensive post-discharge inspection to verify VIN numbers, accessories, and overall vehicle integrity.'],
         ['title' => 'Distribution', 'time' => 'On-Demand Gate Out', 'equip' => 'Car Carriers / Transporters', 'safety' => 'Gate Security Check', 'div' => 'Logistics & Delivery', 'desc' => 'Loading units onto commercial transporters and finalizing documentation for domestic or international dispatch.'],
+    ];
+
+    $yardImages = [
+        secure_asset('assets/images/patimban-yard-1.jpeg'),
+        secure_asset('assets/images/car.jpeg'),
+        secure_asset('assets/images/vessel-5.jpeg'),
+        secure_asset('assets/images/car-4.jpeg'),
     ];
 @endphp
 
@@ -40,40 +45,25 @@
     }
     h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Plus Jakarta Sans', 'Century Gothic', system-ui, sans-serif; }
 
-    /* ═══ KUNCI LAYOUT (DIPERBAIKI) ═══ */
+    /* ═══ KUNCI LAYOUT ═══ */
     #swup, main, section {
         position: relative;
         width: 100%;
         max-width: 100vw;
     }
-    
     .prevent-overflow { overflow: hidden !important; }
 
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* ═══ GELOMBANG (WAVE) DIPERBAIKI ═══ */
-    .divider {
-        line-height: 0;
-        width: 100%;
-        overflow: hidden;
-        margin-bottom: 0; 
-    }
-    .divider svg {
-        display: block;
-        width: 100%;
-        height: 40px;
-        fill: currentColor;
-    }
-    @media (min-width: 640px) {
-        .divider svg { height: 70px; }
-    }
-
-    /* Wave Animasi Hero */
-    .wave { display: block; height: 44px; fill: currentColor; }
-    @media (min-width: 640px) { .wave { height: 76px; } }
+    /* ═══ PEMISAH GELOMBANG ═══ */
+    .divider { line-height: 0; width: 100%; overflow: hidden; margin-bottom: 0; }
+    .divider svg { display: block; width: 100%; height: 40px; fill: currentColor; }
+    @media (min-width: 640px) { .divider svg { height: 70px; } }
     .wave.flip { transform: scaleX(-1); }
-    .wave-wrap { position: absolute; inset-inline: 0; bottom: -1px; line-height: 0; color: var(--color-mist); z-index: 5; pointer-events: none; }
+
+    /* Gelombang hero bergerak pelan */
+    .wave-wrap { position: absolute; inset-inline: 0; bottom: -1px; line-height: 0; color: var(--color-mist); z-index: 5; pointer-events: none; overflow: hidden; }
     .wave-track { display: flex; width: 200%; }
     .wave-track svg { width: 50%; height: 56px; flex: none; }
     @media (min-width: 640px) { .wave-track svg { height: 100px; } }
@@ -93,7 +83,7 @@
     }
     .squiggle.center { margin-inline: auto; }
 
-    /* Hero Slideshow */
+    /* Hero slideshow */
     .hero-slide {
         position: absolute; inset: 0;
         background-size: cover; background-position: center;
@@ -101,15 +91,15 @@
     }
     .hero-slide.active { opacity: 1; }
 
-
+    /* Kartu angka */
     .stat-card {
         transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease;
         box-shadow: 0 18px 40px -18px rgba(10,37,64,.3);
     }
-    .stat-card:nth-child(1) { border-radius: 2.25rem 1rem 2.25rem 1rem;       background: #fff;             transform: rotate(-1.5deg); }
+    .stat-card:nth-child(1) { border-radius: 2.25rem 1rem 2.25rem 1rem;       background: #fff;               transform: rotate(-1.5deg); }
     .stat-card:nth-child(2) { border-radius: 1rem 2.25rem 1rem 2.25rem;       background: var(--color-blush); transform: translateY(10px) rotate(1deg); }
-    .stat-card:nth-child(3) { border-radius: 2.25rem 2.25rem 1rem 2.25rem;    background: #fff;             transform: rotate(1.2deg); }
-    .stat-card:nth-child(4) { border-radius: 1rem 2.25rem 2.25rem 2.25rem;    background: #e3eefb;          transform: translateY(10px) rotate(-1deg); }
+    .stat-card:nth-child(3) { border-radius: 2.25rem 2.25rem 1rem 2.25rem;    background: #fff;               transform: rotate(1.2deg); }
+    .stat-card:nth-child(4) { border-radius: 1rem 2.25rem 2.25rem 2.25rem;    background: #e3eefb;            transform: translateY(10px) rotate(-1deg); }
     .stat-card:hover { transform: translateY(-6px) rotate(0deg); box-shadow: 0 26px 48px -18px rgba(10,37,64,.4); }
 
     /* Why PICT */
@@ -120,7 +110,8 @@
     .why-item:nth-child(3) .why-icon { border-radius: .6rem 2rem 2rem 2rem;   background: #fff4e0; }
     @media (min-width: 768px) { .why-item:nth-child(2) { margin-top: 2.5rem; } }
 
-    /* Flow Steps */
+    /* Flow steps */
+    .flow-btn { cursor: pointer; }
     .flow-btn .node-indicator { transition: all .3s cubic-bezier(.34,1.56,.64,1); }
     .flow-btn:hover .node-indicator { transform: scale(1.1); }
     .flow-btn.active .node-indicator {
@@ -138,15 +129,16 @@
         100% { opacity: 1; transform: translateY(0); }
     }
 
-    /* Scroll Container */
+    /* Wadah scroll horizontal */
     #flow-navigation, #news-gallery-slider {
-        width: 100% !important;
-        max-width: 100% !important;
-        overflow-x: auto !important;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
+    #flow-navigation { padding-top: .5rem; }
 
-    /* Layanan & Kargo */
+    /* Layanan & kargo */
     .service-card.shape-a { border-radius: 2.75rem 1rem 2.75rem 1rem; }
     .service-card.shape-b { border-radius: 1rem 2.75rem 1rem 2.75rem; }
     @media (min-width: 768px) { .service-card.shape-b { margin-top: 2rem; } }
@@ -160,9 +152,7 @@
     .cargo-card:nth-child(4n+2) { border-radius: 1rem 2rem 1rem 2rem; }
     .cargo-card:nth-child(4n+3) { border-radius: 2rem 2rem 1rem 2rem; }
     .cargo-card:nth-child(4n)   { border-radius: 1rem 2rem 2rem 2rem; }
-    @media (min-width: 1024px) {
-        .cargo-card:nth-child(even) { transform: translateY(14px); }
-    }
+    @media (min-width: 1024px) { .cargo-card:nth-child(even) { transform: translateY(14px); } }
     .cargo-card:hover { transform: translateY(-6px); box-shadow: 0 26px 46px -22px rgba(10,37,64,.45); }
 
     /* Galeri */
@@ -196,10 +186,10 @@
 <section class="relative min-h-[75vh] sm:min-h-[88vh] w-full flex flex-col justify-between bg-slate-900 pt-28 pb-0 prevent-overflow">
     <div id="hero-slideshow" class="absolute inset-0 z-0">
         @foreach([
-            secure_asset("assets/images/vessel-1.jpeg"),
-            secure_asset("assets/images/patimban-yard-2.jpeg"),
-            secure_asset("assets/images/vessel-5.jpeg"),
-            secure_asset("assets/images/car-4.jpeg")
+            secure_asset('assets/images/vessel-1.jpeg'),
+            secure_asset('assets/images/patimban-yard-2.jpeg'),
+            secure_asset('assets/images/vessel-5.jpeg'),
+            secure_asset('assets/images/car-4.jpeg'),
         ] as $index => $img)
             <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" style="background-image: url('{{ $img }}');"></div>
         @endforeach
@@ -246,10 +236,10 @@
 <section class="relative z-20 bg-[#eef5fb] px-5 sm:px-6 pb-14 pt-0">
     @php
         $glanceStats = [
-            ['value' => '218', 'label' => 'Thousand units, annual capacity',   'color' => 'navy',   'counter' => true],
-            ['value' => '300', 'label' => 'Metres of Ro-Ro berth',              'color' => 'navy',   'counter' => true],
-            ['value' => '24/7','label' => 'Continuous operations',              'color' => 'navy',   'counter' => false],
-            ['value' => 'Zero','label' => 'Scratch tolerance policy',           'color' => 'signal', 'counter' => false],
+            ['value' => '218', 'label' => 'Thousand units, annual capacity', 'color' => 'navy',   'counter' => true],
+            ['value' => '300', 'label' => 'Metres of Ro-Ro berth',            'color' => 'navy',   'counter' => true],
+            ['value' => '24/7','label' => 'Continuous operations',            'color' => 'navy',   'counter' => false],
+            ['value' => 'Zero','label' => 'Scratch tolerance policy',         'color' => 'signal', 'counter' => false],
         ];
     @endphp
 
@@ -268,7 +258,7 @@
     </div>
 </section>
 
-<div class="divider bg-[#eef5fb] text-[#0f172a]">
+<div class="divider bg-[#eef5fb] text-[#0f172a]" aria-hidden="true">
     <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 40 Q360 -10 720 40 T1440 40 V80 H0Z"/></svg>
 </div>
 
@@ -327,7 +317,7 @@
     </div>
 </section>
 
-<div class="divider bg-[#0f172a] text-white">
+<div class="divider bg-[#0f172a] text-white" aria-hidden="true">
     <svg viewBox="0 0 1440 80" preserveAspectRatio="none" class="wave flip"><path d="M0 40 Q360 90 720 40 T1440 40 V80 H0Z"/></svg>
 </div>
 
@@ -366,7 +356,7 @@
     </div>
 </section>
 
-<div class="divider bg-white text-[#eef5fb]">
+<div class="divider bg-white text-[#eef5fb]" aria-hidden="true">
     <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 50 Q360 0 720 50 T1440 50 V80 H0Z"/></svg>
 </div>
 
@@ -383,92 +373,67 @@
             </p>
         </div>
 
+        {{-- Navigasi tahap: tombol 1–7 --}}
         <div class="relative z-10">
-            <svg class="hidden md:block absolute inset-x-0 top-3 -z-10 h-10 w-full" viewBox="0 0 700 40" preserveAspectRatio="none" aria-hidden="true">
+            <svg class="hidden md:block absolute inset-x-0 top-5 -z-10 h-10 w-full pointer-events-none" viewBox="0 0 700 40" preserveAspectRatio="none" aria-hidden="true">
                 <path d="M50 12 C100 12 100 28 150 28 S200 12 250 12 S300 28 350 28 S400 12 450 12 S500 28 550 28 S600 12 650 12" fill="none" stroke="#b8c9dc" stroke-width="2.5" stroke-dasharray="6 7" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
             </svg>
 
-            <!-- Perbaikan: ID unik di sini untuk menyimpan data -->
-            <div id="flow-navigation" 
-                 data-steps="{{ htmlspecialchars(json_encode($steps), ENT_QUOTES, 'UTF-8') }}"
+            <div id="flow-navigation" role="group" aria-label="Operation stages"
                  class="flex overflow-x-auto md:grid md:grid-cols-7 gap-3 md:gap-2 pb-4 md:pb-0 hide-scrollbar w-full">
                 @foreach($steps as $index => $step)
-                    <button type="button" onclick="activateFlowStep({{ $index }})" class="flow-btn group relative flex flex-col items-center min-w-[100px] md:min-w-0 text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC2029] rounded-2xl {{ $index % 2 === 1 ? 'md:mt-4' : '' }}" data-index="{{ $index }}">
-                        <div class="node-indicator w-11 h-11 md:w-12 md:h-12 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-[#0A2540] font-bold text-xs md:text-sm shadow-sm group-hover:border-[#EC2029] group-hover:text-[#EC2029] mb-2.5 relative z-10">
+                    <button type="button"
+                            class="flow-btn group relative flex flex-col items-center min-w-[100px] md:min-w-0 text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC2029] rounded-2xl {{ $index % 2 === 1 ? 'md:mt-4' : '' }}"
+                            data-index="{{ $index }}"
+                            aria-pressed="{{ $index === 0 ? 'true' : 'false' }}">
+                        <span class="node-indicator w-11 h-11 md:w-12 md:h-12 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-[#0A2540] font-bold text-xs md:text-sm shadow-sm group-hover:border-[#EC2029] group-hover:text-[#EC2029] mb-2.5 relative z-10">
                             0{{ $index + 1 }}
-                        </div>
-                        <h3 class="text-[#0A2540] font-bold text-xs leading-tight group-hover:text-[#EC2029] transition-colors h-8 flex items-start justify-center">
+                        </span>
+                        <span class="block text-[#0A2540] font-bold text-xs leading-tight group-hover:text-[#EC2029] transition-colors h-8">
                             {{ $step['title'] }}
-                        </h3>
-                        <div class="arrow-indicator opacity-0 transform -translate-y-2 transition-all duration-300 mt-1 text-[#EC2029]">
-                            <svg class="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        </span>
+                        <span class="arrow-indicator opacity-0 transform -translate-y-2 transition-all duration-300 mt-1 text-[#EC2029]" aria-hidden="true">
+                            <svg class="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
                             </svg>
-                        </div>
+                        </span>
                     </button>
                 @endforeach
             </div>
         </div>
 
+        {{-- Panel detail: satu saja, isinya berganti sesuai tahap yang dipilih --}}
         <div class="mt-8 relative">
             <div class="bg-white rounded-[2rem_2rem_2rem_0.75rem] shadow-[0_20px_44px_-24px_rgba(10,37,64,.4)] overflow-hidden">
-                <div class="p-5 sm:p-8 flex flex-col lg:flex-row gap-5 lg:gap-8 items-center">
-                    <div class="w-full lg:flex-1 border-b lg:border-b-0 lg:border-r border-slate-100 pb-5 lg:pb-0 lg:pr-8">
+                <div id="flow-panel" class="p-5 sm:p-8 flex flex-col lg:flex-row gap-5 lg:gap-8 items-center" aria-live="polite">
+                    <div class="w-full lg:flex-1 border-b lg:border-b-0 lg:border-r border-slate-100 pb-5 lg:pb-0 lg:pr-8" id="detail-text">
                         <div class="flex items-center gap-3 lg:block">
                             <span class="text-[#EC2029] font-extrabold text-3xl sm:text-4xl opacity-20 lg:mb-1" id="detail-number">01</span>
-                            <h3 class="text-lg sm:text-2xl font-bold text-[#0A2540] lg:mb-2" id="detail-title">Ship Arrival</h3>
+                            <h3 class="text-lg sm:text-2xl font-bold text-[#0A2540] lg:mb-2" id="detail-title">{{ $steps[0]['title'] }}</h3>
                         </div>
-                        <p class="text-[var(--color-muted)] text-sm leading-relaxed mt-2 lg:mt-0" id="detail-desc">
-                            Coordination with maritime authorities to ensure safe entry into the port limits before docking procedures begin.
-                        </p>
+                        <p class="text-[var(--color-muted)] text-sm leading-relaxed mt-2 lg:mt-0" id="detail-desc">{{ $steps[0]['desc'] }}</p>
                     </div>
 
-                    <div class="w-full lg:flex-1 grid grid-cols-2 gap-3">
+                    <div class="w-full lg:flex-1 grid grid-cols-2 gap-3" id="detail-fields">
                         @foreach([
-                            ['label' => 'Est. time', 'id' => 'detail-time', 'value' => '1–2 Hours Prior', 'class' => 'text-[#0A2540]', 'bg' => 'bg-slate-50'],
-                            ['label' => 'Equipment', 'id' => 'detail-equip', 'value' => 'Vessel Traffic Services', 'class' => 'text-[#0A2540]', 'bg' => 'bg-sky-50'],
-                            ['label' => 'Safety', 'id' => 'detail-safety', 'value' => 'ISPS Code Compliance', 'class' => 'text-[#EC2029]', 'bg' => 'bg-red-50'],
-                            ['label' => 'Division', 'id' => 'detail-div', 'value' => 'Marine Operations', 'class' => 'text-[#0A2540]', 'bg' => 'bg-slate-50'],
+                            ['label' => 'Est. time', 'id' => 'detail-time',   'value' => $steps[0]['time'],   'class' => 'text-[#0A2540]', 'bg' => 'bg-slate-50'],
+                            ['label' => 'Equipment', 'id' => 'detail-equip',  'value' => $steps[0]['equip'],  'class' => 'text-[#0A2540]', 'bg' => 'bg-sky-50'],
+                            ['label' => 'Safety',    'id' => 'detail-safety', 'value' => $steps[0]['safety'], 'class' => 'text-[#EC2029]', 'bg' => 'bg-red-50'],
+                            ['label' => 'Division',  'id' => 'detail-div',    'value' => $steps[0]['div'],    'class' => 'text-[#0A2540]', 'bg' => 'bg-slate-50'],
                         ] as $field)
                             <div class="{{ $field['bg'] }} px-4 py-3 rounded-2xl">
                                 <span class="block text-xs font-semibold text-slate-500 mb-0.5">{{ $field['label'] }}</span>
-                                <span class="block {{ $field['class'] }} text-xs sm:text-sm font-bold truncate" id="{{ $field['id'] }}">{{ $field['value'] }}</span>
+                                <span class="block {{ $field['class'] }} text-xs sm:text-sm font-bold" id="{{ $field['id'] }}">{{ $field['value'] }}</span>
                             </div>
                         @endforeach
                     </div>
                 </div>
-
-                 <div class="w-full lg:flex-1 border-b lg:border-b-0 lg:border-r border-slate-100 pb-5 lg:pb-0 lg:pr-8">
-                        <div class="flex items-center gap-3 lg:block">
-                            <span class="text-[#EC2029] font-extrabold text-3xl sm:text-4xl opacity-20 lg:mb-1" id="detail-number">02</span>
-                            <h3 class="text-lg sm:text-2xl font-bold text-[#0A2540] lg:mb-2" id="detail-title">Berthing</h3>
-                        </div>
-                        <p class="text-[var(--color-muted)] text-sm leading-relaxed mt-2 lg:mt-0" id="detail-desc">
-                            Coordination with maritime authorities to ensure safe entry into the port limits before docking procedures begin.
-                        </p>
-                    </div>
-
-                    <div class="w-full lg:flex-1 grid grid-cols-2 gap-3">
-                        @foreach([
-                            ['label' => 'Est. time', 'id' => 'detail-time', 'value' => '1–2 Hours Prior', 'class' => 'text-[#0A2540]', 'bg' => 'bg-slate-50'],
-                            ['label' => 'Equipment', 'id' => 'detail-equip', 'value' => 'Vessel Traffic Services', 'class' => 'text-[#0A2540]', 'bg' => 'bg-sky-50'],
-                            ['label' => 'Safety', 'id' => 'detail-safety', 'value' => 'ISPS Code Compliance', 'class' => 'text-[#EC2029]', 'bg' => 'bg-red-50'],
-                            ['label' => 'Division', 'id' => 'detail-div', 'value' => 'Marine Operations', 'class' => 'text-[#0A2540]', 'bg' => 'bg-slate-50'],
-                        ] as $field)
-                            <div class="{{ $field['bg'] }} px-4 py-3 rounded-2xl">
-                                <span class="block text-xs font-semibold text-slate-500 mb-0.5">{{ $field['label'] }}</span>
-                                <span class="block {{ $field['class'] }} text-xs sm:text-sm font-bold truncate" id="{{ $field['id'] }}">{{ $field['value'] }}</span>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-
             </div>
         </div>
     </div>
 </section>
 
-<div class="divider bg-[#eef5fb] text-white">
+<div class="divider bg-[#eef5fb] text-white" aria-hidden="true">
     <svg viewBox="0 0 1440 80" preserveAspectRatio="none" class="wave flip"><path d="M0 40 Q360 -10 720 40 T1440 40 V80 H0Z"/></svg>
 </div>
 
@@ -484,7 +449,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             <div class="service-card shape-a group relative h-80 sm:h-[400px] overflow-hidden bg-slate-900 shadow-[0_24px_50px_-26px_rgba(10,37,64,.6)]">
-                <div class="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-700" style="background-image: url('{{ secure_asset("assets/images/background.jpeg") }}')"></div>
+                <div class="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-700" style="background-image: url('{{ secure_asset('assets/images/background.jpeg') }}')"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/35 to-transparent"></div>
                 <div class="absolute inset-0 p-7 sm:p-9 flex flex-col justify-end">
                     <span class="mb-3 inline-block w-fit rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white ring-1 ring-white/25 backdrop-blur">Maritime solutions</span>
@@ -494,7 +459,7 @@
             </div>
 
             <div class="service-card shape-b group relative h-80 sm:h-[400px] overflow-hidden bg-slate-900 shadow-[0_24px_50px_-26px_rgba(10,37,64,.6)]">
-                <div class="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-700" id="yard-slideshow" data-images="{{ htmlspecialchars(json_encode([secure_asset('assets/images/patimban-yard-1.jpeg'), secure_asset('assets/images/car.jpeg'), secure_asset('assets/images/vessel-5.jpeg'), secure_asset('assets/images/car-4.jpeg')]), ENT_QUOTES, 'UTF-8') }}" style="background-image: url('{{ secure_asset('assets/images/patimban-yard-1.jpeg') }}');"></div>
+                <div class="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-700" id="yard-slideshow" style="background-image: url('{{ $yardImages[0] }}');"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/35 to-transparent"></div>
                 <div class="absolute inset-0 p-7 sm:p-9 flex flex-col justify-end">
                     <span class="mb-3 inline-block w-fit rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white ring-1 ring-white/25 backdrop-blur">Storage facility</span>
@@ -506,7 +471,7 @@
     </div>
 </section>
 
-<div class="divider bg-white text-[#eef5fb]">
+<div class="divider bg-white text-[#eef5fb]" aria-hidden="true">
     <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 50 Q360 0 720 50 T1440 50 V80 H0Z"/></svg>
 </div>
 
@@ -544,7 +509,7 @@
     </div>
 </section>
 
-<div class="divider bg-[#eef5fb] text-white">
+<div class="divider bg-[#eef5fb] text-white" aria-hidden="true">
     <svg viewBox="0 0 1440 80" preserveAspectRatio="none" class="wave flip"><path d="M0 40 Q360 90 720 40 T1440 40 V80 H0Z"/></svg>
 </div>
 
@@ -589,7 +554,7 @@
     </div>
 </section>
 
-<div class="divider bg-white text-[#0A2540]">
+<div class="divider bg-white text-[#0A2540]" aria-hidden="true">
     <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 50 Q360 0 720 50 T1440 50 V80 H0Z"/></svg>
 </div>
 
@@ -617,204 +582,216 @@
 
 @push('scripts')
 <script>
-// 1. Jam Waktu Nyata
-function updateRealTimeClock() {
-    const el = document.getElementById('live-clock');
-    if (!el) return;
-    const now = new Date();
-    el.innerText = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' });
-}
-setInterval(updateRealTimeClock, 1000);
-updateRealTimeClock();
+/* Data dikirim sebagai JSON murni lewat @json (bukan lewat atribut data-*),
+   supaya tidak ter-escape dua kali dan JSON.parse tidak gagal. */
+(function () {
+    const STEPS = @json($steps);
+    const YARD_IMAGES = @json($yardImages);
 
-// 2. Cuaca
-function fnGetWeatherDetails(code) {
-    if (code === 0) return { icon: '☀️', desc: 'Sunny' };
-    if ([1, 2, 3].includes(code)) return { icon: '⛅', desc: 'Partly Cloudy' };
-    if ([45, 48].includes(code)) return { icon: '🌫️', desc: 'Foggy' };
-    if ([51, 53, 55, 56, 57].includes(code)) return { icon: '🌧️', desc: 'Drizzle' };
-    if ([61, 63, 65, 66, 67].includes(code)) return { icon: '🌧️', desc: 'Rain' };
-    if ([71, 73, 75, 77].includes(code)) return { icon: '❄️', desc: 'Snow' };
-    if ([95, 96, 99].includes(code)) return { icon: '⛈️', desc: 'Thunderstorm' };
-    return { icon: '🌤️', desc: 'Fair' };
-}
+    /* Setiap fitur dibungkus sendiri: kalau satu error, yang lain tetap jalan. */
+    const safe = (name, fn) => { try { fn(); } catch (e) { console.error('[operations] ' + name + ' gagal:', e); } };
 
-async function fetchPatimbanWeatherAll() {
-    try {
-        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-6.23&longitude=107.85&current=temperature_2m,relative_humidity_2m,wind_speed_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,wind_speed_10m_max&timezone=auto');
-        const data = await res.json();
-        if (data?.current) {
-            document.getElementById('weather-temp').innerText = data.current.temperature_2m + ' °C';
-            document.getElementById('weather-wind').innerText = data.current.wind_speed_10m + ' km/h';
-            document.getElementById('weather-humidity').innerText = data.current.relative_humidity_2m + ' %';
-        }
-        if (data?.daily) {
-            const container = document.getElementById('weather-forecast-container');
-            container.innerHTML = '';
-            data.daily.time.forEach((dateStr, index) => {
-                const dateObj = new Date(dateStr);
-                const dayName = index === 0 ? 'Today' : dateObj.toLocaleDateString('en-US', { weekday: 'short' });
-                const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
-                const maxTemp = Math.round(data.daily.temperature_2m_max[index]);
-                const minTemp = Math.round(data.daily.temperature_2m_min[index]);
-                const maxWind = Math.round(data.daily.wind_speed_10m_max[index]);
-                const weather = fnGetWeatherDetails(data.daily.weathercode[index]);
-                container.innerHTML += `
-                    <div class="bg-slate-800/70 ${index === 0 ? 'ring-2 ring-[#EC2029]/70' : 'ring-1 ring-slate-700/80'} rounded-[1.75rem] p-4 flex flex-col items-center justify-between text-center backdrop-blur-md min-w-[130px] sm:min-w-[150px] shrink-0 snap-start transition hover:-translate-y-1 hover:ring-slate-500">
-                        <div class="w-full pb-2.5 border-b border-slate-700/60"><p class="text-xs font-bold text-slate-200">${dayName}</p><p class="text-[11px] text-slate-400 mt-0.5">${formattedDate}</p></div>
-                        <div class="py-3"><span class="text-2xl sm:text-3xl block mb-1">${weather.icon}</span><span class="text-[11px] text-slate-300 font-medium block">${weather.desc}</span></div>
-                        <div class="w-full space-y-1.5 pt-2 border-t border-slate-700/60 text-xs">
-                            <div class="bg-red-500/20 text-red-300 font-bold py-1 px-2 rounded-full text-[11px]">Max: ${maxTemp} °C</div>
-                            <div class="bg-amber-500/20 text-amber-300 font-bold py-1 px-2 rounded-full text-[11px]">Min: ${minTemp} °C</div>
-                            <div class="text-slate-400 text-[11px] pt-0.5 flex items-center justify-center gap-1"><svg class="w-3 h-3 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg><span>${maxWind} km/h</span></div>
-                        </div>
-                    </div>`;
-            });
-        }
-    } catch (error) { console.error('Failed to load weather data:', error); }
-}
-fetchPatimbanWeatherAll();
-
-// 3. Interaksi Flow Step
-document.addEventListener('DOMContentLoaded', function () {
-    const container = document.getElementById('flow-navigation');
-    if (!container || !container.dataset.steps) return;
-
-    let stepsData = [];
-    try {
-        stepsData = JSON.parse(container.dataset.steps);
-    } catch (e) {
-        console.error('Gagal membaca JSON steps:', e);
-        return;
-    }
-
-    const buttons = document.querySelectorAll('.flow-btn');
-    const elNum = document.getElementById('detail-number');
-    const elTitle = document.getElementById('detail-title');
-    const elDesc = document.getElementById('detail-desc');
-    const elTime = document.getElementById('detail-time');
-    const elEquip = document.getElementById('detail-equip');
-    const elSafety = document.getElementById('detail-safety');
-    const elDiv = document.getElementById('detail-div');
-
-    window.activateFlowStep = function (index) {
-        buttons.forEach(btn => btn.classList.remove('active'));
-        const activeBtn = document.querySelector(`.flow-btn[data-index="${index}"]`);
-        if (activeBtn) activeBtn.classList.add('active');
-        
-        const data = stepsData[index];
-        if (!data) return;
-
-        const panel = elTitle ? elTitle.closest('.flex-col') : null;
-        const grid = elTime ? elTime.closest('.grid') : null;
-        
-        if (panel) panel.classList.remove('fade-content');
-        if (grid) grid.classList.remove('fade-content');
-        
-        if (panel) void panel.offsetWidth;
-        
-        if (elNum) elNum.textContent = '0' + (index + 1);
-        if (elTitle) elTitle.textContent = data.title;
-        if (elDesc) elDesc.textContent = data.desc;
-        if (elTime) elTime.textContent = data.time;
-        if (elEquip) elEquip.textContent = data.equip;
-        if (elSafety) elSafety.textContent = data.safety;
-        if (elDiv) elDiv.textContent = data.div;
-        
-        if (panel) panel.classList.add('fade-content');
-        if (grid) grid.classList.add('fade-content');
-    };
-    
-    window.activateFlowStep(0);
-});
-
-// 4. Auto Slide Galeri
-let galleryInterval = null;
-let resumeTimeout = null;
-let isAutoSlideActive = true;
-
-function startAutoGallerySlide() {
-    const slider = document.getElementById('news-gallery-slider');
-    if (!slider) return;
-    galleryInterval = setInterval(() => {
-        if (!isAutoSlideActive) return;
-        const card = slider.querySelector('.gallery-card');
-        if (!card) return;
-        const cardWidth = card.offsetWidth + 24;
-        const maxScrollLeft = slider.scrollWidth - slider.clientWidth;
-        let next = slider.scrollLeft + cardWidth;
-        if (next > maxScrollLeft + 5) next = 0;
-        slider.scrollTo({ left: next, behavior: 'smooth' });
-    }, 3500);
-}
-
-function pauseAutoSlideAndFocus(index) {
-    isAutoSlideActive = false;
-    clearTimeout(resumeTimeout);
-    resumeTimeout = setTimeout(() => { isAutoSlideActive = true; }, 7000);
-}
-window.pauseAutoSlideAndFocus = pauseAutoSlideAndFocus;
-
-document.addEventListener('DOMContentLoaded', function () {
-    startAutoGallerySlide();
-    const slider = document.getElementById('news-gallery-slider');
-    if (slider) {
-        ['mousedown', 'touchstart'].forEach(eventType => {
-            slider.addEventListener(eventType, () => {
-                isAutoSlideActive = false;
-                clearTimeout(resumeTimeout);
-                resumeTimeout = setTimeout(() => { isAutoSlideActive = true; }, 7000);
-            });
+    /* ─── 1. Jam ─── */
+    function updateRealTimeClock() {
+        const el = document.getElementById('live-clock');
+        if (!el) return;
+        el.innerText = new Date().toLocaleDateString('en-US', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+            hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short'
         });
     }
-});
 
-// 5. Slideshows dan Counter
-document.addEventListener('DOMContentLoaded', function () {
-    const heroSlideshow = document.getElementById('hero-slideshow');
-    if (heroSlideshow) {
-        const slides = heroSlideshow.querySelectorAll('.hero-slide');
-        let currentIndex = 0;
-        if (slides.length > 1) {
+    /* ─── 2. Cuaca ─── */
+    function fnGetWeatherDetails(code) {
+        if (code === 0) return { icon: '☀️', desc: 'Sunny' };
+        if ([1, 2, 3].includes(code)) return { icon: '⛅', desc: 'Partly Cloudy' };
+        if ([45, 48].includes(code)) return { icon: '🌫️', desc: 'Foggy' };
+        if ([51, 53, 55, 56, 57].includes(code)) return { icon: '🌧️', desc: 'Drizzle' };
+        if ([61, 63, 65, 66, 67].includes(code)) return { icon: '🌧️', desc: 'Rain' };
+        if ([71, 73, 75, 77].includes(code)) return { icon: '❄️', desc: 'Snow' };
+        if ([95, 96, 99].includes(code)) return { icon: '⛈️', desc: 'Thunderstorm' };
+        return { icon: '🌤️', desc: 'Fair' };
+    }
+
+    async function fetchPatimbanWeatherAll() {
+        try {
+            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-6.23&longitude=107.85&current=temperature_2m,relative_humidity_2m,wind_speed_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,wind_speed_10m_max&timezone=auto');
+            const data = await res.json();
+            if (data?.current) {
+                document.getElementById('weather-temp').innerText = data.current.temperature_2m + ' °C';
+                document.getElementById('weather-wind').innerText = data.current.wind_speed_10m + ' km/h';
+                document.getElementById('weather-humidity').innerText = data.current.relative_humidity_2m + ' %';
+            }
+            if (data?.daily) {
+                const container = document.getElementById('weather-forecast-container');
+                container.innerHTML = '';
+                data.daily.time.forEach((dateStr, index) => {
+                    const dateObj = new Date(dateStr);
+                    const dayName = index === 0 ? 'Today' : dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+                    const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+                    const maxTemp = Math.round(data.daily.temperature_2m_max[index]);
+                    const minTemp = Math.round(data.daily.temperature_2m_min[index]);
+                    const maxWind = Math.round(data.daily.wind_speed_10m_max[index]);
+                    const weather = fnGetWeatherDetails(data.daily.weathercode[index]);
+                    container.innerHTML += `
+                        <div class="bg-slate-800/70 ${index === 0 ? 'ring-2 ring-[#EC2029]/70' : 'ring-1 ring-slate-700/80'} rounded-[1.75rem] p-4 flex flex-col items-center justify-between text-center backdrop-blur-md min-w-[130px] sm:min-w-[150px] shrink-0 snap-start transition hover:-translate-y-1 hover:ring-slate-500">
+                            <div class="w-full pb-2.5 border-b border-slate-700/60"><p class="text-xs font-bold text-slate-200">${dayName}</p><p class="text-[11px] text-slate-400 mt-0.5">${formattedDate}</p></div>
+                            <div class="py-3"><span class="text-2xl sm:text-3xl block mb-1">${weather.icon}</span><span class="text-[11px] text-slate-300 font-medium block">${weather.desc}</span></div>
+                            <div class="w-full space-y-1.5 pt-2 border-t border-slate-700/60 text-xs">
+                                <div class="bg-red-500/20 text-red-300 font-bold py-1 px-2 rounded-full text-[11px]">Max: ${maxTemp} °C</div>
+                                <div class="bg-amber-500/20 text-amber-300 font-bold py-1 px-2 rounded-full text-[11px]">Min: ${minTemp} °C</div>
+                                <div class="text-slate-400 text-[11px] pt-0.5 flex items-center justify-center gap-1"><svg class="w-3 h-3 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg><span>${maxWind} km/h</span></div>
+                            </div>
+                        </div>`;
+                });
+            }
+        } catch (error) { console.error('Failed to load weather data:', error); }
+    }
+
+    /* ─── 3. Tahap operasi 01–07 (bisa diklik) ─── */
+    function initFlow() {
+        const nav = document.getElementById('flow-navigation');
+        if (!nav || nav.dataset.bound === '1') return;
+        nav.dataset.bound = '1';
+
+        const $ = id => document.getElementById(id);
+        const buttons = nav.querySelectorAll('.flow-btn');
+        const panel   = $('flow-panel');
+        const fields  = $('detail-fields');
+        const text    = $('detail-text');
+
+        function activate(index) {
+            const data = STEPS[index];
+            if (!data) return;
+
+            buttons.forEach(btn => {
+                const on = Number(btn.dataset.index) === index;
+                btn.classList.toggle('active', on);
+                btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+            });
+
+            [text, fields].forEach(el => el && el.classList.remove('fade-content'));
+            if (panel) void panel.offsetWidth; // restart animasi
+
+            $('detail-number').textContent = '0' + (index + 1);
+            $('detail-title').textContent  = data.title;
+            $('detail-desc').textContent   = data.desc;
+            $('detail-time').textContent   = data.time;
+            $('detail-equip').textContent  = data.equip;
+            $('detail-safety').textContent = data.safety;
+            $('detail-div').textContent    = data.div;
+
+            [text, fields].forEach(el => el && el.classList.add('fade-content'));
+        }
+
+        /* Satu listener di wadah: berlaku untuk semua tombol 01–07 */
+        nav.addEventListener('click', e => {
+            const btn = e.target.closest('.flow-btn');
+            if (!btn || !nav.contains(btn)) return;
+            activate(Number(btn.dataset.index));
+        });
+
+        window.activateFlowStep = activate; // tetap tersedia kalau dipanggil dari tempat lain
+        activate(0);
+    }
+
+    /* ─── 4. Galeri auto-slide ─── */
+    let isAutoSlideActive = true;
+    let resumeTimeout = null;
+
+    function pauseAutoSlide() {
+        isAutoSlideActive = false;
+        clearTimeout(resumeTimeout);
+        resumeTimeout = setTimeout(() => { isAutoSlideActive = true; }, 7000);
+    }
+    window.pauseAutoSlideAndFocus = pauseAutoSlide;
+
+    function initGallery() {
+        const slider = document.getElementById('news-gallery-slider');
+        if (!slider || slider.dataset.bound === '1') return;
+        slider.dataset.bound = '1';
+
+        setInterval(() => {
+            if (!isAutoSlideActive) return;
+            const card = slider.querySelector('.gallery-card');
+            if (!card) return;
+            const cardWidth = card.offsetWidth + 24;
+            const maxScrollLeft = slider.scrollWidth - slider.clientWidth;
+            let next = slider.scrollLeft + cardWidth;
+            if (next > maxScrollLeft + 5) next = 0;
+            slider.scrollTo({ left: next, behavior: 'smooth' });
+        }, 3500);
+
+        ['mousedown', 'touchstart'].forEach(type => slider.addEventListener(type, pauseAutoSlide, { passive: true }));
+    }
+
+    /* ─── 5. Slideshow hero & yard ─── */
+    function initSlideshows() {
+        const hero = document.getElementById('hero-slideshow');
+        if (hero && hero.dataset.bound !== '1') {
+            hero.dataset.bound = '1';
+            const slides = hero.querySelectorAll('.hero-slide');
+            let i = 0;
+            if (slides.length > 1) {
+                setInterval(() => {
+                    slides[i].classList.remove('active');
+                    i = (i + 1) % slides.length;
+                    slides[i].classList.add('active');
+                }, 5000);
+            }
+        }
+
+        const yard = document.getElementById('yard-slideshow');
+        if (yard && yard.dataset.bound !== '1' && YARD_IMAGES.length > 1) {
+            yard.dataset.bound = '1';
+            let j = 0;
             setInterval(() => {
-                slides[currentIndex].classList.remove('active');
-                currentIndex = (currentIndex + 1) % slides.length;
-                slides[currentIndex].classList.add('active');
-            }, 5000);
+                j = (j + 1) % YARD_IMAGES.length;
+                yard.style.backgroundImage = "url('" + YARD_IMAGES[j] + "')";
+            }, 4000);
         }
     }
-    
-    const yardSlideshow = document.getElementById('yard-slideshow');
-    if (yardSlideshow) {
-        const images = JSON.parse(yardSlideshow.dataset.images);
-        let currentImage = 0;
-        setInterval(() => {
-            currentImage = (currentImage + 1) % images.length;
-            yardSlideshow.style.backgroundImage = `url('${images[currentImage]}')`;
-        }, 4000);
-    }
-    
-    const counters = document.querySelectorAll('.counter');
-    const speed = 200;
-    counters.forEach(counter => {
-        const updateCount = () => {
+
+    /* ─── 6. Counter angka ─── */
+    function initCounters() {
+        document.querySelectorAll('.counter').forEach(counter => {
+            if (counter.dataset.bound === '1') return;
+            counter.dataset.bound = '1';
+
             const target = +counter.getAttribute('data-target');
-            const count = +counter.innerText.replace(/,/g, '');
-            const inc = target / speed;
-            if (count < target) {
-                counter.innerText = Math.ceil(count + inc).toLocaleString();
-                setTimeout(updateCount, 15);
-            } else {
-                counter.innerText = target.toLocaleString();
-            }
-        };
-        const observer = new IntersectionObserver((entries, obs) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) { updateCount(); obs.unobserve(entry.target); }
-            });
-        }, { threshold: 0.5 });
-        observer.observe(counter);
-    });
-});
+            const step = () => {
+                const count = +counter.innerText.replace(/,/g, '');
+                if (count < target) {
+                    counter.innerText = Math.ceil(count + target / 200).toLocaleString();
+                    setTimeout(step, 15);
+                } else {
+                    counter.innerText = target.toLocaleString();
+                }
+            };
+            const observer = new IntersectionObserver((entries, obs) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) { step(); obs.unobserve(entry.target); }
+                });
+            }, { threshold: 0.5 });
+            observer.observe(counter);
+        });
+    }
+
+    function boot() {
+        safe('flow', initFlow);
+        safe('gallery', initGallery);
+        safe('slideshows', initSlideshows);
+        safe('counters', initCounters);
+        safe('clock', () => { updateRealTimeClock(); setInterval(updateRealTimeClock, 1000); });
+        safe('weather', fetchPatimbanWeatherAll);
+    }
+
+    /* Jalan langsung kalau DOM sudah siap (mis. skrip dimuat ulang oleh transisi halaman) */
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot);
+    } else {
+        boot();
+    }
+})();
 </script>
 @endpush
