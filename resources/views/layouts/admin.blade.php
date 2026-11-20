@@ -18,9 +18,7 @@
 
         <div class="flex h-screen overflow-hidden">
 
-            {{-- ═══════════════════════════════════════════════════ --}}
             {{-- SIDEBAR --}}
-            {{-- ═══════════════════════════════════════════════════ --}}
             <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-[#0A2540] text-white transform -translate-x-full lg:translate-x-0 lg:static lg:inset-0 transition-transform duration-300 ease-in-out flex flex-col shrink-0">
 
                 {{-- Logo --}}
@@ -34,7 +32,6 @@
                 {{-- Navigation Links --}}
                 <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
 
-                    {{-- MENU UTAMA --}}
                     <x-sidebar-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" icon="dashboard">
                         {{ __('Dashboard') }}
                     </x-sidebar-link>
@@ -82,9 +79,7 @@
                         @endif
                     </a>
 
-                    {{-- ═══════════════════════════════════════════════════ --}}
                     {{-- MENU KHUSUS SUPER ADMIN --}}
-                    {{-- ═══════════════════════════════════════════════════ --}}
                     @if(auth()->user()->isSuperAdmin())
                         <div class="pt-5 mt-5 border-t border-white/10">
                             <div class="px-4 mb-3 text-[10px] font-bold text-red-400 uppercase tracking-widest flex items-center gap-2">
@@ -112,15 +107,11 @@
                 </div>
             </aside>
 
-            {{-- ═══════════════════════════════════════════════════ --}}
-            {{-- MAIN CONTENT AREA --}}
-            {{-- ═══════════════════════════════════════════════════ --}}
-            <div class="flex-1 flex flex-col h-screen overflow-hidden relative lg:pl-64">
+            {{-- MAIN CONTENT AREA (tanpa lg:pl-64 karena sidebar sudah lg:static) --}}
+            <div class="flex-1 flex flex-col h-screen overflow-hidden relative min-w-0">
 
                 {{-- TOP HEADER --}}
                 <header class="bg-white border-b border-gray-200 h-16 shrink-0 z-30 flex items-center justify-between px-4 sm:px-6 lg:px-8 shadow-sm">
-
-                    {{-- LEFT: Hamburger (Mobile) + Page Title --}}
                     <div class="flex items-center gap-3">
                         <button id="sidebarToggle" class="lg:hidden p-2 rounded-md text-gray-500 hover:bg-gray-100 focus:outline-none">
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,22 +121,18 @@
                         <h1 class="text-sm font-semibold text-[#0A2540] hidden sm:block">Admin Panel</h1>
                     </div>
 
-                    {{-- RIGHT: User Profile Dropdown --}}
                     <div class="relative" id="profileDropdownContainer">
                         <button type="button" id="profileDropdownBtn"
                                 class="flex items-center gap-2.5 px-2 py-1.5 rounded-full hover:bg-gray-100 transition-colors focus:outline-none">
-
                             <div class="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-xs font-bold text-white shadow-sm">
                                 {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                             </div>
-
                             <div class="hidden sm:block text-left leading-tight">
                                 <div class="text-sm font-semibold text-[#0A2540]">{{ Auth::user()->name }}</div>
                                 <div class="text-[10px] text-gray-500">
                                     {{ auth()->user()->isSuperAdmin() ? 'Super Administrator' : 'Administrator' }}
                                 </div>
                             </div>
-
                             <svg class="w-4 h-4 text-gray-400 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                             </svg>
@@ -153,7 +140,6 @@
 
                         <div id="profileDropdownMenu"
                              class="hidden absolute right-0 mt-2 w-56 rounded-xl shadow-lg py-1 bg-white ring-1 ring-black/5 border border-gray-100 z-50 overflow-hidden">
-
                             <div class="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
                                 <div class="text-sm font-semibold text-[#0A2540]">{{ Auth::user()->name }}</div>
                                 <div class="text-xs text-gray-500 truncate">{{ Auth::user()->email }}</div>
@@ -201,12 +187,8 @@
             </div>
         </div>
 
-        {{-- ═══════════════════════════════════════════════════════ --}}
-        {{-- SCRIPT: SIDEBAR TOGGLE & DROPDOWN --}}
-        {{-- ═══════════════════════════════════════════════════════ --}}
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                // Sidebar Toggle (Mobile)
                 const sidebar = document.getElementById('sidebar');
                 const toggleBtn = document.getElementById('sidebarToggle');
                 const overlay = document.getElementById('sidebarOverlay');
@@ -219,7 +201,6 @@
                 if (toggleBtn) toggleBtn.addEventListener('click', toggleSidebar);
                 if (overlay) overlay.addEventListener('click', toggleSidebar);
 
-                // Profile Dropdown
                 const profileBtn = document.getElementById('profileDropdownBtn');
                 const profileMenu = document.getElementById('profileDropdownMenu');
 
