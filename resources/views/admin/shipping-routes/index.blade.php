@@ -1,89 +1,139 @@
+@php
+    $focus      = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A2540]';
+    $input      = "w-full rounded-xl border border-slate-200 bg-[#f6f9fc] px-3.5 py-2 text-sm text-[#0A2540] placeholder-slate-400 transition focus:border-[#0A2540] focus:bg-white focus:outline-none";
+    $btn        = "inline-flex items-center justify-center rounded-full bg-[#eef5fb] px-3.5 py-1.5 text-xs font-semibold text-[#0A2540] transition hover:bg-[#dce8f5] $focus";
+    $btnPrimary = "inline-flex items-center justify-center gap-1.5 rounded-full bg-[#0A2540] px-4 py-1.5 text-xs font-bold text-white transition hover:bg-[#13385e] $focus";
+    $btnDanger  = "inline-flex items-center justify-center rounded-full bg-red-50 px-3.5 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 $focus";
+    $card       = 'bg-white rounded-2xl shadow-sm border border-slate-100';
+    $pillGray   = 'inline-block rounded-full bg-[#eef5fb] px-2.5 py-0.5 text-xs font-semibold text-[#0A2540]';
+@endphp
+
 <x-admin-layout>
     <x-slot name="header">
-        <div class="flex flex-wrap gap-3 justify-between items-center">
-            <div>
-                <h2 class="font-bold text-2xl text-[#0A2540] leading-tight tracking-tight">
-                    {{ __('Shipping Routes') }}
-                </h2>
-                <p class="text-xs text-gray-500 mt-1">Manage shipping routes that appear on the public map</p>
-            </div>
-            <button onclick="openModal('add')" class="bg-[#EC2029] hover:bg-[#961c22] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
-                + Add Route
-            </button>
+        <div>
+            <h2 class="text-base sm:text-lg font-bold text-[#0A2540] leading-tight tracking-tight">
+                {{ __('Shipping Routes') }}
+            </h2>
+            <p class="text-xs text-slate-500">Manage shipping routes displayed on the public map</p>
         </div>
     </x-slot>
 
-    @if(session('success'))
-        <div class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-800 rounded-lg text-sm">
-            {{ session('success') }}
-        </div>
-    @endif
+    <div class="max-w-7xl mx-auto space-y-6">
 
-    @if($errors->any())
-        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-800 rounded-lg text-sm">
-            <ul class="list-disc pl-5">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+        @if(session('success'))
+            <div role="status" class="flex items-start gap-3 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-900 ring-1 ring-emerald-200">
+                <svg class="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span class="font-medium">{{ session('success') }}</span>
+            </div>
+        @endif
 
-    <div class="bg-white overflow-hidden shadow-md rounded-2xl border border-gray-100">
-        <div class="p-6">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b-2 border-gray-100 text-gray-500 text-xs uppercase tracking-wider">
-                            <th class="py-3.5 px-4 font-bold">Port</th>
-                            <th class="py-3.5 px-4 font-bold">Category</th>
-                            <th class="py-3.5 px-4 font-bold">Coordinates</th>
-                            <th class="py-3.5 px-4 font-bold">Transit</th>
-                            <th class="py-3.5 px-4 font-bold">Status</th>
-                            <th class="py-3.5 px-4 text-center font-bold">Actions</th>
+        @if($errors->any())
+            <div role="alert" class="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800 ring-1 ring-red-200">
+                <p class="font-semibold mb-1">Please fix the following errors:</p>
+                <ul class="list-disc pl-5 space-y-1 text-xs sm:text-sm">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <section class="{{ $card }} overflow-hidden">
+
+            {{-- Top Bar --}}
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-5 pt-5 pb-4">
+                <div>
+                    <h3 class="text-base font-bold text-[#0A2540]">Shipping route list</h3>
+                    <p class="mt-0.5 text-xs text-slate-500">Ports and transit corridors shown on the map</p>
+                </div>
+
+                <button type="button"
+                        onclick="openModal('add')"
+                        class="{{ $btnPrimary }} shrink-0">
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 5v14M5 12h14"/>
+                    </svg>
+                    Add route
+                </button>
+            </div>
+
+            {{-- Tabel (Desktop) --}}
+            <div class="hidden md:block overflow-x-auto px-3 pb-3">
+                <table class="w-full text-left text-sm">
+                    <thead class="text-xs text-slate-500">
+                        <tr class="bg-[#f6f9fc]">
+                            <th scope="col" class="rounded-l-xl px-4 py-2.5 font-semibold">Port</th>
+                            <th scope="col" class="px-3 py-2.5 font-semibold">Category</th>
+                            <th scope="col" class="px-3 py-2.5 font-semibold">Coordinates</th>
+                            <th scope="col" class="px-3 py-2.5 font-semibold">Transit</th>
+                            <th scope="col" class="px-3 py-2.5 font-semibold">Status</th>
+                            <th scope="col" class="rounded-r-xl px-4 py-2.5 text-right font-semibold">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100 text-sm">
+                    <tbody class="divide-y divide-slate-100">
                         @forelse($routes as $route)
-                            <tr class="hover:bg-red-50/30">
-                                <td class="py-4 px-4">
+                            <tr class="hover:bg-[#f6f9fc] transition-colors">
+                                <td class="px-4 py-3">
                                     <div class="flex items-center gap-3">
-                                        <span class="text-2xl">{{ $route->flag ?: '🏳️' }}</span>
-                                        <div>
-                                            <p class="font-bold text-[#0A2540]">{{ $route->name }}</p>
-                                            <p class="text-gray-500 text-xs">{{ $route->country }}</p>
+                                        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#eef5fb] text-lg">
+                                            {{ $route->flag ?: '🏳️' }}
+                                        </span>
+                                        <div class="min-w-0">
+                                            <p class="truncate font-semibold text-[#0A2540]">{{ $route->name }}</p>
+                                            <p class="truncate text-xs text-slate-500">{{ $route->country }}</p>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="py-4 px-4">
-                                    <span class="text-[10px] font-bold px-2 py-1 rounded uppercase
-                                        @if($route->category === 'hub') bg-red-100 text-red-700
-                                        @elseif($route->category === 'domestic') bg-blue-100 text-blue-700
-                                        @else bg-amber-100 text-amber-700 @endif">
-                                        {{ $route->category }}
-                                    </span>
+
+                                <td class="px-3 py-3 whitespace-nowrap">
+                                    @if($route->category === 'hub')
+                                        <span class="inline-block rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-700 uppercase">
+                                            {{ $route->category }}
+                                        </span>
+                                    @elseif($route->category === 'domestic')
+                                        <span class="{{ $pillGray }} uppercase">{{ $route->category }}</span>
+                                    @else
+                                        <span class="inline-block rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-800 uppercase">
+                                            {{ $route->category }}
+                                        </span>
+                                    @endif
                                 </td>
-                                <td class="py-4 px-4 text-xs text-slate-600 font-mono">
+
+                                <td class="px-3 py-3 whitespace-nowrap font-mono text-xs text-slate-600">
                                     {{ number_format($route->latitude, 4) }},<br>
                                     {{ number_format($route->longitude, 4) }}
                                 </td>
-                                <td class="py-4 px-4 text-sm">{{ $route->transit_days ?? '-' }} hari</td>
-                                <td class="py-4 px-4">
+
+                                <td class="px-3 py-3 whitespace-nowrap text-xs font-semibold tabular-nums text-[#0A2540]">
+                                    {{ $route->transit_days ?? '-' }} days
+                                </td>
+
+                                <td class="px-3 py-3 whitespace-nowrap">
                                     @if($route->is_active)
-                                        <span class="text-[10px] font-bold px-2 py-1 rounded bg-green-100 text-green-700 uppercase">Aktif</span>
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true"></span>
+                                            Active
+                                        </span>
                                     @else
-                                        <span class="text-[10px] font-bold px-2 py-1 rounded bg-gray-100 text-gray-500 uppercase">Nonaktif</span>
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-slate-400" aria-hidden="true"></span>
+                                            Inactive
+                                        </span>
                                     @endif
                                 </td>
-                                <td class="py-4 px-4">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <button onclick='openModal("edit", @json($route))'
-                                                class="text-amber-700 text-xs font-semibold bg-amber-50 px-3 py-1.5 rounded-md border border-amber-200 hover:bg-amber-100 transition-colors">
+
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <button type="button"
+                                                onclick='openModal("edit", @json($route))'
+                                                class="{{ $btn }}">
                                             Edit
                                         </button>
-                                        <button type="button" 
-                                                onclick="openDeleteModal('{{ $route->id }}', '{{ addslashes($route->name) }}')"
-                                                class="text-red-700 text-xs font-semibold bg-red-50 px-3 py-1.5 rounded-md border border-red-200 hover:bg-red-100 transition-colors">
+                                        <button type="button"
+                                                onclick="openDeleteModal('{{ $route->id }}', @js($route->name))"
+                                                class="{{ $btnDanger }}">
                                             Delete
                                         </button>
                                     </div>
@@ -91,39 +141,109 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="py-12 text-center text-gray-400 text-sm">
-                                    No shipping routes available. Click "+ Add Route" to get started.
+                                <td colspan="6" class="px-5 py-12 text-center">
+                                    <p class="text-sm font-semibold text-slate-700">No shipping routes available</p>
+                                    <p class="mt-1 text-xs text-slate-500">Click &ldquo;Add route&rdquo; above to add a port or route.</p>
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-        </div>
+
+            {{-- List (Mobile) --}}
+            <ul class="md:hidden space-y-3 px-3 pb-3">
+                @forelse($routes as $route)
+                    <li class="rounded-xl bg-[#f6f9fc] p-3.5">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-lg ring-1 ring-slate-200/70">
+                                    {{ $route->flag ?: '🏳️' }}
+                                </span>
+                                <div class="min-w-0">
+                                    <p class="truncate text-sm font-semibold text-[#0A2540]">{{ $route->name }}</p>
+                                    <p class="truncate text-xs text-slate-500">{{ $route->country }}</p>
+                                </div>
+                            </div>
+
+                            @if($route->is_active)
+                                <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-800">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true"></span>Active
+                                </span>
+                            @else
+                                <span class="shrink-0 rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-slate-500">Inactive</span>
+                            @endif
+                        </div>
+
+                        <div class="mt-2.5 flex flex-wrap items-center gap-2 text-xs">
+                            @if($route->category === 'hub')
+                                <span class="rounded-full bg-red-50 px-2.5 py-0.5 font-semibold text-red-700 uppercase">{{ $route->category }}</span>
+                            @elseif($route->category === 'domestic')
+                                <span class="{{ $pillGray }} !bg-white uppercase">{{ $route->category }}</span>
+                            @else
+                                <span class="rounded-full bg-amber-50 px-2.5 py-0.5 font-semibold text-amber-800 uppercase">{{ $route->category }}</span>
+                            @endif
+
+                            <span class="font-semibold tabular-nums text-[#0A2540]">{{ $route->transit_days ?? '-' }} days</span>
+                            <span class="font-mono text-slate-500">
+                                {{ number_format($route->latitude, 4) }}, {{ number_format($route->longitude, 4) }}
+                            </span>
+                        </div>
+
+                        <div class="mt-3 flex gap-2">
+                            <button type="button"
+                                    onclick='openModal("edit", @json($route))'
+                                    class="{{ $btn }} !bg-white flex-1">
+                                Edit
+                            </button>
+                            <button type="button"
+                                    onclick="openDeleteModal('{{ $route->id }}', @js($route->name))"
+                                    class="{{ $btnDanger }} flex-1">
+                                Delete
+                            </button>
+                        </div>
+                    </li>
+                @empty
+                    <li class="px-4 py-10 text-center text-sm text-slate-500">
+                        No shipping routes available. Click &ldquo;Add route&rdquo; above.
+                    </li>
+                @endforelse
+            </ul>
+
+        </section>
+
     </div>
 
-    {{-- MODAL KONFIRMASI HAPUS (KUSTOM PROFESIONAL) --}}
-    <div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden transform transition-all scale-95 opacity-0" id="deleteModalContent">
+    {{-- MODAL KONFIRMASI HAPUS --}}
+    <div id="deleteModal"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="deleteModalTitle"
+         class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity p-4">
+        <div id="deleteModalContent"
+             class="w-full max-w-md scale-95 opacity-0 overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-xl transition-all">
             <div class="p-6">
-                <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mb-4 mx-auto">
-                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-700">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                     </svg>
                 </div>
-                <h3 class="text-lg font-bold text-center text-slate-900 mb-2">Hapus Rute Ini?</h3>
-                <p class="text-center text-slate-500 text-sm mb-6">
-                    Data rute <span id="deleteRouteName" class="font-semibold text-slate-700"></span> akan dihapus secara permanen dan tidak dapat dikembalikan.
+                <h3 id="deleteModalTitle" class="mb-2 text-center text-base font-bold text-[#0A2540]">Delete this route?</h3>
+                <p class="mb-6 text-center text-xs sm:text-sm text-slate-500">
+                    Route <span id="deleteRouteName" class="font-semibold text-[#0A2540]"></span> will be permanently deleted and cannot be recovered.
                 </p>
-                <div class="flex gap-3">
-                    <button type="button" id="cancelDeleteBtn" class="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-colors">
-                        Batal
+                <div class="flex gap-2.5">
+                    <button type="button"
+                            id="cancelDeleteBtn"
+                            class="inline-flex flex-1 items-center justify-center rounded-full bg-[#eef5fb] px-4 py-2 text-xs sm:text-sm font-semibold text-[#0A2540] transition hover:bg-[#dce8f5] {{ $focus }}">
+                        Cancel
                     </button>
                     <form id="deleteForm" method="POST" class="flex-1">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="w-full px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl transition-colors shadow-md shadow-red-600/20">
-                            Ya, Hapus
+                        <button type="submit"
+                                class="inline-flex w-full items-center justify-center rounded-full bg-red-600 px-4 py-2 text-xs sm:text-sm font-bold text-white transition hover:bg-red-700 {{ $focus }}">
+                            Yes, delete
                         </button>
                     </form>
                 </div>
@@ -132,113 +252,137 @@
     </div>
 
     {{-- Modal Form --}}
-    <div id="routeModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+    <div id="routeModal"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="modalTitle"
+         class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+        <div class="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl border border-slate-100 bg-white shadow-xl">
             <form id="routeForm" method="POST">
                 @csrf
                 <input type="hidden" name="_method" id="formMethod" value="POST">
 
-                <div class="p-6 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white z-10">
-                    <h3 id="modalTitle" class="text-lg font-bold text-[#0A2540]">Tambah Rute Baru</h3>
-                    <button type="button" onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-2xl leading-none">&times;</button>
+                <div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white px-5 py-4">
+                    <h3 id="modalTitle" class="text-base font-bold text-[#0A2540]">Add new route</h3>
+                    <button type="button"
+                            onclick="closeModal()"
+                            aria-label="Close modal"
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-[#eef5fb] text-sm font-bold text-[#0A2540] transition hover:bg-[#dce8f5] {{ $focus }}">
+                        &times;
+                    </button>
                 </div>
 
-                <div class="p-6 space-y-4">
+                <div class="p-5 space-y-4">
                     {{-- Peta interaktif --}}
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">
-                            📍 Klik peta untuk menentukan lokasi
-                        </label>
-                        <div id="mapPicker" class="w-full h-80 rounded-xl border border-slate-200"></div>
-                        <p class="text-[10px] text-slate-400 mt-1">Klik marker dan drag untuk reposisi. Zoom dengan scroll.</p>
+                        <span class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                            Click map to set location
+                        </span>
+                        <div id="mapPicker" class="h-72 sm:h-80 w-full rounded-2xl border border-slate-200 bg-[#f6f9fc]"></div>
+                        <p class="mt-1 text-xs text-slate-400">Drag marker to reposition. Scroll to zoom.</p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nama Pelabuhan</label>
-                            <input type="text" name="name" id="inputName" required
-                                   class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+                            <label for="inputName" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                                Port name
+                            </label>
+                            <input type="text" name="name" id="inputName" required class="{{ $input }}">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Negara</label>
-                            <input type="text" name="country" id="inputCountry" required
-                                   class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+                            <label for="inputCountry" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                                Country
+                            </label>
+                            <input type="text" name="country" id="inputCountry" required class="{{ $input }}">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Kategori</label>
-                            <select name="category" id="inputCategory" required
-                                    class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+                            <label for="inputCategory" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                                Category
+                            </label>
+                            <select name="category" id="inputCategory" required class="{{ $input }} cursor-pointer">
                                 <option value="hub">Hub</option>
                                 <option value="domestic">Domestic</option>
                                 <option value="international">International</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Warna</label>
-                            <select name="color" id="inputColor"
-                                    class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
-                                <option value="#0EA5E9">Biru</option>
+                            <label for="inputColor" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                                Color
+                            </label>
+                            <select name="color" id="inputColor" class="{{ $input }} cursor-pointer">
+                                <option value="#0EA5E9">Blue</option>
                                 <option value="#f9d716">Yellow</option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Latitude</label>
-                            <input type="number" step="any" name="latitude" id="inputLat" required
-                                   class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-slate-50">
+                            <label for="inputLat" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                                Latitude
+                            </label>
+                            <input type="number" step="any" name="latitude" id="inputLat" required class="{{ $input }} font-mono">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Longitude</label>
-                            <input type="number" step="any" name="longitude" id="inputLng" required
-                                   class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-slate-50">
+                            <label for="inputLng" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                                Longitude
+                            </label>
+                            <input type="number" step="any" name="longitude" id="inputLng" required class="{{ $input }} font-mono">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Flag</label>
+                            <label for="inputFlag" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                                Flag
+                            </label>
                             <select name="flag" id="inputFlag"></select>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Transit (hari)</label>
-                            <input type="number" name="transit_days" id="inputTransit" value="0"
-                                   class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+                            <label for="inputTransit" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                                Transit (days)
+                            </label>
+                            <input type="number" name="transit_days" id="inputTransit" value="0" class="{{ $input }}">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Sort Order</label>
-                            <input type="number" name="sort_order" id="inputSort" value="0"
-                                   class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+                            <label for="inputSort" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                                Sort order
+                            </label>
+                            <input type="number" name="sort_order" id="inputSort" value="0" class="{{ $input }}">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Deskripsi</label>
-                        <textarea name="description" id="inputDesc" rows="2"
-                                  class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></textarea>
+                        <label for="inputDesc" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                            Description
+                        </label>
+                        <textarea name="description" id="inputDesc" rows="2" class="{{ $input }}"></textarea>
                     </div>
 
                     <div>
-                        <label class="inline-flex items-center gap-2">
-                            <input type="checkbox" name="is_active" id="inputActive" value="1" checked
-                                   class="rounded border-slate-300 text-[#EC2029]">
-                            <span class="text-sm font-medium text-slate-700">Aktifkan rute ini</span>
+                        <label class="inline-flex cursor-pointer items-center gap-2">
+                            <input type="checkbox"
+                                   name="is_active"
+                                   id="inputActive"
+                                   value="1"
+                                   checked
+                                   class="h-4 w-4 rounded border-slate-300 text-[#0A2540] focus:ring-[#0A2540]">
+                            <span class="text-xs sm:text-sm font-medium text-slate-700">Activate this route</span>
                         </label>
                     </div>
                 </div>
 
-                <div class="p-6 border-t border-slate-100 flex justify-end gap-3 sticky bottom-0 bg-white">
-                    <button type="button" onclick="closeModal()"
-                            class="px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100">
-                        Batal
+                <div class="sticky bottom-0 flex items-center justify-end gap-2.5 border-t border-slate-100 bg-[#f6f9fc] px-5 py-4">
+                    <button type="button"
+                            onclick="closeModal()"
+                            class="inline-flex items-center justify-center rounded-full bg-white px-4 py-2 text-xs sm:text-sm font-semibold text-[#0A2540] ring-1 ring-slate-200 transition hover:bg-[#eef5fb] {{ $focus }}">
+                        Cancel
                     </button>
-                    <button type="submit"
-                            class="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-[#EC2029] hover:bg-[#961c22]">
-                        Simpan
+                    <button type="submit" class="{{ $btnPrimary }} !px-5 !py-2 !text-xs sm:!text-sm">
+                        Save
                     </button>
                 </div>
             </form>
@@ -253,15 +397,15 @@
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
-<script>
-    const SHIPPING_ROUTE_BASE  = "{{ route('shipping-routes.index') }}";
-    const SHIPPING_ROUTE_STORE = "{{ route('shipping-routes.store') }}";
+    @push('scripts')
+    <script>
+        const SHIPPING_ROUTE_BASE  = "{{ route('shipping-routes.index') }}";
+        const SHIPPING_ROUTE_STORE = "{{ route('shipping-routes.store') }}";
 
-    let map, marker;
-    let flagSelect = null;
+        let map, marker;
+        let flagSelect = null;
 
-    // ===== Daftar semua negara (ISO 3166-1 alpha-2) =====
-    const ISO_CODES = `AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ
+        const ISO_CODES = `AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ
 CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR
 GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP
 KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT
@@ -269,199 +413,189 @@ MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM
 SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG
 UM US UY UZ VA VC VE VG VI VN VU WF WS XK YE YT ZA ZM ZW`.split(/\s+/);
 
-    // Kode negara -> emoji bendera
-    function codeToFlag(code) {
-        return String.fromCodePoint(...[...code].map(c => 127397 + c.charCodeAt(0)));
-    }
+        function codeToFlag(code) {
+            return String.fromCodePoint(...[...code].map(c => 127397 + c.charCodeAt(0)));
+        }
 
-    // Nama negara otomatis dalam Bahasa Indonesia
-    const regionNames = new Intl.DisplayNames(['id'], { type: 'region' });
+        const regionNames = new Intl.DisplayNames(['id'], { type: 'region' });
 
-    const flagOptions = ISO_CODES.map(code => {
-        const flag = codeToFlag(code);
-        const name = regionNames.of(code);
-        return { value: flag, name: name, text: `${flag} ${name}` };
-    });
-
-    function initFlagSelect() {
-        if (flagSelect) return;
-        flagSelect = new TomSelect("#inputFlag", {
-            options: flagOptions,
-            create: false,
-            maxOptions: null,
-            searchField: ['name', 'text'],
-            sortField: { field: "name", direction: "asc" },
-            onChange(value) {
-                // Isi otomatis kolom Negara jika masih kosong
-                const opt = flagOptions.find(o => o.value === value);
-                const countryInput = document.getElementById('inputCountry');
-                if (opt && countryInput && !countryInput.value.trim()) {
-                    countryInput.value = opt.name;
-                }
-            },
-            render: {
-                option: (data, escape) => '<div>' + escape(data.text) + '</div>',
-                item:   (data, escape) => '<div class="text-xl">' + escape(data.value) + '</div>'
-            }
+        const flagOptions = ISO_CODES.map(code => {
+            const flag = codeToFlag(code);
+            const name = regionNames.of(code);
+            return { value: flag, name: name, text: `${flag} ${name}` };
         });
-    }
 
-    // Ambil versi longitude yang paling dekat dengan titik acuan (Indonesia ≈ 108)
-    function nearestLng(lng, ref = 108) {
-        while (lng - ref > 180)  lng -= 360;
-        while (lng - ref < -180) lng += 360;
-        return lng;
-    }
-
-    function initMap() {
-        if (map) return;
-        map = L.map('mapPicker', { minZoom: 2 }).setView([5, 110], 3); // fokus Asia-Pasifik
-
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Tiles © Esri',
-            maxZoom: 19,
-        }).addTo(map);
-
-        marker = L.marker([-2, 108], { draggable: true }).addTo(map);
-        map.on('click', (e) => { marker.setLatLng(e.latlng); updateCoords(e.latlng); });
-        marker.on('dragend', () => updateCoords(marker.getLatLng()));
-    }
-
-    function updateCoords(latlng) {
-        // Marker tetap di tempat yang diklik (sisi Pasifik),
-        // tetapi yang disimpan ke form adalah longitude asli -180..180
-        const p = L.latLng(latlng.lat, latlng.lng).wrap();
-        document.getElementById('inputLat').value = p.lat.toFixed(6);
-        document.getElementById('inputLng').value = p.lng.toFixed(6);
-    }
-
-    function setFlagValue(raw) {
-        if (!flagSelect) return;
-        if (!raw) { flagSelect.clear(true); return; }
-
-        const val = String(raw).trim();
-        const match = flagOptions.find(o => o.value === val || o.text.includes(val));
-
-        if (match) {
-            flagSelect.setValue(match.value, true);
-        } else {
-            flagSelect.addOption({ value: val, name: val, text: val });
-            flagSelect.setValue(val, true);
+        function initFlagSelect() {
+            if (flagSelect) return;
+            flagSelect = new TomSelect("#inputFlag", {
+                options: flagOptions,
+                create: false,
+                maxOptions: null,
+                searchField: ['name', 'text'],
+                sortField: { field: "name", direction: "asc" },
+                onChange(value) {
+                    const opt = flagOptions.find(o => o.value === value);
+                    const countryInput = document.getElementById('inputCountry');
+                    if (opt && countryInput && !countryInput.value.trim()) {
+                        countryInput.value = opt.name;
+                    }
+                },
+                render: {
+                    option: (data, escape) => '<div>' + escape(data.text) + '</div>',
+                    item:   (data, escape) => '<div class="text-xl">' + escape(data.value) + '</div>'
+                }
+            });
         }
-    }
 
-    function openModal(mode, data = null) {
-        const modal  = document.getElementById('routeModal');
-        const form   = document.getElementById('routeForm');
-        const title  = document.getElementById('modalTitle');
-        const method = document.getElementById('formMethod');
+        function nearestLng(lng, ref = 108) {
+            while (lng - ref > 180)  lng -= 360;
+            while (lng - ref < -180) lng += 360;
+            return lng;
+        }
 
-        initFlagSelect();
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        function initMap() {
+            if (map) return;
+            map = L.map('mapPicker', { minZoom: 2 }).setView([5, 110], 3);
 
-        setTimeout(() => {
-            initMap();
-            map.invalidateSize();
-        }, 100);
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles © Esri',
+                maxZoom: 19,
+            }).addTo(map);
 
-        if (mode === 'add') {
-            title.innerText = 'Tambah Rute Baru';
-            form.action  = SHIPPING_ROUTE_STORE;
-            method.value = 'POST';
+            marker = L.marker([-2, 108], { draggable: true }).addTo(map);
+            map.on('click', (e) => { marker.setLatLng(e.latlng); updateCoords(e.latlng); });
+            marker.on('dragend', () => updateCoords(marker.getLatLng()));
+        }
 
-            form.reset();
-            if (flagSelect) flagSelect.clear(true);
+        function updateCoords(latlng) {
+            const p = L.latLng(latlng.lat, latlng.lng).wrap();
+            document.getElementById('inputLat').value = p.lat.toFixed(6);
+            document.getElementById('inputLng').value = p.lng.toFixed(6);
+        }
 
-            // Marker & peta di-set setelah peta siap
-            setTimeout(() => {
-                marker.setLatLng([-2, 108]);
-                map.setView([5, 110], 3);
-                updateCoords({ lat: -2, lng: 108 });
-            }, 120);
+        function setFlagValue(raw) {
+            if (!flagSelect) return;
+            if (!raw) { flagSelect.clear(true); return; }
 
-            document.getElementById('inputActive').checked = true;
-            document.getElementById('inputColor').value = '#0EA5E9';
-        } else {
-            title.innerText = 'Edit Rute';
-            form.action  = SHIPPING_ROUTE_BASE + '/' + data.id;
-            method.value = 'PUT';
+            const val = String(raw).trim();
+            const match = flagOptions.find(o => o.value === val || o.text.includes(val));
 
-            document.getElementById('inputName').value     = data.name ?? '';
-            document.getElementById('inputCountry').value  = data.country ?? '';
-            document.getElementById('inputCategory').value = data.category ?? 'domestic';
-            document.getElementById('inputColor').value    = data.color || '#0EA5E9';
-            document.getElementById('inputLat').value      = data.latitude ?? '';
-            document.getElementById('inputLng').value      = data.longitude ?? '';
-            document.getElementById('inputTransit').value  = data.transit_days ?? 0;
-            document.getElementById('inputSort').value     = data.sort_order ?? 0;
-            document.getElementById('inputDesc').value     = data.description ?? '';
-            document.getElementById('inputActive').checked = Boolean(data.is_active);
-
-            setFlagValue(data.flag);
-
-            const lat = parseFloat(data.latitude);
-            const lng = parseFloat(data.longitude);
-            if (!isNaN(lat) && !isNaN(lng)) {
-                setTimeout(() => {
-                    const shown = nearestLng(lng);   // -99 ditampilkan di 261 (sisi Pasifik)
-                    marker.setLatLng([lat, shown]);
-                    map.setView([lat, shown], 5);
-                }, 120);
+            if (match) {
+                flagSelect.setValue(match.value, true);
+            } else {
+                flagSelect.addOption({ value: val, name: val, text: val });
+                flagSelect.setValue(val, true);
             }
         }
-    }
 
-    function closeModal() {
-        const modal = document.getElementById('routeModal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    }
+        function openModal(mode, data = null) {
+            const modal  = document.getElementById('routeModal');
+            const form   = document.getElementById('routeForm');
+            const title  = document.getElementById('modalTitle');
+            const method = document.getElementById('formMethod');
 
-    // ===== LOGIKA MODAL HAPUS KUSTOM =====
-    function openDeleteModal(id, name) {
-        const modal = document.getElementById('deleteModal');
-        const content = document.getElementById('deleteModalContent');
-        const form = document.getElementById('deleteForm');
-        const nameSpan = document.getElementById('deleteRouteName');
+            initFlagSelect();
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
 
-        nameSpan.textContent = `"${name}"`;
-        
-        // Ganti action URL form secara dinamis (sesuaikan dengan route resource Anda)
-        form.action = `${SHIPPING_ROUTE_BASE}/${id}`;
+            setTimeout(() => {
+                initMap();
+                map.invalidateSize();
+            }, 100);
 
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        
-        setTimeout(() => {
-            content.classList.remove('scale-95', 'opacity-0');
-            content.classList.add('scale-100', 'opacity-100');
-        }, 10);
-    }
+            if (mode === 'add') {
+                title.innerText = 'Add new route';
+                form.action  = SHIPPING_ROUTE_STORE;
+                method.value = 'POST';
 
-    function closeDeleteModal() {
-        const modal = document.getElementById('deleteModal');
-        const content = document.getElementById('deleteModalContent');
+                form.reset();
+                if (flagSelect) flagSelect.clear(true);
 
-        content.classList.remove('scale-100', 'opacity-100');
-        content.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    marker.setLatLng([-2, 108]);
+                    map.setView([5, 110], 3);
+                    updateCoords({ lat: -2, lng: 108 });
+                }, 120);
 
-        setTimeout(() => {
+                document.getElementById('inputActive').checked = true;
+                document.getElementById('inputColor').value = '#0EA5E9';
+            } else {
+                title.innerText = 'Edit route';
+                form.action  = SHIPPING_ROUTE_BASE + '/' + data.id;
+                method.value = 'PUT';
+
+                document.getElementById('inputName').value     = data.name ?? '';
+                document.getElementById('inputCountry').value  = data.country ?? '';
+                document.getElementById('inputCategory').value = data.category ?? 'domestic';
+                document.getElementById('inputColor').value    = data.color || '#0EA5E9';
+                document.getElementById('inputLat').value      = data.latitude ?? '';
+                document.getElementById('inputLng').value      = data.longitude ?? '';
+                document.getElementById('inputTransit').value  = data.transit_days ?? 0;
+                document.getElementById('inputSort').value     = data.sort_order ?? 0;
+                document.getElementById('inputDesc').value     = data.description ?? '';
+                document.getElementById('inputActive').checked = Boolean(data.is_active);
+
+                setFlagValue(data.flag);
+
+                const lat = parseFloat(data.latitude);
+                const lng = parseFloat(data.longitude);
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    setTimeout(() => {
+                        const shown = nearestLng(lng);
+                        marker.setLatLng([lat, shown]);
+                        map.setView([lat, shown], 5);
+                    }, 120);
+                }
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('routeModal');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
-        }, 200);
-    }
+        }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        initFlagSelect();
-        
-        // Event listener untuk modal hapus
-        document.getElementById('cancelDeleteBtn').addEventListener('click', closeDeleteModal);
-        document.getElementById('deleteModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeDeleteModal();
-            }
+        function openDeleteModal(id, name) {
+            const modal = document.getElementById('deleteModal');
+            const content = document.getElementById('deleteModalContent');
+            const form = document.getElementById('deleteForm');
+            const nameSpan = document.getElementById('deleteRouteName');
+
+            nameSpan.textContent = `"${name}"`;
+            form.action = `${SHIPPING_ROUTE_BASE}/${id}`;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            const content = document.getElementById('deleteModalContent');
+
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 200);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initFlagSelect();
+
+            document.getElementById('cancelDeleteBtn').addEventListener('click', closeDeleteModal);
+            document.getElementById('deleteModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeDeleteModal();
+                }
+            });
         });
-    });
-</script>
+    </script>
+    @endpush
 </x-admin-layout>
