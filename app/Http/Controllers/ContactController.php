@@ -8,9 +8,6 @@ use Illuminate\Support\Facades\Http;
 
 class ContactController extends Controller
 {
-    /* ═══════════════════════════════════════════════════════════════
-       PUBLIC — simpan ke database, kembalikan data mailto:
-    ═══════════════════════════════════════════════════════════════ */
 
     public function store(Request $request)
     {
@@ -26,7 +23,7 @@ class ContactController extends Controller
         if (! $this->verifyRecaptcha($validated['g-recaptcha-response'], $request->ip())) {
             return response()->json([
                 'success' => false,
-                'message' => 'Verifikasi keamanan gagal. Silakan coba lagi.',
+                'message' => 'Security verification failed. Please try again.',
             ], 422);
         }
 
@@ -59,7 +56,7 @@ class ContactController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Pesan Anda tersimpan. Aplikasi email Anda akan terbuka.',
+            'message' => 'Your message has been saved. Your email application will open.',
             'mailto'  => $mailtoUrl,
         ]);
     }
@@ -126,7 +123,7 @@ class ContactController extends Controller
     {
         $contactMessage->update(['is_read' => true]);
 
-        return back()->with('success', 'Pesan ditandai sudah dibaca.');
+        return back()->with('success', 'Message marked as read.');
     }
 
     public function destroy(ContactMessage $contactMessage)
@@ -135,6 +132,6 @@ class ContactController extends Controller
 
         return redirect()
             ->route('admin.contact-messages.index')
-            ->with('success', 'Pesan berhasil dihapus.');
+            ->with('success', 'Message deleted successfully.');
     }
 }

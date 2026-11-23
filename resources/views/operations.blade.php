@@ -48,7 +48,7 @@
     /* ═══ KUNCI LAYOUT ═══ */
     #swup, main, section {
         position: relative;
-        width: 100%;
+        width: 100%; 
         max-width: 100vw;
     }
     .prevent-overflow { overflow: hidden !important; }
@@ -57,8 +57,6 @@
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
     /* ═══ PEMISAH GELOMBANG ═══ */
-    /* Garis tipis di sambungan terjadi karena pembulatan piksel (layar dengan zoom/DPR pecahan).
-       Solusi: svg dipotong 2px di bawahnya, lalu section berikutnya menimpa 1px dari divider. */
     .divider { line-height: 0; width: 100%; overflow: hidden; margin-bottom: -1px; }
     .divider svg { display: block; width: 100%; height: 42px; margin-bottom: -2px; fill: currentColor; }
     @media (min-width: 640px) { .divider svg { height: 72px; } }

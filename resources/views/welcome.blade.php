@@ -564,58 +564,76 @@
 {{-- ═══════════════════════════════════════════════════════════════
      6. LOCATION & FACILITIES
 ═══════════════════════════════════════════════════════════════ --}}
-<section class="py-20 bg-white" data-aos="fade-up">
+<section class="py-20 lg:py-28 bg-white border-t border-slate-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="max-w-3xl mb-10">
-            <span class="eyebrow block mb-3">Infrastructure Access</span>
-            <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
-                Terminal Specifications
-            </h2>
-            <p class="mt-3 text-slate-600 leading-relaxed">
-                An integrated vehicle terminal facility engineered to streamline domestic and international automotive supply chains.
-            </p>
-        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
 
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            <div class="lg:col-span-3 bg-slate-50 rounded-2xl border border-slate-200 shadow-sm overflow-hidden" data-aos="fade-right">
-                <div class="px-6 py-5 border-b border-slate-200">
-                    <h3 class="text-lg font-extrabold text-slate-900">Key Facility Specifications</h3>
+            {{-- Kiri: judul --}}
+            <div class="lg:col-span-4" data-aos="fade-up">
+                <div class="lg:sticky lg:top-28">
+                    <h2 class="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900 leading-tight">
+                        Terminal Specifications
+                    </h2>
+                    <p class="mt-4 text-slate-600 leading-relaxed">
+                        An integrated vehicle terminal facility engineered to streamline
+                        domestic and international automotive supply chains.
+                    </p>
                 </div>
-                <div class="divide-y divide-slate-100">
-                    @php
-                        $specs = [
-                            ['label' => 'Ro-Ro Berth',           'value' => '300 meters'],
-                            ['label' => 'Water Depth',           'value' => '-14.0 m'],
-                            ['label' => 'Staging Yard Capacity', 'value' => '200,000 CBU units / year'],
-                        ];
-                    @endphp
+            </div>
+
+            {{-- Kanan: data --}}
+            <div class="lg:col-span-8" data-aos="fade-up" data-aos-delay="100">
+                @php
+                    $specs = [
+                        ['label' => 'Ro-Ro Berth',           'value' => '300',     'unit' => 'm'],
+                        ['label' => 'Water Depth',           'value' => '-14.0',   'unit' => 'm'],
+                        ['label' => 'Staging Yard Area',     'value' => '200,000', 'unit' => 'm²'],
+                        ['label' => 'Staging Yard Capacity', 'value' => '200,000', 'unit' => 'CBU / year'],
+                    ];
+
+                    $compliance = [
+                        [
+                            'title' => 'Safety & Security',
+                            'text'  => 'Compliant with IMO ISPS Code standards, with 24/7 CCTV surveillance across all terminal zones.',
+                        ],
+                        [
+                            'title' => 'ISO Certified',
+                            'text'  => 'Operating under internationally recognized quality, environmental, and safety management standards.',
+                        ],
+                    ];
+                @endphp
+
+                {{-- Angka utama --}}
+                <dl class="grid grid-cols-1 sm:grid-cols-2 border-t border-l border-slate-200">
                     @foreach($specs as $spec)
-                        <div class="grid sm:grid-cols-2 gap-2 px-6 py-4">
-                            <span class="text-sm font-semibold text-slate-500">{{ $spec['label'] }}</span>
-                            <span class="text-sm font-semibold text-slate-900">{{ $spec['value'] }}</span>
+                        <div class="border-r border-b border-slate-200 p-6 sm:p-8">
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">
+                                {{ $spec['label'] }}
+                            </dt>
+                            <dd class="mt-4 flex items-baseline gap-2">
+                                <span class="text-4xl sm:text-5xl font-semibold tracking-tight text-slate-900 tabular-nums">
+                                    {{ $spec['value'] }}
+                                </span>
+                                <span class="text-sm text-slate-500">{{ $spec['unit'] }}</span>
+                            </dd>
+                        </div>
+                    @endforeach
+                </dl>
+
+                {{-- Standar & sertifikasi --}}
+                <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-8">
+                    @foreach($compliance as $item)
+                        <div class="border-t-2 border-blue-900 pt-4">
+                            <h3 class="font-semibold text-slate-900">{{ $item['title'] }}</h3>
+                            <p class="mt-2 text-sm text-slate-600 leading-relaxed">{{ $item['text'] }}</p>
                         </div>
                     @endforeach
                 </div>
             </div>
 
-            <div class="lg:col-span-2 grid sm:grid-cols-2 lg:grid-cols-1 gap-6" data-aos="fade-left">
-                <div class="rounded-2xl bg-blue-950 p-6 text-white shadow-sm">
-                    <h3 class="font-extrabold text-lg">Safety &amp; Security</h3>
-                    <p class="mt-2 text-sm leading-relaxed text-slate-300">
-                        Compliant with IMO ISPS Code standards and equipped with 24/7 CCTV surveillance across all terminal zones.
-                    </p>
-                </div>
-                <div class="rounded-2xl bg-blue-950 p-6 text-white shadow-sm">
-                    <h3 class="font-extrabold text-lg">ISO Certified</h3>
-                    <p class="mt-2 text-sm leading-relaxed text-slate-300">
-                        Operating under internationally recognized quality, environmental, and safety management standards.
-                    </p>
-                </div>
-            </div>
         </div>
     </div>
 </section>
-
 {{-- ═══════════════════════════════════════════════════════════════
      7. MAP & GOOGLE ADDRESS
 ═══════════════════════════════════════════════════════════════ --}}

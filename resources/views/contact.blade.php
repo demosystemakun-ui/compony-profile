@@ -313,7 +313,7 @@ document.getElementById('contactForm')?.addEventListener('submit', async functio
     const message  = document.getElementById('message').value.trim();
 
     if (!name || !email || !whatsapp || !message) {
-        alert('Mohon lengkapi semua field yang wajib diisi.');
+        alert('Please complete all required fields.');
         return;
     }
 
@@ -344,14 +344,14 @@ document.getElementById('contactForm')?.addEventListener('submit', async functio
         const data = await res.json();
 
         if (!res.ok) {
-            throw new Error(data.message || 'Terjadi kesalahan saat mengirim pesan.');
+            throw new Error(data.message || 'An error occurred while sending your message.');
         }
 
         // ── Pesan berhasil tersimpan di database (masuk dashboard admin) ──
 
         // Tampilkan notifikasi sukses di halaman
         alertBox.className = 'mb-5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 text-sm';
-        alertBox.textContent = data.message || 'Pesan Anda berhasil dikirim.';
+        alertBox.textContent = data.message || 'Your message has been sent successfully.';
 
         // ── Buka aplikasi email user (pre-filled) ──
         if (data.mailto) {
