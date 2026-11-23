@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }} - Admin Panel</title>
+        <title>@yield('title', config('app.name', 'Laravel') . ' - Admin Panel')</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -54,8 +54,9 @@
                 }
             }
         </style>
+        @stack('styles')
     </head>
-    <body class="font-sans antialiased bg-gray-100 text-gray-900">
+    <body class="font-sans antialiased bg-[#f6f9fc] text-gray-900">
 
         @php
             try {
@@ -67,6 +68,19 @@
             }
 
             $__isSuperAdmin = auth()->check() && auth()->user()->isSuperAdmin();
+
+            $__currentSectionTitle = match(true) {
+                request()->routeIs('dashboard')                            => 'Dashboard',
+                request()->is('pict-internal-admin-portal/tariffs*')         => 'Tariffs',
+                request()->is('pict-internal-admin-portal/news*')            => 'News',
+                request()->is('pict-internal-admin-portal/gallery*')         => 'Gallery',
+                request()->is('pict-internal-admin-portal/shipping-routes*') => 'Shipping Routes',
+                request()->routeIs('admin.contact-messages.*')               => 'Contact Messages',
+                request()->routeIs('users.*')                                => 'Manajemen User',
+                request()->routeIs('activity-logs.*')                        => 'Log Aktivitas',
+                request()->routeIs('profile.*')                              => 'Profile',
+                default                                                      => 'Admin Panel',
+            };
 
             $__mobileBottomItems = [
                 [
@@ -144,12 +158,10 @@
 
         <div id="adminShell" class="flex min-h-dvh lg:h-screen lg:overflow-hidden overflow-x-clip">
 
-            {{-- ═══════════════════════════════════════════════════ --}}
-            {{-- SIDEBAR (DESKTOP + DRAWER OPSIONAL)                 --}}
-            {{-- ═══════════════════════════════════════════════════ --}}
+            {{-- SIDEBAR --}}
             <aside id="sidebar"
                    aria-label="Sidebar Navigation"
-                   class="fixed inset-y-0 left-0 z-50 w-64 bg-[#0A2540] text-white transform -translate-x-full lg:translate-x-0 lg:static lg:inset-0 transition-transform duration-300 ease-in-out flex flex-col">
+                   class="fixed inset-y-0 left-0 z-50 w-64 bg-[#0A2540] text-white transform -translate-x-full lg:translate-x-0 lg:static lg:inset-0 transition-transform duration-300 ease-in-out flex flex-col shrink-0">
 
                 <div class="flex items-center justify-between lg:justify-center h-16 px-4 bg-[#081c30] border-b border-white/10 shrink-0">
                     <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
@@ -230,31 +242,43 @@
                 </div>
             </aside>
 
-            {{-- ═══════════════════════════════════════════════════ --}}
-            {{-- MAIN CONTENT AREA                                   --}}
-            {{-- ═══════════════════════════════════════════════════ --}}
+            {{-- MAIN CONTENT AREA --}}
             <div class="flex-1 flex flex-col min-w-0 lg:h-screen lg:overflow-hidden relative">
 
-                {{-- TOP HEADER (DESKTOP ONLY) --}}
-                <header class="hidden lg:flex bg-white border-b border-gray-200 h-16 shrink-0 z-30 items-center justify-between px-4 sm:px-6 lg:px-8 shadow-sm">
-                    <div class="flex items-center gap-3">
-                        <h1 class="text-sm font-semibold text-[#0A2540]">Admin Panel</h1>
+                {{-- SINGLE TOP HEADER (MENYATUKAN JUDUL HALAMAN & PROFIL) --}}
+                <header class="bg-white border-b border-gray-200 min-h-16 shrink-0 z-30 flex items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 py-3 shadow-sm">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <button type="button" id="sidebarToggle" class="lg:hidden p-2 rounded-md text-gray-500 hover:bg-gray-100 focus:outline-none shrink-0">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+
+                        <div class="min-w-0">
+                            @isset($header)
+                                {{ $header }}
+                            @else
+                                <h1 class="text-base sm:text-lg font-bold text-[#0A2540] truncate">
+                                    @yield('pageTitle', $__currentSectionTitle)
+                                </h1>
+                            @endisset
+                        </div>
                     </div>
 
-                    <div class="relative" id="profileDropdownContainer">
+                    <div class="relative shrink-0" id="profileDropdownContainer">
                         <button type="button"
                                 id="profileDropdownBtn"
                                 class="flex items-center gap-2.5 px-2 py-1.5 rounded-full hover:bg-gray-100 transition-colors focus:outline-none">
                             <div class="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-xs font-bold text-white shadow-sm">
                                 {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                             </div>
-                            <div class="text-left leading-tight">
+                            <div class="hidden sm:block text-left leading-tight">
                                 <div class="text-sm font-semibold text-[#0A2540]">{{ Auth::user()->name }}</div>
                                 <div class="text-[10px] text-gray-500">
                                     {{ $__isSuperAdmin ? 'Super Administrator' : 'Administrator' }}
                                 </div>
                             </div>
-                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 text-gray-400 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                             </svg>
                         </button>
@@ -289,27 +313,17 @@
                 {{-- Overlay (Mobile Sidebar) --}}
                 <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
 
-                {{-- Page Header (Slot) --}}
-                @isset($header)
-                    <header class="bg-white border-b border-gray-200 shadow-sm shrink-0 min-w-0">
-                        <div class="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8 min-w-0">
-                            {{ $header }}
-                        </div>
-                    </header>
-                @endisset
-
                 {{-- Page Content --}}
-                <main id="adminMainScroll" class="flex-1 min-w-0 lg:overflow-y-auto bg-gray-100 p-4 sm:p-6 lg:p-8">
+                <main id="adminMainScroll" class="flex-1 min-w-0 lg:overflow-y-auto bg-[#f6f9fc] p-4 sm:p-6 lg:p-8">
                     <div class="max-w-7xl mx-auto min-w-0">
-                        {{ $slot }}
+                        @yield('content')
+                        {{ $slot ?? '' }}
                     </div>
                 </main>
             </div>
         </div>
 
-        {{-- ═══════════════════════════════════════════════════ --}}
-        {{-- MOBILE: "MORE" SHEET + FLOATING BOTTOM TAB BAR      --}}
-        {{-- ═══════════════════════════════════════════════════ --}}
+        {{-- MOBILE: "MORE" SHEET + FLOATING BOTTOM TAB BAR --}}
         <div id="adminMoreSheet"
              class="lg:hidden fixed inset-x-0 z-50 px-4 is-closed pointer-events-none"
              style="bottom: calc(max(0.75rem, env(safe-area-inset-bottom, 0px)) + var(--admin-tab-h) + 0.5rem);">
@@ -377,7 +391,7 @@
                         class="flex flex-col items-center justify-center gap-0.5 rounded-2xl select-none transition active:scale-90 cursor-pointer
                                {{ $__isAdminMoreActive ? 'bg-red-50 text-red-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-800' }}">
                     <svg class="w-[21px] h-[21px] pointer-events-none" fill="none" stroke="currentColor" stroke-width="{{ $__isAdminMoreActive ? '1.9' : '1.5' }}" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/>
                     </svg>
                     <span class="text-[10px] leading-none pointer-events-none">More</span>
                 </button>
@@ -395,9 +409,7 @@
             </svg>
         </button>
 
-        {{-- ═══════════════════════════════════════════════════════ --}}
-        {{-- SCRIPT: SIDEBAR, MORE SHEET, DROPDOWN & BACK TO TOP     --}}
-        {{-- ═══════════════════════════════════════════════════════ --}}
+        {{-- SCRIPT: SIDEBAR, MORE SHEET, DROPDOWN & BACK TO TOP --}}
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const sidebar = document.getElementById('sidebar');
@@ -486,5 +498,6 @@
                 }
             });
         </script>
+        @stack('scripts')
     </body>
 </html>
