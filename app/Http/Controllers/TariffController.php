@@ -78,9 +78,38 @@ class TariffController extends Controller
         return $this->pdfResponse($tariff, 'private, no-store');
     }
 
-    public function index()
+    /**
+     * Menampilkan daftar tarif dengan fitur Pencarian & Filter Otomatis.
+     */
+    public function index(Request $request)
     {
-        $tariffs = Tariff::orderBy('sort_order')->orderBy('id')->get();
+        // 1. Mulai Query
+        $query = Tariff::query();
+
+        // 2. Logika Pencarian (Search)
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->search . '%')
+                  ->orWhere('description', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // 3. Logika Filter Kategori (Tag)
+        if ($request->filled('tag')) {
+            $query->where('tag', $request->tag);
+        }
+
+        // 4. Logika Filter Status
+        if ($request->filled('status')) {
+            if ($request->status === 'active') {
+                $query->where('is_active', true);
+            } elseif ($request->status === 'inactive') {
+                $query->where('is_active', false);
+            }
+        }
+
+        // 5. Eksekusi Query
+        $tariffs = $query->orderBy('sort_order')->orderBy('id')->get();
 
         return view('admin.tariffs.index', compact('tariffs'));
     }

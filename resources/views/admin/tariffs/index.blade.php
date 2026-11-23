@@ -17,7 +17,7 @@
             <div class="bg-white overflow-hidden shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] rounded-2xl border border-gray-100">
                 
                 {{-- Top Bar: Title, Search, Filter, Add Button --}}
-                <div class="p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="p-6 md:p-8 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
                     
                     {{-- Judul --}}
                     <div>
@@ -25,29 +25,46 @@
                         <p class="text-sm text-gray-500 mt-1">Manage and organize your tariff files here.</p>
                     </div>
 
-                    {{-- Actions --}}
-                    <div class="flex items-center gap-3 w-full md:w-auto">
-                        {{-- Search Bar (Opsional, jika butuh fitur search) --}}
-                        <div class="relative w-full md:w-64 hidden sm:block">
+                    {{-- Form Search & Filter (Otomatis) --}}
+                    <form action="{{ route('admin.tariffs.index') }}" method="GET" class="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto m-0">
+                        
+                        {{-- Search Bar --}}
+                        <div class="relative w-full sm:w-64">
                             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                 <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                             </div>
-                            <input type="text" class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 transition-colors" placeholder="Search tariffs...">
+                            <input type="text" name="search" value="{{ request('search') }}" 
+                                   class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 transition-colors" 
+                                   placeholder="Cari judul... (Tekan Enter)">
                         </div>
 
-                        {{-- Tombol Filter (UI only, Anda bisa tambahkan logic nanti) --}}
-                        <button type="button" class="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
-                            Filter
-                        </button>
+                        {{-- Dropdown Filter Kategori (Otomatis submit saat diganti) --}}
+                        <select name="tag" onchange="this.form.submit()" class="bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full sm:w-auto p-2.5 cursor-pointer">
+                            <option value="">Semua Kategori</option>
+                            @foreach(\App\Models\Tariff::TAGS as $tag)
+                                <option value="{{ $tag }}" @selected(request('tag') == $tag)>{{ $tag }}</option>
+                            @endforeach
+                        </select>
 
-                        {{-- Tombol Tambah --}}
-                        <a href="{{ route('admin.tariffs.create') }}" class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg shadow-sm transition-colors ml-auto md:ml-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                            <span class="hidden sm:inline">Tambah Tarif</span>
-                            <span class="sm:hidden">Tambah</span>
-                        </a>
-                    </div>
+                        {{-- Dropdown Filter Status (Otomatis submit saat diganti) --}}
+                        <select name="status" onchange="this.form.submit()" class="bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full sm:w-auto p-2.5 cursor-pointer">
+                            <option value="">Semua Status</option>
+                            <option value="active" @selected(request('status') == 'active')>Tampil</option>
+                            <option value="inactive" @selected(request('status') == 'inactive')>Disembunyikan</option>
+                        </select>
+
+                        {{-- Tombol Reset (Muncul hanya jika sedang memfilter) --}}
+                        @if(request()->anyFilled(['search', 'tag', 'status']))
+                            <a href="{{ route('admin.tariffs.index') }}" class="text-sm text-gray-500 hover:text-rose-600 underline whitespace-nowrap px-2">Reset</a>
+                        @endif
+                    </form>
+
+                    {{-- Tombol Tambah --}}
+                    <a href="{{ route('admin.tariffs.create') }}" class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg shadow-sm transition-colors w-full xl:w-auto mt-2 xl:mt-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        <span class="hidden sm:inline">Tambah Tarif</span>
+                        <span class="sm:hidden">Tambah</span>
+                    </a>
                 </div>
 
                 {{-- Tabel --}}
@@ -126,7 +143,7 @@
                                         {{ $item->updated_at->format('d M Y, H:i') }}
                                     </td>
 
-                                    {{-- Aksi (Dropdown sederhana via Alpine.js atau style tombol) --}}
+                                    {{-- Aksi --}}
                                     <td class="py-4 px-6 text-right">
                                         <div class="flex items-center justify-end gap-2 opacity-100 group-hover:opacity-100 transition-opacity">
                                             <a href="{{ route('admin.tariffs.edit', $item) }}" class="p-2 text-gray-400 hover:text-amber-500 hover:bg-amber-50 rounded-lg transition-colors" title="Edit">
@@ -147,8 +164,13 @@
                                     <td colspan="7" class="py-16 text-center">
                                         <div class="flex flex-col items-center justify-center text-gray-400">
                                             <svg class="w-12 h-12 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                            <p class="text-base font-medium text-gray-500">Belum ada dokumen tarif</p>
-                                            <p class="text-sm mt-1">Mulai dengan menambahkan tarif baru.</p>
+                                            @if(request()->anyFilled(['search', 'tag', 'status']))
+                                                <p class="text-base font-medium text-gray-500">Tidak ada tarif yang cocok</p>
+                                                <p class="text-sm mt-1">Coba ubah kata kunci atau filter Anda.</p>
+                                            @else
+                                                <p class="text-base font-medium text-gray-500">Belum ada dokumen tarif</p>
+                                                <p class="text-sm mt-1">Mulai dengan menambahkan tarif baru.</p>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
