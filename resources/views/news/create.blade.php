@@ -1,261 +1,326 @@
+@php
+    $age = function ($date) {
+        $d = $date ? (int) $date->diffInDays(now()) : 0;
+        if ($d > 30) return ['dot' => 'bg-red-500',     'pill' => 'bg-red-50 text-red-700',         'label' => $d . ' days ago'];
+        if ($d > 7)  return ['dot' => 'bg-amber-500',   'pill' => 'bg-amber-50 text-amber-800',     'label' => $d . ' days ago'];
+        return              ['dot' => 'bg-emerald-500', 'pill' => 'bg-emerald-50 text-emerald-800', 'label' => optional($date)->diffForHumans() ?? '-'];
+    };
+
+    $focus      = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A2540]';
+    $input      = "w-full rounded-xl border border-slate-200 bg-[#f6f9fc] px-3.5 py-2.5 text-sm text-[#0A2540] placeholder-slate-400 transition focus:border-[#0A2540] focus:bg-white focus:outline-none";
+    $btn        = "inline-flex items-center justify-center rounded-full bg-[#eef5fb] px-3.5 py-1.5 text-xs font-semibold text-[#0A2540] transition hover:bg-[#dce8f5] $focus";
+    $btnPrimary = "inline-flex items-center justify-center gap-1.5 rounded-full bg-[#0A2540] px-5 py-2 text-xs sm:text-sm font-bold text-white transition hover:bg-[#13385e] $focus";
+    $btnDanger  = "inline-flex items-center justify-center rounded-full bg-red-50 px-3.5 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 $focus";
+    $card       = 'bg-white rounded-2xl shadow-sm border border-slate-100';
+    $pillGray   = 'inline-block rounded-full bg-[#eef5fb] px-2.5 py-0.5 text-xs font-semibold text-[#0A2540]';
+@endphp
+
 <x-admin-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Add New Article') }}
-        </h2>
+        <div>
+            <h2 class="text-base sm:text-lg font-bold text-[#0A2540] leading-tight tracking-tight">
+                {{ __('Add New Article') }}
+            </h2>
+            <p class="text-xs text-slate-500">Create and publish news articles for PICT</p>
+        </div>
     </x-slot>
 
-    <div class="py-12 bg-gray-50 min-h-screen">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
+    <div class="max-w-7xl mx-auto space-y-6">
 
-            <div class="max-w-3xl mx-auto">
-                <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-100 p-6 sm:p-8 text-gray-900">
+        @if ($errors->any())
+            <div role="alert" class="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800 ring-1 ring-red-200">
+                <p class="font-semibold mb-1">Please fix the following errors:</p>
+                <ul class="list-disc pl-5 space-y-1 text-xs sm:text-sm">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-                    @if ($errors->any())
-                        <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
-                            <ul class="list-disc pl-5 space-y-1">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
+        @if (session('success'))
+            <div role="status" class="flex items-start gap-3 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-900 ring-1 ring-emerald-200">
+                <svg class="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span class="font-medium">{{ session('success') }}</span>
+            </div>
+        @endif
 
-                    @if (session('success'))
-                        <div class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-800 rounded-lg text-sm">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-
-                    <form action="{{ route('news.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
-                        @csrf
-
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Article Title</label>
-                            <input type="text" name="title" value="{{ old('title') }}" placeholder="Enter article title..."
-                                   class="w-full border border-gray-300 bg-white rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
-                            <input type="text" name="category" value="{{ old('category') }}" placeholder="e.g. Operations, Terminal Update, Safety"
-                                   class="w-full border border-gray-300 bg-white rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
-                        </div>
-
-                        {{-- Image Upload & Camera Section --}}
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Upload Image / Capture Photo</label>
-
-                            <div id="preview-container" class="mb-4 hidden">
-                                <img id="image-preview" src="#" alt="Preview" class="w-full max-h-64 object-contain rounded-lg border border-gray-200 bg-gray-50 p-2">
-                            </div>
-
-                            <div class="flex flex-wrap gap-3">
-                                <input type="file" name="image" id="cameraInput" accept="image/*" capture="environment" class="hidden" onchange="previewImage(event)">
-                                <input type="file" name="image_gallery" id="galleryInput" accept="image/*" class="hidden" onchange="previewImage(event)">
-
-                                <button type="button" onclick="document.getElementById('cameraInput').click()"
-                                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                    Take Photo (Camera)
-                                </button>
-
-                                <button type="button" onclick="document.getElementById('galleryInput').click()"
-                                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                    Choose from Gallery
-                                </button>
-
-                                <button type="button" id="removeBtn" onclick="clearImage()"
-                                    class="hidden inline-flex items-center gap-2 px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 text-sm font-medium rounded-lg transition-colors border border-red-200">
-                                    Remove Image
-                                </button>
-                            </div>
-                            <p class="text-xs text-gray-500 mt-2">Use the camera button to take a direct photo or gallery to choose from storage.</p>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Short Excerpt</label>
-                            <textarea name="excerpt" rows="3" placeholder="Brief summary of the article..."
-                                      class="w-full border border-gray-300 bg-white rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" required>{{ old('excerpt') }}</textarea>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Full Content</label>
-                            <textarea name="content" rows="6" placeholder="Write the complete article content here..."
-                                      class="w-full border border-gray-300 bg-white rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" required>{{ old('content') }}</textarea>
-                        </div>
-
-                        <div class="flex items-center justify-end space-x-4 pt-4 border-t border-gray-100">
-                            <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-gray-800 text-sm font-medium">Cancel</a>
-                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-lg transition-colors shadow-sm">
-                                Save Article
-                            </button>
-                        </div>
-                    </form>
-                </div>
+        {{-- ═══ FORM TAMBAH BERITA ═══ --}}
+        <section class="{{ $card }} max-w-3xl mx-auto overflow-hidden">
+            <div class="px-5 pt-5 pb-4 border-b border-slate-100">
+                <h3 class="text-base font-bold text-[#0A2540]">Article details</h3>
+                <p class="mt-0.5 text-xs text-slate-500">Fill in the title, category, photo, and article content</p>
             </div>
 
-            {{-- ═══════════════════════════════════════════════ --}}
-            {{-- TABEL DATA BERITA --}}
-            {{-- ═══════════════════════════════════════════════ --}}
-            <div class="bg-white overflow-hidden shadow-md rounded-2xl border border-gray-100">
+            <form action="{{ route('news.store') }}" method="POST" enctype="multipart/form-data" class="p-5 sm:p-6 space-y-5">
+                @csrf
 
-                <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-red-50/50 to-transparent flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-lg bg-red-600 flex items-center justify-center shadow-sm">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                <div>
+                    <label for="articleTitle" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                        Article title
+                    </label>
+                    <input id="articleTitle"
+                           type="text"
+                           name="title"
+                           value="{{ old('title') }}"
+                           placeholder="Enter article title..."
+                           class="{{ $input }}"
+                           required>
+                </div>
+
+                <div>
+                    <label for="articleCategory" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                        Category
+                    </label>
+                    <input id="articleCategory"
+                           type="text"
+                           name="category"
+                           value="{{ old('category') }}"
+                           placeholder="e.g. Operations, Terminal Update, Safety"
+                           class="{{ $input }}"
+                           required>
+                </div>
+
+                {{-- Image Upload & Camera Section --}}
+                <div>
+                    <span class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
+                        Upload image or capture photo
+                    </span>
+
+                    <div id="preview-container" class="mb-3 hidden">
+                        <img id="image-preview"
+                             src="#"
+                             alt="Preview"
+                             class="w-full max-h-64 rounded-2xl border border-slate-200 bg-[#f6f9fc] object-contain p-2">
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                        <input type="file" name="image" id="cameraInput" accept="image/*" capture="environment" class="hidden" onchange="previewImage(event)">
+                        <input type="file" name="image_gallery" id="galleryInput" accept="image/*" class="hidden" onchange="previewImage(event)">
+
+                        <button type="button"
+                                onclick="document.getElementById('cameraInput').click()"
+                                class="inline-flex items-center gap-1.5 rounded-full bg-[#eef5fb] px-4 py-2 text-xs font-semibold text-[#0A2540] transition hover:bg-[#dce8f5] {{ $focus }}">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-bold text-[#0A2540]">Daftar Berita Terpublikasi</h3>
-                            <p class="text-xs text-gray-500">Kelola semua artikel dan berita yang tampil di website</p>
-                        </div>
+                            Take photo
+                        </button>
+
+                        <button type="button"
+                                onclick="document.getElementById('galleryInput').click()"
+                                class="inline-flex items-center gap-1.5 rounded-full bg-[#eef5fb] px-4 py-2 text-xs font-semibold text-[#0A2540] transition hover:bg-[#dce8f5] {{ $focus }}">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            Choose from gallery
+                        </button>
+
+                        <button type="button"
+                                id="removeBtn"
+                                onclick="clearImage()"
+                                class="hidden inline-flex items-center gap-1.5 rounded-full bg-red-50 px-4 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 {{ $focus }}">
+                            Remove image
+                        </button>
                     </div>
+                    <p class="mt-2 text-xs text-slate-400">Capture directly with camera or pick an image from storage.</p>
                 </div>
 
-                <div class="p-6">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="border-b-2 border-gray-100 text-gray-500 text-xs uppercase tracking-wider bg-gray-50/50">
-                                    <th class="py-3.5 px-4 font-bold">Gambar</th>
-                                    <th class="py-3.5 px-4 font-bold">Judul</th>
-                                    <th class="py-3.5 px-4 font-bold">Kategori</th>
-                                    <th class="py-3.5 px-4 font-bold">Diperbarui</th>
-                                    <th class="py-3.5 px-4 font-bold">Oleh</th>
-                                    <th class="py-3.5 px-4 text-center font-bold">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100 text-sm">
-                                @forelse($newsList as $item)
-                                    @php
-                                        $daysAgo = $item->updated_at
-                                            ? $item->updated_at->diffInDays(now())
-                                            : 0;
-                                    @endphp
-                                    <tr class="hover:bg-red-50/30 transition-colors">
-
-                                        {{-- Gambar --}}
-                                        <td class="py-3 px-4">
-                                            @if($item->image_url)
-                                                <div class="w-16 h-12 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
-                                                    <img src="{{ $item->image_url }}"
-                                                         alt="{{ $item->title }}"
-                                                         class="w-full h-full object-cover"
-                                                         loading="lazy">
-                                                </div>
-                                            @else
-                                                <div class="w-16 h-12 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                                    </svg>
-                                                </div>
-                                            @endif
-                                        </td>
-
-                                        {{-- Judul --}}
-                                        <td class="py-3 px-4">
-                                            <p class="font-semibold text-[#0A2540] max-w-xs truncate">{{ $item->title }}</p>
-                                            <p class="text-[11px] text-gray-400 mt-0.5 truncate max-w-xs">/{{ $item->slug }}</p>
-                                        </td>
-
-                                        {{-- Kategori --}}
-                                        <td class="py-3 px-4">
-                                            <span class="inline-flex items-center gap-1 bg-red-50 text-red-700 border border-red-100 text-xs font-semibold px-2.5 py-1 rounded-md">
-                                                <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                                                {{ $item->category }}
-                                            </span>
-                                        </td>
-
-                                        {{-- Diperbarui --}}
-                                        <td class="py-3 px-4 text-xs">
-                                            <div class="flex items-center gap-1.5">
-                                                @if($daysAgo > 30)
-                                                    <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                                                    <span class="text-red-600 font-semibold">{{ $daysAgo }} hari lalu</span>
-                                                @elseif($daysAgo > 7)
-                                                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                                                    <span class="text-amber-600 font-medium">{{ $daysAgo }} hari lalu</span>
-                                                @else
-                                                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                                                    <span class="text-gray-500">
-                                                        {{ optional($item->updated_at)->diffForHumans() ?? '-' }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                        </td>
-
-                                        {{-- Oleh --}}
-                                        <td class="py-3 px-4">
-                                            @if($item->updatedBy)
-                                                <div class="flex items-center gap-2">
-                                                    <div class="w-7 h-7 rounded-full bg-gradient-to-br from-red-500 to-red-700 text-white flex items-center justify-center text-[10px] font-bold shadow-sm">
-                                                        {{ strtoupper(substr($item->updatedBy->name, 0, 1)) }}
-                                                    </div>
-                                                    <span class="text-xs font-semibold text-[#0A2540]">{{ $item->updatedBy->name }}</span>
-                                                </div>
-                                            @else
-                                                <span class="text-[10px] text-gray-400 italic">Tidak tercatat</span>
-                                            @endif
-                                        </td>
-
-                                        {{-- Aksi: Detail / Edit / Hapus --}}
-                                        <td class="py-3 px-4">
-                                            <div class="flex items-center justify-center gap-2">
-
-                                                {{-- Detail (versi admin) --}}
-                                                <a href="{{ route('admin.news.show', $item->id) }}"
-                                                   title="Lihat detail berita"
-                                                   class="inline-flex items-center gap-1 text-blue-700 hover:bg-blue-100 font-semibold text-xs bg-blue-50 px-3 py-1.5 rounded-md border border-blue-200 transition-colors">
-                                                    Detail
-                                                </a>
-
-                                                {{-- Edit --}}
-                                                <a href="{{ route('news.edit', $item->id) }}"
-                                                   title="Edit berita"
-                                                   class="inline-flex items-center gap-1 text-amber-700 hover:bg-amber-100 font-semibold text-xs bg-amber-50 px-3 py-1.5 rounded-md border border-amber-200 transition-colors">
-                                                    Edit
-                                                </a>
-
-                                                {{-- Hapus --}}
-                                                <form action="{{ route('news.destroy', $item->id) }}" method="POST"
-                                                      onsubmit="return confirm('Yakin ingin menghapus berita ini? Tindakan tidak dapat dibatalkan.');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit"
-                                                            title="Hapus berita"
-                                                            class="inline-flex items-center gap-1 text-red-700 hover:bg-red-100 font-semibold text-xs bg-red-50 px-3 py-1.5 rounded-md border border-red-200 transition-colors">
-                                                        Hapus
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="py-12 text-center text-gray-400 text-sm">
-                                            Belum ada berita.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                <div>
+                    <label for="articleExcerpt" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                        Short excerpt
+                    </label>
+                    <textarea id="articleExcerpt"
+                              name="excerpt"
+                              rows="3"
+                              placeholder="Brief summary of the article..."
+                              class="{{ $input }}"
+                              required>{{ old('excerpt') }}</textarea>
                 </div>
+
+                <div>
+                    <label for="articleContent" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                        Full content
+                    </label>
+                    <textarea id="articleContent"
+                              name="content"
+                              rows="6"
+                              placeholder="Write the complete article content here..."
+                              class="{{ $input }}"
+                              required>{{ old('content') }}</textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
+                    <a href="{{ route('dashboard') }}"
+                       class="inline-flex items-center justify-center rounded-full bg-[#eef5fb] px-4 py-2 text-xs sm:text-sm font-semibold text-[#0A2540] transition hover:bg-[#dce8f5] {{ $focus }}">
+                        Cancel
+                    </a>
+                    <button type="submit" class="{{ $btnPrimary }}">
+                        Save article
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        {{-- ═══ TABEL DATA BERITA ═══ --}}
+        <section class="{{ $card }} overflow-hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-5 pt-5 pb-4">
+                <div>
+                    <h3 class="text-base font-bold text-[#0A2540]">Published news</h3>
+                    <p class="mt-0.5 text-xs text-slate-500">Articles shown on the website</p>
+                </div>
+
+                <a href="{{ route('admin.news.index') }}" class="{{ $btn }} shrink-0">
+                    View all
+                </a>
             </div>
 
-        </div>
+            {{-- Tabel (Desktop) --}}
+            <div class="hidden md:block overflow-x-auto px-3 pb-3">
+                <table class="w-full text-left text-sm">
+                    <thead class="text-xs text-slate-500">
+                        <tr class="bg-[#f6f9fc]">
+                            <th scope="col" class="rounded-l-xl px-4 py-2.5 font-semibold">Image</th>
+                            <th scope="col" class="px-3 py-2.5 font-semibold">Title</th>
+                            <th scope="col" class="px-3 py-2.5 font-semibold">Category</th>
+                            <th scope="col" class="px-3 py-2.5 font-semibold">Updated</th>
+                            <th scope="col" class="px-3 py-2.5 font-semibold">Author</th>
+                            <th scope="col" class="rounded-r-xl px-4 py-2.5 text-right font-semibold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @forelse($newsList as $item)
+                            @php $a = $age($item->updated_at); @endphp
+                            <tr class="hover:bg-[#f6f9fc] transition-colors">
+                                <td class="px-4 py-3">
+                                    @if($item->image_url)
+                                        <div class="h-11 w-16 overflow-hidden rounded-xl border border-slate-200 bg-[#f6f9fc]">
+                                            <img src="{{ $item->image_url }}"
+                                                 alt="{{ $item->title }}"
+                                                 class="h-full w-full object-cover"
+                                                 loading="lazy">
+                                        </div>
+                                    @else
+                                        <div class="flex h-11 w-16 items-center justify-center rounded-xl border border-slate-200 bg-[#f6f9fc] text-slate-400">
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                            </svg>
+                                        </div>
+                                    @endif
+                                </td>
+
+                                <td class="max-w-xs px-3 py-3">
+                                    <p class="truncate font-semibold text-[#0A2540]">{{ $item->title }}</p>
+                                    <p class="mt-0.5 truncate text-xs text-slate-400">/{{ $item->slug }}</p>
+                                </td>
+
+                                <td class="px-3 py-3">
+                                    <span class="{{ $pillGray }}">{{ $item->category }}</span>
+                                </td>
+
+                                <td class="px-3 py-3 whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold {{ $a['pill'] }}">
+                                        <span class="h-1.5 w-1.5 rounded-full {{ $a['dot'] }}" aria-hidden="true"></span>
+                                        {{ $a['label'] }}
+                                    </span>
+                                </td>
+
+                                <td class="px-3 py-3 whitespace-nowrap">
+                                    @if($item->updatedBy)
+                                        <span class="inline-flex items-center gap-2 font-medium text-slate-700">
+                                            <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[#0A2540] text-[10px] font-bold text-white" aria-hidden="true">
+                                                {{ strtoupper(substr($item->updatedBy->name, 0, 1)) }}
+                                            </span>
+                                            {{ $item->updatedBy->name }}
+                                        </span>
+                                    @else
+                                        <span class="text-xs italic text-slate-400">Not recorded</span>
+                                    @endif
+                                </td>
+
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <a href="{{ route('admin.news.show', $item->id) }}" class="{{ $btn }}">Detail</a>
+                                        <a href="{{ route('news.edit', $item->id) }}" class="{{ $btn }}">Edit</a>
+                                        <form action="{{ route('news.destroy', $item->id) }}"
+                                              method="POST"
+                                              onsubmit="return confirm('Yakin ingin menghapus berita ini? Tindakan tidak dapat dibatalkan.');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="{{ $btnDanger }}">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="px-5 py-10 text-center text-sm text-slate-500">
+                                    No news yet.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- List (Mobile) --}}
+            <ul class="md:hidden space-y-3 px-3 pb-3">
+                @forelse($newsList as $item)
+                    @php $a = $age($item->updated_at); @endphp
+                    <li class="rounded-xl bg-[#f6f9fc] p-3.5">
+                        <div class="flex items-start gap-3">
+                            @if($item->image_url)
+                                <div class="h-14 w-20 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-white">
+                                    <img src="{{ $item->image_url }}"
+                                         alt="{{ $item->title }}"
+                                         class="h-full w-full object-cover"
+                                         loading="lazy">
+                                </div>
+                            @endif
+                            <div class="min-w-0 flex-1">
+                                <p class="text-sm font-semibold text-[#0A2540] line-clamp-2">{{ $item->title }}</p>
+                                <p class="mt-0.5 truncate text-xs text-slate-400">/{{ $item->slug }}</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-2.5 flex flex-wrap items-center gap-2 text-xs">
+                            <span class="{{ $pillGray }} !bg-white">{{ $item->category }}</span>
+                            <span class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 font-semibold {{ $a['pill'] }}">
+                                <span class="h-1.5 w-1.5 rounded-full {{ $a['dot'] }}" aria-hidden="true"></span>{{ $a['label'] }}
+                            </span>
+                            @if($item->updatedBy)
+                                <span class="text-slate-500">by {{ $item->updatedBy->name }}</span>
+                            @endif
+                        </div>
+
+                        <div class="mt-3 flex gap-2">
+                            <a href="{{ route('admin.news.show', $item->id) }}" class="{{ $btn }} !bg-white flex-1">Detail</a>
+                            <a href="{{ route('news.edit', $item->id) }}" class="{{ $btn }} !bg-white flex-1">Edit</a>
+                            <form action="{{ route('news.destroy', $item->id) }}"
+                                  method="POST"
+                                  class="flex-1"
+                                  onsubmit="return confirm('Yakin ingin menghapus berita ini? Tindakan tidak dapat dibatalkan.');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="{{ $btnDanger }} w-full">Delete</button>
+                            </form>
+                        </div>
+                    </li>
+                @empty
+                    <li class="px-4 py-10 text-center text-sm text-slate-500">
+                        No news yet.
+                    </li>
+                @endforelse
+            </ul>
+        </section>
+
     </div>
 
+    @push('scripts')
     <script>
         function previewImage(event) {
             const file = event.target.files[0];
@@ -265,7 +330,7 @@
                     document.getElementById('image-preview').src = e.target.result;
                     document.getElementById('preview-container').classList.remove('hidden');
                     document.getElementById('removeBtn').classList.remove('hidden');
-                }
+                };
                 reader.readAsDataURL(file);
 
                 if (event.target.id === 'cameraInput') {
@@ -283,4 +348,5 @@
             document.getElementById('removeBtn').classList.add('hidden');
         }
     </script>
+    @endpush
 </x-admin-layout>

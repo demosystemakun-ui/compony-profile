@@ -1,168 +1,208 @@
+@php
+    $age = function ($date) {
+        $d = $date ? (int) $date->diffInDays(now()) : 0;
+        if ($d > 30) return ['dot' => 'bg-red-500',     'pill' => 'bg-red-50 text-red-700',         'label' => $d . ' days ago'];
+        if ($d > 7)  return ['dot' => 'bg-amber-500',   'pill' => 'bg-amber-50 text-amber-800',     'label' => $d . ' days ago'];
+        return              ['dot' => 'bg-emerald-500', 'pill' => 'bg-emerald-50 text-emerald-800', 'label' => optional($date)->diffForHumans() ?? '-'];
+    };
+
+    $focus     = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A2540]';
+    $btn       = "inline-flex items-center justify-center rounded-full bg-[#eef5fb] px-3.5 py-1.5 text-xs font-semibold text-[#0A2540] transition hover:bg-[#dce8f5] $focus";
+    $btnDanger = "inline-flex items-center justify-center rounded-full bg-red-50 px-3.5 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 $focus";
+    $card      = 'bg-white rounded-2xl shadow-sm border border-slate-100';
+    $pillGray  = 'inline-block rounded-full bg-[#eef5fb] px-2.5 py-0.5 text-xs font-semibold text-[#0A2540]';
+@endphp
+
 <x-admin-layout>
     <x-slot name="header">
-        <div class="flex flex-wrap gap-3 justify-between items-center">
-            <div>
-                <h2 class="font-bold text-2xl text-[#0A2540] leading-tight tracking-tight">
-                    {{ __('Kelola Berita') }}
-                </h2>
-                <p class="text-xs text-gray-500 mt-1">Manage all news articles that appear on the website</p>
-            </div>
-            <a href="{{ route('news.create') }}"
-               class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg shadow-sm transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-               Add News
-            </a>
+        <div>
+            <h2 class="text-base sm:text-lg font-bold text-[#0A2540] leading-tight tracking-tight">
+                {{ __('Kelola Berita') }}
+            </h2>
+            <p class="text-xs text-slate-500">Manage all news articles published on the website</p>
         </div>
     </x-slot>
 
-    <div class="py-8 bg-gradient-to-br from-gray-50 via-white to-gray-50 min-h-screen">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div class="max-w-7xl mx-auto space-y-6">
 
-            @if(session('success'))
-                <div class="flex items-start gap-3 p-4 bg-green-50 border-l-4 border-green-500 text-green-800 rounded-lg text-sm shadow-sm">
-                    <svg class="w-5 h-5 flex-shrink-0 mt-0.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        @if(session('success'))
+            <div role="status" class="flex items-start gap-3 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-900 ring-1 ring-emerald-200">
+                <svg class="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span class="font-medium">{{ session('success') }}</span>
+            </div>
+        @endif
+
+        <section class="{{ $card }} overflow-hidden">
+
+            {{-- Top Bar --}}
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-5 pt-5 pb-4">
+                <div>
+                    <h3 class="text-base font-bold text-[#0A2540]">Published news</h3>
+                    <p class="mt-0.5 text-xs text-slate-500">
+                        Total: <strong class="font-semibold text-[#0A2540]">{{ $newsList->total() }}</strong> news articles
+                    </p>
+                </div>
+
+                <a href="{{ route('news.create') }}"
+                   class="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#0A2540] px-4 py-1.5 text-xs font-bold text-white transition hover:bg-[#13385e] shrink-0 {{ $focus }}">
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 5v14M5 12h14"/>
                     </svg>
-                    <span class="font-medium">{{ session('success') }}</span>
+                    Add news
+                </a>
+            </div>
+
+            {{-- Tabel (Desktop) --}}
+            <div class="hidden md:block overflow-x-auto px-3 pb-3">
+                <table class="w-full text-left text-sm">
+                    <thead class="text-xs text-slate-500">
+                        <tr class="bg-[#f6f9fc]">
+                            <th scope="col" class="rounded-l-xl px-4 py-2.5 font-semibold">Image</th>
+                            <th scope="col" class="px-3 py-2.5 font-semibold">Title</th>
+                            <th scope="col" class="px-3 py-2.5 font-semibold">Category</th>
+                            <th scope="col" class="px-3 py-2.5 font-semibold">Updated</th>
+                            <th scope="col" class="px-3 py-2.5 font-semibold">Author</th>
+                            <th scope="col" class="rounded-r-xl px-4 py-2.5 text-right font-semibold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @forelse($newsList as $item)
+                            @php $a = $age($item->updated_at); @endphp
+                            <tr class="hover:bg-[#f6f9fc] transition-colors">
+                                <td class="px-4 py-3">
+                                    @if($item->image_url)
+                                        <div class="h-11 w-16 overflow-hidden rounded-xl border border-slate-200 bg-[#f6f9fc]">
+                                            <img src="{{ $item->image_url }}"
+                                                 alt="{{ $item->title }}"
+                                                 class="h-full w-full object-cover"
+                                                 loading="lazy">
+                                        </div>
+                                    @else
+                                        <div class="flex h-11 w-16 items-center justify-center rounded-xl border border-slate-200 bg-[#f6f9fc] text-slate-400">
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                            </svg>
+                                        </div>
+                                    @endif
+                                </td>
+
+                                <td class="max-w-xs px-3 py-3">
+                                    <p class="truncate font-semibold text-[#0A2540]">{{ $item->title }}</p>
+                                    <p class="mt-0.5 truncate text-xs text-slate-400">/{{ $item->slug }}</p>
+                                </td>
+
+                                <td class="px-3 py-3">
+                                    <span class="{{ $pillGray }}">{{ $item->category }}</span>
+                                </td>
+
+                                <td class="px-3 py-3 whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold {{ $a['pill'] }}">
+                                        <span class="h-1.5 w-1.5 rounded-full {{ $a['dot'] }}" aria-hidden="true"></span>
+                                        {{ $a['label'] }}
+                                    </span>
+                                </td>
+
+                                <td class="px-3 py-3 whitespace-nowrap">
+                                    @if($item->updatedBy)
+                                        <span class="inline-flex items-center gap-2 font-medium text-slate-700">
+                                            <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[#0A2540] text-[10px] font-bold text-white" aria-hidden="true">
+                                                {{ strtoupper(substr($item->updatedBy->name, 0, 1)) }}
+                                            </span>
+                                            {{ $item->updatedBy->name }}
+                                        </span>
+                                    @else
+                                        <span class="text-xs italic text-slate-400">Not recorded</span>
+                                    @endif
+                                </td>
+
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <a href="{{ route('admin.news.show', $item->id) }}" class="{{ $btn }}">Detail</a>
+                                        <a href="{{ route('news.edit', $item->id) }}" class="{{ $btn }}">Edit</a>
+                                        <form action="{{ route('news.destroy', $item->id) }}"
+                                              method="POST"
+                                              onsubmit="return confirm('Yakin ingin menghapus berita ini?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="{{ $btnDanger }}">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="px-5 py-12 text-center">
+                                    <p class="text-sm font-semibold text-slate-700">No news articles available</p>
+                                    <p class="mt-1 text-xs text-slate-500">
+                                        <a href="{{ route('news.create') }}" class="font-semibold text-[#0A2540] underline">Add the first news article</a>
+                                    </p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- List (Mobile) --}}
+            <ul class="md:hidden space-y-3 px-3 pb-3">
+                @forelse($newsList as $item)
+                    @php $a = $age($item->updated_at); @endphp
+                    <li class="rounded-xl bg-[#f6f9fc] p-3.5">
+                        <div class="flex items-start gap-3">
+                            @if($item->image_url)
+                                <div class="h-14 w-20 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-white">
+                                    <img src="{{ $item->image_url }}"
+                                         alt="{{ $item->title }}"
+                                         class="h-full w-full object-cover"
+                                         loading="lazy">
+                                </div>
+                            @endif
+                            <div class="min-w-0 flex-1">
+                                <p class="text-sm font-semibold text-[#0A2540] line-clamp-2">{{ $item->title }}</p>
+                                <p class="mt-0.5 truncate text-xs text-slate-400">/{{ $item->slug }}</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-2.5 flex flex-wrap items-center gap-2 text-xs">
+                            <span class="{{ $pillGray }} !bg-white">{{ $item->category }}</span>
+                            <span class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 font-semibold {{ $a['pill'] }}">
+                                <span class="h-1.5 w-1.5 rounded-full {{ $a['dot'] }}" aria-hidden="true"></span>{{ $a['label'] }}
+                            </span>
+                            @if($item->updatedBy)
+                                <span class="text-slate-500">by {{ $item->updatedBy->name }}</span>
+                            @endif
+                        </div>
+
+                        <div class="mt-3 flex gap-2">
+                            <a href="{{ route('admin.news.show', $item->id) }}" class="{{ $btn }} !bg-white flex-1">Detail</a>
+                            <a href="{{ route('news.edit', $item->id) }}" class="{{ $btn }} !bg-white flex-1">Edit</a>
+                            <form action="{{ route('news.destroy', $item->id) }}"
+                                  method="POST"
+                                  class="flex-1"
+                                  onsubmit="return confirm('Yakin ingin menghapus berita ini?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="{{ $btnDanger }} w-full">Delete</button>
+                            </form>
+                        </div>
+                    </li>
+                @empty
+                    <li class="px-4 py-10 text-center text-sm text-slate-500">
+                        No news articles available. <a href="{{ route('news.create') }}" class="font-semibold text-[#0A2540] underline">Add the first news article</a>
+                    </li>
+                @endforelse
+            </ul>
+
+            @if($newsList->hasPages())
+                <div class="border-t border-slate-100 px-5 py-3.5">
+                    {{ $newsList->links() }}
                 </div>
             @endif
 
-            <div class="bg-white overflow-hidden shadow-md rounded-2xl border border-gray-100">
-                <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-red-50/50 to-transparent flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-lg bg-red-600 flex items-center justify-center shadow-sm">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-bold text-[#0A2540]">Dashboard News</h3>
-                        <p class="text-xs text-gray-500">Total: {{ $newsList->total() }} news articles</p>
-                    </div>
-                </div>
+        </section>
 
-                <div class="p-6">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="border-b-2 border-gray-100 text-gray-500 text-xs uppercase tracking-wider bg-gray-50/50">
-                                    <th class="py-3.5 px-4 font-bold">Image</th>
-                                    <th class="py-3.5 px-4 font-bold">Title</th>
-                                    <th class="py-3.5 px-4 font-bold">Category</th>
-                                    <th class="py-3.5 px-4 font-bold">Updated</th>
-                                    <th class="py-3.5 px-4 font-bold">By</th>
-                                    <th class="py-3.5 px-4 text-center font-bold">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100 text-sm">
-                                @forelse($newsList as $item)
-                                    @php
-                                        $daysAgo = $item->updated_at ? $item->updated_at->diffInDays(now()) : 0;
-                                    @endphp
-                                    <tr class="hover:bg-red-50/30 transition-colors">
-                                        <td class="py-3 px-4">
-                                            @if($item->image_url)
-                                                <div class="w-16 h-12 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
-                                                    <img src="{{ $item->image_url }}" alt="{{ $item->title }}"
-                                                         class="w-full h-full object-cover" loading="lazy">
-                                                </div>
-                                            @else
-                                                <div class="w-16 h-12 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                                    </svg>
-                                                </div>
-                                            @endif
-                                        </td>
-
-                                        <td class="py-3 px-4">
-                                            <p class="font-semibold text-[#0A2540] max-w-xs truncate">{{ $item->title }}</p>
-                                            <p class="text-[11px] text-gray-400 mt-0.5 truncate max-w-xs">/{{ $item->slug }}</p>
-                                        </td>
-
-                                        <td class="py-3 px-4">
-                                            <span class="inline-flex items-center gap-1 bg-red-50 text-red-700 border border-red-100 text-xs font-semibold px-2.5 py-1 rounded-md">
-                                                <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                                                {{ $item->category }}
-                                            </span>
-                                        </td>
-
-                                        <td class="py-3 px-4 text-xs">
-                                            <div class="flex items-center gap-1.5">
-                                                @if($daysAgo > 30)
-                                                    <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                                                    <span class="text-red-600 font-semibold">{{ $daysAgo }} days ago</span>
-                                                @elseif($daysAgo > 7)
-                                                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                                                    <span class="text-amber-600 font-medium">{{ $daysAgo }} days ago</span>
-                                                @else
-                                                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                                                    <span class="text-gray-500">{{ optional($item->updated_at)->diffForHumans() ?? '-' }}</span>
-                                                @endif
-                                            </div>
-                                        </td>
-
-                                        <td class="py-3 px-4">
-                                            @if($item->updatedBy)
-                                                <div class="flex items-center gap-2">
-                                                    <div class="w-7 h-7 rounded-full bg-gradient-to-br from-red-500 to-red-700 text-white flex items-center justify-center text-[10px] font-bold shadow-sm">
-                                                        {{ strtoupper(substr($item->updatedBy->name, 0, 1)) }}
-                                                    </div>
-                                                    <span class="text-xs font-semibold text-[#0A2540]">{{ $item->updatedBy->name }}</span>
-                                                </div>
-                                            @else
-                                                <span class="text-[10px] text-gray-400 italic">Not recorded</span>
-                                            @endif
-                                        </td>
-
-                                        <td class="py-3 px-4">
-                                            <div class="flex items-center justify-center gap-2">
-                                                <a href="{{ route('admin.news.show', $item->id) }}"
-                                                   class="inline-flex items-center gap-1 text-blue-700 hover:bg-blue-100 font-semibold text-xs bg-blue-50 px-3 py-1.5 rounded-md border border-blue-200 transition-colors">
-                                                    Detail
-                                                </a>
-                                                <a href="{{ route('news.edit', $item->id) }}"
-                                                   class="inline-flex items-center gap-1 text-amber-700 hover:bg-amber-100 font-semibold text-xs bg-amber-50 px-3 py-1.5 rounded-md border border-amber-200 transition-colors">
-                                                    Edit
-                                                </a>
-                                                <form action="{{ route('news.destroy', $item->id) }}" method="POST"
-                                                      onsubmit="return confirm('Yakin ingin menghapus berita ini?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit"
-                                                            class="inline-flex items-center gap-1 text-red-700 hover:bg-red-100 font-semibold text-xs bg-red-50 px-3 py-1.5 rounded-md border border-red-200 transition-colors">
-                                                        Delete
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="py-12 text-center text-gray-400 text-sm">
-                                            No news articles available. You can add a new article by clicking the "Add News" button above
-                                            or <a href="{{ route('news.create') }}" class="text-red-600 font
-                                            <a href="{{ route('news.create') }}" class="text-red-600 font-semibold hover:underline">
-                                                Add News
-                                            </a>.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-
-                    @if($newsList->hasPages())
-                        <div class="mt-6 flex justify-center">
-                            {{ $newsList->links() }}
-                        </div>
-                    @endif
-                </div>
-            </div>
-
-        </div>
     </div>
 </x-admin-layout>
