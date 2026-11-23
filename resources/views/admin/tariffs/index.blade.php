@@ -1,199 +1,261 @@
+@php
+    $age = function ($date) {
+        $d = $date ? (int) $date->diffInDays(now()) : 0;
+        if ($d > 30) return ['dot' => 'bg-red-500',     'pill' => 'bg-red-50 text-red-700',         'label' => $d . ' days ago'];
+        if ($d > 7)  return ['dot' => 'bg-amber-500',   'pill' => 'bg-amber-50 text-amber-800',     'label' => $d . ' days ago'];
+        return              ['dot' => 'bg-emerald-500', 'pill' => 'bg-emerald-50 text-emerald-800', 'label' => optional($date)->diffForHumans() ?? '-'];
+    };
+
+    $focus     = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A2540]';
+    $btn       = "inline-flex items-center justify-center rounded-full bg-[#eef5fb] px-3.5 py-1.5 text-xs font-semibold text-[#0A2540] transition hover:bg-[#dce8f5] $focus";
+    $btnDanger = "inline-flex items-center justify-center rounded-full bg-red-50 px-3.5 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 $focus";
+    $card      = 'bg-white rounded-2xl shadow-sm border border-slate-100';
+    $pillGray  = 'inline-block rounded-full bg-[#eef5fb] px-2.5 py-0.5 text-xs font-semibold text-[#0A2540]';
+@endphp
+
 <x-admin-layout>
     <x-slot name="header">
-        {{-- Header disembunyikan karena kita menggunakan header kustom di dalam body --}}
+        <div>
+            <h2 class="text-base sm:text-lg font-bold text-[#0A2540] leading-tight tracking-tight">
+                {{ __('Tariffs Document') }}
+            </h2>
+            <p class="text-xs text-slate-500">Manage and organize PICT service tariff files</p>
+        </div>
     </x-slot>
 
-    <div class="py-8 bg-gray-50/50 min-h-screen font-sans">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            
-            {{-- Notifikasi Sukses --}}
-            @if(session('success'))
-                <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl text-sm flex items-center gap-2 shadow-sm">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    {{ session('success') }}
+    <div class="max-w-7xl mx-auto space-y-6">
+
+        {{-- Notifikasi Sukses --}}
+        @if(session('success'))
+            <div role="status" class="flex items-start gap-3 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-900 ring-1 ring-emerald-200">
+                <svg class="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span class="font-medium">{{ session('success') }}</span>
+            </div>
+        @endif
+
+        <section class="{{ $card }} overflow-hidden">
+
+            {{-- Top Bar: Title, Search, Filter, Add Button --}}
+            <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 px-5 pt-5 pb-4">
+                <div>
+                    <h3 class="text-base font-bold text-[#0A2540]">Tariff documents</h3>
+                    <p class="mt-0.5 text-xs text-slate-500">Service tariffs in PDF format</p>
                 </div>
-            @endif
 
-            <div class="bg-white overflow-hidden shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] rounded-2xl border border-gray-100">
-                
-                {{-- Top Bar: Title, Search, Filter, Add Button --}}
-                <div class="p-6 md:p-8 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-                    
-                    {{-- Judul --}}
-                    <div>
-                        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Tariffs Document</h1>
-                        <p class="text-sm text-gray-500 mt-1">Manage and organize your tariff files here.</p>
-                    </div>
-
-                    {{-- Form Search & Filter (Otomatis) --}}
-                    <form action="{{ route('admin.tariffs.index') }}" method="GET" class="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto m-0">
-                        
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full xl:w-auto">
+                    <form action="{{ route('admin.tariffs.index') }}" method="GET" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto m-0">
                         {{-- Search Bar --}}
-                        <div class="relative w-full sm:w-64">
-                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        <div class="relative w-full sm:w-56">
+                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
                             </div>
-                            <input type="text" name="search" value="{{ request('search') }}" 
-                                   class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 transition-colors" 
-                                   placeholder="Cari judul... (Tekan Enter)">
+                            <input type="text"
+                                   name="search"
+                                   value="{{ request('search') }}"
+                                   class="block w-full rounded-full border border-slate-200 bg-[#f6f9fc] py-1.5 pl-9 pr-3.5 text-xs font-medium text-[#0A2540] placeholder-slate-400 transition focus:border-[#0A2540] focus:bg-white focus:outline-none"
+                                   placeholder="Search title... (Enter)">
                         </div>
 
-                        {{-- Dropdown Filter Kategori (Otomatis submit saat diganti) --}}
-                        <select name="tag" onchange="this.form.submit()" class="bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full sm:w-auto p-2.5 cursor-pointer">
-                            <option value="">Semua Kategori</option>
+                        {{-- Filter Kategori --}}
+                        <select name="tag"
+                                onchange="this.form.submit()"
+                                class="cursor-pointer rounded-full border border-slate-200 bg-[#f6f9fc] px-3.5 py-1.5 text-xs font-semibold text-[#0A2540] transition hover:bg-[#eef5fb] focus:border-[#0A2540] focus:outline-none">
+                            <option value="">All categories</option>
                             @foreach(\App\Models\Tariff::TAGS as $tag)
                                 <option value="{{ $tag }}" @selected(request('tag') == $tag)>{{ $tag }}</option>
                             @endforeach
                         </select>
 
-                        {{-- Dropdown Filter Status (Otomatis submit saat diganti) --}}
-                        <select name="status" onchange="this.form.submit()" class="bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full sm:w-auto p-2.5 cursor-pointer">
-                            <option value="">Semua Status</option>
-                            <option value="active" @selected(request('status') == 'active')>Tampil</option>
-                            <option value="inactive" @selected(request('status') == 'inactive')>Disembunyikan</option>
+                        {{-- Filter Status --}}
+                        <select name="status"
+                                onchange="this.form.submit()"
+                                class="cursor-pointer rounded-full border border-slate-200 bg-[#f6f9fc] px-3.5 py-1.5 text-xs font-semibold text-[#0A2540] transition hover:bg-[#eef5fb] focus:border-[#0A2540] focus:outline-none">
+                            <option value="">All statuses</option>
+                            <option value="active" @selected(request('status') == 'active')>Active</option>
+                            <option value="inactive" @selected(request('status') == 'inactive')>Hidden</option>
                         </select>
 
-                        {{-- Tombol Reset (Muncul hanya jika sedang memfilter) --}}
                         @if(request()->anyFilled(['search', 'tag', 'status']))
-                            <a href="{{ route('admin.tariffs.index') }}" class="text-sm text-gray-500 hover:text-rose-600 underline whitespace-nowrap px-2">Reset</a>
+                            <a href="{{ route('admin.tariffs.index') }}"
+                               class="inline-flex items-center justify-center rounded-full px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50 transition {{ $focus }}">
+                                Reset
+                            </a>
                         @endif
                     </form>
 
-                    {{-- Tombol Tambah --}}
-                    <a href="{{ route('admin.tariffs.create') }}" class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg shadow-sm transition-colors w-full xl:w-auto mt-2 xl:mt-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        <span class="hidden sm:inline">Tambah Tarif</span>
-                        <span class="sm:hidden">Tambah</span>
+                    <a href="{{ route('admin.tariffs.create') }}"
+                       class="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#0A2540] px-4 py-1.5 text-xs font-bold text-white transition hover:bg-[#13385e] shrink-0 {{ $focus }}">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 5v14M5 12h14"/>
+                        </svg>
+                        Add tariff
                     </a>
                 </div>
-
-                {{-- Tabel --}}
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse whitespace-nowrap">
-                        <thead>
-                            <tr class="text-gray-400 text-[11px] uppercase tracking-wider border-b border-gray-100">
-                                <th class="py-4 px-6 font-semibold">Urutan</th>
-                                <th class="py-4 px-6 font-semibold">Judul Tarif</th>
-                                <th class="py-4 px-6 font-semibold">Kategori</th>
-                                <th class="py-4 px-6 font-semibold">File PDF</th>
-                                <th class="py-4 px-6 font-semibold">Status</th>
-                                <th class="py-4 px-6 font-semibold">Diperbarui</th>
-                                <th class="py-4 px-6 font-semibold text-right">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-sm divide-y divide-gray-50">
-                            @forelse($tariffs as $item)
-                                <tr class="hover:bg-gray-50/80 transition-colors group">
-                                    {{-- Urutan --}}
-                                    <td class="py-4 px-6">
-                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-gray-100 text-gray-600 text-xs font-bold">
-                                            {{ $item->sort_order }}
-                                        </span>
-                                    </td>
-
-                                    {{-- Judul --}}
-                                    <td class="py-4 px-6">
-                                        <div class="font-semibold text-gray-800">{{ $item->title }}</div>
-                                        @if($item->description)
-                                            <div class="text-xs text-gray-400 truncate max-w-[200px] mt-0.5" title="{{ $item->description }}">{{ $item->description }}</div>
-                                        @endif
-                                    </td>
-
-                                    {{-- Kategori --}}
-                                    <td class="py-4 px-6">
-                                        <span class="bg-slate-100 text-slate-600 text-xs font-semibold px-3 py-1 rounded-md border border-slate-200/60">
-                                            {{ $item->tag }}
-                                        </span>
-                                    </td>
-
-                                    {{-- File PDF --}}
-                                    <td class="py-4 px-6">
-                                        @if($item->hasPdf())
-                                            <a href="{{ route('admin.tariffs.preview', $item) }}?v={{ $item->updated_at?->timestamp }}"
-                                               target="_blank" rel="noopener"
-                                               class="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-md transition-colors text-xs font-medium">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                                Lihat PDF
-                                            </a>
-                                        @else
-                                            <span class="inline-flex items-center gap-1.5 text-rose-500 bg-rose-50 px-3 py-1.5 rounded-md text-xs font-medium border border-rose-100">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                                                Belum diunggah
-                                            </span>
-                                        @endif
-                                    </td>
-
-                                    {{-- Status --}}
-                                    <td class="py-4 px-6">
-                                        @if($item->is_active)
-                                            <span class="inline-flex items-center gap-1.5 text-emerald-700 bg-emerald-50 border border-emerald-200 text-xs font-semibold px-3 py-1 rounded-full">
-                                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                                Tampil
-                                            </span>
-                                        @else
-                                            <span class="inline-flex items-center gap-1.5 text-gray-600 bg-gray-100 border border-gray-200 text-xs font-semibold px-3 py-1 rounded-full">
-                                                <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
-                                                Disembunyikan
-                                            </span>
-                                        @endif
-                                    </td>
-
-                                    {{-- Diperbarui --}}
-                                    <td class="py-4 px-6 text-gray-500 text-xs">
-                                        {{ $item->updated_at->format('d M Y, H:i') }}
-                                    </td>
-
-                                    {{-- Aksi --}}
-                                    <td class="py-4 px-6 text-right">
-                                        <div class="flex items-center justify-end gap-2 opacity-100 group-hover:opacity-100 transition-opacity">
-                                            <a href="{{ route('admin.tariffs.edit', $item) }}" class="p-2 text-gray-400 hover:text-amber-500 hover:bg-amber-50 rounded-lg transition-colors" title="Edit">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                                            </a>
-                                            <form action="{{ route('admin.tariffs.destroy', $item) }}" method="POST" onsubmit="return confirm('Hapus tarif ini beserta file PDF-nya?');" class="inline-block">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="p-2 text-gray-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors" title="Hapus">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="py-16 text-center">
-                                        <div class="flex flex-col items-center justify-center text-gray-400">
-                                            <svg class="w-12 h-12 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                            @if(request()->anyFilled(['search', 'tag', 'status']))
-                                                <p class="text-base font-medium text-gray-500">Tidak ada tarif yang cocok</p>
-                                                <p class="text-sm mt-1">Coba ubah kata kunci atau filter Anda.</p>
-                                            @else
-                                                <p class="text-base font-medium text-gray-500">Belum ada dokumen tarif</p>
-                                                <p class="text-sm mt-1">Mulai dengan menambahkan tarif baru.</p>
-                                            @endif
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-                
-                {{-- Footer Tabel (Pagination info dummy ala desain) --}}
-                @if($tariffs->count() > 0)
-                <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500 bg-white">
-                    <div>
-                        Menampilkan <span class="font-medium text-gray-800">{{ $tariffs->count() }}</span> tarif
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button class="px-3 py-1 text-gray-400 hover:text-gray-600 disabled:opacity-50" disabled>Previous</button>
-                        <span class="px-3 py-1 bg-blue-50 text-blue-600 rounded-md font-medium">1</span>
-                        <button class="px-3 py-1 text-gray-400 hover:text-gray-600 disabled:opacity-50" disabled>Next</button>
-                    </div>
-                </div>
-                @endif
-
             </div>
-        </div>
+
+            {{-- Tabel (Desktop) --}}
+            <div class="hidden md:block overflow-x-auto px-3 pb-3">
+                <table class="w-full text-left text-sm">
+                    <thead class="text-xs text-slate-500">
+                        <tr class="bg-[#f6f9fc]">
+                            <th scope="col" class="rounded-l-xl px-4 py-2.5 font-semibold">Order</th>
+                            <th scope="col" class="px-3 py-2.5 font-semibold">Title</th>
+                            <th scope="col" class="px-3 py-2.5 font-semibold">Category</th>
+                            <th scope="col" class="px-3 py-2.5 font-semibold">PDF file</th>
+                            <th scope="col" class="px-3 py-2.5 font-semibold">Status</th>
+                            <th scope="col" class="px-3 py-2.5 font-semibold">Updated</th>
+                            <th scope="col" class="rounded-r-xl px-4 py-2.5 text-right font-semibold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @forelse($tariffs as $item)
+                            @php $a = $age($item->updated_at); @endphp
+                            <tr class="hover:bg-[#f6f9fc] transition-colors">
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#eef5fb] text-xs font-bold tabular-nums text-[#0A2540]">
+                                        {{ $item->sort_order }}
+                                    </span>
+                                </td>
+                                <td class="max-w-xs px-3 py-3">
+                                    <p class="truncate font-semibold text-[#0A2540]">{{ $item->title }}</p>
+                                    @if($item->description)
+                                        <p class="mt-0.5 truncate text-xs text-slate-400" title="{{ $item->description }}">{{ $item->description }}</p>
+                                    @endif
+                                </td>
+                                <td class="px-3 py-3">
+                                    <span class="{{ $pillGray }}">{{ $item->tag }}</span>
+                                </td>
+                                <td class="px-3 py-3 whitespace-nowrap">
+                                    @if($item->hasPdf())
+                                        <a href="{{ route('admin.tariffs.preview', $item) }}?v={{ $item->updated_at?->timestamp }}"
+                                           target="_blank" rel="noopener"
+                                           class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0A2540] hover:text-[#EC2029]">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            </svg>
+                                            View PDF
+                                        </a>
+                                    @else
+                                        <span class="rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700">Not uploaded</span>
+                                    @endif
+                                </td>
+                                <td class="px-3 py-3 whitespace-nowrap">
+                                    @if($item->is_active)
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true"></span>
+                                            Active
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-slate-400" aria-hidden="true"></span>
+                                            Hidden
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-3 py-3 whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold {{ $a['pill'] }}">
+                                        <span class="h-1.5 w-1.5 rounded-full {{ $a['dot'] }}" aria-hidden="true"></span>
+                                        {{ $a['label'] }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <a href="{{ route('admin.tariffs.edit', $item) }}" class="{{ $btn }}">Edit</a>
+                                        <form action="{{ route('admin.tariffs.destroy', $item) }}" method="POST" onsubmit="return confirm('Delete this tariff and its PDF file?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="{{ $btnDanger }}">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="px-5 py-12 text-center">
+                                    @if(request()->anyFilled(['search', 'tag', 'status']))
+                                        <p class="text-sm font-semibold text-slate-700">No matching tariffs found</p>
+                                        <p class="mt-1 text-xs text-slate-500">Try adjusting your search keyword or filters.</p>
+                                    @else
+                                        <p class="text-sm font-semibold text-slate-700">No tariffs yet</p>
+                                        <p class="mt-1 text-xs text-slate-500">
+                                            <a href="{{ route('admin.tariffs.create') }}" class="font-semibold text-[#0A2540] underline">Add the first tariff</a>
+                                        </p>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- List (Mobile) --}}
+            <ul class="md:hidden space-y-3 px-3 pb-3">
+                @forelse($tariffs as $item)
+                    @php $a = $age($item->updated_at); @endphp
+                    <li class="rounded-xl bg-[#f6f9fc] p-3.5">
+                        <div class="flex items-start justify-between gap-3">
+                            <p class="text-sm font-semibold text-[#0A2540] line-clamp-2">{{ $item->title }}</p>
+                            <span class="shrink-0 rounded-full bg-white px-2 py-0.5 text-xs font-bold tabular-nums text-[#0A2540]">#{{ $item->sort_order }}</span>
+                        </div>
+                        @if($item->description)
+                            <p class="mt-1 text-xs text-slate-500 line-clamp-2">{{ $item->description }}</p>
+                        @endif
+                        <div class="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                            <span class="{{ $pillGray }} !bg-white">{{ $item->tag }}</span>
+                            @if($item->is_active)
+                                <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-800">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true"></span>Active
+                                </span>
+                            @else
+                                <span class="rounded-full bg-white px-2 py-0.5 font-semibold text-slate-500">Hidden</span>
+                            @endif
+                            <span class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 font-semibold {{ $a['pill'] }}">
+                                <span class="h-1.5 w-1.5 rounded-full {{ $a['dot'] }}" aria-hidden="true"></span>{{ $a['label'] }}
+                            </span>
+                            @if($item->hasPdf())
+                                <a href="{{ route('admin.tariffs.preview', $item) }}?v={{ $item->updated_at?->timestamp }}"
+                                   target="_blank" rel="noopener"
+                                   class="font-semibold text-[#0A2540] underline underline-offset-2">View PDF</a>
+                            @else
+                                <span class="rounded-full bg-red-50 px-2 py-0.5 font-semibold text-red-700">Not uploaded</span>
+                            @endif
+                        </div>
+                        <div class="mt-3 flex gap-2">
+                            <a href="{{ route('admin.tariffs.edit', $item) }}" class="{{ $btn }} !bg-white flex-1">Edit</a>
+                            <form action="{{ route('admin.tariffs.destroy', $item) }}" method="POST" class="flex-1" onsubmit="return confirm('Delete this tariff and its PDF file?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="{{ $btnDanger }} w-full">Delete</button>
+                            </form>
+                        </div>
+                    </li>
+                @empty
+                    <li class="px-4 py-10 text-center text-sm text-slate-500">
+                        @if(request()->anyFilled(['search', 'tag', 'status']))
+                            No matching tariffs found.
+                        @else
+                            No tariffs yet. <a href="{{ route('admin.tariffs.create') }}" class="font-semibold text-[#0A2540] underline">Add the first tariff</a>
+                        @endif
+                    </li>
+                @endforelse
+            </ul>
+
+            {{-- Pagination / Summary Footer --}}
+            @if($tariffs instanceof \Illuminate\Contracts\Pagination\Paginator)
+                <div class="border-t border-slate-100 px-5 py-3.5">
+                    {{ $tariffs->withQueryString()->links() }}
+                </div>
+            @elseif($tariffs->count() > 0)
+                <div class="flex items-center justify-between border-t border-slate-100 px-5 py-3.5 text-xs text-slate-500">
+                    <span>Showing <strong class="font-semibold text-[#0A2540]">{{ $tariffs->count() }}</strong> tariffs</span>
+                </div>
+            @endif
+
+        </section>
+
     </div>
 </x-admin-layout>
