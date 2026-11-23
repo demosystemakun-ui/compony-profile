@@ -564,78 +564,78 @@
 {{-- ═══════════════════════════════════════════════════════════════
      6. LOCATION & FACILITIES
 ═══════════════════════════════════════════════════════════════ --}}
-<section class="py-20 lg:py-28 bg-white border-t border-slate-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+<section class="py-20 lg:py-28 bg-stone-50">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
 
-            {{-- Kiri: judul --}}
-            <div class="lg:col-span-4" data-aos="fade-up">
-                <div class="lg:sticky lg:top-28">
-                    <h2 class="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900 leading-tight">
-                        Terminal Specifications
-                    </h2>
-                    <p class="mt-4 text-slate-600 leading-relaxed">
-                        An integrated vehicle terminal facility engineered to streamline
-                        domestic and international automotive supply chains.
-                    </p>
+        <div class="max-w-2xl" data-aos="fade-up">
+            <h2 class="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900">
+                Terminal Specifications
+            </h2>
+            <p class="mt-4 text-lg text-slate-600 leading-relaxed">
+                An integrated vehicle terminal facility engineered to streamline
+                domestic and international automotive supply chains.
+            </p>
+        </div>
+
+        @php
+            $featured = ['label' => 'Ro-Ro Berth', 'value' => '300', 'unit' => 'meters'];
+
+            $specs = [
+                ['label' => 'Water Depth',           'value' => '-14.0 m'],
+                ['label' => 'Staging Yard Area',     'value' => '200,000 m²'],
+                ['label' => 'Staging Yard Capacity', 'value' => '200,000 CBU / year'],
+            ];
+
+            $compliance = [
+                'Compliant with IMO ISPS Code standards',
+                '24/7 CCTV surveillance across all terminal zones',
+                'ISO certified quality, environmental, and safety management',
+            ];
+        @endphp
+
+        <div class="mt-12 grid grid-cols-1 md:grid-cols-5 gap-5" data-aos="fade-up" data-aos-delay="100">
+
+            {{-- Angka utama --}}
+            <div class="md:col-span-2 rounded-xl bg-blue-950 text-white p-8 flex flex-col justify-between min-h-[260px]">
+                <p class="text-sm text-blue-200">{{ $featured['label'] }}</p>
+                <div>
+                    <span class="block text-7xl sm:text-8xl font-semibold tracking-tighter leading-none tabular-nums">
+                        {{ $featured['value'] }}
+                    </span>
+                    <span class="mt-2 block text-blue-200">{{ $featured['unit'] }} of quay length</span>
                 </div>
             </div>
 
-            {{-- Kanan: data --}}
-            <div class="lg:col-span-8" data-aos="fade-up" data-aos-delay="100">
-                @php
-                    $specs = [
-                        ['label' => 'Ro-Ro Berth',           'value' => '300',     'unit' => 'm'],
-                        ['label' => 'Water Depth',           'value' => '-14.0',   'unit' => 'm'],
-                        ['label' => 'Staging Yard Area',     'value' => '200,000', 'unit' => 'm²'],
-                        ['label' => 'Staging Yard Capacity', 'value' => '200,000', 'unit' => 'CBU / year'],
-                    ];
-
-                    $compliance = [
-                        [
-                            'title' => 'Safety & Security',
-                            'text'  => 'Compliant with IMO ISPS Code standards, with 24/7 CCTV surveillance across all terminal zones.',
-                        ],
-                        [
-                            'title' => 'ISO Certified',
-                            'text'  => 'Operating under internationally recognized quality, environmental, and safety management standards.',
-                        ],
-                    ];
-                @endphp
-
-                {{-- Angka utama --}}
-                <dl class="grid grid-cols-1 sm:grid-cols-2 border-t border-l border-slate-200">
+            {{-- Daftar spesifikasi --}}
+            <div class="md:col-span-3 rounded-xl bg-white ring-1 ring-slate-200 p-8 flex flex-col justify-center">
+                <dl class="space-y-5">
                     @foreach($specs as $spec)
-                        <div class="border-r border-b border-slate-200 p-6 sm:p-8">
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">
-                                {{ $spec['label'] }}
-                            </dt>
-                            <dd class="mt-4 flex items-baseline gap-2">
-                                <span class="text-4xl sm:text-5xl font-semibold tracking-tight text-slate-900 tabular-nums">
-                                    {{ $spec['value'] }}
-                                </span>
-                                <span class="text-sm text-slate-500">{{ $spec['unit'] }}</span>
-                            </dd>
+                        <div class="flex items-baseline gap-3">
+                            <dt class="text-slate-600">{{ $spec['label'] }}</dt>
+                            <span class="flex-1 border-b border-dotted border-slate-300 translate-y-[-4px]" aria-hidden="true"></span>
+                            <dd class="text-lg font-semibold text-slate-900 tabular-nums">{{ $spec['value'] }}</dd>
                         </div>
                     @endforeach
                 </dl>
-
-                {{-- Standar & sertifikasi --}}
-                <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-8">
-                    @foreach($compliance as $item)
-                        <div class="border-t-2 border-blue-900 pt-4">
-                            <h3 class="font-semibold text-slate-900">{{ $item['title'] }}</h3>
-                            <p class="mt-2 text-sm text-slate-600 leading-relaxed">{{ $item['text'] }}</p>
-                        </div>
-                    @endforeach
-                </div>
             </div>
-
         </div>
+
+        {{-- Standar --}}
+        <ul class="mt-8 flex flex-col md:flex-row md:flex-wrap gap-x-8 gap-y-3 text-sm text-slate-700" data-aos="fade-up" data-aos-delay="150">
+            @foreach($compliance as $item)
+                <li class="flex items-start gap-2">
+                    <svg class="mt-0.5 h-4 w-4 shrink-0 text-blue-800" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M4 10.5l4 4 8-9"/>
+                    </svg>
+                    <span>{{ $item }}</span>
+                </li>
+            @endforeach
+        </ul>
+
     </div>
 </section>
 
-<!-- aajajdhauihiuwgf -->
+
 {{-- ═══════════════════════════════════════════════════════════════
      7. MAP & GOOGLE ADDRESS
 ═══════════════════════════════════════════════════════════════ --}}
