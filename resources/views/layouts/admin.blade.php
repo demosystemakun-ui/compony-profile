@@ -54,8 +54,9 @@
                 }
             }
         </style>
+        @stack('styles')
     </head>
-    <body class="font-sans antialiased bg-gray-100 text-gray-900">
+    <body class="font-sans antialiased bg-[#f6f9fc] text-gray-900">
 
         @php
             try {
@@ -67,6 +68,19 @@
             }
 
             $__isSuperAdmin = auth()->check() && auth()->user()->isSuperAdmin();
+
+            $__currentSectionTitle = match(true) {
+                request()->routeIs('dashboard')                            => 'Dashboard',
+                request()->is('pict-internal-admin-portal/tariffs*')         => 'Tariffs',
+                request()->is('pict-internal-admin-portal/news*')            => 'News',
+                request()->is('pict-internal-admin-portal/gallery*')         => 'Gallery',
+                request()->is('pict-internal-admin-portal/shipping-routes*') => 'Shipping Routes',
+                request()->routeIs('admin.contact-messages.*')               => 'Contact Messages',
+                request()->routeIs('users.*')                                => 'Manajemen User',
+                request()->routeIs('activity-logs.*')                        => 'Log Aktivitas',
+                request()->routeIs('profile.*')                              => 'Profile',
+                default                                                      => 'Admin Panel',
+            };
 
             $__mobileBottomItems = [
                 [
@@ -157,7 +171,6 @@
 
                 {{-- Navigation Links --}}
                 <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-
                     <x-sidebar-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" icon="dashboard">
                         {{ __('Dashboard') }}
                     </x-sidebar-link>
@@ -178,7 +191,6 @@
                         {{ __('Shipping Routes') }}
                     </x-sidebar-link>
 
-                    {{-- CONTACT MESSAGES --}}
                     <a href="{{ route('admin.contact-messages.index') }}"
                        class="flex items-center justify-between gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
                               {{ request()->routeIs('admin.contact-messages.*') ? 'bg-white/10 text-white' : 'text-gray-300 hover:bg-white/5 hover:text-white' }}">
@@ -196,7 +208,6 @@
                         @endif
                     </a>
 
-                    {{-- MENU KHUSUS SUPER ADMIN --}}
                     @if($__isSuperAdmin)
                         <div class="pt-5 mt-5 border-t border-white/10">
                             <div class="px-4 mb-3 text-[10px] font-bold text-red-400 uppercase tracking-widest flex items-center gap-2">
@@ -215,10 +226,8 @@
                             </x-sidebar-link>
                         </div>
                     @endif
-
                 </nav>
 
-                {{-- Footer Sidebar --}}
                 <div class="p-4 border-t border-white/10 shrink-0 text-xs text-gray-400 text-center">
                     © {{ date('Y') }} PICT System
                 </div>
@@ -235,7 +244,9 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                             </svg>
                         </button>
-                        <h1 class="text-sm font-semibold text-[#0A2540]">Admin Panel</h1>
+                        <h1 class="text-sm font-semibold text-[#0A2540]">
+                            @yield('pageTitle', $__currentSectionTitle)
+                        </h1>
                     </div>
 
                     <div class="relative" id="profileDropdownContainer">
@@ -287,20 +298,21 @@
                 {{-- Overlay (Mobile Sidebar) --}}
                 <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
 
-                {{-- Page Header (Slot) --}}
-                @isset($header)
-                    <header class="bg-white border-b border-gray-200 shadow-sm shrink-0">
-                        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                            {{ $header }}
-                        </div>
-                    </header>
-                @endisset
+                {{-- Single Scrollable Area (Header + Content) --}}
+                <div id="adminMainScroll" class="flex-1 min-w-0 lg:overflow-y-auto bg-[#f6f9fc]">
+                    @isset($header)
+                        <header class="bg-white border-b border-gray-200 shadow-sm">
+                            <div class="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8">
+                                {{ $header }}
+                            </div>
+                        </header>
+                    @endisset
 
-                {{-- Page Content --}}
-                <main id="adminMainScroll" class="flex-1 min-w-0 lg:overflow-y-auto bg-gray-100 p-4 sm:p-6 lg:p-8">
-                    @yield('content')
-                    {{ $slot ?? '' }}
-                </main>
+                    <main class="p-4 sm:p-6 lg:p-8">
+                        @yield('content')
+                        {{ $slot ?? '' }}
+                    </main>
+                </div>
             </div>
         </div>
 
@@ -470,5 +482,6 @@
                 }
             });
         </script>
+        @stack('scripts')
     </body>
 </html>
