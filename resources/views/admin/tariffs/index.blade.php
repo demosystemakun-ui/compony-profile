@@ -1,4 +1,7 @@
 @php
+    $editingTariff = $tariff ?? new \App\Models\Tariff();
+    $isEdit        = (bool) $editingTariff->exists;
+
     $age = function ($date) {
         $d = $date ? (int) $date->diffInDays(now()) : 0;
         if ($d > 30) return ['dot' => 'bg-red-500',     'pill' => 'bg-red-50 text-red-700',         'label' => $d . ' days ago'];
@@ -6,11 +9,13 @@
         return              ['dot' => 'bg-emerald-500', 'pill' => 'bg-emerald-50 text-emerald-800', 'label' => optional($date)->diffForHumans() ?? '-'];
     };
 
-    $focus     = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A2540]';
-    $btn       = "inline-flex items-center justify-center rounded-full bg-[#eef5fb] px-3.5 py-1.5 text-xs font-semibold text-[#0A2540] transition hover:bg-[#dce8f5] $focus";
-    $btnDanger = "inline-flex items-center justify-center rounded-full bg-red-50 px-3.5 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 $focus";
-    $card      = 'bg-white rounded-2xl shadow-sm border border-slate-100';
-    $pillGray  = 'inline-block rounded-full bg-[#eef5fb] px-2.5 py-0.5 text-xs font-semibold text-[#0A2540]';
+    $focus      = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A2540]';
+    $input      = "w-full rounded-xl border border-slate-200 bg-[#f6f9fc] px-3.5 py-2 text-sm text-[#0A2540] placeholder-slate-400 transition focus:border-[#0A2540] focus:bg-white focus:outline-none";
+    $btn        = "inline-flex items-center justify-center rounded-full bg-[#eef5fb] px-3.5 py-1.5 text-xs font-semibold text-[#0A2540] transition hover:bg-[#dce8f5] $focus";
+    $btnPrimary = "inline-flex items-center justify-center gap-1.5 rounded-full bg-[#0A2540] px-4 py-1.5 text-xs font-bold text-white transition hover:bg-[#13385e] $focus";
+    $btnDanger  = "inline-flex items-center justify-center rounded-full bg-red-50 px-3.5 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 $focus";
+    $card       = 'bg-white rounded-2xl shadow-sm border border-slate-100';
+    $pillGray   = 'inline-block rounded-full bg-[#eef5fb] px-2.5 py-0.5 text-xs font-semibold text-[#0A2540]';
 @endphp
 
 <x-admin-layout>
@@ -35,6 +40,7 @@
             </div>
         @endif
 
+        {{-- ═══ TABEL DATA TARIF (TAMPIL PERTAMA) ═══ --}}
         <section class="{{ $card }} overflow-hidden">
 
             {{-- Top Bar: Title, Search, Filter, Add Button --}}
@@ -87,13 +93,14 @@
                         @endif
                     </form>
 
-                    <a href="{{ route('admin.tariffs.create') }}"
-                       class="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#0A2540] px-4 py-1.5 text-xs font-bold text-white transition hover:bg-[#13385e] shrink-0 {{ $focus }}">
+                    <button type="button"
+                            onclick="openTariffModal()"
+                            class="{{ $btnPrimary }} shrink-0">
                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 5v14M5 12h14"/>
                         </svg>
                         Add tariff
-                    </a>
+                    </button>
                 </div>
             </div>
 
@@ -182,7 +189,7 @@
                                     @else
                                         <p class="text-sm font-semibold text-slate-700">No tariffs yet</p>
                                         <p class="mt-1 text-xs text-slate-500">
-                                            <a href="{{ route('admin.tariffs.create') }}" class="font-semibold text-[#0A2540] underline">Add the first tariff</a>
+                                            <button type="button" onclick="openTariffModal()" class="font-semibold text-[#0A2540] underline">Add the first tariff</button>
                                         </p>
                                     @endif
                                 </td>
@@ -238,7 +245,7 @@
                         @if(request()->anyFilled(['search', 'tag', 'status']))
                             No matching tariffs found.
                         @else
-                            No tariffs yet. <a href="{{ route('admin.tariffs.create') }}" class="font-semibold text-[#0A2540] underline">Add the first tariff</a>
+                            No tariffs yet. <button type="button" onclick="openTariffModal()" class="font-semibold text-[#0A2540] underline">Add the first tariff</button>
                         @endif
                     </li>
                 @endforelse
@@ -258,4 +265,209 @@
         </section>
 
     </div>
+
+    {{-- ═══ MODAL FORM TARIF MELAYANG + BLUR BACKDROP ═══ --}}
+    <div id="tariffModal"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="tariffModalTitle"
+         class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+        <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-slate-100 bg-white shadow-xl">
+            <form method="POST"
+                  action="{{ $isEdit ? route('admin.tariffs.update', $editingTariff) : route('admin.tariffs.store') }}"
+                  enctype="multipart/form-data">
+                @csrf
+                @if($isEdit) @method('PUT') @endif
+
+                <div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white px-5 py-4">
+                    <div>
+                        <h3 id="tariffModalTitle" class="text-base font-bold text-[#0A2540]">
+                            {{ $isEdit ? 'Edit tariff' : 'Add new tariff' }}
+                        </h3>
+                        <p class="text-xs text-slate-500">
+                            {{ $isEdit ? 'Update tariff document information' : 'Complete the tariff document details below' }}
+                        </p>
+                    </div>
+                    <button type="button"
+                            onclick="closeTariffModal()"
+                            aria-label="Close modal"
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-[#eef5fb] text-sm font-bold text-[#0A2540] transition hover:bg-[#dce8f5] {{ $focus }}">
+                        &times;
+                    </button>
+                </div>
+
+                <div class="p-5 space-y-4">
+                    @if ($errors->any())
+                        <div role="alert" class="rounded-xl bg-red-50 px-4 py-3 text-xs sm:text-sm text-red-800 ring-1 ring-red-200">
+                            <ul class="list-disc pl-5 space-y-1">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    {{-- Kategori & Judul --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label for="tariffTag" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                                Category <span class="text-red-500">*</span>
+                            </label>
+                            <select id="tariffTag" name="tag" required class="{{ $input }} cursor-pointer">
+                                <option value="" disabled @selected(!old('tag', $editingTariff->tag))>Select category</option>
+                                @foreach(\App\Models\Tariff::TAGS as $tag)
+                                    <option value="{{ $tag }}" @selected(old('tag', $editingTariff->tag) === $tag)>{{ $tag }}</option>
+                                @endforeach
+                            </select>
+                            @error('tag') <p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label for="tariffTitle" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                                Title <span class="text-red-500">*</span>
+                            </label>
+                            <input id="tariffTitle"
+                                   type="text"
+                                   name="title"
+                                   value="{{ old('title', $editingTariff->title) }}"
+                                   placeholder="Domestic Tariffs"
+                                   class="{{ $input }}"
+                                   required>
+                            @error('title') <p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
+
+                    {{-- Deskripsi --}}
+                    <div>
+                        <label for="tariffDescription" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                            Short description
+                        </label>
+                        <textarea id="tariffDescription"
+                                  name="description"
+                                  rows="3"
+                                  placeholder="Explain the content of this tariff document..."
+                                  class="{{ $input }} resize-none">{{ old('description', $editingTariff->description) }}</textarea>
+                        @error('description') <p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p> @enderror
+                    </div>
+
+                    {{-- Ikon & Urutan --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="tariffIcon" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                                Icon
+                            </label>
+                            <select id="tariffIcon" name="icon" class="{{ $input }} cursor-pointer">
+                                @foreach(['building' => 'Building', 'globe' => 'Globe', 'document' => 'Document'] as $key => $label)
+                                    <option value="{{ $key }}" @selected(old('icon', $editingTariff->icon) === $key)>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                            @error('icon') <p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div>
+                            <label for="tariffSortOrder" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                                Sort order
+                            </label>
+                            <select id="tariffSortOrder" name="sort_order" class="{{ $input }} cursor-pointer">
+                                @foreach([1, 2, 3] as $order)
+                                    <option value="{{ $order }}" @selected(old('sort_order', $editingTariff->sort_order ?? 1) == $order)>{{ $order }}</option>
+                                @endforeach
+                            </select>
+                            @error('sort_order') <p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
+
+                    {{-- PDF --}}
+                    <div class="rounded-xl border border-slate-200 bg-[#f6f9fc] p-4">
+                        <label for="tariffPdf" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
+                            {{ $isEdit && $editingTariff->hasPdf() ? 'Change PDF file' : 'PDF file' }}
+                            <span class="text-red-500">*</span>
+                        </label>
+
+                        @if($isEdit && $editingTariff->hasPdf())
+                            <div class="mb-3 rounded-xl border border-slate-200 bg-white p-2.5 text-xs text-slate-600">
+                                Current file:
+                                <a href="{{ $editingTariff->pdfUrl() }}"
+                                   target="_blank"
+                                   rel="noopener"
+                                   class="font-semibold text-[#0A2540] hover:text-[#EC2029] underline">
+                                    {{ basename($editingTariff->pdf_path) }}
+                                </a>
+                                <span class="text-slate-400">&mdash; Leave blank if you don't want to change it.</span>
+                            </div>
+                        @endif
+
+                        <input id="tariffPdf"
+                               type="file"
+                               name="pdf"
+                               accept="application/pdf"
+                               @if(!$isEdit || !$editingTariff->hasPdf()) required @endif
+                               class="block w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs sm:text-sm text-slate-700 file:mr-3 file:rounded-full file:border-0 file:bg-[#eef5fb] file:px-3.5 file:py-1.5 file:text-xs file:font-semibold file:text-[#0A2540] hover:file:bg-[#dce8f5] transition focus:border-[#0A2540] focus:outline-none">
+                        <p class="mt-1.5 text-xs text-slate-400">PDF file, max 10 MB.</p>
+                        @error('pdf') <p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p> @enderror
+
+                        @if($isEdit && $editingTariff->hasPdf())
+                            <label class="mt-3 flex cursor-pointer items-center gap-2 rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-100 transition">
+                                <input type="checkbox" name="remove_pdf" value="1" class="rounded border-slate-300 text-red-600 focus:ring-red-500">
+                                <span>Delete existing PDF</span>
+                            </label>
+                        @endif
+                    </div>
+
+                    {{-- Aktif --}}
+                    <label class="flex cursor-pointer items-center gap-3 rounded-xl bg-[#f6f9fc] p-3 border border-slate-100 hover:bg-[#eef5fb]/60 transition">
+                        <input type="checkbox"
+                               name="is_active"
+                               value="1"
+                               @checked(old('is_active', $editingTariff->is_active ?? true))
+                               class="h-4 w-4 shrink-0 rounded border-slate-300 text-[#0A2540] focus:ring-[#0A2540]">
+                        <div>
+                            <div class="text-xs sm:text-sm font-semibold text-[#0A2540]">Show in public</div>
+                            <div class="text-xs text-slate-500">If disabled, this tariff will not appear on the public website</div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="sticky bottom-0 flex items-center justify-end gap-2.5 border-t border-slate-100 bg-[#f6f9fc] px-5 py-4">
+                    <button type="button"
+                            onclick="closeTariffModal()"
+                            class="inline-flex items-center justify-center rounded-full bg-white px-4 py-2 text-xs sm:text-sm font-semibold text-[#0A2540] ring-1 ring-slate-200 transition hover:bg-[#eef5fb] {{ $focus }}">
+                        Cancel
+                    </button>
+                    <button type="submit" class="{{ $btnPrimary }} !px-5 !py-2 !text-xs sm:!text-sm">
+                        {{ $isEdit ? 'Save changes' : 'Save tariff' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @push('scripts')
+    <script>
+        function openTariffModal() {
+            const modal = document.getElementById('tariffModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeTariffModal() {
+            const modal = document.getElementById('tariffModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('tariffModal');
+            modal.addEventListener('click', function (e) {
+                if (e.target === this) {
+                    closeTariffModal();
+                }
+            });
+
+            @if ($errors->any() || $isEdit)
+                openTariffModal();
+            @endif
+        });
+    </script>
+    @endpush
 </x-admin-layout>
