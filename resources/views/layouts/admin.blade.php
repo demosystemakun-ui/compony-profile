@@ -63,8 +63,7 @@
                 $__unreadContact = \Illuminate\Support\Facades\Schema::hasTable('contact_messages')
                     ? \App\Models\ContactMessage::where('is_read', false)->count()
                     : 0;
-            } catch (\Throwable $e) {
-                $__unreadContact = 0;
+            } catch (\Throwable $e) {$__unreadContact = 0;
             }
 
             $__isSuperAdmin = auth()->check() && auth()->user()->isSuperAdmin();
@@ -139,13 +138,7 @@
             ];
 
             if ($__isSuperAdmin) {
-                $__mobileMoreItems[] = [
-                    'label'  => 'Manajemen User',
-                    'url'    => route('users.index'),
-                    'active' => request()->routeIs('users.*'),
-                    'icon'   => 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z',
-                ];
-                $__mobileMoreItems[] = [
+                $__mobileMoreItems[] = [ 'label'  => 'Manajemen User', 'url'    => route('users.index'), 'active' => request()->routeIs('users.*'), 'icon'   => 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z', ];$__mobileMoreItems[] = [
                     'label'  => 'Log Aktivitas',
                     'url'    => route('activity-logs.index'),
                     'active' => request()->routeIs('activity-logs.*'),
@@ -153,23 +146,32 @@
                 ];
             }
 
-            $__isAdminMoreActive = collect($__mobileMoreItems)->contains(fn ($item) => $item['active']);
+            $__isAdminMoreActive = collect($__mobileMoreItems)->contains(fn ($item) =>$item['active']);
         @endphp
 
         <div id="adminShell" class="flex min-h-dvh lg:h-screen lg:overflow-hidden overflow-x-clip">
 
             {{-- SIDEBAR --}}
-            <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-[#0A2540] text-white transform -translate-x-full lg:translate-x-0 lg:static lg:inset-0 transition-transform duration-300 ease-in-out flex flex-col shrink-0">
+            <aside id="sidebar"
+                   aria-label="Sidebar Navigation"
+                   class="fixed inset-y-0 left-0 z-50 w-64 bg-[#0A2540] text-white transform -translate-x-full lg:translate-x-0 lg:static lg:inset-0 transition-transform duration-300 ease-in-out flex flex-col shrink-0">
 
-                {{-- Logo --}}
-                <div class="flex items-center justify-center h-16 bg-[#081c30] border-b border-white/10 shrink-0">
+                <div class="flex items-center justify-between lg:justify-center h-16 px-4 bg-[#081c30] border-b border-white/10 shrink-0">
                     <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
                         <img src="{{ asset('assets/images/pict.png') }}" alt="PICT Logo" class="h-8 w-auto object-contain" />
                         <span class="font-bold text-lg tracking-wider">PICT Admin</span>
                     </a>
+
+                    <button type="button"
+                            id="sidebarClose"
+                            aria-label="Tutup sidebar"
+                            class="lg:hidden p-1.5 rounded-lg text-gray-300 hover:text-white hover:bg-white/10">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
                 </div>
 
-                {{-- Navigation Links --}}
                 <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
                     <x-sidebar-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" icon="dashboard">
                         {{ __('Dashboard') }}
@@ -203,7 +205,7 @@
                         </span>
                         @if($__unreadContact > 0)
                             <span class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-600 text-white text-[10px] font-extrabold">
-                                {{ $__unreadContact > 99 ? '99+' : $__unreadContact }}
+                                {{ $__unreadContact > 99 ? '99+' :$__unreadContact }}
                             </span>
                         @endif
                     </a>
@@ -236,20 +238,27 @@
             {{-- MAIN CONTENT AREA --}}
             <div class="flex-1 flex flex-col min-h-dvh lg:h-screen lg:overflow-hidden relative min-w-0">
 
-                {{-- TOP HEADER --}}
-                <header class="bg-white border-b border-gray-200 h-16 shrink-0 z-30 flex items-center justify-between px-4 sm:px-6 lg:px-8 shadow-sm">
-                    <div class="flex items-center gap-3">
-                        <button type="button" id="sidebarToggle" class="lg:hidden p-2 rounded-md text-gray-500 hover:bg-gray-100 focus:outline-none">
+                {{-- SINGLE TOP HEADER --}}
+                <header class="bg-white border-b border-gray-200 min-h-16 shrink-0 z-30 flex items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 py-3 shadow-sm">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <button type="button" id="sidebarToggle" class="lg:hidden p-2 rounded-md text-gray-500 hover:bg-gray-100 focus:outline-none shrink-0">
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                             </svg>
                         </button>
-                        <h1 class="text-sm font-semibold text-[#0A2540]">
-                            @yield('pageTitle', $__currentSectionTitle)
-                        </h1>
+
+                        <div class="min-w-0">
+                            @isset($header)
+                                {{ $header }}
+                            @else
+                                <h1 class="text-base sm:text-lg font-bold text-[#0A2540] truncate">
+                                    @yield('pageTitle', $__currentSectionTitle)
+                                </h1>
+                            @endisset
+                        </div>
                     </div>
 
-                    <div class="relative" id="profileDropdownContainer">
+                    <div class="relative shrink-0" id="profileDropdownContainer">
                         <button type="button" id="profileDropdownBtn"
                                 class="flex items-center gap-2.5 px-2 py-1.5 rounded-full hover:bg-gray-100 transition-colors focus:outline-none">
                             <div class="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-xs font-bold text-white shadow-sm">
@@ -298,21 +307,11 @@
                 {{-- Overlay (Mobile Sidebar) --}}
                 <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
 
-                {{-- Single Scrollable Area (Header + Content) --}}
-                <div id="adminMainScroll" class="flex-1 min-w-0 lg:overflow-y-auto bg-[#f6f9fc]">
-                    @isset($header)
-                        <header class="bg-white border-b border-gray-200 shadow-sm">
-                            <div class="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8">
-                                {{ $header }}
-                            </div>
-                        </header>
-                    @endisset
-
-                    <main class="p-4 sm:p-6 lg:p-8">
-                        @yield('content')
-                        {{ $slot ?? '' }}
-                    </main>
-                </div>
+                {{-- Page Content --}}
+                <main id="adminMainScroll" class="flex-1 min-w-0 lg:overflow-y-auto bg-[#f6f9fc] p-4 sm:p-6 lg:p-8">
+                    @yield('content')
+                    {{ $slot ?? '' }}
+                </main>
             </div>
         </div>
 
@@ -322,7 +321,7 @@
              style="bottom: calc(max(0.75rem, env(safe-area-inset-bottom, 0px)) + var(--admin-tab-h) + 0.5rem);">
             <div class="max-w-md mx-auto bg-white/95 backdrop-blur-2xl border border-slate-200 rounded-3xl p-3 shadow-2xl shadow-slate-900/15 pointer-events-auto">
                 <div class="grid grid-cols-2 gap-2">
-                    @foreach($__mobileMoreItems as $item)
+                    @foreach($__mobileMoreItems as$item)
                         <a href="{{ $item['url'] }}"
                            @if($item['active']) aria-current="page" @endif
                            class="flex items-center gap-2.5 px-3 py-3 rounded-2xl text-xs font-semibold transition active:scale-95
@@ -357,7 +356,7 @@
             <div class="pointer-events-auto max-w-md mx-auto grid grid-cols-5 gap-1 p-1.5 bg-white/90 backdrop-blur-xl border border-slate-200/90 rounded-3xl shadow-2xl shadow-slate-900/10"
                  style="height: var(--admin-tab-h);">
 
-                @foreach($__mobileBottomItems as $tab)
+                @foreach($__mobileBottomItems as$tab)
                     <a href="{{ $tab['url'] }}"
                        @if($tab['active']) aria-current="page" @endif
                        class="relative flex flex-col items-center justify-center gap-0.5 rounded-2xl select-none transition active:scale-90
@@ -368,7 +367,7 @@
                             </svg>
                             @if($tab['badge'] > 0)
                                 <span class="absolute -top-1.5 -right-2.5 inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-red-600 text-white text-[9px] font-extrabold leading-none">
-                                    {{ $tab['badge'] > 99 ? '99+' : $tab['badge'] }}
+                                    {{ $tab['badge'] > 99 ? '99+' :$tab['badge'] }}
                                 </span>
                             @endif
                         </div>
@@ -406,16 +405,23 @@
             document.addEventListener('DOMContentLoaded', () => {
                 const sidebar = document.getElementById('sidebar');
                 const toggleBtn = document.getElementById('sidebarToggle');
+                const closeBtn = document.getElementById('sidebarClose');
                 const overlay = document.getElementById('sidebarOverlay');
 
-                function toggleSidebar() {
+                function toggleSidebar(forceClose = false) {
                     if (!sidebar || !overlay) return;
+                    if (forceClose) {
+                        sidebar.classList.add('-translate-x-full');
+                        overlay.classList.add('hidden');
+                        return;
+                    }
                     sidebar.classList.toggle('-translate-x-full');
                     overlay.classList.toggle('hidden');
                 }
 
-                if (toggleBtn) toggleBtn.addEventListener('click', toggleSidebar);
-                if (overlay) overlay.addEventListener('click', toggleSidebar);
+                if (toggleBtn) toggleBtn.addEventListener('click', () => toggleSidebar(false));
+                if (closeBtn) closeBtn.addEventListener('click', () => toggleSidebar(true));
+                if (overlay) overlay.addEventListener('click', () => toggleSidebar(true));
 
                 const profileBtn = document.getElementById('profileDropdownBtn');
                 const profileMenu = document.getElementById('profileDropdownMenu');
