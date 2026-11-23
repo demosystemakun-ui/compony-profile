@@ -1,3 +1,4 @@
+
 {{--
     Semua data dikirim dari App\Http\Controllers\DashboardController:
     $isSuperAdmin, $totalNews, $totalTariffs, $totalUsers, $staleNews, $staleTariffs,
@@ -27,7 +28,7 @@
         ['label' => 'News',            'value' => $totalNews,         'sub' => 'Updated ' . $lastNewsAgo,             'href' => route('admin.news.index'),
          'tint' => 'bg-red-50',  'ic' => 'text-[#EC2029]', 'icon' => 'M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2'],
         ['label' => 'Tariffs',         'value' => $totalTariffs,      'sub' => 'Updated ' . $lastTariffAgo,           'href' => route('admin.tariffs.index'),
-         'tint' => 'bg-[#e3eefb]', 'ic' => 'text-[#0A2540]', 'icon' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
+         'tint' => 'bg-[#e3eefb]', 'ic' => 'text-[#0A2540]', 'icon' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 0 01.293.707V19a2 2 0 01-2 2z'],
         ['label' => 'Gallery',         'value' => $totalGallery ?? 0, 'sub' => 'Updated ' . ($lastGalleryAgo ?? '-'), 'href' => url('/pict-internal-admin-portal/gallery'),
          'tint' => 'bg-red-50',  'ic' => 'text-[#EC2029]', 'icon' => 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'],
         ['label' => 'Shipping routes', 'value' => $totalRoutes ?? 0,  'sub' => ($activeRoutes ?? 0) . ' active',      'href' => url('/pict-internal-admin-portal/shipping-routes'),
@@ -445,19 +446,24 @@
         </div>
     </div>
 
-    @push('scripts')
     <script>
-        function updateRealTimeClock() {
-            const el = document.getElementById('live-clock');
-            if (!el) return;
-            const now = new Date();
-            el.innerText = now.toLocaleDateString('id-ID', {
-                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-                hour: '2-digit', minute: '2-digit', second: '2-digit'
-            });
-        }
-        setInterval(updateRealTimeClock, 1000);
-        updateRealTimeClock();
+        (function () {
+            function updateRealTimeClock() {
+                const el = document.getElementById('live-clock');
+                if (!el) return;
+                const now = new Date();
+                el.innerText = now.toLocaleDateString('id-ID', {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                });
+            }
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', updateRealTimeClock);
+            } else {
+                updateRealTimeClock();
+            }
+            setInterval(updateRealTimeClock, 1000);
+        })();
     </script>
-    @endpush
 </x-admin-layout>
+
