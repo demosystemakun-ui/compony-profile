@@ -94,11 +94,19 @@ class TariffController extends Controller
 
     public function store(Request $request)
     {
+        // PDF WAJIB saat create + maksimal 10 MB
+        $request->validate([
+            'pdf' => ['required', 'file', 'mimes:pdf', 'max:10240'],
+        ], [
+            'pdf.required' => 'File PDF wajib diunggah.',
+            'pdf.file'     => 'File PDF tidak valid.',
+            'pdf.mimes'    => 'File harus berformat PDF.',
+            'pdf.max'      => 'Ukuran PDF maksimal 10 MB.',
+        ]);
+
         $data = $this->validated($request);
 
-        if ($request->hasFile('pdf')) {
-            $data['pdf_path'] = $request->file('pdf')->store('tariffs', self::DISK);
-        }
+        $data['pdf_path'] = $request->file('pdf')->store('tariffs', self::DISK);
 
         Tariff::create($data);
 
@@ -115,6 +123,25 @@ class TariffController extends Controller
 
     public function update(Request $request, Tariff $tariff)
     {
+        // PDF wajib jika:
+        // - belum punya file, ATAU
+        // - admin mencentang "Delete PDF" (remove_pdf)
+        $hasExisting = $tariff->hasPdf() && !$request->boolean('remove_pdf');
+
+        $request->validate([
+            'pdf' => [
+                $hasExisting ? 'nullable' : 'required',
+                'file',
+                'mimes:pdf',
+                'max:10240',
+            ],
+        ], [
+            'pdf.required' => 'File PDF wajib diunggah.',
+            'pdf.file'     => 'File PDF tidak valid.',
+            'pdf.mimes'    => 'File harus berformat PDF.',
+            'pdf.max'      => 'Ukuran PDF maksimal 10 MB.',
+        ]);
+
         $data    = $this->validated($request);
         $oldPath = $tariff->pdf_path;
 
@@ -122,6 +149,9 @@ class TariffController extends Controller
         if ($request->hasFile('pdf')) {
             $data['pdf_path'] = $request->file('pdf')->store('tariffs', self::DISK);
         } elseif ($request->boolean('remove_pdf')) {
+            // Karena validasi di atas mewajibkan upload saat remove_pdf,
+            // cabang ini hanya tercapai bila hasExisting === true namun user
+            // tidak mencentang remove_pdf (tidak mungkin), jadi aman.
             $data['pdf_path'] = null;
         }
 
@@ -176,7 +206,7 @@ class TariffController extends Controller
             'description' => ['nullable', 'string', 'max:300'],
             'icon'        => ['required', Rule::in(array_keys(Tariff::ICONS))],
             'sort_order'  => ['nullable', 'integer', 'min:0', 'max:999'],
-            'pdf'         => ['nullable', 'file', 'mimes:pdf', 'max:20480'], // 20 MB
+            'pdf'         => ['nullable', 'file', 'mimes:pdf', 'max:10240'], // 10 MB
         ]);
 
         $data['is_active']  = $request->boolean('is_active');
