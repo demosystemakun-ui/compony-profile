@@ -17,7 +17,7 @@
     <x-slot name="header">
         <div>
             <h2 class="text-base sm:text-lg font-bold text-[#0A2540] leading-tight tracking-tight">
-                {{ __('Kelola Berita') }}
+                {{ __('Manage News') }}
             </h2>
             <p class="text-xs text-slate-500">Manage all news articles published on the website</p>
         </div>
