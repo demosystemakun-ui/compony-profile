@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('title', 'Operations — PT Patimban International Car Terminal')
@@ -631,6 +632,28 @@
         return '🌤️';
     }
 
+    function extractDateAndTime(raw) {
+        if (!raw || typeof raw !== 'object') return { date: '', time: '--:--', full: '' };
+        const fullStr = String(
+            raw.local_datetime ?? raw.datetime ?? raw.date_time ?? raw.waktu ?? raw.time ?? raw.date ?? ''
+        ).trim();
+
+        let datePart = String(raw.date ?? '').slice(0, 10);
+        let timePart = '';
+
+        const timeMatch = fullStr.match(/(\d{2}:\d{2})/);
+        if (timeMatch) timePart = timeMatch[1];
+
+        const dateMatch = fullStr.match(/(\d{4}-\d{2}-\d{2})/);
+        if (!datePart && dateMatch) datePart = dateMatch[1];
+
+        return {
+            date: datePart,
+            time: timePart || '--:--',
+            full: fullStr,
+        };
+    }
+
     function updateBerthStatus(windSpeed, conditionTextOrCode) {
         const berthEl    = document.getElementById('berth-status');
         const berthSubEl = document.getElementById('berth-status-sub');
@@ -663,6 +686,32 @@
         }
     }
 
+    async function fetchOpenMeteo3HourlyByDate() {
+        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-6.23&longitude=107.85&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&hourly=temperature_2m,wind_speed_10m,weather_code&daily=weathercode,temperature_2m_max,temperature_2m_min,wind_speed_10m_max&timezone=auto&forecast_days=3');
+        const data = await res.json();
+
+        const slotsByDate = {};
+        if (data?.hourly?.time) {
+            data.hourly.time.forEach((isoTime, hIdx) => {
+                const dateStr = isoTime.slice(0, 10);
+                const hourNum = Number(isoTime.slice(11, 13));
+                if (hourNum % 3 === 0) {
+                    const hw = fnGetWeatherDetails(data.hourly.weather_code[hIdx]);
+                    if (!slotsByDate[dateStr]) slotsByDate[dateStr] = [];
+                    slotsByDate[dateStr].push({
+                        time: isoTime.slice(11, 16),
+                        icon: hw.icon,
+                        desc: hw.desc,
+                        temp: Math.round(data.hourly.temperature_2m[hIdx]),
+                        wind: Math.round(data.hourly.wind_speed_10m[hIdx]),
+                    });
+                }
+            });
+        }
+
+        return { data, slotsByDate };
+    }
+
     function renderForecastCards(items, badgeText = '3-Day · 3-Hourly Outlook') {
         const container = document.getElementById('weather-forecast-container');
         const badge     = document.getElementById('weather-window-badge');
@@ -671,29 +720,45 @@
         if (badge) badge.innerText = badgeText;
         container.innerHTML = '';
 
+        const now = new Date();
+        const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
         items.forEach((item, index) => {
-            const dateObj = new Date(item.date);
-            const dayName = index === 0 ? 'Today' : dateObj.toLocaleDateString('en-US', { weekday: 'short' });
-            const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            const slots = Array.isArray(item.slots) ? item.slots : [];
+            const dateObj = new Date(item.date + 'T00:00:00');
+            const isValidDate = !Number.isNaN(dateObj.getTime());
+            const dayName = index === 0 ? 'Today' : (isValidDate ? dateObj.toLocaleDateString('en-US', { weekday: 'short' }) : `Day ${index + 1}`);
+            const formattedDate = isValidDate ? dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : item.date;
+
+            let slots = Array.isArray(item.slots) ? [...item.slots] : [];
+
+            if (index === 0 && slots.length > 0) {
+                const upcoming = slots.filter(s => {
+                    const parts = String(s.time || '').split(':');
+                    if (parts.length < 2) return true;
+                    const mins = Number(parts[0]) * 60 + Number(parts[1]);
+                    return mins >= nowMinutes - 90;
+                });
+                if (upcoming.length > 0) {
+                    slots = upcoming;
+                }
+            }
 
             const slotsHtml = slots.length > 0
                 ? `<div class="mt-4 pt-3 border-t border-slate-700/60">
                         <div class="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
                             <span>3-Hour Window</span>
-                            <span>Temp · Wind</span>
+                            <span>${index === 0 ? 'Next Slots' : 'All Slots'}</span>
                         </div>
-                        <div class="space-y-1.5 max-h-44 overflow-y-auto pr-1">
-                            ${slots.map(s => `
-                                <div class="flex items-center justify-between rounded-xl bg-slate-900/65 px-2.5 py-1.5 text-xs">
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-mono text-[11px] font-semibold text-slate-300">${s.time}</span>
-                                        <span class="text-sm leading-none">${s.icon}</span>
-                                        <span class="text-[11px] text-slate-400 truncate max-w-[85px]">${s.desc}</span>
+                        <div class="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto pr-0.5">
+                            ${slots.map((s, sIdx) => `
+                                <div class="flex items-center justify-between rounded-xl ${index === 0 && sIdx === 0 ? 'bg-sky-500/15 ring-1 ring-sky-400/40' : 'bg-slate-900/70'} px-2.5 py-1.5 text-[11px]">
+                                    <div class="flex items-center gap-1.5 min-w-0">
+                                        <span class="font-mono font-bold text-slate-200">${s.time}</span>
+                                        <span class="text-sm leading-none shrink-0">${s.icon}</span>
                                     </div>
-                                    <div class="flex items-center gap-2 font-mono text-[11px]">
-                                        <span class="font-bold text-slate-100">${s.temp}°C</span>
-                                        <span class="text-sky-400">${s.wind} km/h</span>
+                                    <div class="flex items-center gap-1.5 font-mono shrink-0">
+                                        <span class="font-bold text-white">${s.temp}°</span>
+                                        <span class="text-sky-400">${s.wind}k</span>
                                     </div>
                                 </div>
                             `).join('')}
@@ -733,7 +798,6 @@
         const sourceLabel = document.getElementById('weather-source-label');
 
         try {
-            // 1. Coba endpoint BMKG via Laravel cache
             const bmkgRes = await fetch("{{ route('api.patimban.weather') }}");
             const bmkg = await bmkgRes.json();
 
@@ -743,17 +807,34 @@
                 document.getElementById('weather-humidity').innerText = bmkg.current.humidity + ' %';
                 updateBerthStatus(Number(bmkg.current.wind), bmkg.current.desc_en);
 
-                const rawHourly = Array.isArray(bmkg.hourly) ? bmkg.hourly : [];
+                const rawHourly = Array.isArray(bmkg.hourly)
+                    ? bmkg.hourly
+                    : (Array.isArray(bmkg.slots) ? bmkg.slots : (Array.isArray(bmkg.forecasts) ? bmkg.forecasts : []));
+
+                let fallbackSlotsByDate = {};
+                const hasAnyBmkgSlots = rawHourly.length > 0 || (bmkg.daily || []).some(d =>
+                    (Array.isArray(d.hourly) && d.hourly.length > 0) ||
+                    (Array.isArray(d.slots) && d.slots.length > 0) ||
+                    (Array.isArray(d.forecasts) && d.forecasts.length > 0)
+                );
+
+                if (!hasAnyBmkgSlots) {
+                    const om = await fetchOpenMeteo3HourlyByDate();
+                    fallbackSlotsByDate = om.slotsByDate;
+                }
 
                 const mappedDaily = (bmkg.daily || []).slice(0, 3).map(d => {
-                    const inlineSlots = d.hourly || d.slots || d.forecasts || rawHourly.filter(h => (h.date || '').startsWith(d.date));
-                    const normalizedSlots = (inlineSlots || []).map(h => {
-                        const timePart = h.time
-                            || (h.local_datetime ? String(h.local_datetime).slice(11, 16) : '')
-                            || (h.datetime ? String(h.datetime).slice(11, 16) : '--:--');
+                    const dateStr = String(d.date ?? '').slice(0, 10);
+                    const inlineSlots = d.hourly || d.slots || d.forecasts || rawHourly.filter(h => {
+                        const dt = extractDateAndTime(h);
+                        return dt.date === dateStr || dt.full.startsWith(dateStr);
+                    });
+
+                    let normalizedSlots = (inlineSlots || []).map(h => {
+                        const dt = extractDateAndTime(h);
                         const descText = h.desc_en || h.weather_desc_en || h.desc || d.desc_en;
                         return {
-                            time: timePart,
+                            time: dt.time,
                             icon: mapBmkgIcon(descText),
                             desc: descText,
                             temp: Math.round(h.temp ?? h.t ?? d.temp_max),
@@ -761,8 +842,12 @@
                         };
                     });
 
+                    if (normalizedSlots.length === 0 && fallbackSlotsByDate[dateStr]) {
+                        normalizedSlots = fallbackSlotsByDate[dateStr];
+                    }
+
                     return {
-                        date: d.date,
+                        date: dateStr || d.date,
                         icon: mapBmkgIcon(d.desc_en),
                         desc: d.desc_en,
                         maxTemp: Math.round(d.temp_max),
@@ -772,16 +857,17 @@
                     };
                 });
 
-                renderForecastCards(mappedDaily, 'BMKG · 3-Day Official');
+                renderForecastCards(
+                    mappedDaily,
+                    hasAnyBmkgSlots ? 'BMKG · 3-Day Official' : 'BMKG + 3-Hour Slots'
+                );
                 if (sourceLabel) {
                     sourceLabel.innerText = 'Source: BMKG (Badan Meteorologi, Klimatologi, dan Geofisika) — Desa Patimban, Subang.';
                 }
                 return;
             }
 
-            // 2. Fallback otomatis ke Open-Meteo jika BMKG tidak tersedia (termasuk interval 3-jam)
-            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-6.23&longitude=107.85&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&hourly=temperature_2m,wind_speed_10m,weather_code&daily=weathercode,temperature_2m_max,temperature_2m_min,wind_speed_10m_max&timezone=auto&forecast_days=3');
-            const data = await res.json();
+            const { data, slotsByDate } = await fetchOpenMeteo3HourlyByDate();
 
             if (data?.current) {
                 document.getElementById('weather-temp').innerText = data.current.temperature_2m + ' °C';
@@ -793,26 +879,6 @@
             if (data?.daily) {
                 const mappedFallback = data.daily.time.slice(0, 3).map((dateStr, index) => {
                     const w = fnGetWeatherDetails(data.daily.weathercode[index]);
-                    const slots = [];
-
-                    if (data.hourly?.time) {
-                        data.hourly.time.forEach((isoTime, hIdx) => {
-                            if (isoTime.startsWith(dateStr)) {
-                                const hourNum = Number(isoTime.slice(11, 13));
-                                if (hourNum % 3 === 0) {
-                                    const hw = fnGetWeatherDetails(data.hourly.weather_code[hIdx]);
-                                    slots.push({
-                                        time: isoTime.slice(11, 16),
-                                        icon: hw.icon,
-                                        desc: hw.desc,
-                                        temp: Math.round(data.hourly.temperature_2m[hIdx]),
-                                        wind: Math.round(data.hourly.wind_speed_10m[hIdx]),
-                                    });
-                                }
-                            }
-                        });
-                    }
-
                     return {
                         date: dateStr,
                         icon: w.icon,
@@ -820,7 +886,7 @@
                         maxTemp: Math.round(data.daily.temperature_2m_max[index]),
                         minTemp: Math.round(data.daily.temperature_2m_min[index]),
                         maxWind: Math.round(data.daily.wind_speed_10m_max[index]),
-                        slots,
+                        slots: slotsByDate[dateStr] || [],
                     };
                 });
                 renderForecastCards(mappedFallback, 'Open-Meteo · 3-Day Fallback');
