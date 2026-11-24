@@ -57,9 +57,6 @@ class NewsController extends Controller
         ADMIN — KELOLA BERITA
     ═══════════════════════════════════════════════ */
 
-    /**
-     * Halaman admin — daftar SEMUA berita (termasuk draft).
-     */
     public function adminIndex()
     {
         $newsList = News::query()
@@ -73,9 +70,6 @@ class NewsController extends Controller
         return view('news.admin-index', compact('newsList'));
     }
 
-    /**
-     * Halaman detail berita versi admin (preview di dalam panel admin).
-     */
     public function adminShow($id)
     {
         $news = News::with(['updatedBy' => function ($q) {
@@ -85,9 +79,6 @@ class NewsController extends Controller
         return view('news.admin-show', compact('news'));
     }
 
-    /**
-     * Form tambah berita — sekaligus menampilkan tabel daftar berita.
-     */
     public function create()
     {
         $newsList = News::query()
@@ -117,7 +108,7 @@ class NewsController extends Controller
             'image'        => $imagePath,
             'excerpt'      => $request->excerpt,
             'content'      => $request->content,
-            'published_at' => now(),
+            'published_at' => $request->filled('published_at') ? $request->date('published_at') : now(),
             'updated_by'   => auth()->id(),
         ]);
 
@@ -147,13 +138,14 @@ class NewsController extends Controller
         }
 
         $news->update([
-            'title'      => $request->title,
-            'slug'       => $this->uniqueSlug($request->title, $news->id),
-            'category'   => $request->category,
-            'image'      => $imagePath,
-            'excerpt'    => $request->excerpt,
-            'content'    => $request->content,
-            'updated_by' => auth()->id(),
+            'title'        => $request->title,
+            'slug'         => $this->uniqueSlug($request->title, $news->id),
+            'category'     => $request->category,
+            'image'        => $imagePath,
+            'excerpt'      => $request->excerpt,
+            'content'      => $request->content,
+            'published_at' => $request->filled('published_at') ? $request->date('published_at') : $news->published_at,
+            'updated_by'   => auth()->id(),
         ]);
 
         if ($oldPath && $oldPath !== $imagePath) {
@@ -196,6 +188,7 @@ class NewsController extends Controller
             'category'      => ['required', 'string', 'max:100'],
             'excerpt'       => ['required', 'string'],
             'content'       => ['required', 'string'],
+            'published_at'  => ['nullable', 'date'],
             'image'         => $image,
             'image_gallery' => $image,
         ];
