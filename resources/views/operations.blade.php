@@ -240,6 +240,7 @@
             ['value' => '218', 'label' => 'Thousand units, annual capacity', 'color' => 'navy',   'counter' => true],
             ['value' => '300', 'label' => 'Metres of Ro-Ro berth',            'color' => 'navy',   'counter' => true],
             ['value' => '24/7','label' => 'Continuous operations',            'color' => 'navy',   'counter' => false],
+            ];
     @endphp
 
     <div class="max-w-7xl mx-auto -mt-16 sm:-mt-32 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
