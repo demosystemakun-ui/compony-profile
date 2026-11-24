@@ -3,9 +3,6 @@
 @section('title', 'About PICT | PT Patimban International Car Terminal')
 
 @push('styles')
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
     .pict-about {
         --pict-red: #ec2029;
@@ -13,7 +10,6 @@
         --pict-navy: #0c1c36;
         --pict-mist: #eef5fb;
         --pict-blush: #fff1f1;
-        font-family: 'Plus Jakarta Sans', 'Century Gothic', system-ui, sans-serif;
         color: #0f172a;
         -webkit-font-smoothing: antialiased;
         overflow-x: clip;
@@ -29,85 +25,152 @@
 
     /* ---------- Gelombang (pemisah antar-section) ---------- */
     .pict-about .wave { display: block; width: 100%; height: 44px; fill: currentColor; }
-    @media (min-width: 640px) { .pict-about .wave { height: 76px; } }
+    @media (min-width: 640px) { .pict-about .wave { height: 72px; } }
     .pict-about .divider { line-height: 0; margin-bottom: -1px; }
 
     /* Gelombang hero yang bergerak pelan, seperti air di dermaga */
-    .pict-about .wave-wrap { position: absolute; inset-inline: 0; bottom: -1px; line-height: 0; overflow: hidden; }
-    .pict-about .wave-track { display: flex; width: 200%; }
-    .pict-about .wave-track svg { width: 50%; height: 64px; flex: none; }
-    @media (min-width: 640px) { .pict-about .wave-track svg { height: 110px; } }
-    .pict-about .wave-back  { position: absolute; inset-inline: 0; bottom: 0; animation: drift 26s linear infinite; }
-    .pict-about .wave-front { position: relative; animation: drift 38s linear infinite reverse; }
-    @keyframes drift { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .pict-about .wave-wrap {
+        position: absolute;
+        inset-inline: 0;
+        bottom: -1px;
+        height: 68px;
+        line-height: 0;
+        overflow: hidden;
+        pointer-events: none;
+    }
+    @media (min-width: 640px) {
+        .pict-about .wave-wrap { height: 112px; }
+    }
+    .pict-about .wave-layer {
+        position: absolute;
+        inset-inline: 0;
+        bottom: 0;
+        height: 100%;
+        overflow: hidden;
+    }
+    .pict-about .wave-track {
+        display: flex;
+        width: 200%;
+        height: 100%;
+        will-change: transform;
+    }
+    .pict-about .wave-track svg {
+        width: 50%;
+        height: 100%;
+        flex: none;
+        display: block;
+    }
+    .pict-about .wave-back .wave-track {
+        animation: pictDriftLeft 28s linear infinite;
+    }
+    .pict-about .wave-front .wave-track {
+        animation: pictDriftRight 38s linear infinite;
+    }
+    @keyframes pictDriftLeft {
+        from { transform: translateX(0); }
+        to   { transform: translateX(-50%); }
+    }
+    @keyframes pictDriftRight {
+        from { transform: translateX(-50%); }
+        to   { transform: translateX(0); }
+    }
 
     /* ---------- Hero: masuk bertahap satu kali ---------- */
-    .pict-about .hero-in > * { animation: heroIn .9s cubic-bezier(.22,1,.36,1) both; }
+    .pict-about .hero-in > * { animation: pictHeroIn .85s cubic-bezier(.22,1,.36,1) both; }
     .pict-about .hero-in > :nth-child(2) { animation-delay: .12s; }
-    .pict-about .hero-in > :nth-child(3) { animation-delay: .24s; }
-    @keyframes heroIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+    @keyframes pictHeroIn {
+        from { opacity: 0; transform: translateY(16px); }
+        to   { opacity: 1; transform: none; }
+    }
 
     /* ---------- Gumpalan dekoratif ---------- */
-    .pict-about .blob { position: absolute; border-radius: 9999px; filter: blur(2px); pointer-events: none; }
+    .pict-about .blob { position: absolute; border-radius: 9999px; pointer-events: none; }
 
     /* ---------- Kartu angka: bentuk organik & sedikit miring ---------- */
     .pict-about .stat-card {
         transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease;
-        box-shadow: 0 18px 40px -18px rgba(12,28,54,.28);
+        box-shadow: 0 18px 40px -18px rgba(12,28,54,.24);
     }
-    .pict-about .stat-card:nth-child(1) { border-radius: 2.25rem 1rem 2.25rem 1rem;  background: #fff;                 transform: rotate(-1.5deg); }
-    .pict-about .stat-card:nth-child(2) { border-radius: 1rem 2.25rem 1rem 2.25rem;  background: var(--pict-blush);     transform: translateY(10px) rotate(1deg); }
-    .pict-about .stat-card:nth-child(3) { border-radius: 2.25rem 2.25rem 1rem 2.25rem; background: #fff;               transform: rotate(1.2deg); }
-    .pict-about .stat-card:nth-child(4) { border-radius: 1rem 2.25rem 2.25rem 2.25rem; background: #e3eefb;            transform: translateY(10px) rotate(-1deg); }
-    .pict-about .stat-card:hover { transform: translateY(-6px) rotate(0deg); box-shadow: 0 26px 48px -18px rgba(12,28,54,.35); }
+    .pict-about .stat-card:nth-child(1) { border-radius: 2.25rem 1rem 2.25rem 1rem;  background: #fff;             transform: rotate(-1.2deg); }
+    .pict-about .stat-card:nth-child(2) { border-radius: 1rem 2.25rem 1rem 2.25rem;  background: var(--pict-blush); transform: translateY(8px) rotate(1deg); }
+    .pict-about .stat-card:nth-child(3) { border-radius: 2.25rem 2.25rem 1rem 2.25rem; background: #fff;             transform: rotate(1deg); }
+    .pict-about .stat-card:nth-child(4) { border-radius: 1rem 2.25rem 2.25rem 2.25rem; background: #e3eefb;          transform: translateY(8px) rotate(-1deg); }
+    .pict-about .stat-card:hover { transform: translateY(-6px) rotate(0deg); box-shadow: 0 26px 48px -18px rgba(12,28,54,.32); }
 
     /* ---------- Kapasitas ---------- */
     .pict-about .capacity-track { background: #dbe6f2; }
     .pict-about .capacity-fill {
         background: linear-gradient(90deg, var(--pict-red), #fb7185);
         transform-origin: left;
-        animation: capacityGrow 1.4s cubic-bezier(.22,1,.36,1) both;
+        animation: pictCapacityGrow 1.35s cubic-bezier(.22,1,.36,1) both;
         position: relative;
     }
     .pict-about .capacity-fill::after {
-        content: ''; position: absolute; right: 3px; top: 50%;
-        width: 6px; height: 6px; margin-top: -3px; border-radius: 9999px; background: #fff;
+        content: '';
+        position: absolute;
+        right: 3px;
+        top: 50%;
+        width: 6px;
+        height: 6px;
+        margin-top: -3px;
+        border-radius: 9999px;
+        background: #fff;
     }
-    @keyframes capacityGrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    @keyframes pictCapacityGrow {
+        from { transform: scaleX(0); }
+        to   { transform: scaleX(1); }
+    }
 
     /* ---------- Judul section: garis bergelombang ---------- */
     .pict-about .squiggle {
-        display: block; margin-top: .75rem; width: 84px; height: 10px;
+        display: block;
+        margin-top: .75rem;
+        width: 84px;
+        height: 10px;
         background: no-repeat center / contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 84 10'%3E%3Cpath d='M2 5 Q12 -1 21 5 T42 5 T63 5 T82 5' fill='none' stroke='%23ec2029' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E");
     }
 
     /* ---------- Timeline berkelok ---------- */
     .pict-about .timeline { position: relative; }
     .pict-about .timeline::before {
-        content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 0;
+        content: '';
+        position: absolute;
+        left: 7px;
+        top: 8px;
+        bottom: 8px;
+        width: 0;
         border-left: 3px dashed #c4d3e4;
     }
     .pict-about .timeline-dot {
-        position: absolute; left: 0; top: 22px; width: 16px; height: 16px;
-        border-radius: 9999px; background: var(--pict-red);
+        position: absolute;
+        left: 0;
+        top: 22px;
+        width: 16px;
+        height: 16px;
+        border-radius: 9999px;
+        background: var(--pict-red);
         box-shadow: 0 0 0 5px #fff, 0 0 0 7px #fbd5d7;
         transition: transform .25s cubic-bezier(.34,1.56,.64,1);
     }
     .pict-about .timeline li:hover .timeline-dot { transform: scale(1.35); }
-    .pict-about .timeline-dot.is-open { background: #fff; border: 3px solid var(--pict-red); animation: pulseDot 2.4s ease-in-out infinite; }
-    @keyframes pulseDot {
+    .pict-about .timeline-dot.is-open {
+        background: #fff;
+        border: 3px solid var(--pict-red);
+        animation: pictPulseDot 2.4s ease-in-out infinite;
+    }
+    @keyframes pictPulseDot {
         0%, 100% { box-shadow: 0 0 0 5px #fff, 0 0 0 8px rgba(236,32,41,.25); }
         50%      { box-shadow: 0 0 0 5px #fff, 0 0 0 13px rgba(236,32,41,.05); }
     }
 
     .pict-about .timeline-card {
         background: #fff;
-        box-shadow: 0 14px 34px -20px rgba(12,28,54,.35);
+        box-shadow: 0 14px 34px -20px rgba(12,28,54,.3);
         transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease;
     }
     .pict-about .timeline-card.shape-a { border-radius: 1.75rem 1.75rem .5rem 1.75rem; }
     .pict-about .timeline-card.shape-b { border-radius: 1.75rem .5rem 1.75rem 1.75rem; }
-    .pict-about .timeline-card:hover { transform: translateY(-4px) rotate(0deg); box-shadow: 0 22px 40px -20px rgba(12,28,54,.4); }
+    .pict-about .timeline-card:hover { transform: translateY(-4px) rotate(0deg); box-shadow: 0 22px 40px -20px rgba(12,28,54,.38); }
 
     @media (min-width: 768px) {
         .pict-about .timeline::before { left: 50%; margin-left: -1.5px; }
@@ -117,7 +180,10 @@
     }
 
     /* ---------- Grafik kepemilikan ---------- */
-    .pict-about .pie-segment { transition: stroke-width .3s cubic-bezier(.34,1.56,.64,1), opacity .25s ease; cursor: pointer; }
+    .pict-about .pie-segment {
+        transition: stroke-width .3s cubic-bezier(.34,1.56,.64,1), opacity .25s ease;
+        cursor: pointer;
+    }
     .pict-about .pie-segment.is-active { stroke-width: 8; }
     .pict-about #ownershipChart.has-active .pie-segment:not(.is-active) { opacity: .25; }
 
@@ -133,13 +199,21 @@
     .pict-about .shareholder-row:focus-visible,
     .pict-about .shareholder-row.is-active {
         background-color: #fff;
-        transform: translateX(8px);
-        box-shadow: 0 0 0 1px #cbd5e1, 0 16px 30px -18px rgba(12,28,54,.4);
+        transform: translateX(6px);
+        box-shadow: 0 0 0 1px #cbd5e1, 0 16px 30px -18px rgba(12,28,54,.35);
     }
-    .pict-about .shareholder-logo { filter: grayscale(1); opacity: .7; transition: filter .25s ease, opacity .25s ease, transform .3s cubic-bezier(.34,1.56,.64,1); }
+    .pict-about .shareholder-logo {
+        filter: grayscale(1);
+        opacity: .72;
+        transition: filter .25s ease, opacity .25s ease, transform .3s cubic-bezier(.34,1.56,.64,1);
+    }
     .pict-about .shareholder-row:hover .shareholder-logo,
     .pict-about .shareholder-row:focus-visible .shareholder-logo,
-    .pict-about .shareholder-row.is-active .shareholder-logo { filter: grayscale(0); opacity: 1; transform: scale(1.08); }
+    .pict-about .shareholder-row.is-active .shareholder-logo {
+        filter: grayscale(0);
+        opacity: 1;
+        transform: scale(1.08);
+    }
 
     .pict-about .share-bar { height: 6px; background: #e8eef5; overflow: hidden; }
     .pict-about .share-bar > span { display: block; height: 100%; transition: width .6s cubic-bezier(.22,1,.36,1); }
@@ -171,26 +245,29 @@
         <div class="blob -z-10 -right-24 top-10 h-72 w-72 bg-[#ec2029]/25 blur-3xl" aria-hidden="true"></div>
         <div class="blob -z-10 -left-20 bottom-24 h-60 w-60 bg-sky-300/20 blur-3xl" aria-hidden="true"></div>
 
-        <div class="hero-in mx-auto flex min-h-[620px] max-w-6xl flex-col justify-end px-6 pb-40 pt-40 sm:px-8 lg:min-h-[700px] lg:pb-48">
-
-            <h1 class="mt-6 max-w-3xl text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl">
+        <div class="hero-in mx-auto flex min-h-[600px] max-w-6xl flex-col justify-end px-6 pb-36 pt-36 sm:px-8 sm:pb-44 sm:pt-40 lg:min-h-[680px] lg:pb-52">
+            <h1 class="max-w-3xl text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl">
                 The vehicle terminal at Patimban Port
             </h1>
 
-            <p class="mt-6 max-w-xl text-base leading-relaxed text-slate-100/90">
+            <p class="mt-5 max-w-xl text-base leading-relaxed text-slate-100/90 sm:text-lg">
                 PT Patimban International Car Terminal (PICT) has operated the terminal since December 2021, handling vehicle imports and exports for Indonesia's automotive industry.
             </p>
         </div>
 
         {{-- Dua lapis ombak yang bergerak pelan --}}
         <div class="wave-wrap text-[#eef5fb]" aria-hidden="true">
-            <div class="wave-track wave-back opacity-40">
-                <svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path fill="currentColor" d="M0 70 Q360 10 720 70 T1440 70 V120 H0Z"/></svg>
-                <svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path fill="currentColor" d="M0 70 Q360 10 720 70 T1440 70 V120 H0Z"/></svg>
+            <div class="wave-layer wave-back opacity-40">
+                <div class="wave-track">
+                    <svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path fill="currentColor" d="M0 70 Q360 10 720 70 T1440 70 V120 H0Z"/></svg>
+                    <svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path fill="currentColor" d="M0 70 Q360 10 720 70 T1440 70 V120 H0Z"/></svg>
+                </div>
             </div>
-            <div class="wave-track wave-front">
-                <svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path fill="currentColor" d="M0 80 Q360 20 720 80 T1440 80 V120 H0Z"/></svg>
-                <svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path fill="currentColor" d="M0 80 Q360 20 720 80 T1440 80 V120 H0Z"/></svg>
+            <div class="wave-layer wave-front">
+                <div class="wave-track">
+                    <svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path fill="currentColor" d="M0 80 Q360 20 720 80 T1440 80 V120 H0Z"/></svg>
+                    <svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path fill="currentColor" d="M0 80 Q360 20 720 80 T1440 80 V120 H0Z"/></svg>
+                </div>
             </div>
         </div>
     </section>
@@ -206,7 +283,7 @@
     @endphp
 
     <section class="relative z-10 bg-[#eef5fb] px-6 pb-8 sm:px-8">
-        <div class="mx-auto -mt-28 max-w-6xl lg:-mt-32">
+        <div class="mx-auto -mt-24 max-w-6xl sm:-mt-28 lg:-mt-32">
             <dl class="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
                 @foreach($facts as $fact)
                     <div class="stat-card p-5 sm:p-7">
@@ -329,8 +406,6 @@
                     ['id' => 'nyk',      'name' => 'Nippon Yusen Kabushiki Kaisha (NYK Line)', 'sector' => 'Global shipping',     'share' => 25, 'color' => '#6f8fbd', 'logo' => 'assets/images/nyk-logo.jpg',       'url' => 'https://www.nyk.com/english/'],
                     ['id' => 'kamigumi', 'name' => 'Kamigumi Co., Ltd.',                       'sector' => 'Port and warehousing', 'share' => 15, 'color' => '#b4c6df', 'logo' => 'assets/images/logo-kamigumi.png',  'url' => 'https://www.kamigumi.co.jp/english/'],
                 ];
-                // Ujung segmen dibulatkan (stroke-linecap: round), jadi panjang garis
-                // dikurangi lebar ujung (5.5) + jarak antar-segmen (1.2), dan titik awal digeser setengah ujung.
                 $capWidth = 5.5;
                 $spacing = 1.2;
                 $offset = 0;
@@ -429,51 +504,86 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const chart = document.getElementById('ownershipChart');
-    const list = document.getElementById('shareholderList');
-    if (!chart || !list) return;
+(function () {
+    if (window.__pictShareholdersCleanup) window.__pictShareholdersCleanup();
 
-    const label = document.getElementById('chartLabel');
-    const value = document.getElementById('chartValue');
-    const note = document.getElementById('chartNote');
-    const rows = list.querySelectorAll('[data-shareholder]');
-    const segments = chart.querySelectorAll('.pie-segment');
+    function initShareholders() {
+        const chart = document.getElementById('ownershipChart');
+        const list = document.getElementById('shareholderList');
+        if (!chart || !list) return null;
 
-    function show(row) {
-        const id = row.dataset.shareholder;
-        chart.classList.add('has-active');
-        segments.forEach(seg => seg.classList.toggle('is-active', seg.dataset.segment === id));
-        rows.forEach(r => r.classList.toggle('is-active', r === row));
-        label.textContent = row.dataset.name.replace(/\s*\(.*\)$/, '');
-        value.textContent = row.dataset.share + '%';
-        note.textContent = 'of PICT';
+        const label = document.getElementById('chartLabel');
+        const value = document.getElementById('chartValue');
+        const note = document.getElementById('chartNote');
+        const rows = list.querySelectorAll('[data-shareholder]');
+        const segments = chart.querySelectorAll('.pie-segment');
+
+        function show(row) {
+            const id = row.dataset.shareholder;
+            chart.classList.add('has-active');
+            segments.forEach(seg => seg.classList.toggle('is-active', seg.dataset.segment === id));
+            rows.forEach(r => r.classList.toggle('is-active', r === row));
+            if (label) label.textContent = row.dataset.name.replace(/\s*\(.*\)$/, '');
+            if (value) value.textContent = row.dataset.share + '%';
+            if (note) note.textContent = 'of PICT';
+        }
+
+        function reset() {
+            chart.classList.remove('has-active');
+            segments.forEach(seg => seg.classList.remove('is-active'));
+            rows.forEach(r => r.classList.remove('is-active'));
+            if (label) label.textContent = 'Ownership';
+            if (value) value.textContent = '100%';
+            if (note) note.textContent = '4 shareholders';
+        }
+
+        const handlers = [];
+        rows.forEach(row => {
+            const onShow = () => show(row);
+            row.addEventListener('pointerenter', onShow);
+            row.addEventListener('focus', onShow);
+            row.addEventListener('click', onShow);
+            handlers.push(() => {
+                row.removeEventListener('pointerenter', onShow);
+                row.removeEventListener('focus', onShow);
+                row.removeEventListener('click', onShow);
+            });
+        });
+
+        const onFocusOut = e => {
+            if (!list.contains(e.relatedTarget)) reset();
+        };
+        const onPointerDown = e => {
+            if (!list.contains(e.target)) reset();
+        };
+
+        list.addEventListener('pointerleave', reset);
+        list.addEventListener('focusout', onFocusOut);
+        document.addEventListener('pointerdown', onPointerDown);
+
+        return () => {
+            handlers.forEach(fn => fn());
+            list.removeEventListener('pointerleave', reset);
+            list.removeEventListener('focusout', onFocusOut);
+            document.removeEventListener('pointerdown', onPointerDown);
+        };
     }
 
-    function reset() {
-        chart.classList.remove('has-active');
-        segments.forEach(seg => seg.classList.remove('is-active'));
-        rows.forEach(r => r.classList.remove('is-active'));
-        label.textContent = 'Ownership';
-        value.textContent = '100%';
-        note.textContent = '4 shareholders';
+    let teardown = initShareholders();
+    const onPageView = () => {
+        if (teardown) teardown();
+        teardown = initShareholders();
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', onPageView, { once: true });
     }
+    document.addEventListener('swup:page:view', onPageView);
 
-    rows.forEach(row => {
-        row.addEventListener('pointerenter', () => show(row));
-        row.addEventListener('focus', () => show(row));
-        row.addEventListener('click', () => show(row));
-    });
-
-    list.addEventListener('pointerleave', reset);
-    list.addEventListener('focusout', e => {
-        if (!list.contains(e.relatedTarget)) reset();
-    });
-
-    // Touch: keep selection sticky until tapping elsewhere
-    document.addEventListener('pointerdown', e => {
-        if (!list.contains(e.target)) reset();
-    });
-});
+    window.__pictShareholdersCleanup = () => {
+        if (teardown) teardown();
+        document.removeEventListener('swup:page:view', onPageView);
+    };
+})();
 </script>
 @endpush
