@@ -207,7 +207,7 @@
         </p>
 
         @php
-            $credentials = ['Smart Terminal', 'ISO Standards', 'Zero Scratch Policy', 'Real-Time Monitoring'];
+            $credentials = ['Smart Terminal', 'ISO Standards', 'Real-Time Monitoring'];
         @endphp
         <div class="mt-8 flex flex-wrap gap-2.5">
             @foreach($credentials as $cred)
@@ -240,8 +240,6 @@
             ['value' => '218', 'label' => 'Thousand units, annual capacity', 'color' => 'navy',   'counter' => true],
             ['value' => '300', 'label' => 'Metres of Ro-Ro berth',            'color' => 'navy',   'counter' => true],
             ['value' => '24/7','label' => 'Continuous operations',            'color' => 'navy',   'counter' => false],
-            ['value' => 'Zero','label' => 'Scratch tolerance policy',         'color' => 'signal', 'counter' => false],
-        ];
     @endphp
 
     <div class="max-w-7xl mx-auto -mt-16 sm:-mt-32 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
