@@ -62,9 +62,9 @@
 @section('content')
 
 {{-- ═══════════════════════════════════════════════════════════════
-     1. HERO SECTION
+1. HERO SECTION
 ═══════════════════════════════════════════════════════════════ --}}
-<section class="relative min-h-[75vh] w-full flex flex-col justify-between overflow-hidden bg-slate-900 pt-32 pb-16">
+<section class="relative min-h-[72vh] sm:min-h-[78vh] w-full flex flex-col justify-between overflow-hidden bg-slate-900 pt-28 sm:pt-32 pb-16 sm:pb-20">
     <div class="absolute inset-0 bg-cover bg-center transform scale-105 opacity-45"
          style="background-image: url('{{ secure_asset("assets/images/patimban-yard-3.jpeg") }}');"
          data-aos="zoom-out" data-aos-duration="1500"></div>
@@ -73,32 +73,32 @@
 
     <div class="relative max-w-7xl mx-auto px-6 z-10 w-full my-auto">
         <div class="max-w-4xl">
-
-            <h1 class="text-5xl sm:text-7xl font-extrabold text-white tracking-tight font-heading leading-none mb-6"
-                data-aos="fade-up" data-aos-delay="300">
+            <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight font-heading leading-[1.03] mb-6"
+                data-aos="fade-up" data-aos-delay="200">
                 Enterprise Port<br class="hidden sm:block">
                 <span class="text-[#D62828]">Portfolio</span>
             </h1>
 
-            <p class="text-lg sm:text-2xl text-slate-200 font-light leading-relaxed max-w-3xl"
-               data-aos="fade-up" data-aos-delay="400">
+            <p class="text-base sm:text-xl lg:text-2xl text-slate-200 font-light leading-relaxed max-w-3xl"
+               data-aos="fade-up" data-aos-delay="350">
                 Specialized marine, stevedoring, and multi-modal logistics solutions engineered for global automotive manufacturers.
             </p>
         </div>
     </div>
 
     {{-- Credential strip --}}
-    <div class="relative max-w-7xl mx-auto px-6 w-full z-10 pt-8 border-t border-white/15 mt-12" data-aos="fade-up" data-aos-delay="600">
+    <div class="relative max-w-7xl mx-auto px-6 w-full z-10 pt-8 border-t border-white/15 mt-12"
+         data-aos="fade-up" data-aos-delay="500">
         @php
             $credentials = [
-                ['label' => 'Tariff Transparency',     'accent' => 'blue'],
-                ['label' => 'Dedicated Account Team',  'accent' => 'blue'],
-                ['label' => 'Custom SLA Guarantee',    'accent' => 'red'],
-                ['label' => '24/7 Commercial Desk',    'accent' => 'blue'],
+                ['label' => 'Tariff Transparency',    'accent' => 'blue'],
+                ['label' => 'Dedicated Account Team', 'accent' => 'blue'],
+                ['label' => 'Custom SLA Guarantee',   'accent' => 'red'],
+                ['label' => '24/7 Commercial Desk',   'accent' => 'blue'],
             ];
         @endphp
 
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             @foreach($credentials as $c)
                 @php
                     $accentBg   = $c['accent'] === 'red' ? 'bg-red-500/20' : 'bg-blue-500/20';
@@ -108,7 +108,7 @@
                     <div class="w-8 h-8 rounded-full {{ $accentBg }} flex items-center justify-center {{ $accentText }} font-bold text-xs shrink-0">
                         ★
                     </div>
-                    <span class="text-xs font-medium text-slate-200">{{ $c['label'] }}</span>
+                    <span class="text-xs sm:text-sm font-medium text-slate-200 leading-snug">{{ $c['label'] }}</span>
                 </div>
             @endforeach
         </div>
@@ -116,75 +116,73 @@
 </section>
 
 {{-- ═══════════════════════════════════════════════════════════════
-     2. COMMERCIAL TARIFF HIGHLIGHTS (floating card)
+2. COMMERCIAL TARIFF HIGHLIGHTS (floating card)
 ═══════════════════════════════════════════════════════════════ --}}
-<section class="relative z-20 max-w-7xl mx-auto px-6 -mt-8 sm:-mt-12 mb-28" data-aos="fade-up">
+<section class="relative z-20 max-w-7xl mx-auto px-6 -mt-6 sm:-mt-12 mb-20 sm:mb-28" data-aos="fade-up">
     @php
         $tariffs = [
-            ['label' => 'Berthage Rate',       'value' => 'Competitive',   'desc' => 'Based on GT per 24 hours block',         'accent' => 'steel'],
-            ['label' => 'Staging Yard Tariff', 'value' => 'Tiered Slabs',  'desc' => 'Optimized for volume manufacturers',     'accent' => 'steel'],
-            ['label' => 'Handling SLA',        'value' => '< 2 Minutes',   'desc' => 'Average unit discharge turnaround',      'accent' => 'signal'],
+            ['label' => 'Berthage Rate',       'value' => 'Competitive',  'desc' => 'Based on GT per 24 hours block',        'accent' => 'steel'],
+            ['label' => 'Staging Yard Tariff', 'value' => 'Tiered Slabs', 'desc' => 'Optimized for volume manufacturers',    'accent' => 'steel'],
+            ['label' => 'Handling SLA',        'value' => '< 2 Minutes',  'desc' => 'Average unit discharge turnaround',     'accent' => 'signal'],
         ];
     @endphp
 
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        @foreach($tariffs as $i => $t)
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+        @foreach($tariffs as $t)
             @php
-                $isRed = $t['accent'] === 'signal';
-                $labelColor  = $isRed ? 'text-[#D62828]' : 'text-[#2563EB]';
+                $isRed       = $t['accent'] === 'signal';
                 $borderHover = $isRed ? 'hover:border-red-400' : 'hover:border-blue-400';
             @endphp
-            <div class="glass-card rounded-3xl p-8 text-center transition-all duration-500 shadow-xl {{ $borderHover }}">
-                <div class="eyebrow {{ $isRed ? 'signal' : 'steel' }} mb-2">{{ $t['label'] }}</div>
-                <div class="text-3xl font-extrabold text-[#071E3D] font-heading tracking-tight mb-2">
+            <div class="glass-card rounded-3xl p-7 sm:p-8 text-center flex flex-col justify-between h-full transition-all duration-500 shadow-xl {{ $borderHover }}">
+                <div class="eyebrow {{ $isRed ? 'signal' : 'steel' }} mb-3">{{ $t['label'] }}</div>
+                <div class="text-2xl sm:text-3xl font-extrabold text-[#071E3D] font-heading tracking-tight mb-2">
                     {!! $t['value'] === '< 2 Minutes' ? '&lt; 2 Minutes' : $t['value'] !!}
                 </div>
-                <div class="text-xs text-slate-500">{{ $t['desc'] }}</div>
+                <div class="text-xs sm:text-sm text-slate-500">{{ $t['desc'] }}</div>
             </div>
         @endforeach
     </div>
 </section>
 
 {{-- ═══════════════════════════════════════════════════════════════
-     3. CORE SERVICE MATRIX (DATA DARI DATABASE)
+3. CORE SERVICE MATRIX (DATA DARI DATABASE)
 ═══════════════════════════════════════════════════════════════ --}}
-<section id="commercial-matrix" class="max-w-7xl mx-auto px-6 py-12 bg-white text-slate-800" data-aos="fade-up">
-    <div class="text-center mb-16">
+<section id="commercial-matrix" class="max-w-7xl mx-auto px-6 py-12 sm:py-16 bg-white text-slate-800" data-aos="fade-up">
+    <div class="text-center mb-12 sm:mb-16">
         <span class="eyebrow signal block mb-2">Commercial Portfolio</span>
         <h2 class="text-3xl sm:text-5xl font-extrabold text-[#071E3D] tracking-tight font-heading">
             Core Service Matrix
         </h2>
-        <p class="text-slate-600 max-w-2xl mx-auto mt-4 text-base">
+        <p class="text-slate-600 max-w-2xl mx-auto mt-4 text-sm sm:text-base leading-relaxed">
             Detailed breakdown of our operational divisions designed to accommodate diverse automotive manufacturing needs.
         </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
         @forelse($portfolio as $index => $item)
-            <div class="bg-slate-50 rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group"
-                 data-aos="fade-up" data-aos-delay="{{ ($index + 1) * 100 }}">
-                <div class="relative h-56 overflow-hidden">
-                    {{-- ✅ FIX: tag img yang benar --}}
+            <div class="bg-slate-50 rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full group"
+                 data-aos="fade-up" data-aos-delay="{{ min(($index + 1) * 100, 300) }}">
+                <div class="relative h-52 sm:h-56 overflow-hidden shrink-0">
                     <img src="{{ $item->image_url }}"
                          alt="{{ $item->title }}"
                          class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 to-transparent"></div>
-                    <div class="absolute bottom-4 left-6 right-6 text-white font-bold text-lg font-heading">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/20 to-transparent"></div>
+                    <div class="absolute bottom-4 left-6 right-6 text-white font-bold text-lg font-heading leading-snug">
                         {{ $item->title }}
                     </div>
                 </div>
-                <div class="p-8 flex-grow flex flex-col">
+                <div class="p-6 sm:p-8 flex-grow flex flex-col">
                     <p class="text-slate-600 text-xs sm:text-sm leading-relaxed mb-6">
                         {{ $item->description }}
                     </p>
                     {{-- Items (dari kolom location di DB) --}}
                     @if($item->location)
-                        <ul class="space-y-2 text-xs text-slate-700 font-medium mt-auto">
+                        <ul class="space-y-2.5 text-xs sm:text-sm text-slate-700 font-medium mt-auto pt-2 border-t border-slate-200/70">
                             @foreach(explode('|', $item->location) as $feat)
                                 @if(trim($feat))
-                                    <li class="flex items-start gap-2">
-                                        <span class="text-[#D62828] font-bold leading-none mt-0.5">•</span>
-                                        <span>{{ trim($feat) }}</span>
+                                    <li class="flex items-start gap-2.5">
+                                        <span class="text-[#D62828] font-bold leading-none mt-1 shrink-0">•</span>
+                                        <span class="leading-relaxed">{{ trim($feat) }}</span>
                                     </li>
                                 @endif
                             @endforeach
@@ -201,32 +199,31 @@
 </section>
 
 {{-- ═══════════════════════════════════════════════════════════════
-     4. VALUE-ADDED SERVICE ADD-ONS (DATA DARI DATABASE)
+4. VALUE-ADDED SERVICE ADD-ONS (DATA DARI DATABASE)
 ═══════════════════════════════════════════════════════════════ --}}
-<section class="py-24 bg-[#F8FAFC] relative overflow-hidden border-t border-slate-200">
+<section class="py-20 sm:py-24 bg-[#F8FAFC] relative overflow-hidden border-t border-slate-200">
     <div class="max-w-7xl mx-auto px-6">
-        <div class="text-center max-w-3xl mx-auto mb-20" data-aos="fade-up">
+        <div class="text-center max-w-3xl mx-auto mb-14 sm:mb-20" data-aos="fade-up">
             <span class="eyebrow steel block mb-3">Customized Packages</span>
             <h2 class="text-3xl sm:text-5xl font-extrabold text-[#071E3D] tracking-tight font-heading">
                 Value-Added Solutions
             </h2>
-            <p class="mt-4 text-slate-600 text-base">
+            <p class="mt-4 text-slate-600 text-sm sm:text-base leading-relaxed">
                 Enhance your supply chain with specialized pre-delivery inspections.
             </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
             @forelse($addOns as $index => $addon)
-                <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm flex flex-col sm:flex-row items-stretch"
-                     data-aos="fade-up" data-aos-delay="{{ ($index + 1) * 100 }}">
-                    <div class="w-full sm:w-1/2 h-48 sm:h-auto relative shrink-0">
-                        {{-- ✅ FIX: pakai $addon, bukan $item --}}
+                <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col sm:flex-row items-stretch h-full"
+                     data-aos="fade-up" data-aos-delay="{{ min(($index + 1) * 100, 300) }}">
+                    <div class="w-full sm:w-5/12 h-52 sm:h-auto min-h-[12rem] relative shrink-0 overflow-hidden">
                         <img src="{{ $addon->image_url }}"
                              alt="{{ $addon->title }}"
                              class="absolute inset-0 w-full h-full object-cover">
                     </div>
-                    <div class="w-full sm:w-1/2 p-8 flex flex-col justify-center">
-                        <h3 class="text-xl font-bold text-[#071E3D] mb-2 font-heading">
+                    <div class="w-full sm:w-7/12 p-6 sm:p-8 flex flex-col justify-center">
+                        <h3 class="text-xl font-bold text-[#071E3D] mb-2.5 font-heading leading-snug">
                             {{ $addon->title }}
                         </h3>
                         <p class="text-slate-600 text-sm leading-relaxed">
@@ -244,19 +241,19 @@
 </section>
 
 {{-- ═══════════════════════════════════════════════════════════════
-     5. CALL TO ACTION
+5. CALL TO ACTION
 ═══════════════════════════════════════════════════════════════ --}}
-<section class="py-24 relative overflow-hidden bg-cover bg-center"
+<section class="py-20 sm:py-24 relative overflow-hidden bg-cover bg-center"
          style="background-image: url('{{ secure_asset("assets/images/background.jpeg") }}')">
     <div class="absolute inset-0 bg-[#071E3D]/90"></div>
     <div class="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full bg-[#D62828]/15 blur-3xl"></div>
 
     <div class="max-w-5xl mx-auto px-6 text-center relative z-10" data-aos="fade-up">
         <span class="eyebrow block mb-4" style="color: rgba(255,255,255,0.6);">Get in touch</span>
-        <h2 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight font-heading mb-6">
+        <h2 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight font-heading mb-6 leading-tight">
             Ready to Move Your Automotive Logistics to the Next Level?
         </h2>
-        <p class="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto mb-10">
+        <p class="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
             Connect with our commercial and operations team to discuss berth reservation, cargo handling, and long-term partnership opportunities.
         </p>
 
@@ -281,13 +278,23 @@
 @push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    AOS.init({
-        duration: 900,
-        easing: 'ease-out-cubic',
-        once: true,
-        offset: 100
-    });
-});
+(function () {
+    function initServicesAos() {
+        if (typeof AOS === 'undefined') return;
+        AOS.init({
+            duration: 900,
+            easing: 'ease-out-cubic',
+            once: true,
+            offset: 100
+        });
+        AOS.refresh();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initServicesAos);
+    } else {
+        initServicesAos();
+    }
+})();
 </script>
 @endpush
