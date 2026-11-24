@@ -66,7 +66,7 @@
 @section('content')
 
 {{-- ═══════════════════════════════════════════════════════════════
-     1. HERO SECTION
+1. HERO SECTION
 ═══════════════════════════════════════════════════════════════ --}}
 <section class="hero-bg-contact relative flex items-center min-h-[480px] px-6 sm:px-12 md:px-16 pt-32 pb-16 overflow-hidden">
     {{-- Decorative grid --}}
@@ -96,7 +96,7 @@
 </section>
 
 {{-- ═══════════════════════════════════════════════════════════════
-     2. CONTACT INFO + FORM
+2. CONTACT INFO + FORM
 ═══════════════════════════════════════════════════════════════ --}}
 <section class="max-w-7xl mx-auto px-6 py-20 bg-white text-slate-800">
     <div class="grid lg:grid-cols-12 gap-14 items-start">
@@ -177,8 +177,8 @@
                 </div>
             </div>
 
-            {{-- Flash message (jika ada) --}}
-            <div id="formAlert" class="hidden mb-5 rounded-xl px-4 py-3 text-sm"></div>
+            {{-- Inline Alert Banner --}}
+            <div id="formAlert" role="alert" class="hidden mb-5 rounded-xl px-4 py-3 text-sm flex items-start gap-2.5"></div>
 
             <form id="contactForm" class="space-y-5" novalidate
                   action="{{ route('contact.store') }}" method="POST">
@@ -286,97 +286,142 @@ function enableSubmitButton() {
     `;
 }
 
+function showFormAlert(type, text) {
+    const alertBox = document.getElementById('formAlert');
+    if (!alertBox) return;
+
+    const styles = {
+        success: 'mb-5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 text-sm flex items-start gap-2.5',
+        error:   'mb-5 rounded-xl bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm flex items-start gap-2.5',
+    };
+
+    const icon = type === 'success'
+        ? `<svg class="h-4 w-4 mt-0.5 shrink-0 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>`
+        : `<svg class="h-4 w-4 mt-0.5 shrink-0 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`;
+
+    alertBox.className = styles[type] || styles.error;
+    alertBox.innerHTML = `${icon}<span>${text}</span>`;
+    alertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function setFieldInvalid(el, invalid) {
+    if (!el) return;
+    el.classList.toggle('border-red-400', invalid);
+    el.classList.toggle('bg-red-50/40', invalid);
+    el.classList.toggle('border-slate-300', !invalid);
+    el.classList.toggle('bg-white', !invalid);
+}
+
 /* ═══════════════════════════════════════════════════════════════
    SUBMIT HANDLER — simpan ke DB, lalu buka aplikasi email user
 ═══════════════════════════════════════════════════════════════ */
-document.getElementById('contactForm')?.addEventListener('submit', async function (e) {
-    e.preventDefault();
+(function () {
+    const form = document.getElementById('contactForm');
+    if (!form) return;
 
-    if (typeof grecaptcha === 'undefined' || grecaptcha.getResponse().length === 0) {
-        alert('Please complete the security verification (reCAPTCHA) first.');
-        return;
-    }
+    const requiredIds = ['name', 'email', 'whatsapp', 'message'];
+    requiredIds.forEach(id => {
+        const input = document.getElementById(id);
+        input?.addEventListener('input', () => setFieldInvalid(input, false));
+    });
 
-    const form = this;
-    const btn  = document.getElementById('submitBtn');
-    const originalHtml = btn.innerHTML;
-    const alertBox = document.getElementById('formAlert');
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
 
-    // Reset alert
-    alertBox.className = 'hidden mb-5 rounded-xl px-4 py-3 text-sm';
-    alertBox.textContent = '';
+        const alertBox = document.getElementById('formAlert');
+        if (alertBox) {
+            alertBox.className = 'hidden mb-5 rounded-xl px-4 py-3 text-sm flex items-start gap-2.5';
+            alertBox.innerHTML = '';
+        }
 
-    const name     = document.getElementById('name').value.trim();
-    const email    = document.getElementById('email').value.trim();
-    const whatsapp = document.getElementById('whatsapp').value.trim();
-    const subject  = document.getElementById('subject').value.trim() || 'Inquiry from Website';
-    const message  = document.getElementById('message').value.trim();
+        const nameEl     = document.getElementById('name');
+        const emailEl    = document.getElementById('email');
+        const subjectEl  = document.getElementById('subject');
+        const whatsappEl = document.getElementById('whatsapp');
+        const messageEl  = document.getElementById('message');
 
-    if (!name || !email || !whatsapp || !message) {
-        alert('Please complete all required fields.');
-        return;
-    }
+        const name     = nameEl.value.trim();
+        const email    = emailEl.value.trim();
+        const whatsapp = whatsappEl.value.trim();
+        const subject  = subjectEl.value.trim() || 'Inquiry from Website';
+        const message  = messageEl.value.trim();
 
-    const payload = {
-        name,
-        email,
-        whatsapp,
-        subject,
-        message,
-        'g-recaptcha-response': grecaptcha.getResponse(),
-    };
-
-    // Loading state
-    btn.disabled = true;
-    btn.innerHTML = 'Sending...';
-
-    try {
-        const res = await fetch(form.action, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value,
-            },
-            body: JSON.stringify(payload),
+        let hasEmpty = false;
+        [
+            [nameEl, !name],
+            [emailEl, !email],
+            [whatsappEl, !whatsapp],
+            [messageEl, !message],
+        ].forEach(([el, empty]) => {
+            setFieldInvalid(el, empty);
+            if (empty) hasEmpty = true;
         });
 
-        const data = await res.json();
-
-        if (!res.ok) {
-            throw new Error(data.message || 'An error occurred while sending your message.');
+        if (hasEmpty) {
+            showFormAlert('error', 'Please complete all required fields.');
+            return;
         }
 
-        // ── Pesan berhasil tersimpan di database (masuk dashboard admin) ──
-
-        // Tampilkan notifikasi sukses di halaman
-        alertBox.className = 'mb-5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 text-sm';
-        alertBox.textContent = data.message || 'Your message has been sent successfully.';
-
-        // ── Buka aplikasi email user (pre-filled) ──
-        if (data.mailto) {
-            window.location.href = data.mailto;
+        if (typeof grecaptcha === 'undefined' || grecaptcha.getResponse().length === 0) {
+            showFormAlert('error', 'Please complete the security verification (reCAPTCHA) first.');
+            return;
         }
 
-        // Reset form & reCAPTCHA
-        form.reset();
-        if (typeof grecaptcha !== 'undefined') grecaptcha.reset();
+        const btn = document.getElementById('submitBtn');
+        const originalHtml = btn.innerHTML;
 
-        // Kembalikan tombol ke state terkunci
+        const payload = {
+            name,
+            email,
+            whatsapp,
+            subject,
+            message,
+            'g-recaptcha-response': grecaptcha.getResponse(),
+        };
+
         btn.disabled = true;
-        btn.className = 'w-full inline-flex items-center justify-center gap-2 rounded-xl bg-slate-300 text-slate-500 font-bold py-3.5 px-6 text-xs uppercase tracking-wider transition cursor-not-allowed';
-        btn.innerHTML = `
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-            Complete Verification to Send
-        `;
-    } catch (err) {
-        alertBox.className = 'mb-5 rounded-xl bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm';
-        alertBox.textContent = err.message;
-        btn.disabled = false;
-        btn.innerHTML = originalHtml;
-    }
-});
+        btn.innerHTML = 'Sending...';
+
+        try {
+            const res = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value,
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.message || 'An error occurred while sending your message.');
+            }
+
+            showFormAlert('success', data.message || 'Your message has been sent successfully.');
+
+            if (data.mailto) {
+                window.location.href = data.mailto;
+            }
+
+            form.reset();
+            if (typeof grecaptcha !== 'undefined') grecaptcha.reset();
+
+            btn.disabled = true;
+            btn.className = 'w-full inline-flex items-center justify-center gap-2 rounded-xl bg-slate-300 text-slate-500 font-bold py-3.5 px-6 text-xs uppercase tracking-wider transition cursor-not-allowed';
+            btn.innerHTML = `
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                Complete Verification to Send
+            `;
+        } catch (err) {
+            showFormAlert('error', err.message);
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+    });
+})();
 </script>
 @endpush
