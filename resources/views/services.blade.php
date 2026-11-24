@@ -211,7 +211,7 @@
                 Value-Added Solutions
             </h2>
             <p class="mt-4 text-slate-600 text-base">
-                Enhance your supply chain with specialized pre-delivery inspections and washing services.
+                Enhance your supply chain with specialized pre-delivery inspections.
             </p>
         </div>
 
