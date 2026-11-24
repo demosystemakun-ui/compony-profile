@@ -23,7 +23,7 @@
         position: relative;
         margin-bottom: 2rem;
         border-radius: 2rem;
-        background-color: #ffffff; /* solid, supaya benar-benar menutupi kartu di bawahnya */
+        background-color: #ffffff;
         border: 1px solid #e2e8f0;
         box-shadow: 0 -15px 35px rgba(0,0,0,0.08), 0 5px 15px rgba(0,0,0,0.03);
         display: flex;
@@ -45,7 +45,7 @@
             align-items: center;
             padding: 2.5rem 3rem;
             gap: 3rem;
-            margin-bottom: 4rem; /* jarak scroll sebelum kartu berikutnya naik */
+            margin-bottom: 4rem;
         }
         .news-card-sticky:last-child { margin-bottom: 0; }
     }
@@ -166,9 +166,6 @@
 
     /* ═══════════════════════════════════════════════════════════
        MOBILE & TABLET (< 1024px): kartu ringkas
-       Thumbnail di kiri, teks di kanan, satu kartu ≈ 130px,
-       jadi banyak berita terlihat sekaligus tanpa scroll panjang.
-       Desktop (≥ 1024px) sama sekali tidak terpengaruh.
     ═══════════════════════════════════════════════════════════ */
     @media (max-width: 1023px) {
         .news-scroll-section {
@@ -185,7 +182,6 @@
             box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
         }
 
-        /* Thumbnail */
         .news-card-image {
             order: -1;
             flex: 0 0 6.75rem;
@@ -195,7 +191,6 @@
             border-radius: 0;
         }
 
-        /* Teks */
         .news-card-content {
             min-width: 0;
             padding: 0.75rem 0.875rem;
@@ -227,10 +222,8 @@
             overflow: hidden;
         }
 
-        /* Ringkasan disembunyikan di HP, supaya kartu tetap pendek */
         .news-card-excerpt { display: none; }
 
-        /* Tombol jadi tautan kecil; seluruh kartu bisa diketuk */
         .news-card-btn {
             background: transparent;
             color: #b91c1c;
@@ -252,7 +245,6 @@
         .news-card-btn svg { width: 0.875rem; height: 0.875rem; }
     }
 
-    /* Tablet kecil (640–1023px): thumbnail lebih lebar, ringkasan 2 baris */
     @media (min-width: 640px) and (max-width: 1023px) {
         .news-stack-container { padding: 0 1.5rem; }
         .news-card-image { flex-basis: 11rem; width: 11rem; min-height: 10rem; }
@@ -283,56 +275,131 @@
     </div>
 </section>
 
-{{-- ============ STACKED CARDS ============ --}}
+{{-- ============ NEWS CONTENT ============ --}}
 <section class="news-scroll-section">
 
     @if($newsList->count() > 0)
-        <div class="news-stack-container">
-            @foreach($newsList as $index => $item)
-                <article class="news-card-sticky" style="--stack-top: calc(12vh + {{ $index * 14 }}px);">
+        @php
+            $isFirstPage  = $newsList->currentPage() === 1;
+            $featuredNews = $isFirstPage ? $newsList->take(3) : collect();
+            $gridNews     = $isFirstPage ? $newsList->skip(3) : $newsList;
+        @endphp
 
-                    <div class="news-card-content">
-                        @if(!empty($item->category))
-                            <div class="news-card-tag">
-                                <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                                {{ $item->category }}
-                            </div>
-                        @endif
+        {{-- 1. STACKED CARDS (3 Berita Terbaru di Halaman 1) --}}
+        @if($featuredNews->count() > 0)
+            <div class="news-stack-container">
+                @foreach($featuredNews as $index => $item)
+                    <article class="news-card-sticky" style="--stack-top: calc(12vh + {{ $index * 14 }}px);">
 
-                        @if($item->published_at)
-                            <time datetime="{{ $item->published_at->toDateString() }}" class="news-card-date">
-                                {{ $item->published_at->translatedFormat('d F Y') }}
-                            </time>
-                        @endif
+                        <div class="news-card-content">
+                            @if(!empty($item->category))
+                                <div class="news-card-tag">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                                    {{ $item->category }}
+                                </div>
+                            @endif
 
-                        <h2 class="news-card-title">{{ $item->title }}</h2>
-                        <p class="news-card-excerpt">{{ $item->excerpt }}</p>
+                            @if($item->published_at)
+                                <time datetime="{{ $item->published_at->toDateString() }}" class="news-card-date">
+                                    {{ $item->published_at->translatedFormat('d F Y') }}
+                                </time>
+                            @endif
 
-                        <a href="{{ route('news.show', $item->slug) }}" class="news-card-btn">
-                            Read Full Article
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
-                        </a>
-                    </div>
+                            <h2 class="news-card-title">{{ $item->title }}</h2>
+                            <p class="news-card-excerpt">{{ $item->excerpt }}</p>
 
-                    <div class="news-card-image">
-                        @if($item->image_url)
-                            <img src="{{ $item->image_url }}" alt="{{ $item->title }}" loading="{{ $index === 0 ? 'eager' : 'lazy' }}">
-                        @else
-                            <div class="w-full h-full flex items-center justify-center bg-slate-200 text-slate-400">
-                                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            <a href="{{ route('news.show', $item->slug) }}" class="news-card-btn">
+                                Read Full Article
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                 </svg>
+                            </a>
+                        </div>
+
+                        <div class="news-card-image">
+                            @if($item->image_url)
+                                <img src="{{ $item->image_url }}" alt="{{ $item->title }}" loading="{{ $index === 0 ? 'eager' : 'lazy' }}">
+                            @else
+                                <div class="w-full h-full flex items-center justify-center bg-slate-200 text-slate-400">
+                                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                            @endif
+                        </div>
+
+                    </article>
+                @endforeach
+            </div>
+        @endif
+
+        {{-- 2. GRID KOTAK-KOTAK (Berita ke-4 dst & Halaman 2+) --}}
+        @if($gridNews->count() > 0)
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 {{ $featuredNews->count() > 0 ? 'mt-16 lg:mt-24 pt-12 border-t border-slate-200' : '' }} relative z-20">
+                @if($featuredNews->count() > 0)
+                    <h2 class="text-xl sm:text-2xl font-bold text-[#0A2540] mb-6 sm:mb-8">More News &amp; Updates</h2>
+                @endif
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                    @foreach($gridNews as $item)
+                        <article class="group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col">
+                            <a href="{{ route('news.show', $item->slug) }}" class="block aspect-[16/10] bg-slate-100 overflow-hidden">
+                                @if($item->image_url)
+                                    <img src="{{ $item->image_url }}"
+                                         alt="{{ $item->title }}"
+                                         loading="lazy"
+                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                @else
+                                    <div class="w-full h-full flex items-center justify-center text-slate-400">
+                                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                @endif
+                            </a>
+
+                            <div class="p-5 sm:p-6 flex flex-col flex-1">
+                                <div class="flex items-center justify-between gap-2 mb-3">
+                                    @if(!empty($item->category))
+                                        <span class="inline-flex items-center gap-1.5 bg-red-50 text-red-700 text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+                                            {{ $item->category }}
+                                        </span>
+                                    @endif
+
+                                    @if($item->published_at)
+                                        <time datetime="{{ $item->published_at->toDateString() }}" class="text-xs font-semibold text-slate-400">
+                                            {{ $item->published_at->translatedFormat('d M Y') }}
+                                        </time>
+                                    @endif
+                                </div>
+
+                                <h3 class="text-lg font-bold text-[#0A2540] leading-snug mb-2 line-clamp-2 group-hover:text-[#ec2029] transition-colors">
+                                    <a href="{{ route('news.show', $item->slug) }}">{{ $item->title }}</a>
+                                </h3>
+
+                                @if($item->excerpt)
+                                    <p class="text-sm text-slate-600 leading-relaxed line-clamp-3 mb-5">
+                                        {{ $item->excerpt }}
+                                    </p>
+                                @endif
+
+                                <div class="mt-auto pt-3 border-t border-slate-100">
+                                    <a href="{{ route('news.show', $item->slug) }}" class="inline-flex items-center gap-1.5 text-sm font-bold text-[#0A2540] group-hover:text-[#ec2029] transition-colors">
+                                        Read Full Article
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                        </svg>
+                                    </a>
+                                </div>
                             </div>
-                        @endif
-                    </div>
+                        </article>
+                    @endforeach
+                </div>
+            </div>
+        @endif
 
-                </article>
-            @endforeach
-        </div>
-
-        <div class="mt-8 lg:mt-14 flex justify-center relative z-20 px-4">
+        <div class="mt-10 lg:mt-14 flex justify-center relative z-20 px-4">
             {{ $newsList->links() }}
         </div>
     @else
@@ -348,7 +415,6 @@
 @push('scripts')
 <script>
 (function () {
-    // Bersihkan listener lama (penting saat navigasi Swup bolak-balik)
     if (window.__newsStackCleanup) window.__newsStackCleanup();
 
     const cards = Array.from(document.querySelectorAll('.news-card-sticky'));
@@ -363,21 +429,17 @@
         cards.forEach((card, i) => {
             const next = cards[i + 1];
 
-            // Mobile atau kartu terakhir: tanpa efek
             if (!desktop.matches || !next) {
                 card.style.transform = '';
                 return;
             }
 
-            // 0 = kartu berikutnya baru muncul di bawah layar
-            // 1 = kartu berikutnya sudah menempel menutupi kartu ini
             const nextStuckTop = parseFloat(getComputedStyle(next).top) || 0;
             const nextTop = next.getBoundingClientRect().top;
             const vh = window.innerHeight;
 
             const progress = Math.min(1, Math.max(0, (vh - nextTop) / (vh - nextStuckTop)));
 
-            // Hanya scale (tanpa opacity) supaya kartu di belakang tidak tembus pandang
             card.style.transform = `scale(${1 - progress * 0.06})`;
         });
     }
