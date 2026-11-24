@@ -240,7 +240,7 @@
                         Security Verification <span class="text-red-500">*</span>
                     </label>
                     <div class="g-recaptcha"
-                         data-sitekey="{{ config('services.recaptcha.site_key') ?: '6LfrWQEuAAAAAIasdfZ46CqUIJ1O426BFN_49O5Q' }}"
+                         data-sitekey="{{ config('services.recaptcha.site_key') ?: '6Ldt7S8uAAAAAKPUcmGBuT714Bw_W56xD0ed_I01' }}"
                          data-callback="enableSubmitButton"></div>
                 </div>
 
