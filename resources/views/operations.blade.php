@@ -290,7 +290,7 @@
             ];
         @endphp
 
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8 sm:mb-10">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6">
             @foreach($weatherCards as $w)
                 <div class="bg-slate-800/60 ring-1 ring-slate-700/70 rounded-[1.75rem] p-4 sm:p-6 backdrop-blur-md">
                     <div class="flex items-center justify-between text-slate-400 mb-2 sm:mb-4">
@@ -309,12 +309,51 @@
             @endforeach
         </div>
 
+        {{-- Parameter Maritim: Gelombang, Arah Angin, Arus, Arah Arus, Jarak Pandang, Pasang Surut --}}
+        <div class="bg-slate-800/45 ring-1 ring-slate-700/70 rounded-[1.5rem] p-4 sm:p-5 mb-8 sm:mb-10 backdrop-blur-md">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-300">
+                    Marine &amp; Navigation Parameters
+                </span>
+                <span id="marine-wave-badge" class="inline-flex items-center rounded-full bg-slate-700/50 text-slate-300 ring-1 ring-slate-600 px-2.5 py-0.5 text-[11px] font-semibold">
+                    Checking Sea State...
+                </span>
+            </div>
+
+            <div class="flex flex-wrap gap-2.5 text-xs">
+                <div class="inline-flex items-center gap-2 rounded-full bg-slate-900/80 ring-1 ring-slate-700/80 px-3.5 py-2">
+                    <span class="text-slate-400">Wave:</span>
+                    <strong id="marine-wave-height" class="font-mono text-white">-- m</strong>
+                </div>
+                <div class="inline-flex items-center gap-2 rounded-full bg-slate-900/80 ring-1 ring-slate-700/80 px-3.5 py-2">
+                    <span class="text-slate-400">Wind Dir:</span>
+                    <strong id="marine-wind-dir" class="font-mono text-sky-300">--</strong>
+                </div>
+                <div class="inline-flex items-center gap-2 rounded-full bg-slate-900/80 ring-1 ring-slate-700/80 px-3.5 py-2">
+                    <span class="text-slate-400">Current Speed:</span>
+                    <strong id="marine-current-speed" class="font-mono text-white">-- knot</strong>
+                </div>
+                <div class="inline-flex items-center gap-2 rounded-full bg-slate-900/80 ring-1 ring-slate-700/80 px-3.5 py-2">
+                    <span class="text-slate-400">Current Dir:</span>
+                    <strong id="marine-current-dir" class="font-mono text-sky-300">--</strong>
+                </div>
+                <div class="inline-flex items-center gap-2 rounded-full bg-slate-900/80 ring-1 ring-slate-700/80 px-3.5 py-2">
+                    <span class="text-slate-400">Visibility:</span>
+                    <strong id="marine-visibility" class="font-mono text-white">-- km</strong>
+                </div>
+                <div class="inline-flex items-center gap-2 rounded-full bg-slate-900/80 ring-1 ring-slate-700/80 px-3.5 py-2">
+                    <span class="text-slate-400">Tide (MSL):</span>
+                    <strong id="marine-tide-level" class="font-mono text-emerald-300">-- m</strong>
+                </div>
+            </div>
+        </div>
+
         <div class="flex items-center justify-between gap-3 mb-3.5">
             <h3 id="weather-forecast-title" class="text-base sm:text-lg font-bold text-slate-200 tracking-tight">
                 Weather Forecast
             </h3>
             <span id="weather-window-badge" class="inline-flex items-center rounded-full bg-slate-800 px-3 py-1 text-[11px] font-semibold text-slate-300 ring-1 ring-slate-700">
-                3-Day · 3-Hourly Outlook
+                BMKG + Open-Meteo
             </span>
         </div>
 
@@ -323,7 +362,7 @@
         </div>
 
         <p id="weather-source-label" class="text-[11px] text-slate-400 mt-3">
-            Source: BMKG (Badan Meteorologi, Klimatologi, dan Geofisika) — Desa Patimban, Subang.
+            Source: BMKG &amp; Open-Meteo — Patimban Port (-6.244, 107.9015). Advisory model data; official port &amp; berth decisions follow port authorities &amp; VTS.
         </p>
     </div>
 </section>
@@ -597,6 +636,11 @@
     const STEPS = @json($steps);
     const YARD_IMAGES = @json($yardImages);
 
+    const PATIMBAN_LAT = -6.244;
+    const PATIMBAN_LON = 107.9015;
+    const MARINE_LAT   = -6.225;
+    const MARINE_LON   = 107.905;
+
     const safe = (name, fn) => { try { fn(); } catch (e) { console.error('[operations] ' + name + ' gagal:', e); } };
 
     /* ─── 1. Jam ─── */
@@ -609,7 +653,26 @@
         });
     }
 
-    /* ─── 2. Cuaca & Berth Status (BMKG + Fallback Open-Meteo) ─── */
+    /* ─── 2. Cuaca, Maritim & Berth Status ─── */
+    function degToCompassId(deg) {
+        if (deg === null || deg === undefined || Number.isNaN(Number(deg))) return '--';
+        const dirs = [
+            'Utara', 'Timur Laut', 'Timur', 'Tenggara',
+            'Selatan', 'Barat Daya', 'Barat', 'Barat Laut'
+        ];
+        const idx = Math.round((((Number(deg) % 360) + 360) % 360) / 45) % 8;
+        return `${dirs[idx]} (${Math.round(Number(deg))}°)`;
+    }
+
+    function getSeaStateLabel(waveMeters) {
+        const w = Number(waveMeters);
+        if (Number.isNaN(w)) return { label: 'Unknown', cls: 'bg-slate-700/50 text-slate-300 ring-slate-600' };
+        if (w <= 0.5)  return { label: 'Tenang (0.1–0.5 m)', cls: 'bg-emerald-500/15 text-emerald-300 ring-emerald-400/30' };
+        if (w <= 1.25) return { label: 'Rendah (0.5–1.25 m)', cls: 'bg-sky-500/15 text-sky-300 ring-sky-400/30' };
+        if (w <= 2.5)  return { label: 'Sedang (1.25–2.5 m)', cls: 'bg-amber-500/15 text-amber-300 ring-amber-400/30' };
+        return { label: 'Tinggi (> 2.5 m)', cls: 'bg-red-500/15 text-red-300 ring-red-400/30' };
+    }
+
     function fnGetWeatherDetails(code) {
         if (code === 0) return { icon: '☀️', desc: 'Sunny' };
         if ([1, 2, 3].includes(code)) return { icon: '⛅', desc: 'Partly Cloudy' };
@@ -647,14 +710,10 @@
         const dateMatch = fullStr.match(/(\d{4}-\d{2}-\d{2})/);
         if (!datePart && dateMatch) datePart = dateMatch[1];
 
-        return {
-            date: datePart,
-            time: timePart || '--:--',
-            full: fullStr,
-        };
+        return { date: datePart, time: timePart || '--:--', full: fullStr };
     }
 
-    function updateBerthStatus(windSpeed, conditionTextOrCode) {
+    function updateBerthStatus(windSpeed, conditionTextOrCode, waveMeters = 0) {
         const berthEl    = document.getElementById('berth-status');
         const berthSubEl = document.getElementById('berth-status-sub');
         const windSubEl  = document.getElementById('weather-wind-sub');
@@ -668,16 +727,16 @@
             ? [61, 63, 65, 66, 67].includes(conditionTextOrCode)
             : /rain/i.test(String(conditionTextOrCode));
 
-        if (windSpeed >= 45 || isStorm) {
+        if (windSpeed >= 45 || isStorm || Number(waveMeters) >= 2.0) {
             berthEl.innerText = 'SUSPENDED';
             berthEl.className = 'text-lg sm:text-2xl font-extrabold text-red-400';
-            if (berthSubEl) berthSubEl.innerText = 'High Wind / Severe Weather';
+            if (berthSubEl) berthSubEl.innerText = 'High Wind / Wave / Storm';
             if (windSubEl)  windSubEl.innerText  = 'Unsafe for Berthing';
-        } else if (windSpeed >= 28 || isRain) {
+        } else if (windSpeed >= 28 || isRain || Number(waveMeters) >= 1.25) {
             berthEl.innerText = 'CAUTION';
             berthEl.className = 'text-lg sm:text-2xl font-extrabold text-amber-400';
             if (berthSubEl) berthSubEl.innerText = 'Monitor Mooring & Ramp';
-            if (windSubEl)  windSubEl.innerText  = 'Moderate Wind / Rain';
+            if (windSubEl)  windSubEl.innerText  = 'Moderate Wind / Rain / Swell';
         } else {
             berthEl.innerText = 'OPTIMAL';
             berthEl.className = 'text-lg sm:text-2xl font-extrabold text-emerald-400';
@@ -686,9 +745,17 @@
         }
     }
 
-    async function fetchOpenMeteo3HourlyByDate() {
-        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-6.23&longitude=107.85&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&hourly=temperature_2m,wind_speed_10m,weather_code&daily=weathercode,temperature_2m_max,temperature_2m_min,wind_speed_10m_max&timezone=auto&forecast_days=3');
-        const data = await res.json();
+    async function fetchOpenMeteoForecastAndMarine() {
+        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${PATIMBAN_LAT}&longitude=${PATIMBAN_LON}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,visibility,weather_code&hourly=temperature_2m,wind_speed_10m,weather_code&daily=weathercode,temperature_2m_max,temperature_2m_min,wind_speed_10m_max&timezone=Asia%2FJakarta&forecast_days=3`;
+        const marineUrl  = `https://marine-api.open-meteo.com/v1/marine?latitude=${MARINE_LAT}&longitude=${MARINE_LON}&current=wave_height,ocean_current_velocity,ocean_current_direction,sea_level_height_msl&timezone=Asia%2FJakarta&forecast_days=3`;
+
+        const [wRes, mRes] = await Promise.all([
+            fetch(weatherUrl),
+            fetch(marineUrl).catch(() => null),
+        ]);
+
+        const data   = await wRes.json();
+        const marine = mRes && mRes.ok ? await mRes.json() : null;
 
         const slotsByDate = {};
         if (data?.hourly?.time) {
@@ -709,10 +776,45 @@
             });
         }
 
-        return { data, slotsByDate };
+        return { data, marine, slotsByDate };
     }
 
-    function renderForecastCards(items, badgeText = '3-Day · 3-Hourly Outlook') {
+    function renderMarineParameters(weatherCurrent, marineCurrent) {
+        const waveVal       = marineCurrent?.wave_height;
+        const currentKmh    = marineCurrent?.ocean_current_velocity;
+        const currentKnots  = currentKmh !== undefined && currentKmh !== null
+            ? (Number(currentKmh) / 1.852).toFixed(1)
+            : null;
+        const currentDirDeg = marineCurrent?.ocean_current_direction;
+        const tideVal       = marineCurrent?.sea_level_height_msl;
+        const windDirDeg    = weatherCurrent?.wind_direction_10m;
+        const visMeters     = weatherCurrent?.visibility;
+
+        const waveEl      = document.getElementById('marine-wave-height');
+        const windDirEl   = document.getElementById('marine-wind-dir');
+        const curSpeedEl  = document.getElementById('marine-current-speed');
+        const curDirEl    = document.getElementById('marine-current-dir');
+        const visEl       = document.getElementById('marine-visibility');
+        const tideEl      = document.getElementById('marine-tide-level');
+        const badgeEl     = document.getElementById('marine-wave-badge');
+
+        if (waveEl)     waveEl.innerText     = waveVal !== undefined && waveVal !== null ? `${Number(waveVal).toFixed(1)} m` : '-- m';
+        if (windDirEl)  windDirEl.innerText  = degToCompassId(windDirDeg);
+        if (curSpeedEl) curSpeedEl.innerText = currentKnots !== null ? `${currentKnots} knot` : '-- knot';
+        if (curDirEl)   curDirEl.innerText   = degToCompassId(currentDirDeg);
+        if (visEl)      visEl.innerText      = visMeters !== undefined && visMeters !== null ? `${(Number(visMeters) / 1000).toFixed(1)} km` : '-- km';
+        if (tideEl)     tideEl.innerText     = tideVal !== undefined && tideVal !== null ? `${Number(tideVal) >= 0 ? '+' : ''}${Number(tideVal).toFixed(2)} m` : '-- m';
+
+        if (badgeEl) {
+            const st = getSeaStateLabel(waveVal);
+            badgeEl.innerText = st.label;
+            badgeEl.className = `inline-flex items-center rounded-full ring-1 px-2.5 py-0.5 text-[11px] font-semibold ${st.cls}`;
+        }
+
+        return Number(waveVal) || 0;
+    }
+
+    function renderForecastCards(items, badgeText = 'BMKG + Open-Meteo') {
         const container = document.getElementById('weather-forecast-container');
         const badge     = document.getElementById('weather-window-badge');
         if (!container) return;
@@ -794,34 +896,35 @@
         });
     }
 
-    async function fetchPatimbanWeatherAll() {
+    async function fetchPatimbanWeatherCombined() {
         const sourceLabel = document.getElementById('weather-source-label');
 
         try {
-            const bmkgRes = await fetch("{{ route('api.patimban.weather') }}");
-            const bmkg = await bmkgRes.json();
+            const [bmkgRes, omBundle] = await Promise.all([
+                fetch("{{ route('api.patimban.weather') }}").catch(() => null),
+                fetchOpenMeteoForecastAndMarine().catch(() => ({ data: null, marine: null, slotsByDate: {} })),
+            ]);
+
+            const bmkg = bmkgRes && bmkgRes.ok ? await bmkgRes.json() : null;
+            const { data: omData, marine: omMarine, slotsByDate } = omBundle;
+
+            const waveMeters = renderMarineParameters(omData?.current, omMarine?.current);
 
             if (bmkg && bmkg.source !== 'FALLBACK' && bmkg.current) {
                 document.getElementById('weather-temp').innerText = bmkg.current.temp + ' °C';
                 document.getElementById('weather-wind').innerText = bmkg.current.wind + ' km/h';
                 document.getElementById('weather-humidity').innerText = bmkg.current.humidity + ' %';
-                updateBerthStatus(Number(bmkg.current.wind), bmkg.current.desc_en);
+                updateBerthStatus(Number(bmkg.current.wind), bmkg.current.desc_en, waveMeters);
 
                 const rawHourly = Array.isArray(bmkg.hourly)
                     ? bmkg.hourly
                     : (Array.isArray(bmkg.slots) ? bmkg.slots : (Array.isArray(bmkg.forecasts) ? bmkg.forecasts : []));
 
-                let fallbackSlotsByDate = {};
                 const hasAnyBmkgSlots = rawHourly.length > 0 || (bmkg.daily || []).some(d =>
                     (Array.isArray(d.hourly) && d.hourly.length > 0) ||
                     (Array.isArray(d.slots) && d.slots.length > 0) ||
                     (Array.isArray(d.forecasts) && d.forecasts.length > 0)
                 );
-
-                if (!hasAnyBmkgSlots) {
-                    const om = await fetchOpenMeteo3HourlyByDate();
-                    fallbackSlotsByDate = om.slotsByDate;
-                }
 
                 const mappedDaily = (bmkg.daily || []).slice(0, 3).map(d => {
                     const dateStr = String(d.date ?? '').slice(0, 10);
@@ -842,8 +945,8 @@
                         };
                     });
 
-                    if (normalizedSlots.length === 0 && fallbackSlotsByDate[dateStr]) {
-                        normalizedSlots = fallbackSlotsByDate[dateStr];
+                    if (normalizedSlots.length === 0 && slotsByDate[dateStr]) {
+                        normalizedSlots = slotsByDate[dateStr];
                     }
 
                     return {
@@ -857,43 +960,38 @@
                     };
                 });
 
-                renderForecastCards(
-                    mappedDaily,
-                    hasAnyBmkgSlots ? 'BMKG · 3-Day Official' : 'BMKG + 3-Hour Slots'
-                );
+                renderForecastCards(mappedDaily, 'BMKG + Open-Meteo');
                 if (sourceLabel) {
-                    sourceLabel.innerText = 'Source: BMKG (Badan Meteorologi, Klimatologi, dan Geofisika) — Desa Patimban, Subang.';
+                    sourceLabel.innerText = `Source: BMKG (adm4: 32.13.10.2008) & Open-Meteo Marine — Patimban Port (${PATIMBAN_LAT}, ${PATIMBAN_LON}). Advisory model data; official port & berth decisions follow port authorities & VTS.`;
                 }
                 return;
             }
 
-            const { data, slotsByDate } = await fetchOpenMeteo3HourlyByDate();
-
-            if (data?.current) {
-                document.getElementById('weather-temp').innerText = data.current.temperature_2m + ' °C';
-                document.getElementById('weather-wind').innerText = data.current.wind_speed_10m + ' km/h';
-                document.getElementById('weather-humidity').innerText = data.current.relative_humidity_2m + ' %';
-                updateBerthStatus(data.current.wind_speed_10m, data.current.weather_code ?? 0);
+            if (omData?.current) {
+                document.getElementById('weather-temp').innerText = omData.current.temperature_2m + ' °C';
+                document.getElementById('weather-wind').innerText = omData.current.wind_speed_10m + ' km/h';
+                document.getElementById('weather-humidity').innerText = omData.current.relative_humidity_2m + ' %';
+                updateBerthStatus(omData.current.wind_speed_10m, omData.current.weather_code ?? 0, waveMeters);
             }
 
-            if (data?.daily) {
-                const mappedFallback = data.daily.time.slice(0, 3).map((dateStr, index) => {
-                    const w = fnGetWeatherDetails(data.daily.weathercode[index]);
+            if (omData?.daily) {
+                const mappedFallback = omData.daily.time.slice(0, 3).map((dateStr, index) => {
+                    const w = fnGetWeatherDetails(omData.daily.weathercode[index]);
                     return {
                         date: dateStr,
                         icon: w.icon,
                         desc: w.desc,
-                        maxTemp: Math.round(data.daily.temperature_2m_max[index]),
-                        minTemp: Math.round(data.daily.temperature_2m_min[index]),
-                        maxWind: Math.round(data.daily.wind_speed_10m_max[index]),
+                        maxTemp: Math.round(omData.daily.temperature_2m_max[index]),
+                        minTemp: Math.round(omData.daily.temperature_2m_min[index]),
+                        maxWind: Math.round(omData.daily.wind_speed_10m_max[index]),
                         slots: slotsByDate[dateStr] || [],
                     };
                 });
-                renderForecastCards(mappedFallback, 'Open-Meteo · 3-Day Fallback');
+                renderForecastCards(mappedFallback, 'Open-Meteo · Patimban Port');
             }
 
             if (sourceLabel) {
-                sourceLabel.innerText = 'Source: Open-Meteo Marine & Weather Data — Patimban Area.';
+                sourceLabel.innerText = `Source: Open-Meteo Weather & Marine — Patimban Port (${PATIMBAN_LAT}, ${PATIMBAN_LON}). Advisory model data; official port & berth decisions follow port authorities & VTS.`;
             }
         } catch (error) {
             console.error('Failed to load weather data:', error);
@@ -1034,7 +1132,10 @@
         safe('slideshows', initSlideshows);
         safe('counters', initCounters);
         safe('clock', () => { updateRealTimeClock(); setInterval(updateRealTimeClock, 1000); });
-        safe('weather', fetchPatimbanWeatherAll);
+        safe('weather', () => {
+            fetchPatimbanWeatherCombined();
+            setInterval(fetchPatimbanWeatherCombined, 15 * 60 * 1000);
+        });
     }
 
     if (document.readyState === 'loading') {
