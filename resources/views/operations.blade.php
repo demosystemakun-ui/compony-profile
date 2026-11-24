@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'Operations — PT Patimban International Car Terminal')
@@ -309,12 +308,15 @@
             @endforeach
         </div>
 
-        <h3 class="text-base sm:text-lg font-bold text-slate-200 tracking-tight mb-3">
-            7-Day Weather Forecast
+        <h3 id="weather-forecast-title" class="text-base sm:text-lg font-bold text-slate-200 tracking-tight mb-3">
+            Weather Forecast
         </h3>
         <div id="weather-forecast-container" class="flex items-stretch gap-3 overflow-x-auto pb-4 pt-1 snap-x hide-scrollbar">
             <div class="text-center py-6 text-slate-400 text-xs w-full">Loading forecast data...</div>
         </div>
+        <p id="weather-source-label" class="text-[11px] text-slate-400 mt-2">
+            Source: BMKG (Badan Meteorologi, Klimatologi, dan Geofisika) — Desa Patimban, Subang.
+        </p>
     </div>
 </section>
 
@@ -599,7 +601,7 @@
         });
     }
 
-    /* ─── 2. Cuaca & Berth Status ─── */
+    /* ─── 2. Cuaca & Berth Status (BMKG + Fallback Open-Meteo) ─── */
     function fnGetWeatherDetails(code) {
         if (code === 0) return { icon: '☀️', desc: 'Sunny' };
         if ([1, 2, 3].includes(code)) return { icon: '⛅', desc: 'Partly Cloudy' };
@@ -611,18 +613,37 @@
         return { icon: '🌤️', desc: 'Fair' };
     }
 
-    function updateBerthStatus(windSpeed, weatherCode) {
+    function mapBmkgIcon(descEn) {
+        const d = (descEn || '').toLowerCase();
+        if (d.includes('thunder')) return '⛈️';
+        if (d.includes('heavy rain') || d.includes('rain')) return '🌧️';
+        if (d.includes('drizzle') || d.includes('light rain')) return '🌦️';
+        if (d.includes('fog') || d.includes('haze') || d.includes('mist')) return '🌫️';
+        if (d.includes('overcast') || d.includes('cloudy')) return '⛅';
+        if (d.includes('clear') || d.includes('sunny')) return '☀️';
+        return '🌤️';
+    }
+
+    function updateBerthStatus(windSpeed, conditionTextOrCode) {
         const berthEl    = document.getElementById('berth-status');
         const berthSubEl = document.getElementById('berth-status-sub');
         const windSubEl  = document.getElementById('weather-wind-sub');
         if (!berthEl) return;
 
-        if (windSpeed >= 45 || [95, 96, 99].includes(weatherCode)) {
+        const isStorm = typeof conditionTextOrCode === 'number'
+            ? [95, 96, 99].includes(conditionTextOrCode)
+            : /thunder|storm/i.test(String(conditionTextOrCode));
+
+        const isRain = typeof conditionTextOrCode === 'number'
+            ? [61, 63, 65, 66, 67].includes(conditionTextOrCode)
+            : /rain/i.test(String(conditionTextOrCode));
+
+        if (windSpeed >= 45 || isStorm) {
             berthEl.innerText = 'SUSPENDED';
             berthEl.className = 'text-lg sm:text-2xl font-extrabold text-red-400';
             if (berthSubEl) berthSubEl.innerText = 'High Wind / Severe Weather';
             if (windSubEl)  windSubEl.innerText  = 'Unsafe for Berthing';
-        } else if (windSpeed >= 28 || [61, 63, 65, 66, 67].includes(weatherCode)) {
+        } else if (windSpeed >= 28 || isRain) {
             berthEl.innerText = 'CAUTION';
             berthEl.className = 'text-lg sm:text-2xl font-extrabold text-amber-400';
             if (berthSubEl) berthSubEl.innerText = 'Monitor Mooring & Ramp';
@@ -635,40 +656,99 @@
         }
     }
 
+    function renderForecastCards(items) {
+        const container = document.getElementById('weather-forecast-container');
+        if (!container) return;
+        container.innerHTML = '';
+
+        items.forEach((item, index) => {
+            const dateObj = new Date(item.date);
+            const dayName = index === 0 ? 'Today' : dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+            const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+
+            container.innerHTML += `
+                <div class="bg-slate-800/70 ${index === 0 ? 'ring-2 ring-[#EC2029]/70' : 'ring-1 ring-slate-700/80'} rounded-[1.75rem] p-4 flex flex-col items-center justify-between text-center backdrop-blur-md min-w-[130px] sm:min-w-[150px] shrink-0 snap-start transition hover:-translate-y-1 hover:ring-slate-500">
+                    <div class="w-full pb-2.5 border-b border-slate-700/60">
+                        <p class="text-xs font-bold text-slate-200">${dayName}</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">${formattedDate}</p>
+                    </div>
+                    <div class="py-3">
+                        <span class="text-2xl sm:text-3xl block mb-1">${item.icon}</span>
+                        <span class="text-[11px] text-slate-300 font-medium block">${item.desc}</span>
+                    </div>
+                    <div class="w-full space-y-1.5 pt-2 border-t border-slate-700/60 text-xs">
+                        <div class="bg-red-500/20 text-red-300 font-bold py-1 px-2 rounded-full text-[11px]">Max: ${item.maxTemp} °C</div>
+                        <div class="bg-amber-500/20 text-amber-300 font-bold py-1 px-2 rounded-full text-[11px]">Min: ${item.minTemp} °C</div>
+                        <div class="text-slate-400 text-[11px] pt-0.5 flex items-center justify-center gap-1">
+                            <svg class="w-3 h-3 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            <span>${item.maxWind} km/h</span>
+                        </div>
+                    </div>
+                </div>`;
+        });
+    }
+
     async function fetchPatimbanWeatherAll() {
+        const sourceLabel = document.getElementById('weather-source-label');
+
         try {
+            // 1. Coba endpoint BMKG via Laravel cache
+            const bmkgRes = await fetch("{{ route('api.patimban.weather') }}");
+            const bmkg = await bmkgRes.json();
+
+            if (bmkg && bmkg.source !== 'FALLBACK' && bmkg.current) {
+                document.getElementById('weather-temp').innerText = bmkg.current.temp + ' °C';
+                document.getElementById('weather-wind').innerText = bmkg.current.wind + ' km/h';
+                document.getElementById('weather-humidity').innerText = bmkg.current.humidity + ' %';
+                updateBerthStatus(Number(bmkg.current.wind), bmkg.current.desc_en);
+
+                const mappedDaily = (bmkg.daily || []).map(d => ({
+                    date: d.date,
+                    icon: mapBmkgIcon(d.desc_en),
+                    desc: d.desc_en,
+                    maxTemp: Math.round(d.temp_max),
+                    minTemp: Math.round(d.temp_min),
+                    maxWind: Math.round(d.wind_max),
+                }));
+                renderForecastCards(mappedDaily);
+                if (sourceLabel) {
+                    sourceLabel.innerText = 'Source: BMKG (Badan Meteorologi, Klimatologi, dan Geofisika) — Desa Patimban, Subang.';
+                }
+                return;
+            }
+
+            // 2. Fallback otomatis ke Open-Meteo jika BMKG tidak tersedia
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-6.23&longitude=107.85&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&daily=weathercode,temperature_2m_max,temperature_2m_min,wind_speed_10m_max&timezone=auto');
             const data = await res.json();
+
             if (data?.current) {
                 document.getElementById('weather-temp').innerText = data.current.temperature_2m + ' °C';
                 document.getElementById('weather-wind').innerText = data.current.wind_speed_10m + ' km/h';
                 document.getElementById('weather-humidity').innerText = data.current.relative_humidity_2m + ' %';
                 updateBerthStatus(data.current.wind_speed_10m, data.current.weather_code ?? 0);
             }
+
             if (data?.daily) {
-                const container = document.getElementById('weather-forecast-container');
-                container.innerHTML = '';
-                data.daily.time.forEach((dateStr, index) => {
-                    const dateObj = new Date(dateStr);
-                    const dayName = index === 0 ? 'Today' : dateObj.toLocaleDateString('en-US', { weekday: 'short' });
-                    const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
-                    const maxTemp = Math.round(data.daily.temperature_2m_max[index]);
-                    const minTemp = Math.round(data.daily.temperature_2m_min[index]);
-                    const maxWind = Math.round(data.daily.wind_speed_10m_max[index]);
-                    const weather = fnGetWeatherDetails(data.daily.weathercode[index]);
-                    container.innerHTML += `
-                        <div class="bg-slate-800/70 ${index === 0 ? 'ring-2 ring-[#EC2029]/70' : 'ring-1 ring-slate-700/80'} rounded-[1.75rem] p-4 flex flex-col items-center justify-between text-center backdrop-blur-md min-w-[130px] sm:min-w-[150px] shrink-0 snap-start transition hover:-translate-y-1 hover:ring-slate-500">
-                            <div class="w-full pb-2.5 border-b border-slate-700/60"><p class="text-xs font-bold text-slate-200">${dayName}</p><p class="text-[11px] text-slate-400 mt-0.5">${formattedDate}</p></div>
-                            <div class="py-3"><span class="text-2xl sm:text-3xl block mb-1">${weather.icon}</span><span class="text-[11px] text-slate-300 font-medium block">${weather.desc}</span></div>
-                            <div class="w-full space-y-1.5 pt-2 border-t border-slate-700/60 text-xs">
-                                <div class="bg-red-500/20 text-red-300 font-bold py-1 px-2 rounded-full text-[11px]">Max: ${maxTemp} °C</div>
-                                <div class="bg-amber-500/20 text-amber-300 font-bold py-1 px-2 rounded-full text-[11px]">Min: ${minTemp} °C</div>
-                                <div class="text-slate-400 text-[11px] pt-0.5 flex items-center justify-center gap-1"><svg class="w-3 h-3 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg><span>${maxWind} km/h</span></div>
-                            </div>
-                        </div>`;
+                const mappedFallback = data.daily.time.map((dateStr, index) => {
+                    const w = fnGetWeatherDetails(data.daily.weathercode[index]);
+                    return {
+                        date: dateStr,
+                        icon: w.icon,
+                        desc: w.desc,
+                        maxTemp: Math.round(data.daily.temperature_2m_max[index]),
+                        minTemp: Math.round(data.daily.temperature_2m_min[index]),
+                        maxWind: Math.round(data.daily.wind_speed_10m_max[index]),
+                    };
                 });
+                renderForecastCards(mappedFallback);
             }
-        } catch (error) { console.error('Failed to load weather data:', error); }
+
+            if (sourceLabel) {
+                sourceLabel.innerText = 'Source: Open-Meteo Marine & Weather Data — Patimban Area.';
+            }
+        } catch (error) {
+            console.error('Failed to load weather data:', error);
+        }
     }
 
     /* ─── 3. Tahap operasi 01–07 (bisa diklik) ─── */
@@ -816,6 +896,3 @@
 })();
 </script>
 @endpush
-
-
-<!-- weatherr -->
