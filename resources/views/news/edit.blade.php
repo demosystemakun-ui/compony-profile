@@ -56,16 +56,29 @@
                            required>
                 </div>
 
-                <div>
-                    <label for="editArticleCategory" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-                        Category
-                    </label>
-                    <input id="editArticleCategory"
-                           type="text"
-                           name="category"
-                           value="{{ old('category', $news->category) }}"
-                           class="{{ $input }}"
-                           required>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="editArticleCategory" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                            Category
+                        </label>
+                        <input id="editArticleCategory"
+                               type="text"
+                               name="category"
+                               value="{{ old('category', $news->category) }}"
+                               class="{{ $input }}"
+                               required>
+                    </div>
+
+                    <div>
+                        <label for="editArticlePublishedAt" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                            Publish date &amp; time
+                        </label>
+                        <input id="editArticlePublishedAt"
+                               type="datetime-local"
+                               name="published_at"
+                               value="{{ old('published_at', optional($news->published_at)->format('Y-m-d\TH:i')) }}"
+                               class="{{ $input }}">
+                    </div>
                 </div>
 
                 <div>

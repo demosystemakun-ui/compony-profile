@@ -73,6 +73,7 @@
                             <th scope="col" class="rounded-l-xl px-4 py-2.5 font-semibold">Image</th>
                             <th scope="col" class="px-3 py-2.5 font-semibold">Title</th>
                             <th scope="col" class="px-3 py-2.5 font-semibold">Category</th>
+                            <th scope="col" class="px-3 py-2.5 font-semibold">Published</th>
                             <th scope="col" class="px-3 py-2.5 font-semibold">Updated</th>
                             <th scope="col" class="px-3 py-2.5 font-semibold">Author</th>
                             <th scope="col" class="rounded-r-xl px-4 py-2.5 text-right font-semibold">Actions</th>
@@ -107,6 +108,10 @@
 
                                 <td class="px-3 py-3">
                                     <span class="{{ $pillGray }}">{{ $item->category }}</span>
+                                </td>
+
+                                <td class="px-3 py-3 whitespace-nowrap text-xs font-medium text-slate-600">
+                                    {{ optional($item->published_at)->format('d M Y') ?? '-' }}
                                 </td>
 
                                 <td class="px-3 py-3 whitespace-nowrap">
@@ -145,7 +150,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-5 py-12 text-center">
+                                <td colspan="7" class="px-5 py-12 text-center">
                                     <p class="text-sm font-semibold text-slate-700">No news yet</p>
                                     <p class="mt-1 text-xs text-slate-500">Click &ldquo;Add article&rdquo; above to create the first news article.</p>
                                 </td>
@@ -177,6 +182,9 @@
 
                         <div class="mt-2.5 flex flex-wrap items-center gap-2 text-xs">
                             <span class="{{ $pillGray }} !bg-white">{{ $item->category }}</span>
+                            @if($item->published_at)
+                                <span class="text-slate-600 font-medium">{{ $item->published_at->format('d M Y') }}</span>
+                            @endif
                             <span class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 font-semibold {{ $a['pill'] }}">
                                 <span class="h-1.5 w-1.5 rounded-full {{ $a['dot'] }}" aria-hidden="true"></span>{{ $a['label'] }}
                             </span>
@@ -221,7 +229,7 @@
                 <div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white px-5 py-4">
                     <div>
                         <h3 id="addArticleModalTitle" class="text-base font-bold text-[#0A2540]">Add new article</h3>
-                        <p class="text-xs text-slate-500">Fill in the title, category, photo, and article content</p>
+                        <p class="text-xs text-slate-500">Fill in the title, category, publish date, photo, and article content</p>
                     </div>
                     <button type="button"
                             onclick="closeArticleModal()"
@@ -245,17 +253,30 @@
                                required>
                     </div>
 
-                    <div>
-                        <label for="articleCategory" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-                            Category
-                        </label>
-                        <input id="articleCategory"
-                               type="text"
-                               name="category"
-                               value="{{ old('category') }}"
-                               placeholder="e.g. Operations, Terminal Update, Safety"
-                               class="{{ $input }}"
-                               required>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="articleCategory" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                                Category
+                            </label>
+                            <input id="articleCategory"
+                                   type="text"
+                                   name="category"
+                                   value="{{ old('category') }}"
+                                   placeholder="e.g. Operations, Terminal Update, Safety"
+                                   class="{{ $input }}"
+                                   required>
+                        </div>
+
+                        <div>
+                            <label for="articlePublishedAt" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                                Publish date &amp; time
+                            </label>
+                            <input id="articlePublishedAt"
+                                   type="datetime-local"
+                                   name="published_at"
+                                   value="{{ old('published_at', now()->format('Y-m-d\TH:i')) }}"
+                                   class="{{ $input }}">
+                        </div>
                     </div>
 
                     {{-- Image Upload & Camera Section --}}
