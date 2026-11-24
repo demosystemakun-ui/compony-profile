@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('title', 'Operations — PT Patimban International Car Terminal')
@@ -240,10 +241,10 @@
             ['value' => '218', 'label' => 'Thousand units, annual capacity', 'color' => 'navy',   'counter' => true],
             ['value' => '300', 'label' => 'Metres of Ro-Ro berth',            'color' => 'navy',   'counter' => true],
             ['value' => '24/7','label' => 'Continuous operations',            'color' => 'navy',   'counter' => false],
-            ];
+        ];
     @endphp
 
-    <div class="max-w-7xl mx-auto -mt-16 sm:-mt-32 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+    <div class="max-w-7xl mx-auto -mt-16 sm:-mt-32 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
         @foreach($glanceStats as $s)
             <div class="stat-card p-5 sm:p-7">
                 <div class="text-3xl sm:text-5xl font-extrabold tracking-tight mb-1
@@ -282,10 +283,10 @@
 
         @php
             $weatherCards = [
-                ['id' => 'weather-temp',     'label' => 'Temperature',  'default' => '-- °C',    'sub' => 'Patimban Harbor Area',   'iconColor' => 'text-amber-400',   'icon' => 'M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z'],
-                ['id' => 'weather-wind',     'label' => 'Wind Speed',   'default' => '-- km/h',  'sub' => 'Safe for Berthing',      'iconColor' => 'text-sky-400',     'icon' => 'M14 5l7 7m0 0l-7 7m7-7H3'],
-                ['id' => 'weather-humidity', 'label' => 'Humidity',     'default' => '-- %',     'sub' => 'Atmospheric Moisture',   'iconColor' => 'text-blue-400',    'icon' => 'M19 14l-7 7m0 0l-7-7m7 7V3'],
-                ['id' => 'berth-status',     'label' => 'Berth Status', 'default' => 'OPTIMAL',  'sub' => 'Normal Ro-Ro Condition', 'iconColor' => 'text-emerald-400', 'icon' => 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', 'isStatus' => true],
+                ['id' => 'weather-temp',     'subId' => 'weather-temp-sub',     'label' => 'Temperature',  'default' => '-- °C',    'sub' => 'Patimban Harbor Area',   'iconColor' => 'text-amber-400',   'icon' => 'M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z'],
+                ['id' => 'weather-wind',     'subId' => 'weather-wind-sub',     'label' => 'Wind Speed',   'default' => '-- km/h',  'sub' => 'Checking Wind...',       'iconColor' => 'text-sky-400',     'icon' => 'M14 5l7 7m0 0l-7 7m7-7H3'],
+                ['id' => 'weather-humidity', 'subId' => 'weather-humidity-sub', 'label' => 'Humidity',     'default' => '-- %',     'sub' => 'Atmospheric Moisture',   'iconColor' => 'text-blue-400',    'icon' => 'M19 14l-7 7m0 0l-7-7m7 7V3'],
+                ['id' => 'berth-status',     'subId' => 'berth-status-sub',     'label' => 'Berth Status', 'default' => 'CHECKING', 'sub' => 'Evaluating Conditions',  'iconColor' => 'text-emerald-400', 'icon' => 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', 'isStatus' => true],
             ];
         @endphp
 
@@ -303,7 +304,7 @@
                     <p id="{{ $w['id'] }}" class="text-xl sm:text-3xl font-extrabold {{ !empty($w['isStatus']) ? 'text-lg sm:text-2xl text-emerald-400' : 'text-white' }}">
                         {{ $w['default'] }}
                     </p>
-                    <p class="text-slate-400 text-[11px] sm:text-xs mt-1">{{ $w['sub'] }}</p>
+                    <p id="{{ $w['subId'] }}" class="text-slate-400 text-[11px] sm:text-xs mt-1">{{ $w['sub'] }}</p>
                 </div>
             @endforeach
         </div>
@@ -582,13 +583,10 @@
 
 @push('scripts')
 <script>
-/* Data dikirim sebagai JSON murni langsung di dalam skrip (bukan lewat atribut data-*),
-   supaya tidak ter-escape dua kali dan JSON.parse tidak gagal. */
 (function () {
     const STEPS = @json($steps);
     const YARD_IMAGES = @json($yardImages);
 
-    /* Setiap fitur dibungkus sendiri: kalau satu error, yang lain tetap jalan. */
     const safe = (name, fn) => { try { fn(); } catch (e) { console.error('[operations] ' + name + ' gagal:', e); } };
 
     /* ─── 1. Jam ─── */
@@ -601,7 +599,7 @@
         });
     }
 
-    /* ─── 2. Cuaca ─── */
+    /* ─── 2. Cuaca & Berth Status ─── */
     function fnGetWeatherDetails(code) {
         if (code === 0) return { icon: '☀️', desc: 'Sunny' };
         if ([1, 2, 3].includes(code)) return { icon: '⛅', desc: 'Partly Cloudy' };
@@ -613,14 +611,39 @@
         return { icon: '🌤️', desc: 'Fair' };
     }
 
+    function updateBerthStatus(windSpeed, weatherCode) {
+        const berthEl    = document.getElementById('berth-status');
+        const berthSubEl = document.getElementById('berth-status-sub');
+        const windSubEl  = document.getElementById('weather-wind-sub');
+        if (!berthEl) return;
+
+        if (windSpeed >= 45 || [95, 96, 99].includes(weatherCode)) {
+            berthEl.innerText = 'SUSPENDED';
+            berthEl.className = 'text-lg sm:text-2xl font-extrabold text-red-400';
+            if (berthSubEl) berthSubEl.innerText = 'High Wind / Severe Weather';
+            if (windSubEl)  windSubEl.innerText  = 'Unsafe for Berthing';
+        } else if (windSpeed >= 28 || [61, 63, 65, 66, 67].includes(weatherCode)) {
+            berthEl.innerText = 'CAUTION';
+            berthEl.className = 'text-lg sm:text-2xl font-extrabold text-amber-400';
+            if (berthSubEl) berthSubEl.innerText = 'Monitor Mooring & Ramp';
+            if (windSubEl)  windSubEl.innerText  = 'Moderate Wind / Rain';
+        } else {
+            berthEl.innerText = 'OPTIMAL';
+            berthEl.className = 'text-lg sm:text-2xl font-extrabold text-emerald-400';
+            if (berthSubEl) berthSubEl.innerText = 'Normal Ro-Ro Condition';
+            if (windSubEl)  windSubEl.innerText  = 'Safe for Berthing';
+        }
+    }
+
     async function fetchPatimbanWeatherAll() {
         try {
-            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-6.23&longitude=107.85&current=temperature_2m,relative_humidity_2m,wind_speed_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,wind_speed_10m_max&timezone=auto');
+            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-6.23&longitude=107.85&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&daily=weathercode,temperature_2m_max,temperature_2m_min,wind_speed_10m_max&timezone=auto');
             const data = await res.json();
             if (data?.current) {
                 document.getElementById('weather-temp').innerText = data.current.temperature_2m + ' °C';
                 document.getElementById('weather-wind').innerText = data.current.wind_speed_10m + ' km/h';
                 document.getElementById('weather-humidity').innerText = data.current.relative_humidity_2m + ' %';
+                updateBerthStatus(data.current.wind_speed_10m, data.current.weather_code ?? 0);
             }
             if (data?.daily) {
                 const container = document.getElementById('weather-forecast-container');
@@ -671,7 +694,7 @@
             });
 
             [text, fields].forEach(el => el && el.classList.remove('fade-content'));
-            if (panel) void panel.offsetWidth; // restart animasi
+            if (panel) void panel.offsetWidth;
 
             $('detail-number').textContent = '0' + (index + 1);
             $('detail-title').textContent  = data.title;
@@ -684,14 +707,13 @@
             [text, fields].forEach(el => el && el.classList.add('fade-content'));
         }
 
-        /* Satu listener di wadah: berlaku untuk semua tombol 01–07 */
         nav.addEventListener('click', e => {
             const btn = e.target.closest('.flow-btn');
             if (!btn || !nav.contains(btn)) return;
             activate(Number(btn.dataset.index));
         });
 
-        window.activateFlowStep = activate; // tetap tersedia kalau dipanggil dari tempat lain
+        window.activateFlowStep = activate;
         activate(0);
     }
 
@@ -786,7 +808,6 @@
         safe('weather', fetchPatimbanWeatherAll);
     }
 
-    /* Jalan langsung kalau DOM sudah siap (mis. skrip dimuat ulang oleh transisi halaman) */
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', boot);
     } else {
