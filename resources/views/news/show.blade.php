@@ -15,29 +15,17 @@
             </div>
         @endif
 
-        <nav aria-label="Breadcrumb" class="flex flex-wrap items-center gap-1.5 text-sm text-gray-500 mb-4">
-            <a href="{{ url('/') }}" class="text-[#0A2540] hover:underline">Home</a>
-            <span>/</span>
-            <a href="{{ route('news') }}" class="text-[#0A2540] hover:underline">
-                {{ $news->category ?: 'News' }}
-            </a>
-            <span>/</span>
-            <span class="text-gray-400 truncate max-w-[14rem] sm:max-w-md">{{ $news->title }}</span>
-        </nav>
-
         <h1 class="text-2xl sm:text-4xl font-bold text-[#0A2540] leading-snug mb-2">
             {{ $news->title }}
         </h1>
 
-        <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-500 pb-6 mb-7 border-b border-gray-200">
-            <span>Written by <strong class="font-medium text-gray-700">{{ $news->updatedBy->name ?? 'Admin' }}</strong></span>
-            @if($news->published_at)
-                <span>/</span>
+        @if($news->published_at)
+            <div class="text-xs sm:text-sm text-gray-500 pb-6 mb-7 border-b border-gray-200">
                 <time datetime="{{ $news->published_at->toDateString() }}">
                     {{ $news->published_at->translatedFormat('F d, Y') }}
                 </time>
-            @endif
-        </div>
+            </div>
+        @endif
 
         @if($news->excerpt)
             <p class="text-base sm:text-lg font-medium text-gray-700 leading-relaxed mb-5">
@@ -50,16 +38,6 @@
                     prose-a:text-[#0A2540] prose-a:underline
                     prose-img:rounded-xl">
             {!! $news->content !!}
-        </div>
-
-        <div class="mt-12 pt-8 border-t border-gray-200">
-            <a href="{{ route('news') }}"
-               class="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-[#0A2540] transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Back to News List
-            </a>
         </div>
 
     </div>
