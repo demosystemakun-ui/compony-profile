@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'News & Announcements — PT Patimban International Car Terminal')
@@ -343,7 +342,7 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                     @foreach($gridNews as $item)
-                        <article class="group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all">
+                        <article class="group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col">
                             <a href="{{ route('news.show', $item->slug) }}" class="block aspect-[16/10] bg-slate-100 overflow-hidden">
                                 @if($item->image_url)
                                     <img src="{{ $item->image_url }}"
@@ -359,10 +358,20 @@
                                 @endif
                             </a>
 
-                            <div class="p-5">
+                            <div class="p-5 flex flex-col flex-1">
                                 <h3 class="text-base sm:text-lg font-bold text-[#0A2540] leading-snug line-clamp-2 group-hover:text-[#ec2029] transition-colors">
                                     <a href="{{ route('news.show', $item->slug) }}">{{ $item->title }}</a>
                                 </h3>
+
+                                <div class="mt-auto pt-4">
+                                    <a href="{{ route('news.show', $item->slug) }}"
+                                       class="inline-flex items-center gap-1.5 text-sm font-bold text-[#0A2540] group-hover:text-[#ec2029] transition-colors">
+                                        Read Full Article
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                        </svg>
+                                    </a>
+                                </div>
                             </div>
                         </article>
                     @endforeach
@@ -433,4 +442,3 @@
 })();
 </script>
 @endpush
-
