@@ -48,7 +48,7 @@
     /* ═══ KUNCI LAYOUT ═══ */
     #swup, main, section {
         position: relative;
-        width: 100%; 
+        width: 100%;
         max-width: 100vw;
     }
     .prevent-overflow { overflow: hidden !important; }
@@ -308,13 +308,20 @@
             @endforeach
         </div>
 
-        <h3 id="weather-forecast-title" class="text-base sm:text-lg font-bold text-slate-200 tracking-tight mb-3">
-            Weather Forecast
-        </h3>
-        <div id="weather-forecast-container" class="flex items-stretch gap-3 overflow-x-auto pb-4 pt-1 snap-x hide-scrollbar">
-            <div class="text-center py-6 text-slate-400 text-xs w-full">Loading forecast data...</div>
+        <div class="flex items-center justify-between gap-3 mb-3.5">
+            <h3 id="weather-forecast-title" class="text-base sm:text-lg font-bold text-slate-200 tracking-tight">
+                Weather Forecast
+            </h3>
+            <span id="weather-window-badge" class="inline-flex items-center rounded-full bg-slate-800 px-3 py-1 text-[11px] font-semibold text-slate-300 ring-1 ring-slate-700">
+                3-Day · 3-Hourly Outlook
+            </span>
         </div>
-        <p id="weather-source-label" class="text-[11px] text-slate-400 mt-2">
+
+        <div id="weather-forecast-container" class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 pt-1">
+            <div class="col-span-full text-center py-6 text-slate-400 text-xs w-full">Loading forecast data...</div>
+        </div>
+
+        <p id="weather-source-label" class="text-[11px] text-slate-400 mt-3">
             Source: BMKG (Badan Meteorologi, Klimatologi, dan Geofisika) — Desa Patimban, Subang.
         </p>
     </div>
@@ -656,34 +663,68 @@
         }
     }
 
-    function renderForecastCards(items) {
+    function renderForecastCards(items, badgeText = '3-Day · 3-Hourly Outlook') {
         const container = document.getElementById('weather-forecast-container');
+        const badge     = document.getElementById('weather-window-badge');
         if (!container) return;
+
+        if (badge) badge.innerText = badgeText;
         container.innerHTML = '';
 
         items.forEach((item, index) => {
             const dateObj = new Date(item.date);
             const dayName = index === 0 ? 'Today' : dateObj.toLocaleDateString('en-US', { weekday: 'short' });
-            const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+            const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const slots = Array.isArray(item.slots) ? item.slots : [];
+
+            const slotsHtml = slots.length > 0
+                ? `<div class="mt-4 pt-3 border-t border-slate-700/60">
+                        <div class="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                            <span>3-Hour Window</span>
+                            <span>Temp · Wind</span>
+                        </div>
+                        <div class="space-y-1.5 max-h-44 overflow-y-auto pr-1">
+                            ${slots.map(s => `
+                                <div class="flex items-center justify-between rounded-xl bg-slate-900/65 px-2.5 py-1.5 text-xs">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-mono text-[11px] font-semibold text-slate-300">${s.time}</span>
+                                        <span class="text-sm leading-none">${s.icon}</span>
+                                        <span class="text-[11px] text-slate-400 truncate max-w-[85px]">${s.desc}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 font-mono text-[11px]">
+                                        <span class="font-bold text-slate-100">${s.temp}°C</span>
+                                        <span class="text-sky-400">${s.wind} km/h</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                   </div>`
+                : '';
 
             container.innerHTML += `
-                <div class="bg-slate-800/70 ${index === 0 ? 'ring-2 ring-[#EC2029]/70' : 'ring-1 ring-slate-700/80'} rounded-[1.75rem] p-4 flex flex-col items-center justify-between text-center backdrop-blur-md min-w-[130px] sm:min-w-[150px] shrink-0 snap-start transition hover:-translate-y-1 hover:ring-slate-500">
-                    <div class="w-full pb-2.5 border-b border-slate-700/60">
-                        <p class="text-xs font-bold text-slate-200">${dayName}</p>
-                        <p class="text-[11px] text-slate-400 mt-0.5">${formattedDate}</p>
-                    </div>
-                    <div class="py-3">
-                        <span class="text-2xl sm:text-3xl block mb-1">${item.icon}</span>
-                        <span class="text-[11px] text-slate-300 font-medium block">${item.desc}</span>
-                    </div>
-                    <div class="w-full space-y-1.5 pt-2 border-t border-slate-700/60 text-xs">
-                        <div class="bg-red-500/20 text-red-300 font-bold py-1 px-2 rounded-full text-[11px]">Max: ${item.maxTemp} °C</div>
-                        <div class="bg-amber-500/20 text-amber-300 font-bold py-1 px-2 rounded-full text-[11px]">Min: ${item.minTemp} °C</div>
-                        <div class="text-slate-400 text-[11px] pt-0.5 flex items-center justify-center gap-1">
-                            <svg class="w-3 h-3 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                            <span>${item.maxWind} km/h</span>
+                <div class="bg-slate-800/70 ${index === 0 ? 'ring-2 ring-[#EC2029]/70' : 'ring-1 ring-slate-700/80'} rounded-[1.75rem] p-4 sm:p-5 flex flex-col justify-between backdrop-blur-md transition hover:-translate-y-1 hover:ring-slate-500">
+                    <div>
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-700/60">
+                            <div>
+                                <p class="text-sm font-bold text-slate-100">${dayName}</p>
+                                <p class="text-[11px] text-slate-400">${formattedDate}</p>
+                            </div>
+                            <div class="flex items-center gap-2.5 text-right">
+                                <div>
+                                    <span class="text-xs font-semibold text-slate-200 block">${item.desc}</span>
+                                    <span class="text-[11px] text-sky-400">Peak ${item.maxWind} km/h</span>
+                                </div>
+                                <span class="text-3xl leading-none">${item.icon}</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 mt-3 text-xs text-center">
+                            <div class="bg-red-500/20 text-red-300 font-bold py-1.5 px-2 rounded-full text-[11px]">Max: ${item.maxTemp} °C</div>
+                            <div class="bg-amber-500/20 text-amber-300 font-bold py-1.5 px-2 rounded-full text-[11px]">Min: ${item.minTemp} °C</div>
                         </div>
                     </div>
+
+                    ${slotsHtml}
                 </div>`;
         });
     }
@@ -702,23 +743,44 @@
                 document.getElementById('weather-humidity').innerText = bmkg.current.humidity + ' %';
                 updateBerthStatus(Number(bmkg.current.wind), bmkg.current.desc_en);
 
-                const mappedDaily = (bmkg.daily || []).map(d => ({
-                    date: d.date,
-                    icon: mapBmkgIcon(d.desc_en),
-                    desc: d.desc_en,
-                    maxTemp: Math.round(d.temp_max),
-                    minTemp: Math.round(d.temp_min),
-                    maxWind: Math.round(d.wind_max),
-                }));
-                renderForecastCards(mappedDaily);
+                const rawHourly = Array.isArray(bmkg.hourly) ? bmkg.hourly : [];
+
+                const mappedDaily = (bmkg.daily || []).slice(0, 3).map(d => {
+                    const inlineSlots = d.hourly || d.slots || d.forecasts || rawHourly.filter(h => (h.date || '').startsWith(d.date));
+                    const normalizedSlots = (inlineSlots || []).map(h => {
+                        const timePart = h.time
+                            || (h.local_datetime ? String(h.local_datetime).slice(11, 16) : '')
+                            || (h.datetime ? String(h.datetime).slice(11, 16) : '--:--');
+                        const descText = h.desc_en || h.weather_desc_en || h.desc || d.desc_en;
+                        return {
+                            time: timePart,
+                            icon: mapBmkgIcon(descText),
+                            desc: descText,
+                            temp: Math.round(h.temp ?? h.t ?? d.temp_max),
+                            wind: Math.round(h.wind ?? h.ws ?? d.wind_max),
+                        };
+                    });
+
+                    return {
+                        date: d.date,
+                        icon: mapBmkgIcon(d.desc_en),
+                        desc: d.desc_en,
+                        maxTemp: Math.round(d.temp_max),
+                        minTemp: Math.round(d.temp_min),
+                        maxWind: Math.round(d.wind_max),
+                        slots: normalizedSlots,
+                    };
+                });
+
+                renderForecastCards(mappedDaily, 'BMKG · 3-Day Official');
                 if (sourceLabel) {
                     sourceLabel.innerText = 'Source: BMKG (Badan Meteorologi, Klimatologi, dan Geofisika) — Desa Patimban, Subang.';
                 }
                 return;
             }
 
-            // 2. Fallback otomatis ke Open-Meteo jika BMKG tidak tersedia
-            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-6.23&longitude=107.85&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&daily=weathercode,temperature_2m_max,temperature_2m_min,wind_speed_10m_max&timezone=auto');
+            // 2. Fallback otomatis ke Open-Meteo jika BMKG tidak tersedia (termasuk interval 3-jam)
+            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-6.23&longitude=107.85&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&hourly=temperature_2m,wind_speed_10m,weather_code&daily=weathercode,temperature_2m_max,temperature_2m_min,wind_speed_10m_max&timezone=auto&forecast_days=3');
             const data = await res.json();
 
             if (data?.current) {
@@ -729,8 +791,28 @@
             }
 
             if (data?.daily) {
-                const mappedFallback = data.daily.time.map((dateStr, index) => {
+                const mappedFallback = data.daily.time.slice(0, 3).map((dateStr, index) => {
                     const w = fnGetWeatherDetails(data.daily.weathercode[index]);
+                    const slots = [];
+
+                    if (data.hourly?.time) {
+                        data.hourly.time.forEach((isoTime, hIdx) => {
+                            if (isoTime.startsWith(dateStr)) {
+                                const hourNum = Number(isoTime.slice(11, 13));
+                                if (hourNum % 3 === 0) {
+                                    const hw = fnGetWeatherDetails(data.hourly.weather_code[hIdx]);
+                                    slots.push({
+                                        time: isoTime.slice(11, 16),
+                                        icon: hw.icon,
+                                        desc: hw.desc,
+                                        temp: Math.round(data.hourly.temperature_2m[hIdx]),
+                                        wind: Math.round(data.hourly.wind_speed_10m[hIdx]),
+                                    });
+                                }
+                            }
+                        });
+                    }
+
                     return {
                         date: dateStr,
                         icon: w.icon,
@@ -738,9 +820,10 @@
                         maxTemp: Math.round(data.daily.temperature_2m_max[index]),
                         minTemp: Math.round(data.daily.temperature_2m_min[index]),
                         maxWind: Math.round(data.daily.wind_speed_10m_max[index]),
+                        slots,
                     };
                 });
-                renderForecastCards(mappedFallback);
+                renderForecastCards(mappedFallback, 'Open-Meteo · 3-Day Fallback');
             }
 
             if (sourceLabel) {
