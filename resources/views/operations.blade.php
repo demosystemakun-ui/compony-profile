@@ -4,13 +4,13 @@
 
 @php
     $steps = [
-        ['title' => 'Ship Arrival', 'time' => '1–2 Hours Prior', 'equip' => 'Vessel Traffic Services (VTS)', 'safety' => 'ISPS Code Compliance', 'div' => 'Marine Operations', 'desc' => 'Coordination with maritime authorities to ensure safe entry into the port limits before docking procedures begin.'],
-        ['title' => 'Berthing', 'time' => '45–60 Minutes', 'equip' => 'Tugboats & Mooring Lines', 'safety' => 'Port Safety Clearance', 'div' => 'Harbor Master Team', 'desc' => 'Securing the vessel to the terminal dock using specialized tugs and heavy-duty mooring systems.'],
-        ['title' => 'Vehicle Inspection', 'time' => '10 Min / Unit', 'equip' => 'Digital Handheld Scanners', 'safety' => 'Zero-Scratch Protocol', 'div' => 'Quality Assurance', 'desc' => 'Pre-discharge visual and digital scanning of units to document condition and ensure zero damage.'],
-        ['title' => 'Ro-Ro Discharge', 'time' => '2–4 Hours Total', 'equip' => 'Hydraulic Ramps & Lashing', 'safety' => 'PPE & Traffic Control', 'div' => 'Stevedoring Division', 'desc' => 'Safe and systematic driving of vehicles from the vessel decks down the ramps into the initial staging area.'],
-        ['title' => 'Yard Management', 'time' => 'Immediate Staging', 'equip' => 'Automated Yard Locator (TMS)', 'safety' => 'Speed Limit 20 km/h', 'div' => 'Yard Control Center', 'desc' => 'Routing and parking units in designated zones utilizing our proprietary Terminal Management System.'],
-        ['title' => 'Quality Check', 'time' => 'Final Audit', 'equip' => 'High-Resolution Cameras', 'safety' => 'Pre-Delivery Inspection', 'div' => 'Inspection Team', 'desc' => 'Comprehensive post-discharge inspection to verify VIN numbers, accessories, and overall vehicle integrity.'],
-        ['title' => 'Distribution', 'time' => 'On-Demand Gate Out', 'equip' => 'Car Carriers / Transporters', 'safety' => 'Gate Security Check', 'div' => 'Logistics & Delivery', 'desc' => 'Loading units onto commercial transporters and finalizing documentation for domestic or international dispatch.'],
+        ['title' => 'Ship Arrival', 'time' => '1–2 Hours Prior', 'equip' => 'Vessel Traffic Services (VTS)', 'safety' => 'ISPS Code Compliance', 'div' => 'Example Division', 'desc' => 'Coordination with maritime authorities to ensure safe entry into the port limits before docking procedures begin.'],
+        ['title' => 'Berthing', 'time' => '45–60 Minutes', 'equip' => 'Tugboats & Mooring Lines', 'safety' => 'Port Safety Clearance', 'div' => 'Example Division', 'desc' => 'Securing the vessel to the terminal dock using specialized tugs and heavy-duty mooring systems.'],
+        ['title' => 'Vehicle Inspection', 'time' => '10 Min / Unit', 'equip' => 'Digital Handheld Scanners', 'safety' => 'Zero-Scratch Protocol', 'div' => 'Example Division', 'desc' => 'Pre-discharge visual and digital scanning of units to document condition and ensure zero damage.'],
+        ['title' => 'Ro-Ro Discharge', 'time' => '2–4 Hours Total', 'equip' => 'Hydraulic Ramps & Lashing', 'safety' => 'PPE & Traffic Control', 'div' => 'Example Division', 'desc' => 'Safe and systematic driving of vehicles from the vessel decks down the ramps into the initial staging area.'],
+        ['title' => 'Yard Management', 'time' => 'Immediate Staging', 'equip' => 'Automated Yard Locator (TMS)', 'safety' => 'Speed Limit 20 km/h', 'div' => 'Example Division', 'desc' => 'Routing and parking units in designated zones utilizing our proprietary Terminal Management System.'],
+        ['title' => 'Customs Clearance', 'time' => 'Varies by Shipment', 'equip' => 'E-Customs Portal', 'safety' => 'Regulatory Compliance', 'div' => 'Example Division', 'desc' => 'Submission of required documentation and inspection for customs approval before units can be released for delivery.'],
+        ['title' => 'Distribution', 'time' => 'On-Demand Gate Out', 'equip' => 'Car Carriers / Transporters', 'safety' => 'Gate Security Check', 'div' => 'Example Division', 'desc' => 'Loading units onto commercial transporters and finalizing documentation for domestic or international dispatch.'],
     ];
 
     $yardImages = [
@@ -366,7 +366,7 @@
     <div class="max-w-7xl mx-auto px-5 sm:px-6 relative">
         <div class="max-w-2xl mb-10 sm:mb-14">
             <h2 class="text-2xl sm:text-4xl font-extrabold text-[#0A2540] tracking-tight leading-tight">
-                Seven stages, from ship arrival to gate-out
+                Seven stages, from ship arrival to gate-out (examples of stages and timing)
             </h2>
             <span class="squiggle" aria-hidden="true"></span>
             <p class="mt-4 text-[var(--color-muted)] text-sm">
