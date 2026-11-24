@@ -39,10 +39,11 @@
         .news-card-sticky {
             position: sticky;
             top: var(--stack-top, 12vh);
-            height: 70vh;
+            min-height: 70vh;
+            height: auto;
             flex-direction: row;
             align-items: center;
-            padding: 3rem;
+            padding: 2.5rem 3rem;
             gap: 3rem;
             margin-bottom: 4rem; /* jarak scroll sebelum kartu berikutnya naik */
         }
@@ -75,7 +76,7 @@
         padding: 0.5rem 1.25rem;
         border-radius: 9999px;
         align-self: flex-start;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.25rem;
     }
 
     .news-card-date {
@@ -85,7 +86,7 @@
         color: #94a3b8;
         text-transform: uppercase;
         letter-spacing: 0.1em;
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
     }
 
     .news-card-title {
@@ -97,11 +98,22 @@
         letter-spacing: -0.02em;
     }
 
+    @media (min-width: 1024px) {
+        .news-card-title {
+            font-size: 1.875rem;
+            line-height: 1.2;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    }
+
     .news-card-excerpt {
         font-size: 1.125rem;
         line-height: 1.6;
         color: #475569;
-        margin-bottom: 2rem;
+        margin-bottom: 1.75rem;
         display: -webkit-box;
         -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
@@ -116,7 +128,7 @@
         color: white;
         font-size: 0.875rem;
         font-weight: 700;
-        padding: 1rem 2rem;
+        padding: 0.9rem 1.85rem;
         border-radius: 9999px;
         text-decoration: none;
         align-self: flex-start;
@@ -137,6 +149,13 @@
         overflow: hidden;
         position: relative;
         background-color: #e2e8f0;
+    }
+
+    @media (min-width: 1024px) {
+        .news-card-image {
+            height: 24rem;
+            align-self: stretch;
+        }
     }
 
     .news-card-image img {
@@ -381,5 +400,3 @@
 })();
 </script>
 @endpush
-
-<!-- daiirikak -->
