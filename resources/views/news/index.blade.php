@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('title', 'News & Announcements — PT Patimban International Car Terminal')
@@ -342,7 +343,7 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                     @foreach($gridNews as $item)
-                        <article class="group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col">
+                        <article class="group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all">
                             <a href="{{ route('news.show', $item->slug) }}" class="block aspect-[16/10] bg-slate-100 overflow-hidden">
                                 @if($item->image_url)
                                     <img src="{{ $item->image_url }}"
@@ -358,40 +359,10 @@
                                 @endif
                             </a>
 
-                            <div class="p-5 sm:p-6 flex flex-col flex-1">
-                                <div class="flex items-center justify-between gap-2 mb-3">
-                                    @if(!empty($item->category))
-                                        <span class="inline-flex items-center gap-1.5 bg-red-50 text-red-700 text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>
-                                            {{ $item->category }}
-                                        </span>
-                                    @endif
-
-                                    @if($item->published_at)
-                                        <time datetime="{{ $item->published_at->toDateString() }}" class="text-xs font-semibold text-slate-400">
-                                            {{ $item->published_at->translatedFormat('d M Y') }}
-                                        </time>
-                                    @endif
-                                </div>
-
-                                <h3 class="text-lg font-bold text-[#0A2540] leading-snug mb-2 line-clamp-2 group-hover:text-[#ec2029] transition-colors">
+                            <div class="p-5">
+                                <h3 class="text-base sm:text-lg font-bold text-[#0A2540] leading-snug line-clamp-2 group-hover:text-[#ec2029] transition-colors">
                                     <a href="{{ route('news.show', $item->slug) }}">{{ $item->title }}</a>
                                 </h3>
-
-                                @if($item->excerpt)
-                                    <p class="text-sm text-slate-600 leading-relaxed line-clamp-3 mb-5">
-                                        {{ $item->excerpt }}
-                                    </p>
-                                @endif
-
-                                <div class="mt-auto pt-3 border-t border-slate-100">
-                                    <a href="{{ route('news.show', $item->slug) }}" class="inline-flex items-center gap-1.5 text-sm font-bold text-[#0A2540] group-hover:text-[#ec2029] transition-colors">
-                                        Read Full Article
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                        </svg>
-                                    </a>
-                                </div>
                             </div>
                         </article>
                     @endforeach
@@ -462,3 +433,4 @@
 })();
 </script>
 @endpush
+
