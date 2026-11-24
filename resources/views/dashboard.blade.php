@@ -4,7 +4,8 @@
     $totalGallery, $totalRoutes, $activeRoutes,
     $lastNewsAgo, $lastTariffAgo, $lastGalleryAgo, $lastRouteAgo,
     $attentionNews, $topCategories, $recentLogs,
-    $newsList, $tariffList, $actionColors
+    $newsList, $tariffList, $actionColors,
+    $todayVisits, $todayUniqueIps, $recentVisits
 --}}
 @php
     $age = function ($date) {
@@ -32,6 +33,8 @@
          'tint' => 'bg-red-50',  'ic' => 'text-[#EC2029]', 'icon' => 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'],
         ['label' => 'Shipping routes', 'value' => $totalRoutes ?? 0,  'sub' => ($activeRoutes ?? 0) . ' active',      'href' => url('/pict-internal-admin-portal/shipping-routes'),
          'tint' => 'bg-[#e3eefb]', 'ic' => 'text-[#0A2540]', 'icon' => 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z'],
+        ['label' => 'Visitors today',  'value' => number_format($todayVisits ?? 0), 'sub' => number_format($todayUniqueIps ?? 0) . ' unique IPs today', 'href' => '#today-visitor-ips',
+         'tint' => 'bg-emerald-50', 'ic' => 'text-emerald-700', 'icon' => 'M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z'],
     ];
     if ($isSuperAdmin) {
         $stats[] = ['label' => 'Users', 'value' => $totalUsers, 'sub' => 'Registered in the system', 'href' => route('users.index'),
@@ -116,7 +119,7 @@
         </section>
 
         {{-- ═══ STATISTIK ═══ --}}
-        <div class="grid grid-cols-2 md:grid-cols-3 {{ $isSuperAdmin ? 'xl:grid-cols-5' : 'xl:grid-cols-4' }} gap-3 sm:gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-3 {{ $isSuperAdmin ? 'xl:grid-cols-6' : 'xl:grid-cols-5' }} gap-3 sm:gap-4">
             @foreach($stats as $s)
                 <a href="{{ $s['href'] }}"
                    class="group rounded-2xl bg-white p-4 sm:p-5 shadow-sm border border-slate-100 transition hover:-translate-y-0.5 hover:shadow-md {{ $focus }}">
@@ -209,6 +212,59 @@
                 </section>
             @endif
         </div>
+
+        {{-- ═══ PENGUNJUNG PUBLIK HARI INI (IP) ═══ --}}
+        <section id="today-visitor-ips" class="{{ $card }} overflow-hidden">
+            <div class="{{ $cardHead }}">
+                <div>
+                    <h3 class="text-base font-bold text-[#0A2540]">Today's public visitor IPs</h3>
+                    <p class="mt-0.5 text-xs text-slate-500">
+                        {{ number_format($todayVisits ?? 0) }} visits from {{ number_format($todayUniqueIps ?? 0) }} unique IPs today
+                    </p>
+                </div>
+            </div>
+
+            <div class="hidden md:block overflow-x-auto px-3 pb-3">
+                <table class="w-full text-left text-sm">
+                    <thead class="text-xs text-slate-500">
+                        <tr class="bg-[#f6f9fc]">
+                            <th scope="col" class="rounded-l-xl px-4 py-2.5 font-semibold">IP Address</th>
+                            <th scope="col" class="px-3 py-2.5 font-semibold">Page</th>
+                            <th scope="col" class="rounded-r-xl px-4 py-2.5 text-right font-semibold">Time</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @forelse($recentVisits ?? collect() as $visit)
+                            <tr class="hover:bg-[#f6f9fc] transition-colors">
+                                <td class="px-4 py-2.5 font-mono text-xs font-semibold text-[#0A2540]">{{ $visit->ip_address }}</td>
+                                <td class="px-3 py-2.5 text-xs text-slate-600">{{ $visit->path }}</td>
+                                <td class="px-4 py-2.5 text-right text-xs text-slate-500 whitespace-nowrap">
+                                    {{ optional($visit->visited_at)->format('H:i:s') }}
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="px-5 py-8 text-center text-xs text-slate-500">No public visits recorded today.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <ul class="md:hidden space-y-2.5 px-3 pb-3">
+                @forelse($recentVisits ?? collect() as $visit)
+                    <li class="flex items-center justify-between gap-3 rounded-xl bg-[#f6f9fc] px-3.5 py-2.5 text-xs">
+                        <div class="min-w-0">
+                            <p class="font-mono font-semibold text-[#0A2540]">{{ $visit->ip_address }}</p>
+                            <p class="truncate text-slate-500">{{ $visit->path }}</p>
+                        </div>
+                        <span class="shrink-0 text-slate-500">{{ optional($visit->visited_at)->format('H:i:s') }}</span>
+                    </li>
+                @empty
+                    <li class="px-4 py-8 text-center text-xs text-slate-500">No public visits recorded today.</li>
+                @endforelse
+            </ul>
+        </section>
 
         {{-- ═══ KATEGORI TERATAS ═══ --}}
         @if($topCategories->count() > 0)

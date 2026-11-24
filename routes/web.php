@@ -1,19 +1,20 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AiChatController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\TariffController;
-use App\Http\Controllers\NewsController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\SuperAdmin\UserController;
-use App\Http\Controllers\SuperAdmin\ActivityLogController;
 use App\Http\Controllers\Admin\GalleryController;
-use App\Http\Controllers\PageController;
+use App\Http\Controllers\AiChatController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NewsController;
+use App\Http\Controllers\PageController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SuperAdmin\ActivityLogController;
+use App\Http\Controllers\SuperAdmin\UserController;
+use App\Http\Controllers\TariffController;
+use App\Http\Middleware\TrackPublicVisits;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,38 +30,99 @@ Route::get('/set-cookie', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Public Routes
+| Public Routes (Tracked for Visitor IP & Daily Count)
 |--------------------------------------------------------------------------
 */
 
-// ───── PAGES ─────
-Route::get('/', [PageController::class, 'home'])->name('home');
-Route::get('/operations', [PageController::class, 'operations'])->name('operations');
-Route::get('/services', [PageController::class, 'services'])->name('services');
+Route::middleware(TrackPublicVisits::class)->group(function () {
+    // ───── PAGES ─────
+    Route::get('/', [PageController::class, 'home'])->name('home');
+    Route::get('/operations', [PageController::class, 'operations'])->name('operations');
+    Route::get('/services', [PageController::class, 'services'])->name('services');
 
-Route::view('/sustainability', 'sustainability')->name('sustainability');
-Route::view('/about', 'about')->name('about');
-Route::view('/contact', 'contact')->name('contact');
+    Route::view('/sustainability', 'sustainability')->name('sustainability');
+    Route::view('/about', 'about')->name('about');
+    Route::view('/contact', 'contact')->name('contact');
 
-// Public Tariffs
-Route::get('/our-tariffs', [TariffController::class, 'publicIndex'])->name('tarif.index');
-Route::get('/tarif/{tariff}/stream',   [TariffController::class, 'stream'])->name('tarif.stream');
+    // Public Tariffs
+    Route::get('/our-tariffs', [TariffController::class, 'publicIndex'])->name('tarif.index');
+
+    // ───── PUBLIC NEWS ─────
+    Route::get('/news', [NewsController::class, 'index'])->name('news');
+    Route::get('/news/{slug}', [NewsController::class, 'show'])
+        ->name('news.show')
+        ->where('slug', '[a-z0-9-]+');
+});
+
+// ───── MEDIA STREAM & DOWNLOAD (Untracked) ─────
+Route::get('/tarif/{tariff}/stream', [TariffController::class, 'stream'])->name('tarif.stream');
 Route::get('/tarif/{tariff}/download', [TariffController::class, 'download'])->name('tarif.download');
-
-// ───── PUBLIC NEWS ─────
-Route::get('/news', [NewsController::class, 'index'])->name('news');
 Route::get('/media/news/{news}', [NewsController::class, 'image'])->name('news.image');
-Route::get('/news/{slug}', [NewsController::class, 'show'])
-    ->name('news.show')
-    ->where('slug', '[a-z0-9-]+');
-
-// ───── PUBLIC GALLERY IMAGE STREAM ─────
 Route::get('/media/gallery/{gallery}', [GalleryController::class, 'image'])->name('gallery.image');
 
-// AI Chat
+// ───── PUBLIC API & FORM SUBMIT ─────
 Route::post('/api/chat', [AiChatController::class, 'send'])->name('ai.chat');
 
-// ───── PUBLIC CONTACT FORM SUBMIT ─────
+Route::get('/api/patimban-weather', function () {
+    return Cache::remember('bmkg_patimban_weather', 3600, function () {
+        try {
+            // Kode adm4 resmi Desa Patimban, Kec. Pusakanagara, Kab. Subang
+            $res = Http::timeout(8)->get('https://api.bmkg.go.id/publik/prakiraan-cuaca', [
+                'adm4' => '32.13.10.2008',
+            ]);
+
+            if ($res->successful()) {
+                $json = $res->json();
+                $days = $json['data'][0]['cuaca'] ?? [];
+
+                if (!empty($days)) {
+                    // Ambil slot waktu terdekat pada hari pertama
+                    $currentSlot = $days[0][0] ?? null;
+
+                    $daily = [];
+                    foreach ($days as $daySlots) {
+                        if (empty($daySlots)) {
+                            continue;
+                        }
+
+                        $temps = array_column($daySlots, 't');
+                        $winds = array_column($daySlots, 'ws');
+                        // Ambil sampel tengah hari untuk deskripsi utama
+                        $midSlot = $daySlots[intdiv(count($daySlots), 2)];
+
+                        $daily[] = [
+                            'date'     => substr($daySlots[0]['local_datetime'], 0, 10),
+                            'temp_max' => max($temps),
+                            'temp_min' => min($temps),
+                            'wind_max' => max($winds),
+                            'desc_en'  => $midSlot['weather_desc_en'] ?? ($midSlot['weather_desc'] ?? 'Fair'),
+                            'desc_id'  => $midSlot['weather_desc'] ?? '',
+                            'image'    => $midSlot['image'] ?? null,
+                        ];
+                    }
+
+                    return [
+                        'source'  => 'BMKG (32.13.10.2008)',
+                        'current' => [
+                            'temp'     => $currentSlot['t'] ?? null,
+                            'humidity' => $currentSlot['hu'] ?? null,
+                            'wind'     => $currentSlot['ws'] ?? null,
+                            'wind_dir' => $currentSlot['wd'] ?? '',
+                            'desc_en'  => $currentSlot['weather_desc_en'] ?? 'Fair',
+                            'desc_id'  => $currentSlot['weather_desc'] ?? '',
+                        ],
+                        'daily' => $daily,
+                    ];
+                }
+            }
+        } catch (\Throwable $e) {
+            // Lanjut ke fallback di bawah jika BMKG gagal
+        }
+
+        return ['source' => 'FALLBACK'];
+    });
+})->name('api.patimban.weather');
+
 Route::post('/contact', [ContactController::class, 'store'])
     ->name('contact.store')
     ->middleware('throttle:5,1');
@@ -154,64 +216,6 @@ Route::middleware('auth')->group(function () {
 | Fallback Route (404)
 |--------------------------------------------------------------------------
 */
-
-Route::get('/api/patimban-weather', function () {
-    return Cache::remember('bmkg_patimban_weather', 3600, function () {
-        try {
-            // Kode adm4 resmi Desa Patimban, Kec. Pusakanagara, Kab. Subang
-            $res = Http::timeout(8)->get('https://api.bmkg.go.id/publik/prakiraan-cuaca', [
-                'adm4' => '32.13.10.2008',
-            ]);
-
-            if ($res->successful()) {
-                $json = $res->json();
-                $days = $json['data'][0]['cuaca'] ?? [];
-
-                if (!empty($days)) {
-                    // Ambil slot waktu terdekat pada hari pertama
-                    $currentSlot = $days[0][0] ?? null;
-
-                    $daily = [];
-                    foreach ($days as $daySlots) {
-                        if (empty($daySlots)) continue;
-
-                        $temps = array_column($daySlots, 't');
-                        $winds = array_column($daySlots, 'ws');
-                        // Ambil sampel tengah hari untuk deskripsi utama
-                        $midSlot = $daySlots[intdiv(count($daySlots), 2)];
-
-                        $daily[] = [
-                            'date'      => substr($daySlots[0]['local_datetime'], 0, 10),
-                            'temp_max'  => max($temps),
-                            'temp_min'  => min($temps),
-                            'wind_max'  => max($winds),
-                            'desc_en'   => $midSlot['weather_desc_en'] ?? ($midSlot['weather_desc'] ?? 'Fair'),
-                            'desc_id'   => $midSlot['weather_desc'] ?? '',
-                            'image'     => $midSlot['image'] ?? null,
-                        ];
-                    }
-
-                    return [
-                        'source'  => 'BMKG (32.13.10.2008)',
-                        'current' => [
-                            'temp'      => $currentSlot['t'] ?? null,
-                            'humidity'  => $currentSlot['hu'] ?? null,
-                            'wind'      => $currentSlot['ws'] ?? null,
-                            'wind_dir'  => $currentSlot['wd'] ?? '',
-                            'desc_en'   => $currentSlot['weather_desc_en'] ?? 'Fair',
-                            'desc_id'   => $currentSlot['weather_desc'] ?? '',
-                        ],
-                        'daily' => $daily,
-                    ];
-                }
-            }
-        } catch (\Throwable $e) {
-            // Lanjut ke fallback di bawah jika BMKG gagal
-        }
-
-        return ['source' => 'FALLBACK'];
-    });
-})->name('api.patimban.weather');
 
 Route::fallback(function () {
     abort(404);

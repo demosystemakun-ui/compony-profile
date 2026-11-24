@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ActivityLog;
 use App\Models\Gallery;
 use App\Models\News;
+use App\Models\PageVisit;
 use App\Models\ShippingRoute;
 use App\Models\Tariff;
 use App\Models\User;
@@ -22,19 +23,26 @@ class DashboardController extends Controller
         $user = auth()->user();
         $isSuperAdmin = $user ? method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin() : false;
         $stale = now()->subDays(30);
+        $todayStart = now()->startOfDay();
+        $todayEnd = now()->endOfDay();
 
         /*
-         * Statistik agregat di-cache 60 detik.
-         * HANYA data primitif (angka & string tanggal) yang disimpan di cache,
-         * BUKAN objek Eloquent model.
+- Statistik agregat di-cache 60 detik.
+- HANYA data primitif (angka & string tanggal) yang disimpan di cache,
+- BUKAN objek Eloquent model.
          */
-        $stats = Cache::remember(self::STATS_CACHE_KEY, 60, function () use ($stale) {
+        $stats = Cache::remember(self::STATS_CACHE_KEY, 60, function () use ($stale, $todayStart, $todayEnd) {
             $aggregate = 'count(*) as total, max(updated_at) as last_update, '
                        . 'sum(case when updated_at < ? then 1 else 0 end) as stale';
 
             $news    = News::selectRaw($aggregate, [$stale])->first();
             $tariff  = Tariff::selectRaw($aggregate, [$stale])->first();
             $gallery = Gallery::selectRaw($aggregate, [$stale])->first();
+
+            $todayVisits = PageVisit::whereBetween('visited_at', [$todayStart, $todayEnd])->count();
+            $todayUniqueIps = PageVisit::whereBetween('visited_at', [$todayStart, $todayEnd])
+                ->distinct('ip_address')
+                ->count('ip_address');
 
             return [
                 // News
@@ -48,22 +56,26 @@ class DashboardController extends Controller
                 'staleTariffs' => $tariff ? (int) $tariff->stale : 0,
 
                 // Gallery
-                'totalGallery'    => $gallery ? (int) $gallery->total : 0,
-                'lastGalleryAt'   => $gallery && $gallery->last_update ? (string) $gallery->last_update : null,
+                'totalGallery'  => $gallery ? (int) $gallery->total : 0,
+                'lastGalleryAt' => $gallery && $gallery->last_update ? (string) $gallery->last_update : null,
 
                 // Shipping Routes (tanpa filter stale, karena route tidak "basi")
                 'totalRoutes'  => ShippingRoute::count(),
                 'activeRoutes' => ShippingRoute::where('is_active', true)->count(),
                 'lastRouteAt'  => optional(ShippingRoute::latest('updated_at')->first())->updated_at?->toDateTimeString(),
 
+                // Public Visits Today
+                'todayVisits'    => (int) $todayVisits,
+                'todayUniqueIps' => (int) $todayUniqueIps,
+
                 // Users
-                'totalUsers'   => User::count(),
+                'totalUsers' => User::count(),
             ];
         });
 
         /*
-         * Query model SELALU di luar cache, sehingga hasilnya dijamin
-         * berupa collection of Eloquent model.
+- Query model SELALU di luar cache, sehingga hasilnya dijamin
+- berupa collection of Eloquent model.
          */
         $attentionNews = News::where('updated_at', '<', $stale)
             ->orderBy('updated_at')
@@ -88,6 +100,11 @@ class DashboardController extends Controller
             ->limit(10)
             ->get();
 
+        $recentVisits = PageVisit::whereBetween('visited_at', [$todayStart, $todayEnd])
+            ->latest('visited_at')
+            ->limit(10)
+            ->get(['id', 'ip_address', 'path', 'visited_at']);
+
         $recentLogs = $isSuperAdmin
             ? ActivityLog::with(['user' => function ($q) {
                 $q->select('id', 'name');
@@ -98,12 +115,14 @@ class DashboardController extends Controller
             'isSuperAdmin'  => $isSuperAdmin,
 
             // Statistik Utama
-            'totalNews'     => $stats['totalNews'],
-            'totalTariffs'  => $stats['totalTariffs'],
-            'totalGallery'  => $stats['totalGallery'],
-            'totalRoutes'   => $stats['totalRoutes'],
-            'activeRoutes'  => $stats['activeRoutes'],
-            'totalUsers'    => $stats['totalUsers'],
+            'totalNews'      => $stats['totalNews'],
+            'totalTariffs'   => $stats['totalTariffs'],
+            'totalGallery'   => $stats['totalGallery'],
+            'totalRoutes'    => $stats['totalRoutes'],
+            'activeRoutes'   => $stats['activeRoutes'],
+            'todayVisits'    => $stats['todayVisits'],
+            'todayUniqueIps' => $stats['todayUniqueIps'],
+            'totalUsers'     => $stats['totalUsers'],
 
             // Stale (hanya untuk News & Tariff)
             'staleNews'     => $stats['staleNews'],
@@ -128,6 +147,7 @@ class DashboardController extends Controller
             'topCategories' => $topCategories,
             'newsList'      => $newsList,
             'tariffList'    => $tariffList,
+            'recentVisits'  => $recentVisits,
             'recentLogs'    => $recentLogs,
 
             // Warna badge log activity
