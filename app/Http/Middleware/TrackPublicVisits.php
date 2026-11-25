@@ -14,20 +14,49 @@ class TrackPublicVisits
     {
         $response = $next($request);
 
-        if ($request->isMethod('GET')) {
-            $ip   = (string) ($request->ip() ?? '0.0.0.0');
-            $path = '/' . ltrim($request->path(), '/');
+        if (! $request->isMethod('GET') || $response->getStatusCode() >= 400) {
+            return $response;
+        }
 
-            // Hindari spam hit berulang dari IP & path yang sama dalam 15 menit
-            $dedupKey = 'visit_dedup:' . md5($ip . '|' . $path);
-            if (Cache::add($dedupKey, true, now()->addMinutes(15))) {
-                PageVisit::create([
-                    'ip_address' => $ip,
-                    'path'       => $path,
-                    'user_agent' => substr((string) $request->userAgent(), 0, 500),
-                    'visited_at' => now(),
-                ]);
+        // Hindari mencatat route internal / admin / storage / livewire jika tidak diinginkan
+        if ($request->is('pict-internal-admin-portal*', 'admin*', 'storage/*', '_*')) {
+            return $response;
+        }
+
+        $ua = (string) $request->userAgent();
+        if ($ua === '' || preg_match('/Go-http-client|bot|crawl|spider|slurp|lighthouse|uptimerobot/i', $ua)) {
+            return $response;
+        }
+
+        $ip  = (string) ($request->ip() ?? '0.0.0.0');
+        $day = now()->toDateString();
+        $dedupKey = 'unique_visitor_day:' . md5($ip . '|' . $day);
+
+        // Coba kunci atomic agar request paralel saat pindah halaman tidak race condition
+        $lock = Cache::lock('lock:' . $dedupKey, 5);
+
+        try {
+            $lock->block(3);
+
+            if (! Cache::has($dedupKey)) {
+                $alreadyExists = PageVisit::query()
+                    ->where('ip_address', $ip)
+                    ->whereDate('visited_at', $day)
+                    ->exists();
+
+                if (! $alreadyExists) {
+                    PageVisit::create([
+                        'ip_address' => $ip,
+                        'path'       => '/' . ltrim($request->path(), '/'),
+                        'user_agent' => substr($ua, 0, 500),
+                        'visited_at' => now(),
+                    ]);
+                }
+
+                Cache::put($dedupKey, true, now()->endOfDay());
             }
+        } finally {
+            optional($lock)->release();
         }
 
         return $response;

@@ -33,16 +33,11 @@ class Tariff extends Model
         return self::ICONS[$this->icon] ?? self::ICONS['document'];
     }
 
-    /**
-     * Hanya cek kolom DB (tanpa request jaringan ke Supabase).
-     * Pengecekan exists() dilakukan di TariffController saat file benar-benar diakses.
-     */
     public function hasPdf(): bool
     {
         return filled($this->pdf_path);
     }
 
-    /** URL lewat route Laravel (stream dari Supabase). ?v= agar cache browser ter-refresh saat file diganti. */
     public function pdfUrl(): string
     {
         return $this->hasPdf()
