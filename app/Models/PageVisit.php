@@ -9,6 +9,7 @@ class PageVisit extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'visitor_id',   // tambahkan ini
         'ip_address',
         'path',
         'user_agent',

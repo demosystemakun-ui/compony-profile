@@ -1,9 +1,10 @@
 <?php
 
+use App\Http\Middleware\SecurityHeaders;
+use App\Http\Middleware\TrackPublicVisits;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use App\Http\Middleware\SecurityHeaders;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,21 +13,19 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Percaya pada semua proxy (penting untuk platform seperti Render / Heroku agar HTTPS terdeteksi)
+        // Percaya pada semua proxy (penting untuk Render / Heroku agar HTTPS & IP asli terbaca)
         $middleware->trustProxies(at: '*');
-        
-        // Daftarkan alias middleware kustom Anda
+
+        // Alias middleware kustom
         $middleware->alias([
             'super_admin' => \App\Http\Middleware\SuperAdminMiddleware::class,
         ]);
 
-        // Menambahkan Security Headers secara global ke dalam grup web
+        // Middleware global untuk grup web
         $middleware->web(append: [
             SecurityHeaders::class,
+            TrackPublicVisits::class,
         ]);
-        
-        // Atau jika ingin diterapkan secara global ke seluruh request (web & api):
-        // $middleware->append(SecurityHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

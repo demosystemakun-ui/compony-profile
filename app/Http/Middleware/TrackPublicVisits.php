@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\PageVisit;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class TrackPublicVisits
@@ -26,21 +27,34 @@ class TrackPublicVisits
             return $response;
         }
 
-        $ip  = (string) ($request->ip() ?? '0.0.0.0');
-        $day = now()->toDateString();
+        // Ambil visitor_id dari cookie, buat baru jika belum ada / tidak valid
+        $visitorId = (string) $request->cookie('visitor_id');
+        $isNewVisitor = ! Str::isUuid($visitorId);
 
-        $alreadyVisitedToday = PageVisit::query()
-            ->where('ip_address', $ip)
-            ->whereDate('visited_at', $day)
+        if ($isNewVisitor) {
+            $visitorId = (string) Str::uuid();
+        }
+
+        $alreadyVisitedToday = ! $isNewVisitor && PageVisit::query()
+            ->where('visitor_id', $visitorId)
+            ->whereDate('visited_at', now()->toDateString())
             ->exists();
 
         if (! $alreadyVisitedToday) {
             PageVisit::create([
-                'ip_address' => $ip,
+                'visitor_id' => $visitorId,
+                'ip_address' => (string) ($request->ip() ?? '0.0.0.0'),
                 'path'       => '/' . ltrim($request->path(), '/'),
                 'user_agent' => substr($ua, 0, 500),
                 'visited_at' => now(),
             ]);
+        }
+
+        // Pasang cookie hanya jika visitor baru (berlaku 1 tahun)
+        if ($isNewVisitor) {
+            $response->headers->setCookie(
+                cookie('visitor_id', $visitorId, 60 * 24 * 365)
+            );
         }
 
         return $response;
