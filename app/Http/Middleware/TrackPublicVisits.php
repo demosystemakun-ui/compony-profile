@@ -18,33 +18,35 @@ class TrackPublicVisits
             return $response;
         }
 
-        // Hindari mencatat route internal / admin / storage / livewire jika tidak diinginkan
+        // Abaikan route internal / admin / asset jika tidak perlu dihitung sebagai kunjungan publik
         if ($request->is('pict-internal-admin-portal*', 'admin*', 'storage/*', '_*')) {
             return $response;
         }
 
         $ua = (string) $request->userAgent();
+
+        // Abaikan health check / bot umum
         if ($ua === '' || preg_match('/Go-http-client|bot|crawl|spider|slurp|lighthouse|uptimerobot/i', $ua)) {
             return $response;
         }
 
         $ip  = (string) ($request->ip() ?? '0.0.0.0');
         $day = now()->toDateString();
-        $dedupKey = 'unique_visitor_day:' . md5($ip . '|' . $day);
 
-        // Coba kunci atomic agar request paralel saat pindah halaman tidak race condition
-        $lock = Cache::lock('lock:' . $dedupKey, 5);
+        // Kunci unik per IP + per hari: hari baru = key baru (dihitung 1 lagi)
+        $dedupKey = 'unique_visitor_day:' . md5($ip . '|' . $day);
+        $lock     = Cache::lock('lock:' . $dedupKey, 5);
 
         try {
             $lock->block(3);
 
             if (! Cache::has($dedupKey)) {
-                $alreadyExists = PageVisit::query()
+                $alreadyVisitedToday = PageVisit::query()
                     ->where('ip_address', $ip)
                     ->whereDate('visited_at', $day)
                     ->exists();
 
-                if (! $alreadyExists) {
+                if (! $alreadyVisitedToday) {
                     PageVisit::create([
                         'ip_address' => $ip,
                         'path'       => '/' . ltrim($request->path(), '/'),
