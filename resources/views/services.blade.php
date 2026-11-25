@@ -192,7 +192,7 @@
             </div>
         @empty
             <div class="col-span-full text-center py-12 text-slate-400 text-sm">
-                Belum ada data portfolio. Silakan tambahkan melalui Admin Panel.
+                No portfolio data available. 
             </div>
         @endforelse
     </div>
@@ -233,7 +233,7 @@
                 </div>
             @empty
                 <div class="col-span-full text-center py-12 text-slate-400 text-sm">
-                    Belum ada data value-added solutions. Silakan tambahkan melalui Admin Panel.
+                    No value-added solutions available.
                 </div>
             @endforelse
         </div>

@@ -587,7 +587,6 @@
             ];
 
             $compliance = [
-                'Compliant with IMO ISPS Code standards',
                 '24/7 CCTV surveillance across all terminal zones',
                 'ISO certified quality, environmental, and safety management',
             ];
