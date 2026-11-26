@@ -13,7 +13,7 @@
         if (\Illuminate\Support\Str::startsWith($item->image, ['http://', 'https://'])) {
             return $item->image;
         }
-        return \Illuminate\Support\Facades\Storage::disk('public')->url($item->image);
+        return route('news.image', $item->id);
     };
 
     $focus     = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A2540]';
