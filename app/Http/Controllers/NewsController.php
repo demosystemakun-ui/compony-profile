@@ -12,7 +12,10 @@ use Illuminate\Support\Str;
 
 class NewsController extends Controller
 {
-    private const DISK = 'public';
+    private function disk(): string
+    {
+        return (string) config('filesystems.default', 'public');
+    }
 
     /* ═══════════════════════════════════════════════
         PUBLIK
@@ -43,9 +46,11 @@ class NewsController extends Controller
     public function image(News $news)
     {
         abort_unless($news->image, 404);
-        abort_unless(Storage::disk(self::DISK)->exists($news->image), 404);
 
-        return Storage::disk(self::DISK)->response(
+        $disk = $this->disk();
+        abort_unless(Storage::disk($disk)->exists($news->image), 404);
+
+        return Storage::disk($disk)->response(
             $news->image,
             null,
             ['Cache-Control' => 'public, max-age=604800'],
@@ -98,7 +103,7 @@ class NewsController extends Controller
 
         $imagePath = null;
         if ($file = $this->uploadedImage($request)) {
-            $imagePath = $file->store('news', self::DISK);
+            $imagePath = $file->store('news', $this->disk());
         }
 
         News::create([
@@ -134,7 +139,7 @@ class NewsController extends Controller
         $imagePath = $oldPath;
 
         if ($file = $this->uploadedImage($request)) {
-            $imagePath = $file->store('news', self::DISK);
+            $imagePath = $file->store('news', $this->disk());
         }
 
         $news->update([
@@ -218,10 +223,13 @@ class NewsController extends Controller
 
     private function deleteFileSafely(string $path): void
     {
+        $disk = $this->disk();
+
         try {
-            Storage::disk(self::DISK)->delete($path);
+            Storage::disk($disk)->delete($path);
         } catch (\Throwable $e) {
-            Log::warning('Gagal menghapus gambar berita dari disk public.', [
+            Log::warning("Gagal menghapus gambar berita dari disk {$disk}.", [
+                'disk'  => $disk,
                 'path'  => $path,
                 'error' => $e->getMessage(),
             ]);

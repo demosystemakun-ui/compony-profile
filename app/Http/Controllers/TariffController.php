@@ -12,7 +12,10 @@ use Illuminate\Validation\Rule;
 
 class TariffController extends Controller
 {
-    private const DISK = 'supabase-tariffs';
+    private function disk(): string
+    {
+        return (string) config('filesystems.default', 'public');
+    }
 
     /* ═══════════════════════════════════════════════
         PUBLIK
@@ -42,7 +45,7 @@ class TariffController extends Controller
     {
         $this->abortUnlessAvailable($tariff);
 
-        return Storage::disk(self::DISK)->download(
+        return Storage::disk($this->disk())->download(
             $tariff->pdf_path,
             Str::slug($tariff->title) . '.pdf'
         );
@@ -52,12 +55,12 @@ class TariffController extends Controller
     private function abortUnlessAvailable(Tariff $tariff): void
     {
         abort_unless($tariff->is_active && $tariff->hasPdf(), 404);
-        abort_unless(Storage::disk(self::DISK)->exists($tariff->pdf_path), 404);
+        abort_unless(Storage::disk($this->disk())->exists($tariff->pdf_path), 404);
     }
 
     private function pdfResponse(Tariff $tariff, string $cache = 'public, max-age=300')
     {
-        return Storage::disk(self::DISK)->response(
+        return Storage::disk($this->disk())->response(
             $tariff->pdf_path,
             Str::slug($tariff->title) . '.pdf',
             ['Content-Type' => 'application/pdf', 'Cache-Control' => $cache],
@@ -73,7 +76,7 @@ class TariffController extends Controller
     public function preview(Tariff $tariff)
     {
         abort_unless($tariff->hasPdf(), 404);
-        abort_unless(Storage::disk(self::DISK)->exists($tariff->pdf_path), 404);
+        abort_unless(Storage::disk($this->disk())->exists($tariff->pdf_path), 404);
 
         return $this->pdfResponse($tariff, 'private, no-store');
     }
@@ -135,7 +138,7 @@ class TariffController extends Controller
 
         $data = $this->validated($request);
 
-        $data['pdf_path'] = $request->file('pdf')->store('tariffs', self::DISK);
+        $data['pdf_path'] = $request->file('pdf')->store('tariffs', $this->disk());
 
         Tariff::create($data);
 
@@ -176,7 +179,7 @@ class TariffController extends Controller
 
         // 1) Upload file baru lebih dulu; jika gagal, file lama tetap aman.
         if ($request->hasFile('pdf')) {
-            $data['pdf_path'] = $request->file('pdf')->store('tariffs', self::DISK);
+            $data['pdf_path'] = $request->file('pdf')->store('tariffs', $this->disk());
         } elseif ($request->boolean('remove_pdf')) {
             // Karena validasi di atas mewajibkan upload saat remove_pdf,
             // cabang ini hanya tercapai bila hasExisting === true namun user
@@ -214,13 +217,16 @@ class TariffController extends Controller
             ->with('success', 'Tarif berhasil dihapus.');
     }
 
-    /** Hapus file di Supabase tanpa menggagalkan request jika storage tidak terjangkau. */
+    /** Hapus file di disk aktif tanpa menggagalkan request jika storage tidak terjangkau. */
     private function deleteFileSafely(string $path): void
     {
+        $disk = $this->disk();
+
         try {
-            Storage::disk(self::DISK)->delete($path);
+            Storage::disk($disk)->delete($path);
         } catch (\Throwable $e) {
-            Log::warning('Gagal menghapus PDF tarif dari Supabase.', [
+            Log::warning("Gagal menghapus PDF tarif dari disk {$disk}.", [
+                'disk'  => $disk,
                 'path'  => $path,
                 'error' => $e->getMessage(),
             ]);
