@@ -189,7 +189,9 @@
                         <label for="name" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
                             Full Name <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" id="name" name="name" required
+                        <input type="text" id="name" name="name" required maxlength="100"
+                               autocomplete="name"
+                               oninput="this.value = this.value.replace(/[^\p{L}\s.'-]/gu, '')"
                                placeholder="Your full name"
                                class="form-input w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none">
                     </div>
@@ -198,7 +200,8 @@
                         <label for="email" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
                             Email Address <span class="text-red-500">*</span>
                         </label>
-                        <input type="email" id="email" name="email" required
+                        <input type="email" id="email" name="email" required maxlength="150"
+                               autocomplete="email"
                                placeholder="you@company.com"
                                class="form-input w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none">
                     </div>
@@ -209,7 +212,7 @@
                         <label for="subject" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
                             Subject
                         </label>
-                        <input type="text" id="subject" name="subject"
+                        <input type="text" id="subject" name="subject" maxlength="150"
                                placeholder="Inquiry subject"
                                class="form-input w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none">
                     </div>
@@ -218,7 +221,8 @@
                         <label for="whatsapp" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
                             No. WhatsApp / Office <span class="text-red-500">*</span>
                         </label>
-                        <input type="tel" id="whatsapp" name="whatsapp" required
+                        <input type="tel" id="whatsapp" name="whatsapp" required maxlength="25"
+                               autocomplete="tel"
                                oninput="this.value = this.value.replace(/[^0-9+\-()\s]/g, '')"
                                placeholder="(021) 8382910"
                                class="form-input w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none">
@@ -229,7 +233,7 @@
                     <label for="message" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
                         Message <span class="text-red-500">*</span>
                     </label>
-                    <textarea id="message" name="message" rows="5" required
+                    <textarea id="message" name="message" rows="5" required maxlength="2000"
                               placeholder="Tell us about your inquiry..."
                               class="form-input w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none resize-none"></textarea>
                 </div>
@@ -286,6 +290,20 @@ function enableSubmitButton() {
     `;
 }
 
+function resetSubmitButton() {
+    const btn = document.getElementById('submitBtn');
+    if (!btn) return;
+
+    btn.disabled = true;
+    btn.className = 'w-full inline-flex items-center justify-center gap-2 rounded-xl bg-slate-300 text-slate-500 font-bold py-3.5 px-6 text-xs uppercase tracking-wider transition cursor-not-allowed';
+    btn.innerHTML = `
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+        Complete Verification to Send
+    `;
+}
+
 function showFormAlert(type, text) {
     const alertBox = document.getElementById('formAlert');
     if (!alertBox) return;
@@ -319,8 +337,12 @@ function setFieldInvalid(el, invalid) {
     const form = document.getElementById('contactForm');
     if (!form) return;
 
-    const requiredIds = ['name', 'email', 'whatsapp', 'message'];
-    requiredIds.forEach(id => {
+    const nameRegex = /^[\p{L}\s.'-]+$/u;
+    const hasLetterRegex = /\p{L}/u;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+    const fieldIds = ['name', 'email', 'subject', 'whatsapp', 'message'];
+    fieldIds.forEach(id => {
         const input = document.getElementById(id);
         input?.addEventListener('input', () => setFieldInvalid(input, false));
     });
@@ -346,19 +368,35 @@ function setFieldInvalid(el, invalid) {
         const subject  = subjectEl.value.trim() || 'Inquiry from Website';
         const message  = messageEl.value.trim();
 
-        let hasEmpty = false;
-        [
-            [nameEl, !name],
-            [emailEl, !email],
-            [whatsappEl, !whatsapp],
-            [messageEl, !message],
-        ].forEach(([el, empty]) => {
-            setFieldInvalid(el, empty);
-            if (empty) hasEmpty = true;
-        });
+        const digitsOnly = whatsapp.replace(/\D/g, '');
+        const errors = [];
 
-        if (hasEmpty) {
-            showFormAlert('error', 'Please complete all required fields.');
+        const isNameValid = name.length >= 2 && nameRegex.test(name) && hasLetterRegex.test(name);
+        setFieldInvalid(nameEl, !isNameValid);
+        if (!isNameValid) {
+            errors.push('Full name must contain letters only (no numbers or special symbols).');
+        }
+
+        const isEmailValid = emailRegex.test(email);
+        setFieldInvalid(emailEl, !isEmailValid);
+        if (!isEmailValid) {
+            errors.push('Please enter a valid email address.');
+        }
+
+        const isWhatsappValid = digitsOnly.length >= 7 && digitsOnly.length <= 15;
+        setFieldInvalid(whatsappEl, !isWhatsappValid);
+        if (!isWhatsappValid) {
+            errors.push('Please enter a valid WhatsApp or office phone number (7–15 digits).');
+        }
+
+        const isMessageValid = message.length >= 10;
+        setFieldInvalid(messageEl, !isMessageValid);
+        if (!isMessageValid) {
+            errors.push('Please enter a message of at least 10 characters.');
+        }
+
+        if (errors.length > 0) {
+            showFormAlert('error', errors.join(' '));
             return;
         }
 
@@ -407,15 +445,7 @@ function setFieldInvalid(el, invalid) {
 
             form.reset();
             if (typeof grecaptcha !== 'undefined') grecaptcha.reset();
-
-            btn.disabled = true;
-            btn.className = 'w-full inline-flex items-center justify-center gap-2 rounded-xl bg-slate-300 text-slate-500 font-bold py-3.5 px-6 text-xs uppercase tracking-wider transition cursor-not-allowed';
-            btn.innerHTML = `
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-                Complete Verification to Send
-            `;
+            resetSubmitButton();
         } catch (err) {
             showFormAlert('error', err.message);
             btn.disabled = false;

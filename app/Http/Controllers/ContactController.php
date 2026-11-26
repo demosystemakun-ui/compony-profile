@@ -5,20 +5,42 @@ namespace App\Http\Controllers;
 use App\Models\ContactMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Validation\ValidationException;
 
 class ContactController extends Controller
 {
-
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name'     => ['required', 'string', 'max:150'],
-            'email'    => ['required', 'email', 'max:150'],
-            'whatsapp' => ['required', 'string', 'max:30'],
-            'subject'  => ['nullable', 'string', 'max:200'],
-            'message'  => ['required', 'string', 'max:5000'],
-            'g-recaptcha-response' => ['required', 'string'],
-        ]);
+        try {
+            $validated = $request->validate([
+                'name'     => ['required', 'string', 'min:2', 'max:150', 'regex:/^[\p{L}\s.\'-]+$/u'],
+                'email'    => ['required', 'email', 'max:150'],
+                'whatsapp' => ['required', 'string', 'min:7', 'max:30', 'regex:/^[0-9+\-()\s]+$/'],
+                'subject'  => ['nullable', 'string', 'max:200'],
+                'message'  => ['required', 'string', 'min:10', 'max:5000'],
+                'g-recaptcha-response' => ['required', 'string'],
+            ], [
+                'name.regex'     => 'Full name may only contain letters, spaces, periods, apostrophes, and hyphens.',
+                'whatsapp.regex' => 'Phone / WhatsApp number may only contain digits, spaces, and +, -, (, ).',
+                'message.min'    => 'Please enter a message of at least 10 characters.',
+            ]);
+        } catch (ValidationException $e) {
+            $firstError = collect($e->errors())->flatten()->first() ?? 'Please check your input and try again.';
+
+            return response()->json([
+                'success' => false,
+                'message' => $firstError,
+                'errors'  => $e->errors(),
+            ], 422);
+        }
+
+        $digitsOnly = preg_replace('/\D/', '', $validated['whatsapp']);
+        if (strlen($digitsOnly) < 7 || strlen($digitsOnly) > 15) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please enter a valid WhatsApp or office phone number (7–15 digits).',
+            ], 422);
+        }
 
         if (! $this->verifyRecaptcha($validated['g-recaptcha-response'], $request->ip())) {
             return response()->json([
@@ -27,14 +49,18 @@ class ContactController extends Controller
             ], 422);
         }
 
-        $subject = $validated['subject'] ?: 'Inquiry from Website';
+        $cleanName    = preg_replace('/\s+/', ' ', trim($validated['name']));
+        $cleanSubject = isset($validated['subject']) && trim($validated['subject']) !== ''
+            ? trim($validated['subject'])
+            : 'Inquiry from Website';
+        $cleanMessage = trim($validated['message']);
 
         $contact = ContactMessage::create([
-            'name'       => $validated['name'],
-            'email'      => $validated['email'],
-            'whatsapp'   => $validated['whatsapp'],
-            'subject'    => $subject,
-            'message'    => $validated['message'],
+            'name'       => $cleanName,
+            'email'      => trim($validated['email']),
+            'whatsapp'   => trim($validated['whatsapp']),
+            'subject'    => $cleanSubject,
+            'message'    => $cleanMessage,
             'ip_address' => $request->ip(),
         ]);
 
@@ -51,7 +77,7 @@ class ContactController extends Controller
         ]);
 
         $mailtoUrl = 'mailto:' . $targetEmail
-            . '?subject=' . rawurlencode($subject)
+            . '?subject=' . rawurlencode($cleanSubject)
             . '&body='    . rawurlencode($bodyText);
 
         return response()->json([
