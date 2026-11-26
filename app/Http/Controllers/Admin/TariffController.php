@@ -9,6 +9,11 @@ use Illuminate\Validation\Rule;
 
 class TariffController extends Controller
 {
+    private function disk(): string
+    {
+        return (string) config('filesystems.default', 'public');
+    }
+
     public function index()
     {
         $tariffs = Tariff::orderBy('sort_order')->orderBy('id')->get();
@@ -26,7 +31,7 @@ class TariffController extends Controller
         $data = $this->validated($request);
 
         if ($request->hasFile('pdf')) {
-            $data['pdf_path'] = $request->file('pdf')->store('tariffs', 'public');
+            $data['pdf_path'] = $request->file('pdf')->store('tariffs', $this->disk());
         }
 
         Tariff::create($data);
@@ -44,11 +49,19 @@ class TariffController extends Controller
         $data = $this->validated($request);
 
         if ($request->hasFile('pdf')) {
-            $tariff->deletePdfFile();                                  // hapus file lama
-            $data['pdf_path'] = $request->file('pdf')->store('tariffs', 'public');
-        } elseif ($request->boolean('remove_pdf')) {
+            $data['pdf_path'] = $request->file('pdf')->store('tariffs', $this->disk());
+            $tariff->update($data);
             $tariff->deletePdfFile();
+
+            return redirect()->route('admin.tariffs.index')->with('success', 'Tarif berhasil diperbarui.');
+        }
+
+        if ($request->boolean('remove_pdf')) {
             $data['pdf_path'] = null;
+            $tariff->update($data);
+            $tariff->deletePdfFile();
+
+            return redirect()->route('admin.tariffs.index')->with('success', 'Tarif berhasil diperbarui.');
         }
 
         $tariff->update($data);
@@ -72,7 +85,7 @@ class TariffController extends Controller
             'description' => ['nullable', 'string', 'max:300'],
             'icon'        => ['required', Rule::in(array_keys(Tariff::ICONS))],
             'sort_order'  => ['nullable', 'integer', Rule::in([1, 2, 3])],
-            'pdf'         => ['nullable', 'file', 'mimes:pdf', 'max:10240'], //10 MB
+            'pdf'         => ['nullable', 'file', 'mimes:pdf', 'max:10240'], // 10 MB
         ]);
 
         $data['is_active']  = $request->boolean('is_active');

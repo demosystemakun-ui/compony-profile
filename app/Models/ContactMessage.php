@@ -11,6 +11,6 @@ class ContactMessage extends Model
     ];
 
     protected $casts = [
-        'is_read' => 'false',
+        'is_read' => 'boolean',
     ];
 }
