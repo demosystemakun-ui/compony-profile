@@ -4,6 +4,15 @@
     $btn        = "inline-flex items-center justify-center rounded-full bg-[#eef5fb] px-4 py-2 text-xs sm:text-sm font-semibold text-[#0A2540] transition hover:bg-[#dce8f5] $focus";
     $btnPrimary = "inline-flex items-center justify-center gap-1.5 rounded-full bg-[#0A2540] px-5 py-2 text-xs sm:text-sm font-bold text-white transition hover:bg-[#13385e] $focus";
     $card       = 'bg-white rounded-2xl shadow-sm border border-slate-100';
+
+    $currentImgSrc = null;
+    if (!empty($news->image)) {
+        $currentImgSrc = \Illuminate\Support\Str::startsWith($news->image, ['http://', 'https://'])
+            ? $news->image
+            : route('news.image', $news->id);
+    } elseif (!empty($news->image_url)) {
+        $currentImgSrc = $news->image_url;
+    }
 @endphp
 
 <x-admin-layout>
@@ -86,9 +95,9 @@
                         Update image (optional)
                     </label>
 
-                    @if($news->image_url)
+                    @if($currentImgSrc)
                         <div class="mb-3 flex items-center gap-3 rounded-xl bg-[#f6f9fc] p-3 border border-slate-100">
-                            <img src="{{ $news->image_url }}"
+                            <img src="{{ $currentImgSrc }}"
                                  alt="Current Image"
                                  class="h-16 w-24 shrink-0 rounded-xl border border-slate-200 object-cover bg-white">
                             <p class="text-xs text-slate-500">

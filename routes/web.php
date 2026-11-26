@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\GalleryController;
+use App\Http\Controllers\Admin\ShippingRouteController;
 use App\Http\Controllers\AiChatController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\ContactController;
@@ -23,8 +24,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/set-cookie', function () {
+    $secure = request()->isSecure();
+
     return response('Cookie set')->withCookie(
-        cookie('secure_cookie', 'true', 60, '/', null, true, true)
+        cookie('secure_cookie', 'true', 60, '/', null, $secure, true)
     );
 });
 
@@ -153,17 +156,22 @@ Route::middleware(['auth'])->prefix('pict-internal-admin-portal')->group(functio
     Route::get('/news', [NewsController::class, 'adminIndex'])->name('admin.news.index');
     Route::get('/news/create', [NewsController::class, 'create'])->name('news.create');
     Route::post('/news/store', [NewsController::class, 'store'])->name('news.store');
-
-    Route::resource('shipping-routes', \App\Http\Controllers\Admin\ShippingRouteController::class)
-        ->except(['show', 'create', 'edit']);
-
     Route::get('/news/{id}/detail', [NewsController::class, 'adminShow'])
         ->name('admin.news.show')
         ->where('id', '[0-9]+');
+    Route::get('/news/{id}/edit', [NewsController::class, 'edit'])
+        ->name('news.edit')
+        ->where('id', '[0-9]+');
+    Route::put('/news/{id}', [NewsController::class, 'update'])
+        ->name('news.update')
+        ->where('id', '[0-9]+');
+    Route::delete('/news/{id}', [NewsController::class, 'destroy'])
+        ->name('news.destroy')
+        ->where('id', '[0-9]+');
 
-    Route::get('/news/{id}/edit', [NewsController::class, 'edit'])->name('news.edit')->where('id', '[0-9]+');
-    Route::put('/news/{id}', [NewsController::class, 'update'])->name('news.update')->where('id', '[0-9]+');
-    Route::delete('/news/{id}', [NewsController::class, 'destroy'])->name('news.destroy')->where('id', '[0-9]+');
+    // ───── Shipping Routes Management ─────
+    Route::resource('shipping-routes', ShippingRouteController::class)
+        ->except(['show', 'create', 'edit']);
 
     // ───── Tariff Management ─────
     Route::name('admin.')->group(function () {
