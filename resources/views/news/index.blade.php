@@ -271,7 +271,7 @@
         if (\Illuminate\Support\Str::startsWith($item->image, ['http://', 'https://'])) {
             return $item->image;
         }
-        return \Illuminate\Support\Facades\Storage::disk('public')->url($item->image);
+        return route('news.image', $item->id);
     };
 @endphp
 

@@ -10,7 +10,7 @@
     if (!empty($news->image)) {
         $newsImgSrc = \Illuminate\Support\Str::startsWith($news->image, ['http://', 'https://'])
             ? $news->image
-            : \Illuminate\Support\Facades\Storage::disk('public')->url($news->image);
+            : route('news.image', $news->id);
     } elseif (!empty($news->image_url)) {
         $newsImgSrc = $news->image_url;
     }
