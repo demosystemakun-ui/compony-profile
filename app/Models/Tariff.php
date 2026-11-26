@@ -48,7 +48,8 @@ class Tariff extends Model
     public function deletePdfFile(): void
     {
         if ($this->pdf_path) {
-            Storage::disk('supabase-tariffs')->delete($this->pdf_path);
+            $disk = (string) config('filesystems.default', 'public');
+            Storage::disk($disk)->delete($this->pdf_path);
         }
-    }   
+    }
 }

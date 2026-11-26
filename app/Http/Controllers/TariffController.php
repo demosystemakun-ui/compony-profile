@@ -86,10 +86,8 @@ class TariffController extends Controller
      */
     public function index(Request $request)
     {
-        // 1. Mulai Query
         $query = Tariff::query();
 
-        // 2. Logika Pencarian (Search)
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('title', 'like', '%' . $request->search . '%')
@@ -97,12 +95,10 @@ class TariffController extends Controller
             });
         }
 
-        // 3. Logika Filter Kategori (Tag)
         if ($request->filled('tag')) {
             $query->where('tag', $request->tag);
         }
 
-        // 4. Logika Filter Status
         if ($request->filled('status')) {
             if ($request->status === 'active') {
                 $query->where('is_active', true);
@@ -111,7 +107,6 @@ class TariffController extends Controller
             }
         }
 
-        // 5. Eksekusi Query
         $tariffs = $query->orderBy('sort_order')->orderBy('id')->get();
 
         return view('admin.tariffs.index', compact('tariffs'));
@@ -126,7 +121,6 @@ class TariffController extends Controller
 
     public function store(Request $request)
     {
-        // PDF WAJIB saat create + maksimal 10 MB
         $request->validate([
             'pdf' => ['required', 'file', 'mimes:pdf', 'max:10240'],
         ], [
@@ -155,9 +149,6 @@ class TariffController extends Controller
 
     public function update(Request $request, Tariff $tariff)
     {
-        // PDF wajib jika:
-        // - belum punya file, ATAU
-        // - admin mencentang "Delete PDF" (remove_pdf)
         $hasExisting = $tariff->hasPdf() && !$request->boolean('remove_pdf');
 
         $request->validate([
@@ -177,20 +168,14 @@ class TariffController extends Controller
         $data    = $this->validated($request);
         $oldPath = $tariff->pdf_path;
 
-        // 1) Upload file baru lebih dulu; jika gagal, file lama tetap aman.
         if ($request->hasFile('pdf')) {
             $data['pdf_path'] = $request->file('pdf')->store('tariffs', $this->disk());
         } elseif ($request->boolean('remove_pdf')) {
-            // Karena validasi di atas mewajibkan upload saat remove_pdf,
-            // cabang ini hanya tercapai bila hasExisting === true namun user
-            // tidak mencentang remove_pdf (tidak mungkin), jadi aman.
             $data['pdf_path'] = null;
         }
 
-        // 2) Perbarui database.
         $tariff->update($data);
 
-        // 3) Baru hapus file lama setelah DB berhasil diperbarui.
         if (array_key_exists('pdf_path', $data) && $oldPath && $oldPath !== $data['pdf_path']) {
             $this->deleteFileSafely($oldPath);
         }
@@ -241,7 +226,7 @@ class TariffController extends Controller
             'description' => ['nullable', 'string', 'max:300'],
             'icon'        => ['required', Rule::in(array_keys(Tariff::ICONS))],
             'sort_order'  => ['nullable', 'integer', 'min:0', 'max:999'],
-            'pdf'         => ['nullable', 'file', 'mimes:pdf', 'max:10240'], // 10 MB
+            'pdf'         => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
         ]);
 
         $data['is_active']  = $request->boolean('is_active');

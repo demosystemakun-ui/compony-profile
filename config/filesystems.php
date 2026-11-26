@@ -60,47 +60,19 @@ return [
             'report' => false,
         ],
 
-        // Disk khusus untuk Bucket News di Supabase
-        'supabase-news' => [
+        // Disk khusus untuk Cloudflare R2
+        'r2' => [
             'driver'                  => 's3',
-            'key'                     => env('SUPABASE_S3_KEY'),
-            'secret'                  => env('SUPABASE_S3_SECRET'),
-            'region'                  => env('SUPABASE_S3_REGION', 'ap-northeast-1'),
-            'bucket'                  => env('SUPABASE_NEWS_BUCKET', 'news'),
-            'endpoint'                => env('SUPABASE_S3_ENDPOINT'),
+            'key'                     => env('R2_ACCESS_KEY_ID'),
+            'secret'                  => env('R2_SECRET_ACCESS_KEY'),
+            'region'                  => env('R2_REGION', 'auto'),
+            'bucket'                  => env('R2_BUCKET', 'pict-compro-media'),
+            'endpoint'                => env('R2_ENDPOINT'),
+            'url'                     => env('R2_URL'),
             'use_path_style_endpoint' => true,
-            'visibility'              => 'public',
-            'throw'                   => true,
+            'throw'                   => false,
             'report'                  => false,
         ],
-
-        // Disk khusus untuk Bucket Tariffs di Supabase
-        'supabase-tariffs' => [
-            'driver'                  => 's3',
-            'key'                     => env('SUPABASE_S3_KEY'),
-            'secret'                  => env('SUPABASE_S3_SECRET'),
-            'region'                  => env('SUPABASE_S3_REGION', 'ap-northeast-1'),
-            'bucket'                  => env('SUPABASE_TARIFFS_BUCKET', 'tariffs'),
-            'endpoint'                => env('SUPABASE_S3_ENDPOINT'),
-            'use_path_style_endpoint' => true,
-            'visibility'              => 'public',
-            'throw'                   => true,
-            'report'                  => false,
-        ],
-
-      // Disk khusus untuk Bucket Gallery di Supabase
-'supabase-gallery' => [
-    'driver'                  => 's3',
-    'key'                     => env('SUPABASE_S3_KEY'),
-    'secret'                  => env('SUPABASE_S3_SECRET'),
-    'region'                  => env('SUPABASE_S3_REGION', 'ap-northeast-1'),
-    'bucket'                  => env('SUPABASE_GALLERY_BUCKET', 'gallery'),
-    'endpoint'                => env('SUPABASE_S3_ENDPOINT'),
-    'use_path_style_endpoint' => true,
-    'visibility'              => 'public',
-    'throw'                   => true,
-    'report'                  => false,
-],
 
     ],
 
