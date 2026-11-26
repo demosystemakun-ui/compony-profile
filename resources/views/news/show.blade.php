@@ -4,12 +4,23 @@
 
 @section('content')
 
+@php
+    $newsImgSrc = null;
+    if (!empty($news->image)) {
+        $newsImgSrc = \Illuminate\Support\Str::startsWith($news->image, ['http://', 'https://'])
+            ? $news->image
+            : \Illuminate\Support\Facades\Storage::disk('public')->url($news->image);
+    } elseif (!empty($news->image_url)) {
+        $newsImgSrc = $news->image_url;
+    }
+@endphp
+
 <section class="bg-white py-24 sm:py-32">
     <div class="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12">
 
-        @if($news->image_url)
+        @if($newsImgSrc)
             <div class="aspect-[16/9] rounded-2xl overflow-hidden bg-gray-100 ring-1 ring-gray-200 mb-7">
-                <img src="{{ $news->image_url }}"
+                <img src="{{ $newsImgSrc }}"
                      alt="{{ $news->title }}"
                      class="w-full h-full object-cover">
             </div>

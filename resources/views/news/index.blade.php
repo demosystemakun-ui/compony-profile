@@ -263,6 +263,18 @@
 
 @section('content')
 
+@php
+    $resolveNewsImg = function ($item) {
+        if (empty($item->image)) {
+            return $item->image_url ?? null;
+        }
+        if (\Illuminate\Support\Str::startsWith($item->image, ['http://', 'https://'])) {
+            return $item->image;
+        }
+        return \Illuminate\Support\Facades\Storage::disk('public')->url($item->image);
+    };
+@endphp
+
 {{-- ============ HERO ============ --}}
 <section class="relative bg-[#0A2540] text-white pt-28 pb-10 sm:pt-40 sm:pb-24 overflow-hidden z-20">
     <div class="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 text-center md:text-left">
@@ -289,6 +301,7 @@
         @if($featuredNews->count() > 0)
             <div class="news-stack-container">
                 @foreach($featuredNews as $index => $item)
+                    @php $imgSrc = $resolveNewsImg($item); @endphp
                     <article class="news-card-sticky" style="--stack-top: calc(12vh + {{ $index * 14 }}px);">
 
                         <div class="news-card-content">
@@ -317,8 +330,8 @@
                         </div>
 
                         <div class="news-card-image">
-                            @if($item->image_url)
-                                <img src="{{ $item->image_url }}" alt="{{ $item->title }}" loading="{{ $index === 0 ? 'eager' : 'lazy' }}">
+                            @if($imgSrc)
+                                <img src="{{ $imgSrc }}" alt="{{ $item->title }}" loading="{{ $index === 0 ? 'eager' : 'lazy' }}">
                             @else
                                 <div class="w-full h-full flex items-center justify-center bg-slate-200 text-slate-400">
                                     <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -342,10 +355,11 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                     @foreach($gridNews as $item)
+                        @php $imgSrc = $resolveNewsImg($item); @endphp
                         <article class="group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col">
                             <a href="{{ route('news.show', $item->slug) }}" class="block aspect-[16/10] bg-slate-100 overflow-hidden">
-                                @if($item->image_url)
-                                    <img src="{{ $item->image_url }}"
+                                @if($imgSrc)
+                                    <img src="{{ $imgSrc }}"
                                          alt="{{ $item->title }}"
                                          loading="lazy"
                                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">

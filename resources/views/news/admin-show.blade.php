@@ -1,10 +1,19 @@
 @php
-    $focus     = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A2540]';
-    $btn       = "inline-flex items-center justify-center gap-1.5 rounded-full bg-[#eef5fb] px-3.5 py-1.5 text-xs font-semibold text-[#0A2540] transition hover:bg-[#dce8f5] $focus";
+    $focus      = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A2540]';
+    $btn        = "inline-flex items-center justify-center gap-1.5 rounded-full bg-[#eef5fb] px-3.5 py-1.5 text-xs font-semibold text-[#0A2540] transition hover:bg-[#dce8f5] $focus";
     $btnPrimary = "inline-flex items-center justify-center gap-1.5 rounded-full bg-[#0A2540] px-4 py-1.5 text-xs font-bold text-white transition hover:bg-[#13385e] $focus";
-    $btnDanger = "inline-flex items-center justify-center gap-1.5 rounded-full bg-red-50 px-3.5 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 $focus";
-    $card      = 'bg-white rounded-2xl shadow-sm border border-slate-100';
-    $pillGray  = 'inline-flex items-center rounded-full bg-[#eef5fb] px-2.5 py-0.5 text-xs font-semibold text-[#0A2540]';
+    $btnDanger  = "inline-flex items-center justify-center gap-1.5 rounded-full bg-red-50 px-3.5 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 $focus";
+    $card       = 'bg-white rounded-2xl shadow-sm border border-slate-100';
+    $pillGray   = 'inline-flex items-center rounded-full bg-[#eef5fb] px-2.5 py-0.5 text-xs font-semibold text-[#0A2540]';
+
+    $newsImgSrc = null;
+    if (!empty($news->image)) {
+        $newsImgSrc = \Illuminate\Support\Str::startsWith($news->image, ['http://', 'https://'])
+            ? $news->image
+            : \Illuminate\Support\Facades\Storage::disk('public')->url($news->image);
+    } elseif (!empty($news->image_url)) {
+        $newsImgSrc = $news->image_url;
+    }
 @endphp
 
 <x-admin-layout>
@@ -100,9 +109,9 @@
                     </div>
                 </div>
 
-                @if($news->image_url)
+                @if($newsImgSrc)
                     <div class="aspect-[16/9] rounded-2xl overflow-hidden bg-[#f6f9fc] border border-slate-100 mb-6">
-                        <img src="{{ $news->image_url }}" alt="{{ $news->title }}" class="w-full h-full object-cover">
+                        <img src="{{ $newsImgSrc }}" alt="{{ $news->title }}" class="w-full h-full object-cover">
                     </div>
                 @endif
 

@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 
 class NewsController extends Controller
 {
-    private const DISK = 'supabase-news';
+    private const DISK = 'public';
 
     /* ═══════════════════════════════════════════════
         PUBLIK
@@ -221,7 +221,7 @@ class NewsController extends Controller
         try {
             Storage::disk(self::DISK)->delete($path);
         } catch (\Throwable $e) {
-            Log::warning('Gagal menghapus gambar berita dari Supabase.', [
+            Log::warning('Gagal menghapus gambar berita dari disk public.', [
                 'path'  => $path,
                 'error' => $e->getMessage(),
             ]);

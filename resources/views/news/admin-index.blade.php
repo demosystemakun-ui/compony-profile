@@ -6,6 +6,16 @@
         return              ['dot' => 'bg-emerald-500', 'pill' => 'bg-emerald-50 text-emerald-800', 'label' => optional($date)->diffForHumans() ?? '-'];
     };
 
+    $resolveNewsImg = function ($item) {
+        if (empty($item->image)) {
+            return $item->image_url ?? null;
+        }
+        if (\Illuminate\Support\Str::startsWith($item->image, ['http://', 'https://'])) {
+            return $item->image;
+        }
+        return \Illuminate\Support\Facades\Storage::disk('public')->url($item->image);
+    };
+
     $focus     = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A2540]';
     $btn       = "inline-flex items-center justify-center rounded-full bg-[#eef5fb] px-3.5 py-1.5 text-xs font-semibold text-[#0A2540] transition hover:bg-[#dce8f5] $focus";
     $btnDanger = "inline-flex items-center justify-center rounded-full bg-red-50 px-3.5 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 $focus";
@@ -93,12 +103,15 @@
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         @forelse($newsList as $item)
-                            @php $a = $age($item->updated_at); @endphp
+                            @php
+                                $a = $age($item->updated_at);
+                                $imgSrc = $resolveNewsImg($item);
+                            @endphp
                             <tr class="hover:bg-[#f6f9fc] transition-colors">
                                 <td class="px-4 py-3">
-                                    @if($item->image_url)
+                                    @if($imgSrc)
                                         <div class="h-11 w-16 overflow-hidden rounded-xl border border-slate-200 bg-[#f6f9fc]">
-                                            <img src="{{ $item->image_url }}"
+                                            <img src="{{ $imgSrc }}"
                                                  alt="{{ $item->title }}"
                                                  class="h-full w-full object-cover"
                                                  loading="lazy">
@@ -177,12 +190,15 @@
             {{-- List (Mobile) --}}
             <ul class="md:hidden space-y-3 px-3 pb-3">
                 @forelse($newsList as $item)
-                    @php $a = $age($item->updated_at); @endphp
+                    @php
+                        $a = $age($item->updated_at);
+                        $imgSrc = $resolveNewsImg($item);
+                    @endphp
                     <li class="rounded-xl bg-[#f6f9fc] p-3.5">
                         <div class="flex items-start gap-3">
-                            @if($item->image_url)
+                            @if($imgSrc)
                                 <div class="h-14 w-20 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-white">
-                                    <img src="{{ $item->image_url }}"
+                                    <img src="{{ $imgSrc }}"
                                          alt="{{ $item->title }}"
                                          class="h-full w-full object-cover"
                                          loading="lazy">
