@@ -17,7 +17,6 @@ class AiChatController extends Controller
             'history.*.content' => 'required_with:history|string|max:1000',
         ]);
 
-        // Gunakan Groq key jika tersedia, atau fallback ke OpenRouter key
         $apiKey = config('services.groq.key') ?: config('services.openrouter.key');
 
         if (! $apiKey) {
@@ -35,6 +34,7 @@ VERIFIED PICT KNOWLEDGE BASE (use ONLY these verified facts from PICT's official
 
 1. COMPANY OVERVIEW & HISTORY (Home & About Pages):
 - Full Name: PT Patimban International Car Terminal (PICT).
+- President Director of PICT: Mr. Hiroyuki Yazawa.
 - Location: Patimban Port, Pusakanagara, Subang Regency, West Java 41255, Indonesia (approx. 120 km east of central Jakarta, within the Patimban National Strategic Project zone).
 - Official Contact Email: info@pict.co.id (users can also submit inquiries via the Contact page form on the website).
 - Vision: Becoming the best vehicle port in Asia.
@@ -85,7 +85,7 @@ VERIFIED PICT KNOWLEDGE BASE (use ONLY these verified facts from PICT's official
   - 05 Yard Management (immediate staging): Routing and parking into designated zones via Automated Yard Locator / TMS with a 20 km/h speed limit.
   - 06 Customs Clearance (varies by shipment): Submission and inspection via E-Customs portal for regulatory release.
   - 07 Distribution (on-demand gate-out): Loading onto car carriers/transporters with gate security checks.
-- Digital Tally & Terminal Operating System (TOS):
+  - Digital Tally & Terminal Operating System (TOS):
   - VIN-based parking slot allocation with zero-mismatch validation to prevent port-of-discharge grouping errors.
   - Visual body damage inspection with direct photo capture on handheld screens during ramp-down.
   - Field Device Standards: IP67 rugged industrial handhelds (dust/seawater resistant, 1.8m drop-tested for 24/7 apron use), sub-second real-time sync with TOS, and high-precision RTK GPS for exact parking slot coordinates.
@@ -157,7 +157,7 @@ PROMPT;
         $reply = trim((string) ($response->json('choices.0.message.content') ?? ''));
 
         return response()->json([
-            'reply' => $reply !== '' ? $reply : 'Maaf, tidak ada respons.',
+            'reply' => $reply !== '' ? $reply : 'Sorry, no response was received.',
         ]);
     }
 }
