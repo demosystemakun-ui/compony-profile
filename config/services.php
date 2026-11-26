@@ -14,6 +14,13 @@ return [
     |
     */
 
+    'groq' => [
+        'key' => env('GROQ_API_KEY'),
+    ],
+    'openrouter' => [
+        'key' => env('OPENROUTER_API_KEY'),
+    ],
+
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],
